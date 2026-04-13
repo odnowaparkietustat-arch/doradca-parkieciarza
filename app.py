@@ -18,19 +18,28 @@ with st.form("interview_form"):
         "Płyta fundamentowa"
     ])
     
-    # Q2 - Ogrzewanie podłogowe - Logika warunkowa
+    # Q2 - Ogrzewanie podłogowe
     st.write("2. Czy jest instalacja ogrzewania podłogowego?")
     heating_exists = st.radio("Wybierz odpowiedź:", ["TAK", "NIE"], index=1, label_visibility="collapsed")
     
-    # Lista rozwija się tylko wewnątrz formularza, jeśli użytkownik zaznaczy TAK
     heating_type = None
+    water_heating_detail = None
+    
     if heating_exists == "TAK":
-        heating_type = st.selectbox("Wybierz rodzaj ogrzewania:", [
+        heating_type = st.selectbox("Wybierz główny rodzaj ogrzewania:", [
             "Ogrzewanie wodne klasyczne", 
             "Ogrzewanie bruzdowane", 
             "Ogrzewanie elektryczne głęboko w jastrychu/pod jastrychem", 
             "Ogrzewanie elektryczne na siatce/na powierzchni jastrychu"
         ])
+        
+        # DODATKOWE PYTANIE DLA OGRZEWANIA WODNEGO
+        if heating_type == "Ogrzewanie wodne klasyczne":
+            water_heating_detail = st.selectbox("Szczegóły ogrzewania wodnego:", [
+                "Rury wewnątrz jastrychu (system standardowy)",
+                "System suchy (płyty systemowe pod jastrychem)",
+                "Inny wariant wodny"
+            ])
     
     # Q3 - Wyrównanie
     needs_levelling = st.radio("3. Czy podłoże wymaga wyrównania (masy)?", ["TAK", "NIE"], index=1)
@@ -63,6 +72,8 @@ if submit:
 
     if heating_exists == "TAK":
         st.info(f"System grzewczy: {heating_type}")
+        if water_heating_detail:
+            st.write(f"**Szczegóły:** {water_heating_detail}")
 
     # Logika Wilgotności
     if substrate == "Cementowy":
