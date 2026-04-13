@@ -44,7 +44,7 @@ cracks_meters = 0
 if cracks == "TAK":
     cracks_meters = st.number_input("Ilość metrów bieżących (mb)", min_value=0.0, step=0.5, format="%.1f")
 
-# Q5 - Ubytki (Dynamiczne)
+# Q5 - Ubytki
 holes = st.radio("5. Czy są ubytki w jastrychu?", ["TAK", "NIE"], index=1)
 hole_length, hole_width, hole_depth = 0.0, 0.0, 0.0
 
@@ -61,8 +61,22 @@ if holes == "TAK":
 # Q6 - Wilgotność
 moisture = st.number_input("6. Poziom wilgoci jastrychu (CM %)", min_value=0.0, format="%.1f")
 
-# Q7 - Wytrzymałość
-strength = st.slider("7. Wytrzymałość jastrychu (1-Słaby, 5-Mocny)", 1, 5, 3)
+# Q7 - Wytrzymałość (Zaktualizowana skala)
+st.write("7. Wytrzymałość jastrychu")
+strength_labels = {
+    1: "1 - Bardzo słaby",
+    2: "2 - Słaby",
+    3: "3 - Umiarkowanie słaby",
+    4: "4 - Umiarkowanie mocny",
+    5: "5 - Mocny"
+}
+strength = st.select_slider(
+    "Wybierz poziom wytrzymałości:",
+    options=[1, 2, 3, 4, 5],
+    value=3,
+    format_func=lambda x: strength_labels[x],
+    label_visibility="collapsed"
+)
 
 # Q8 - Warunki atmosferyczne
 temp = st.number_input("8. Temperatura powietrza (°C)", value=20)
@@ -110,9 +124,9 @@ if submit:
         st.warning(f"Zgłoszono ubytki o wymiarach: {hole_length}x{hole_width}x{hole_depth} cm.")
         st.write("**AKCJA:** Naprawa ubytków: **WAKOL Z 610**.")
 
-    # 4. Wytrzymałość
-    if strength <= 2:
-        st.warning("Niska wytrzymałość podłoża.")
+    # 4. Wytrzymałość (Logika dla słabych podłoży)
+    if strength <= 3:
+        st.warning(f"Zdiagnozowano wytrzymałość: {strength_labels[strength]}")
         st.write("**REKOMENDACJA:** Wzmocnienie żywicą **WAKOL PU 280** lub zastosowanie maty odcinającej **WAKOL EM 140**.")
 
     st.success("Analiza techniczna zakończona.")
