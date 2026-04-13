@@ -94,4 +94,4 @@ if submit:
         st.warning("Niska wytrzymałość podłoża.")
         st.write("**REKOMENDACJA:** Wzmocnienie żywicą **WAKOL PU 280** lub zastosowanie maty odcinającej **WAKOL EM 140**.")
 
-    st.success("Analiza techniczna zakończona."))
+    st.success("Analiza techniczna zakończona.")
