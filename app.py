@@ -7,7 +7,7 @@ st.subheader("Wywiad Techniczny wg Twoich Wytycznych")
 
 # --- MODUŁ WYWIADU (8 PYTAŃ) ---
 with st.form("interview_form"):
-    # Q1 - Zaktualizowana lista podłoży zgodnie z Twoją instrukcją
+    # Q1 - Rodzaj podłoża
     substrate = st.selectbox("1. Rodzaj podłoża", [
         "Cementowy", 
         "Anhydrytowy", 
@@ -18,27 +18,37 @@ with st.form("interview_form"):
         "Płyta fundamentowa"
     ])
     
-    # Q2
-    heating = st.radio("2. Czy jest instalacja ogrzewania podłogowego?", ["TAK", "NIE"])
+    # Q2 - Ogrzewanie podłogowe z rozszerzoną listą
+    heating_exists = st.radio("2. Czy jest instalacja ogrzewania podłogowego?", ["TAK", "NIE"])
     
-    # Q3
+    heating_type = None
+    if heating_exists == "TAK":
+        heating_type = st.selectbox("Typ ogrzewania podłogowego", [
+            "Ogrzewanie wodne klasyczne", 
+            "Ogrzewanie bruzdowane", 
+            "Ogrzewanie elektryczne głęboko w jastrychu/pod jastrychem", 
+            "Ogrzewanie elektryczne na siatce/na powierzchni jastrychu"
+        ])
+    
+    # Q3 - Wyrównanie
     needs_levelling = st.radio("3. Czy podłoże wymaga wyrównania (masy)?", ["TAK", "NIE"])
+    thickness = 0
     if needs_levelling == "TAK":
         thickness = st.number_input("Podaj planowaną grubość masy (mm)", min_value=0, value=0)
     
-    # Q4
+    # Q4 - Spękania
     cracks = st.radio("4. Czy są spękania i ruchome dylatacje?", ["TAK", "NIE"])
     
-    # Q5
-    holes = st.radio("5. Czy są ubytki i jastrychu?", ["TAK", "NIE"])
+    # Q5 - Ubytki
+    holes = st.radio("5. Czy są ubytki w jastrychu?", ["TAK", "NIE"])
     
-    # Q6
+    # Q6 - Wilgotność
     moisture = st.number_input("6. Poziom wilgoci jastrychu (CM %)", min_value=0.0, format="%.1f")
     
-    # Q7
+    # Q7 - Wytrzymałość
     strength = st.slider("7. Wytrzymałość jastrychu (1-Słaby, 5-Mocny)", 1, 5, 3)
     
-    # Q8
+    # Q8 - Warunki atmosferyczne
     temp = st.number_input("8. Temperatura powietrza (°C)", value=20)
     humidity = st.number_input("8. Wilgotność powietrza (%)", value=50)
 
@@ -49,17 +59,17 @@ if submit:
     st.divider()
     st.header("📋 Rekomendacja Techniczna")
 
-    # Logika Wilgotności
+    # Logika Wilgotności (Biorąc pod uwagę ogrzewanie)
     if substrate == "Cementowy":
-        limit = 1.5 if heating == "TAK" else 1.8
+        limit = 1.5 if heating_exists == "TAK" else 1.8
         if moisture > limit:
-            st.error(f"PRZEKROCZONA WILGOTNOŚĆ! (Norma: {limit}% CM)")
+            st.error(f"PRZEKROCZONA WILGOTNOŚĆ! (Norma dla {substrate}: {limit}% CM)")
             st.write("**WYMÓG:** Zastosuj barierę WAKOL PU 280 (2 warstwy).")
             
     if substrate == "Anhydrytowy":
-        limit = 0.3 if heating == "TAK" else 0.5
+        limit = 0.3 if heating_exists == "TAK" else 0.5
         if moisture > limit:
-            st.error(f"PRZEKROCZONA WILGOTNOŚĆ! (Norma: {limit}% CM)")
+            st.error(f"PRZEKROCZONA WILGOTNOŚĆ! (Norma dla {substrate}: {limit}% CM)")
             st.write("**WYMÓG:** Zastosuj barierę WAKOL PU 280.")
 
     # Logika Masy na Anhydrycie
@@ -69,6 +79,10 @@ if submit:
     elif substrate == "Anhydrytowy" and needs_levelling == "TAK" and thickness <= 5:
         st.info("Grubość masy do 5mm na anhydrycie.")
         st.write("**SYSTEM:** Można użyć WAKOL D 3004 (po szlifowaniu i odpyleniu).")
+
+    # Wyświetlenie typu ogrzewania w podsumowaniu
+    if heating_exists == "TAK":
+        st.write(f"**Wybrany system grzewczy:** {heating_type}")
 
     # Logika Mechaniczna
     if cracks == "TAK":
