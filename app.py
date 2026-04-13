@@ -7,8 +7,16 @@ st.subheader("Wywiad Techniczny wg Twoich Wytycznych")
 
 # --- MODUŁ WYWIADU (8 PYTAŃ) ---
 with st.form("interview_form"):
-    # Q1
-    substrate = st.selectbox("1. Rodzaj podłoża", ["Cementowy", "Anhydrytowy", "OSB/MFP", "Stary Lepik"])
+    # Q1 - Zaktualizowana lista podłoży zgodnie z Twoją instrukcją
+    substrate = st.selectbox("1. Rodzaj podłoża", [
+        "Cementowy", 
+        "Anhydrytowy", 
+        "Inny mineralny (masa szpachlowa)", 
+        "OSB", 
+        "Parkiet/deski", 
+        "Płytki ceramiczne", 
+        "Płyta fundamentowa"
+    ])
     
     # Q2
     heating = st.radio("2. Czy jest instalacja ogrzewania podłogowego?", ["TAK", "NIE"])
@@ -22,7 +30,7 @@ with st.form("interview_form"):
     cracks = st.radio("4. Czy są spękania i ruchome dylatacje?", ["TAK", "NIE"])
     
     # Q5
-    holes = st.radio("5. Czy są ubytki w jastrychu?", ["TAK", "NIE"])
+    holes = st.radio("5. Czy są ubytki i jastrychu?", ["TAK", "NIE"])
     
     # Q6
     moisture = st.number_input("6. Poziom wilgoci jastrychu (CM %)", min_value=0.0, format="%.1f")
@@ -36,12 +44,12 @@ with st.form("interview_form"):
 
     submit = st.form_submit_button("GENERUJ SYSTEM POSTĘPOWANIA")
 
-# --- LOGIKA DECYZYJNA (TWOJE ZASADY) ---
+# --- LOGIKA DECYZYJNA ---
 if submit:
     st.divider()
     st.header("📋 Rekomendacja Techniczna")
 
-    # Logika Wilgotności (Q6 + Q2 + Q1)
+    # Logika Wilgotności
     if substrate == "Cementowy":
         limit = 1.5 if heating == "TAK" else 1.8
         if moisture > limit:
@@ -54,7 +62,7 @@ if submit:
             st.error(f"PRZEKROCZONA WILGOTNOŚĆ! (Norma: {limit}% CM)")
             st.write("**WYMÓG:** Zastosuj barierę WAKOL PU 280.")
 
-    # Logika Masy na Anhydrycie (Q3 + Q1)
+    # Logika Masy na Anhydrycie
     if substrate == "Anhydrytowy" and needs_levelling == "TAK" and thickness > 5:
         st.error("UWAGA: Grubość masy powyżej 5mm na anhydrycie!")
         st.write("**SYSTEM:** ZAKAZ D 3004. Obowiązkowo WAKOL PU 280 + zasyp piaskiem kwarcowym.")
@@ -62,16 +70,16 @@ if submit:
         st.info("Grubość masy do 5mm na anhydrycie.")
         st.write("**SYSTEM:** Można użyć WAKOL D 3004 (po szlifowaniu i odpyleniu).")
 
-    # Logika Mechaniczna (Q4, Q5, Q7)
+    # Logika Mechaniczna
     if cracks == "TAK":
         st.warning("Wykryto spękania.")
         st.write("**AKCJA:** Klamrowanie żywicą WAKOL PS 205 + klamry stalowe.")
     
     if holes == "TAK":
-        st.write("**AKCJA:** Uzupełnienie ubytków szybką zaprawą (np. WAKOL Z 610).")
+        st.write("**AKCJA:** Uzupełnienie ubytków szybką zaprawą.")
 
     if strength <= 2:
         st.warning("Słabe podłoże.")
         st.write("**REKOMENDACJA:** Rozważ wzmocnienie PU 280 lub użycie maty WAKOL EM 140.")
 
-    st.success("Wywiad zakończony. Postępuj zgodnie z powyższą listą.")
+    st.success("Wywiad zakończony.")
