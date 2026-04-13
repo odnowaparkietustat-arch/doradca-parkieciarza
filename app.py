@@ -23,23 +23,16 @@ st.write("2. Czy jest instalacja ogrzewania podłogowego?")
 heating_exists = st.radio("Wybierz odpowiedź:", ["TAK", "NIE"], index=1, label_visibility="collapsed")
 
 heating_type = None
-water_heating_detail = None
 
-# To pytanie pojawi się NATYCHMIAST po zaznaczeniu TAK, bez klikania przycisku
+# Lista pojawia się natychmiast po zaznaczeniu TAK
 if heating_exists == "TAK":
     heating_type = st.selectbox("Wybierz główny rodzaj ogrzewania:", [
         "Ogrzewanie wodne klasyczne", 
         "Ogrzewanie bruzdowane", 
+        "Ogrzewanie w suchej zabudowie",
         "Ogrzewanie elektryczne głęboko w jastrychu/pod jastrychem", 
         "Ogrzewanie elektryczne na siatce/na powierzchni jastrychu"
     ])
-    
-    if heating_type == "Ogrzewanie wodne klasyczne":
-        water_heating_detail = st.selectbox("Szczegóły ogrzewania wodnego:", [
-            "Rury wewnątrz jastrychu (system standardowy)",
-            "System suchy (płyty systemowe pod jastrychem)",
-            "Inny wariant wodny"
-        ])
 
 # Q3 - Wyrównanie (Dynamiczne)
 needs_levelling = st.radio("3. Czy podłoże wymaga wyrównania (masy)?", ["TAK", "NIE"], index=1)
@@ -55,7 +48,7 @@ strength = st.slider("7. Wytrzymałość jastrychu (1-Słaby, 5-Mocny)", 1, 5, 3
 temp = st.number_input("8. Temperatura powietrza (°C)", value=20)
 humidity = st.number_input("8. Wilgotność powietrza (%)", value=50)
 
-# Przycisk generowania jest teraz poza formularzem
+# Przycisk generowania
 submit = st.button("GENERUJ SYSTEM POSTĘPOWANIA")
 
 # --- LOGIKA DECYZYJNA ---
@@ -65,8 +58,6 @@ if submit:
 
     if heating_exists == "TAK":
         st.info(f"System grzewczy: {heating_type}")
-        if water_heating_detail:
-            st.write(f"**Wariant:** {water_heating_detail}")
 
     # 1. Logika Wilgotności
     if substrate == "Cementowy":
@@ -103,4 +94,4 @@ if submit:
         st.warning("Niska wytrzymałość podłoża.")
         st.write("**REKOMENDACJA:** Wzmocnienie żywicą **WAKOL PU 280** lub zastosowanie maty odcinającej **WAKOL EM 140**.")
 
-    st.success("Analiza techniczna zakończona.")
+    st.success("Analiza techniczna zakończona."))
