@@ -38,14 +38,25 @@ thickness = 0
 if needs_levelling == "TAK":
     thickness = st.number_input("Podaj planowaną grubość masy (mm)", min_value=0, value=0)
 
-# Q4 - Spękania (Dynamiczne)
+# Q4 - Spękania
 cracks = st.radio("4. Czy są spękania i ruchome dylatacje?", ["TAK", "NIE"], index=1)
 cracks_meters = 0
 if cracks == "TAK":
-    cracks_meters = st.number_input("Podaj ilość metrów bieżących spękań (mb)", min_value=0.0, step=0.5, format="%.1f")
+    cracks_meters = st.number_input("Ilość metrów bieżących (mb)", min_value=0.0, step=0.5, format="%.1f")
 
-# Q5 - Ubytki
+# Q5 - Ubytki (Dynamiczne)
 holes = st.radio("5. Czy są ubytki w jastrychu?", ["TAK", "NIE"], index=1)
+hole_length, hole_width, hole_depth = 0.0, 0.0, 0.0
+
+if holes == "TAK":
+    st.write("Podaj średnie wymiary ubytków (cm):")
+    col1, col2, col3 = st.columns(3)
+    with col1:
+        hole_length = st.number_input("Długość", min_value=0.0, format="%.1f")
+    with col2:
+        hole_width = st.number_input("Szerokość", min_value=0.0, format="%.1f")
+    with col3:
+        hole_depth = st.number_input("Głębokość", min_value=0.0, format="%.1f")
 
 # Q6 - Wilgotność
 moisture = st.number_input("6. Poziom wilgoci jastrychu (CM %)", min_value=0.0, format="%.1f")
@@ -90,12 +101,13 @@ if submit:
             st.info("Grubość masy do 5mm na anhydrycie.")
             st.write("**SYSTEM:** Gruntowanie: **WAKOL D 3004** (po szlifowaniu i odpyleniu).")
 
-    # 3. Mechanika (Spękania)
+    # 3. Mechanika (Spękania i Ubytki)
     if cracks == "TAK":
         st.warning(f"Wykryto spękania lub ruchome dylatacje ({cracks_meters} mb).")
         st.write("**AKCJA:** Szycie podłoża: **WAKOL PS 205 + klamry stalowe**.")
     
     if holes == "TAK":
+        st.warning(f"Zgłoszono ubytki o wymiarach: {hole_length}x{hole_width}x{hole_depth} cm.")
         st.write("**AKCJA:** Naprawa ubytków: **WAKOL Z 610**.")
 
     # 4. Wytrzymałość
