@@ -61,7 +61,7 @@ if holes == "TAK":
 # Q6 - Wilgotność
 moisture = st.number_input("6. Poziom wilgoci jastrychu (CM %)", min_value=0.0, format="%.1f")
 
-# Q7 - Wytrzymałość (Zaktualizowana skala)
+# Q7 - Wytrzymałość
 st.write("7. Wytrzymałość jastrychu")
 strength_labels = {
     1: "1 - Bardzo słaby",
@@ -78,9 +78,13 @@ strength = st.select_slider(
     label_visibility="collapsed"
 )
 
-# Q8 - Warunki atmosferyczne
-temp = st.number_input("8. Temperatura powietrza (°C)", value=20)
-humidity = st.number_input("8. Wilgotność powietrza (%)", value=50)
+# NOWY PUNKT: Rodzaj wentylacji
+st.write("8. Rodzaj wentylacji")
+ventilation = st.radio("Wybierz rodzaj wentylacji:", ["Grawitacyjna", "Mechaniczna (Rekuperacja)"], index=0, label_visibility="collapsed")
+
+# Q9 (dawniej 8) - Warunki atmosferyczne
+temp = st.number_input("9. Temperatura powietrza (°C)", value=20)
+humidity = st.number_input("9. Wilgotność powietrza (%)", value=50)
 
 # Przycisk generowania
 submit = st.button("GENERUJ SYSTEM POSTĘPOWANIA")
@@ -92,6 +96,8 @@ if submit:
 
     if heating_exists == "TAK":
         st.info(f"System grzewczy: {heating_type}")
+    
+    st.write(f"**Rodzaj wentylacji:** {ventilation}")
 
     # 1. Logika Wilgotności
     if substrate == "Cementowy":
@@ -124,9 +130,16 @@ if submit:
         st.warning(f"Zgłoszono ubytki o wymiarach: {hole_length}x{hole_width}x{hole_depth} cm.")
         st.write("**AKCJA:** Naprawa ubytków: **WAKOL Z 610**.")
 
-    # 4. Wytrzymałość (Logika dla słabych podłoży)
+    # 4. Wytrzymałość
     if strength <= 3:
         st.warning(f"Zdiagnozowano wytrzymałość: {strength_labels[strength]}")
         st.write("**REKOMENDACJA:** Wzmocnienie żywicą **WAKOL PU 280** lub zastosowanie maty odcinającej **WAKOL EM 140**.")
 
     st.success("Analiza techniczna zakończona.")
+
+
+
+
+
+
+
