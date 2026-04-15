@@ -3,7 +3,7 @@ from datetime import date
 
 st.set_page_config(page_title="Ekspert Parkieciarski WAKOL", layout="centered")
 
-# --- DANE IDENTYFIKACYJNE (Zgodnie z tabelą wzorcową) ---
+# --- DANE IDENTYFIKACYJNE ---
 st.title("📄 Generator Protokołu Oględzin WAKOL")
 
 with st.container():
@@ -19,7 +19,7 @@ with st.container():
 
 st.divider()
 
-# --- DYNAMICZNY WYWIAD TECHNICZNY ---
+# --- WYWIAD TECHNICZNY ---
 substrate = st.selectbox("1. Rodzaj podłoża", ["jastrych cementowy", "jastrych anhydrytowy", "podłoże drewniane", "płytki ceramiczne"])
 
 st.write("2. Czy jest instalacja ogrzewania podłogowego?")
@@ -57,16 +57,16 @@ humidity = st.number_input("9. Wilgotność powietrza (%)", 50)
 if st.button("GENERUJ PROTOKÓŁ OGLĘDZIN"):
     st.divider()
     
-    # Logika statusów [cite: 33, 34, 95, 96]
+    # Logika statusów
     limit = 1.5 if heating_exists == "TAK" else 1.8
     m_status = "POZYTYWNY" if moisture <= limit else "NEGATYWNY (Wymagana bariera)"
     s_status = "Pozytywna" if strength_val >= 4 else "Dostateczna" if strength_val == 3 else "Negatywna"
 
-    # --- WZORZEC PROTOKOŁU (Zgodnie z plikiem PDF/DOCX) ---
+    # --- WZORZEC PROTOKOŁU ---
     st.markdown(f"""
     ### **Loba-Wakol Polska Sp. z o.o.**
     Sławęcińska 16, Macierzysz | 05-850 Ożarów Mazowiecki  
-    **Data:** {data_badania.strftime('%d.%m.%Y')} | **Autor:** {autor} | **Strona:** 1 z 1
+    **Data:** {data_badania.strftime('%d.%m.%Y')} | **Autor:** {autor}
     
     **Dotyczy:** Protokół z oględzin inwestycji w budynku przy {adres} w miejscowości {miejscowosc}.
     
@@ -75,59 +75,59 @@ if st.button("GENERUJ PROTOKÓŁ OGLĘDZIN"):
     W dniu {data_badania.strftime('%d.%m.%Y')}r. w budynku przy {adres} w miejscowości {miejscowosc} dokonano wstępnych oględzin i pomiarów wytrzymałości podłoża ({substrate}) oraz pomiaru wilgotności podłoża przed przyklejeniem okładziny warstwowej.
     
     #### **I. Oględziny i badania**
-    **a) oględziny optyczne** [cite: 7, 78]
-    Podłoże stanowi {substrate}. {"Brak instalacji ogrzewania podłogowego." if heating_exists == "NIE" else "Stwierdzono instalację ogrzewania podłogowego ("+heating_type+")."} [cite: 8, 79]
-    {"Jastrych posiada spękania/klawiszowanie w ilości " + str(cracks_meters) + " mb." if cracks == "TAK" else "Jastrych bez widocznych spękań."} [cite: 8, 79]
-    {"Konieczne jest wyrównanie za pomocą masy samorozlewnej." if needs_levelling == "TAK" else ""} [cite: 9, 80]
+    **a) oględziny optyczne**
+    Podłoże stanowi {substrate}. {"Brak instalacji ogrzewania podłogowego." if heating_exists == "NIE" else "Stwierdzono instalację ogrzewania podłogowego ("+heating_type+")."}
+    {"Jastrych posiada spękania/klawiszowanie w ilości " + str(cracks_meters) + " mb." if cracks == "TAK" else "Jastrych bez widocznych spękań."}
+    {"Konieczne jest wyrównanie za pomocą masy samorozlewnej." if needs_levelling == "TAK" else ""}
     
-    **b) badanie wytrzymałości** [cite: 11, 82]
-    * próba młotkiem – {s_status} [cite: 12, 83]
-    * próba szczotką drucianą – {s_status} [cite: 13, 84]
-    * próba rysikiem – {s_status} 
+    **b) badanie wytrzymałości**
+    * próba młotkiem – {s_status}
+    * próba szczotką drucianą – {s_status}
+    * próba rysikiem – {s_status}
     * Ocena ogólna: **{strength_labels[strength_val]}**
     
-    **c) test chłonności podłoża** – po przeszlifowaniu chłonne[cite: 14, 86].
+    **c) test chłonności podłoża** – po przeszlifowaniu chłonne.
     
-    **d) badanie wilgotności podłoża:** [cite: 28, 90]
-    Zmierzono metodą opartą na stałej dielektrycznej za pomocą urządzenia Gann Compact B[cite: 29, 91], która dała wynik:
-    **{moisture} % CM – {m_status}**[cite: 30, 92].
+    **d) badanie wilgotności podłoża:**
+    Zmierzono metodą opartą na stałej dielektrycznej za pomocą urządzenia Gann Compact B, która dała wynik:
+    **{moisture} % CM – {m_status}**.
     
-    **e) wilgotność i temperatura powietrza:** [cite: 31, 93]
-    **{humidity}% / {temp}°C** [cite: 32, 94]
+    **e) wilgotność i temperatura powietrza:**
+    **{humidity}% / {temp}°C**
     
-    *Aby bezpiecznie kleić podłogę drewnianą na jastrychu cementowym, jego wytrzymałość na ścinanie musi wynosić między 1,5 a 2,0 N/mm² a wilgotność nie może przekraczać 1,8% CM (z ogrzewaniem podłogowym max. 1,5% CM)*[cite: 33, 34, 95, 96].
+    *Aby bezpiecznie kleić podłogę drewnianą na jastrychu cementowym, jego wytrzymałość na ścinanie musi wynosić między 1,5 a 2,0 N/mm² a wilgotność nie może przekraczać 1,8% CM (z ogrzewaniem podłogowym max. 1,5% CM)*.
     
-    #### **II. Zalecenia techniczne** [cite: 35, 97]
-    Biorąc pod uwagę w/w wyniki badań oraz klejone elementy, zaleca się: [cite: 36, 98]
+    #### **II. Zalecenia techniczne**
+    Biorąc pod uwagę w/w wyniki badań oraz klejone elementy, zaleca się:
     
-    **a) przygotowanie podłoża:** [cite: 37, 99]
-    * Szlif podłoża w celu usunięcia wierzchniej warstwy i uzyskania porowatej i chłonnej powierzchni[cite: 38, 100].
-    * Dokładne odkurzenie[cite: 39, 101].
+    **a) przygotowanie podłoża:**
+    * Szlif podłoża w celu usunięcia wierzchniej warstwy i uzyskania porowatej i chłonnej powierzchni.
+    * Dokładne odkurzenie.
     
-    **b) naprawa i wzmocnienie podłoża:** [cite: 40, 102]
+    **b) naprawa i wzmocnienie podłoża:**
     """)
 
-    # Logika produktowa na podstawie wyników [cite: 42, 44, 46, 103, 105, 107]
     if cracks == "TAK":
-        st.write(f"* Klawiszujące fragmenty ({cracks_meters} mb) zespolić żywicą laną **WAKOL PS 205**[cite: 42, 103]. Wymieszaną żywicę wlewać w pęknięcia, nadmiar zgarnąć lub zatrzeć[cite: 43, 104].")
+        st.write(f"* Klawiszujące fragmenty ({cracks_meters} mb) zespolić żywicą laną **WAKOL PS 205**. Wymieszaną żywicę wlewać w pęknięcia, nadmiar zgarnąć lub zatrzeć.")
     
     if strength_val <= 3:
         st.write("* **Wzmocnienie:** Z uwagi na umiarkowanie słabe podłoże, zastosować wzmocnienie żywicą **WAKOL PU 280** lub matę odcinającą **WAKOL EM 140**.")
 
     if moisture > limit:
-        st.write(f"* **Bariera wilgoci:** Zastosować **WAKOL PU 280** (2 warstwy) z uwagi na przekroczenie normy ({moisture}% CM przy limicie {limit}%)[cite: 46, 107].")
+        st.write(f"* **Bariera wilgoci:** Zastosować **WAKOL PU 280** (2 warstwy) z uwagi na przekroczenie normy ({moisture}% CM przy limicie {limit}%).")
     else:
-        st.write("* Podłoże zagruntować koncentratem gruntówki dyspersyjnej **WAKOL D 3004**[cite: 44, 105]. Proporcje: 1:1 z wodą[cite: 44, 105].")
+        st.write("* Podłoże zagruntować koncentratem gruntówki dyspersyjnej **WAKOL D 3004**. Proporcje: 1:1 z wodą.")
 
     if needs_levelling == "TAK":
-        st.write("* Zastosować system: mata **WAKOL AR 150** + masa **WAKOL Z 645** z plastyfikatorem **WAKOL D 3060**[cite: 46, 107]. Następnie wylać masę **WAKOL Z 635**[cite: 48, 109].")
+        st.write("* Zastosować system: mata **WAKOL AR 150** + masa **WAKOL Z 645** z plastyfikatorem **WAKOL D 3060**. Następnie wylać masę **WAKOL Z 635**.")
 
     st.markdown(f"""
-    **c) klejenie desek:** [cite: 61, 116]
-    * Klejenie podłogi drewnianej należy przeprowadzić przy użyciu kleju **WAKOL MS 230** (szpachla B11, zużycie: 1250 g/m²)[cite: 62, 117].
+    **c) klejenie desek:**
+    * Klejenie podłogi drewnianej należy przeprowadzić przy użyciu kleju **WAKOL MS 230** (szpachla B11, zużycie: 1250 g/m²).
     
     ---
-    *Prosimy o zapoznanie się z kartami technicznymi zalecanych produktów WAKOL. Podstawą naszego zalecenia jest stosowanie materiałów firmy WAKOL w podanej kolejności, przestrzegając reguł rzemiosła i norm*[cite: 63, 64, 118, 119].
+    *Prosimy o zapoznanie się z kartami technicznymi zalecanych produktów WAKOL. Podstawą naszego zalecenia jest stosowanie materiałów firmy WAKOL w podanej kolejności, przestrzegając reguł rzemiosła i norm*.
     
-    **Z poważaniem,** **Loba-Wakol Polska Sp. z o.o.** **{autor}** Kontakt: 603 214 218 [cite: 65, 120]
+    **Z poważaniem,** **Loba-Wakol Polska Sp. z o.o.** **{autor}**
     """)
+    
