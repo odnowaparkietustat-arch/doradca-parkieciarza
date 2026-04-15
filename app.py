@@ -3,7 +3,7 @@ from datetime import date
 
 st.set_page_config(page_title="Ekspert Parkieciarski WAKOL", layout="centered")
 
-# --- DANE IDENTYFIKACYJNE ---
+# --- DANE IDENTYFIKACYJNE (PRZYWRÓCONE I ZACHOWANE) ---
 st.title("📄 Generator Protokołu Oględzin WAKOL")
 
 with st.container():
@@ -13,9 +13,9 @@ with st.container():
         miejscowosc = st.text_input("Miejscowość", "Huta Dłutowska")
         adres = st.text_input("Ulica i nr", "ul. Pabianicka 15")
     with col2:
+        klient = st.text_input("Szanowni Państwo (Klient)", "Stylowe Wnętrza")
         autor = st.text_input("Autor protokołu", "Przemysław Tyszko")
         data_badania = st.date_input("Data badania", date.today())
-        klient = st.text_input("Szanowni Państwo (Klient)", "Stylowe Wnętrza")
 
 st.divider()
 
@@ -36,14 +36,10 @@ heating_exists = st.radio("Ogrzewanie:", ["TAK", "NIE"], index=1, horizontal=Tru
 
 heating_info = ""
 heating_cured = None
-
 if heating_exists == "TAK":
     h_type = st.selectbox("Typ ogrzewania:", ["wodne klasyczne", "bruzdowane", "w suchej zabudowie", "elektryczne"])
-    if h_type in ["wodne klasyczne", "elektryczne"]:
-        heating_info = h_type
-        heating_cured = st.radio("Czy przeprowadzono proces wygrzewania?", ["TAK", "NIE"], index=1, horizontal=True)
-    else:
-        heating_info = h_type
+    heating_info = h_type
+    heating_cured = st.radio("Czy przeprowadzono proces wygrzewania?", ["TAK", "NIE"], index=1, horizontal=True)
 
 needs_levelling = st.radio("4. Czy podłoże wymaga wyrównania (masy)?", ["TAK", "NIE"], index=1, horizontal=True)
 
@@ -52,18 +48,12 @@ cracks_meters = 0
 if cracks == "TAK":
     cracks_meters = st.number_input("Ilość metrów bieżących (mb)", 0.0, step=0.5)
 
-st.write("6. Czy są ubytki w jastrychu bądź niestabilne zdegradowane fragmenty wymagające skucia i uzupełnienia?")
-holes = st.radio("Ubytki/Degradacja:", ["TAK", "NIE"], index=1, horizontal=True, label_visibility="collapsed")
-h_dim = {"l":0.0, "w":0.0, "d":0.0}
-if holes == "TAK":
-    c1, c2, c3 = st.columns(3)
-    h_dim["l"] = c1.number_input("Długość", 0.0)
-    h_dim["w"] = c2.number_input("Szerokość", 0.0)
-    h_dim["d"] = c3.number_input("Głębokość", 0.0)
+st.write("6. Czy są ubytki lub degradacja podłoża?")
+holes = st.radio("Ubytki:", ["TAK", "NIE"], index=1, horizontal=True)
 
-moisture = st.number_input(f"7. Poziom wilgoci podłoża: {substrate} (CM %)", 0.0, format="%.1f")
+moisture = st.number_input(f"7. Poziom wilgoci podłoża (CM %)", 0.0, format="%.1f")
 
-# Określenie normy dla logiki
+# Logika norm i decyzji
 if substrate == "jastrych anhydrytowy":
     limit = 0.3 if heating_exists == "TAK" else 0.5
 else:
@@ -71,66 +61,70 @@ else:
 
 decision_after_cure = None
 if heating_cured == "TAK" and moisture > limit:
-    st.info("💡 Proces wygrzewania został przeprowadzony, ale wilgotność jest nadal ponadnormatywna.")
-    decision_after_cure = st.radio(
-        "Wybierz dalszy sposób postępowania:",
-        ["Kolejny proces wygrzewania", "Wykonanie bariery przeciwwilgociowej"],
-        horizontal=True
-    )
+    st.info("💡 Wilgotność ponadnormatywna mimo wygrzewania.")
+    decision_after_cure = st.radio("Dalsze postępowanie:", ["Kolejny proces wygrzewania", "Wykonanie bariery przeciwwilgociowej"], horizontal=True)
 
 st.write("8. Wytrzymałość jastrychu / płyty")
-strength_labels = {1:"Bardzo słaby", 2:"Słaby", 3:"Umiarkowanie słaby", 4:"Umiarkowanie mocny", 5:"Mocny"}
-strength_val = st.select_slider("Skala:", options=[1, 2, 3, 4, 5], value=3, format_func=lambda x: strength_labels[x])
+strength_val = st.select_slider("Skala wytrzymałości:", options=[1, 2, 3, 4, 5], value=3, 
+                                format_func=lambda x: {1:"Bardzo słaby", 2:"Słaby", 3:"Umiarkowany", 4:"Mocny", 5:"Bardzo mocny"}[x])
 
-ventilation_type = st.radio("9. Rodzaj wentylacji:", ["Grawitacyjna", "Mechaniczna (Rekuperacja)"], horizontal=True)
+ventilation_type = st.radio("9. Rodzaj wentylacji:", ["Grawitacyjna", "Mechaniczna"], horizontal=True)
 temp = st.number_input("10. Temperatura powietrza (°C)", 20)
 humidity = st.number_input("10. Wilgotność powietrza (%)", 50)
 
-# --- PRZYCISK GENEROWANIA ---
+# --- GENEROWANIE ---
 if st.button("GENERUJ PROTOKÓŁ OGLĘDZIN"):
     st.divider()
     
     m_status = "POZYTYWNY" if moisture <= limit else "NEGATYWNY"
+    s_labels = {1:"Bardzo słaby", 2:"Słaby", 3:"Umiarkowanie słaby", 4:"Mocny", 5:"Bardzo mocny"}
     s_status = "pozytywna" if strength_val >= 4 else "dostateczna" if strength_val == 3 else "negatywna"
 
-    st.markdown(f"### **Loba-Wakol Polska Sp. z o.o.**")
-    st.write(f"**Data:** {data_badania.strftime('%d.%m.%Y')} | **Autor:** {autor}")
+    # --- PEŁNY NAGŁÓWEK ---
+    st.markdown("### **Loba-Wakol Polska Sp. z o.o.**")
+    st.write(f"Sławęcińska 16, Macierzysz | 05-850 Ożarów Mazowiecki")
+    st.write(f"**Data badania:** {data_badania.strftime('%d.%m.%Y')} | **Autor:** {autor}")
+    st.write(f"**Inwestycja:** {inwestycja}, {adres}, {miejscowosc}")
+    st.write(f"**Szanowni Państwo:** {klient}")
     
-    st.markdown(f"#### **I. Oględziny i badania**")
-    st.write(f"**Podłoże:** {substrate}. Ogrzewanie: {heating_info if heating_exists == 'TAK' else 'Brak'}.")
-    st.write(f"**Badanie wilgotności:** {moisture} % CM (Norma: {limit} % CM) - Status: {m_status}")
+    st.markdown(f"**Dotyczy:** Protokół z oględzin inwestycji w budynku przy {adres} w miejscowości {miejscowosc}.")
 
-    st.markdown(f"#### **II. Zalecenia techniczne**")
+    # --- SEKCJA I: OGLĘDZINY (Z WYTRZYMAŁOŚCIĄ) ---
+    st.markdown("#### **I. Oględziny i badania**")
+    st.write(f"**a) oględziny optyczne:** Podłoże stanowi {substrate}. Ogrzewanie: {heating_info if heating_exists == 'TAK' else 'Brak'}.")
+    if heating_cured: st.write(f"**Proces wygrzewania:** {heating_cured}")
     
-    # --- PUNKT A: PRZYGOTOWANIE PODŁOŻA ---
+    st.write(f"**b) badanie wytrzymałości:**")
+    st.write(f"* Próba młotkiem: {s_status} | Próba szczotką drucianą: {s_status} | Próba rysikiem: {s_status}")
+    st.write(f"* Ocena ogólna wytrzymałości: **{s_labels[strength_val]}**")
+    
+    st.write(f"**c) badanie wilgotności:** Wynik **{moisture} % CM** (Norma: {limit} % CM) - Status: **{m_status}**")
+    st.write(f"**d) warunki:** {temp}°C / {humidity}% RH. Wentylacja: {ventilation_type}.")
+
+    # --- SEKCJA II: ZALECENIA ---
+    st.markdown("#### **II. Zalecenia techniczne**")
+    
     st.write("**a) przygotowanie podłoża:**")
     st.write("* Szlif podłoża w celu usunięcia mleczka i otwarcia porów, dokładne odkurzenie.")
     if decision_after_cure == "Kolejny proces wygrzewania":
         st.write(f"* **Zalecamy doprowadzenie do normatywnego poziomu wilgoci ({limit}% CM) poprzez przeprowadzenie kolejnego procesu wygrzewania.**")
 
-    # --- PUNKT B: NAPRAWA I WZMOCNIENIE ---
     st.write("**b) naprawa i wzmocnienie podłoża:**")
-    
-    # Nagłówek sekcji B przy ponownym wygrzewaniu
     if decision_after_cure == "Kolejny proces wygrzewania":
         st.write(f"* **Po doprowadzeniu do normatywnego poziomu wilgoci w jastrychu, to jest {limit}% CM, zalecamy:**")
     
-    # Szczegółowe zalecenia naprawcze
-    if cracks == "TAK":
-        st.write(f"    * Zespolenie spękań żywicą **WAKOL PS 205**.")
-    if holes == "TAK":
-        st.write(f"    * Uzupełnienie ubytków zaprawą **WAKOL Z 610**.")
-    if strength_val <= 3:
-        st.write(f"    * Wzmocnienie podłoża żywicą **WAKOL PU 280**.")
+    if cracks == "TAK": st.write(f"    * Zespolenie spękań żywicą **WAKOL PS 205**.")
+    if holes == "TAK": st.write(f"    * Uzupełnienie ubytków zaprawą **WAKOL Z 610**.")
+    if strength_val <= 3: st.write(f"    * Wzmocnienie podłoża żywicą **WAKOL PU 280**.")
     
-    # Logika dla bariery lub standardowego gruntowania
-    if moisture > limit:
-        if decision_after_cure == "Wykonanie bariery przeciwwilgociowej":
-            st.write("* Wykonanie bariery przeciwwilgociowej żywicą **WAKOL PU 280** (2 warstwy).")
+    if moisture > limit and decision_after_cure == "Wykonanie bariery przeciwwilgociowej":
+        st.write("* Wykonanie bariery przeciwwilgociowej żywicą **WAKOL PU 280** (2 warstwy).")
     elif moisture <= limit:
         st.write("* Gruntowanie podłoża koncentratem **WAKOL D 3004** (1:1 z wodą).")
 
     if needs_levelling == "TAK":
-        st.write("* Wyrównanie powierzchni systemem: mata **WAKOL AR 150** + masa **WAKOL Z 645/635**.")
+        st.write("* Wyrównanie: mata **WAKOL AR 150** + masa **WAKOL Z 645/635**.")
 
-    st.markdown(f"**c) montaż okładziny:** Montaż okładziny **{flooring_type}** zgodnie z wytycznymi producenta i kartami technicznymi WAKOL.")
+    st.markdown(f"**c) montaż okładziny:** Montaż okładziny **{flooring_type}** zgodnie z kartami technicznymi WAKOL.")
+    st.write("---")
+    st.write(f"Z poważaniem, {autor}")
