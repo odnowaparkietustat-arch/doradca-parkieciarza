@@ -72,13 +72,13 @@ if holes == "TAK":
 
 moisture = st.number_input(f"7. Poziom wilgoci podłoża: {substrate} (CM %)", 0.0, format="%.1f")
 
-# --- Logika nowej decyzji przy wygrzewaniu ---
-decision_after_cure = None
+# Określenie normy dla logiki wywiadu
 if substrate == "jastrych anhydrytowy":
     limit_check = 0.3 if heating_exists == "TAK" else 0.5
 else:
     limit_check = 1.5 if heating_exists == "TAK" else 1.8
 
+decision_after_cure = None
 if heating_cured == "TAK" and moisture > limit_check:
     st.info("💡 Proces wygrzewania został przeprowadzony, ale wilgotność jest nadal ponadnormatywna.")
     decision_after_cure = st.radio(
@@ -99,7 +99,7 @@ humidity = st.number_input("10. Wilgotność powietrza (%)", 50)
 if st.button("GENERUJ PROTOKÓŁ OGLĘDZIN"):
     st.divider()
     
-    # Logika statusów wilgotności
+    # Norma do wydruku
     if substrate == "jastrych anhydrytowy":
         limit = 0.3 if heating_exists == "TAK" else 0.5
     else:
@@ -108,68 +108,43 @@ if st.button("GENERUJ PROTOKÓŁ OGLĘDZIN"):
     m_status = "POZYTYWNY" if moisture <= limit else "NEGATYWNY"
     s_status = "pozytywna" if strength_val >= 4 else "dostateczna" if strength_val == 3 else "negatywna"
 
-    # --- WZORZEC PROTOKOŁU ---
-    st.markdown(f"""
-    ### **Loba-Wakol Polska Sp. z o.o.**
-    Sławęcińska 16, Macierzysz | 05-850 Ożarów Mazowiecki  
-    **Data:** {data_badania.strftime('%d.%m.%Y')} | **Autor:** {autor}
+    st.markdown(f"### **Loba-Wakol Polska Sp. z o.o.**")
+    st.write(f"**Data:** {data_badania.strftime('%d.%m.%Y')} | **Autor:** {autor}")
     
-    **Dotyczy:** Protokół z oględzin inwestycji w budynku przy {adres} w miejscowości {miejscowosc}.
-    
-    #### **I. Oględziny i badania**
-    **a) oględziny optyczne**
-    Podłoże stanowi {substrate}. 
-    {f"Stwierdzono instalację ogrzewania podłogowego ({heating_info})." if heating_exists == "TAK" else "Brak instalacji ogrzewania podłogowego."}
-    {f"**Proces wygrzewania podłoża:** {heating_cured}." if heating_cured is not None else ""}
-    {f"**Decyzja po wygrzewaniu:** {decision_after_cure}." if decision_after_cure else ""}
-    {"Podłoże posiada spękania/klawiszowanie w ilości " + str(cracks_meters) + " mb." if cracks == "TAK" else "Podłoże bez widocznych spękań."}
-    
-    **b) badanie wytrzymałości**
-    * próba młotkiem – {s_status} | próba szczotką drucianą – {s_status} | próba rysikiem – {s_status}
-    
-    **c) badanie wilgotności podłoża:**
-    Wynik pomiaru: **{moisture} % CM – Status: {m_status}**. (Norma: {limit}% CM).
-    
-    #### **II. Zalecenia techniczne**
-    
-    **a) przygotowanie podłoża:**
-    * Szlif podłoża w celu usunięcia mleczka cementowego/anhydrytowego i uzyskania chłonnej powierzchni.
-    * Dokładne odkurzenie.
+    st.markdown(f"#### **I. Oględziny i badania**")
+    st.write(f"**Podłoże:** {substrate}. Ogrzewanie: {heating_info if heating_exists == 'TAK' else 'Brak'}.")
+    if heating_cured: st.write(f"**Proces wygrzewania:** {heating_cured}")
+    st.write(f"**Badanie wilgotności:** {moisture} % CM (Norma: {limit} % CM) - Status: {m_status}")
 
-    **b) naprawa i wzmocnienie podłoża:**
-    """)
+    st.markdown(f"#### **II. Zalecenia techniczne**")
+    
+    # --- PUNKT A: PRZYGOTOWANIE PODŁOŻA ---
+    st.write("**a) przygotowanie podłoża:**")
+    st.write("* Szlif podłoża w celu usunięcia mleczka i otwarcia porów, dokładne odkurzenie.")
+    
+    # NOWA LOGIKA: Doprowadzenie do normy w punkcie A
+    if decision_after_cure == "Kolejny proces wygrzewania":
+        st.write(f"* **Doprowadzenie do normatywnego poziomu wilgoci ({limit}% CM) poprzez przeprowadzenie kolejnego procesu wygrzewania.**")
 
-    # Treść sekcji (b) - Logika naprawcza i wilgotnościowa
+    # --- PUNKT B: NAPRAWA I WZMOCNIENIE ---
+    st.write("**b) naprawa i wzmocnienie podłoża:**")
     if cracks == "TAK":
-        st.write(f"* Klawiszujące fragmenty ({cracks_meters} mb) zespolić żywicą laną **WAKOL PS 205**.")
-    
+        st.write(f"* Zespolenie spękań żywicą **WAKOL PS 205**.")
     if holes == "TAK":
-        st.write(f"* Ubytki i zdegradowane fragmenty uzupełnić zaprawą **WAKOL Z 610**.")
-
+        st.write(f"* Uzupełnienie ubytków zaprawą **WAKOL Z 610**.")
     if strength_val <= 3:
-        st.write("* **Wzmocnienie:** Z uwagi na niewystarczającą wytrzymałość, zastosować żywicę **WAKOL PU 280** lub matę **WAKOL EM 140**.")
-
-    # Specyficzne zalecenie dla wilgotności na podstawie wywiadu
+        st.write("* Wzmocnienie podłoża żywicą **WAKOL PU 280**.")
+    
     if moisture > limit:
-        if decision_after_cure == "Kolejny proces wygrzewania":
-            st.write("* **Osuszanie:** Z uwagi na ponadnormatywną wilgoć mimo wygrzewania, zadecydowano o przeprowadzeniu kolejnego pełnego cyklu wygrzewania jastrychu.")
-        elif decision_after_cure == "Wykonanie bariery przeciwwilgociowej":
-            st.write("* **Bariera:** Z uwagi na brak pożądanych rezultatów wygrzewania, zadecydowano o wykonaniu bariery przeciwwilgociowej żywicą **WAKOL PU 280** (2 warstwy).")
-        else:
-            if heating_exists == "TAK":
-                st.write("* **Osuszanie:** Wymagane wygrzewanie jastrychu. W przypadku braku efektu – bariera **WAKOL PU 280**.")
-            else:
-                st.write(f"* **Osuszanie:** Naturalne suszenie (wentylacja: {ventilation_type}). W przypadku braku efektu – bariera **WAKOL PU 280**.")
+        if decision_after_cure == "Wykonanie bariery przeciwwilgociowej":
+            st.write("* Wykonanie bariery przeciwwilgociowej: żywica **WAKOL PU 280** (2 warstwy).")
+        elif decision_after_cure is None:
+            action = "wygrzewanie" if heating_exists == "TAK" else "naturalne osuszanie"
+            st.write(f"* Wymagane {action} do poziomu {limit}% CM. Alternatywnie bariera **WAKOL PU 280**.")
     else:
-        st.write("* Podłoże zagruntować koncentratem **WAKOL D 3004** (1:1 z wodą).")
+        st.write("* Gruntowanie: **WAKOL D 3004** (1:1 z wodą).")
 
     if needs_levelling == "TAK":
-        st.write("* **Wyrównanie:** Mata **WAKOL AR 150** + masa **WAKOL Z 645** / **WAKOL Z 635**.")
+        st.write("* Wyrównanie: system mata **WAKOL AR 150** + masa **WAKOL Z 645/635**.")
 
-    st.markdown(f"""
-    **c) montaż okładziny:**
-    * Prace montażowe dla okładziny: **{flooring_type}** należy przeprowadzić zgodnie z kartami technicznymi produktów WAKOL.
-    
-    ---
-    **Z poważaniem,** **Loba-Wakol Polska Sp. z o.o.** **{autor}**
-    """)
+    st.markdown(f"**c) montaż okładziny:** Montaż okładziny **{flooring_type}** zgodnie z kartami technicznymi.")
