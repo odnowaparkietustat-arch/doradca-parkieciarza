@@ -40,17 +40,8 @@ heating_cured = None
 if heating_exists == "TAK":
     h_type = st.selectbox("Typ ogrzewania:", ["wodne klasyczne", "bruzdowane", "w suchej zabudowie", "elektryczne"])
     if h_type in ["wodne klasyczne", "elektryczne"]:
-        if h_type == "elektryczne":
-            el_pos = st.radio("Umiejscowienie ogrzewania elektrycznego:", ["wewnątrz jastrychu", "na powierzchni jastrychu"], horizontal=True)
-            if el_pos == "wewnątrz jastrychu":
-                heating_info = "elektryczne (wewnątrz jastrychu)"
-                heating_cured = st.radio("Czy przeprowadzono proces wygrzewania?", ["TAK", "NIE"], index=1, horizontal=True)
-            else:
-                el_form = st.radio("Forma ogrzewania powierzchniowego:", ["w formie siatki", "w formie maty"], horizontal=True)
-                heating_info = f"elektryczne (na powierzchni, {el_form})"
-        else:
-            heating_info = "wodne klasyczne"
-            heating_cured = st.radio("Czy przeprowadzono proces wygrzewania?", ["TAK", "NIE"], index=1, horizontal=True)
+        heating_info = h_type
+        heating_cured = st.radio("Czy przeprowadzono proces wygrzewania?", ["TAK", "NIE"], index=1, horizontal=True)
     else:
         heating_info = h_type
 
@@ -72,14 +63,14 @@ if holes == "TAK":
 
 moisture = st.number_input(f"7. Poziom wilgoci podłoża: {substrate} (CM %)", 0.0, format="%.1f")
 
-# Określenie normy dla logiki wywiadu
+# Określenie normy dla logiki
 if substrate == "jastrych anhydrytowy":
-    limit_check = 0.3 if heating_exists == "TAK" else 0.5
+    limit = 0.3 if heating_exists == "TAK" else 0.5
 else:
-    limit_check = 1.5 if heating_exists == "TAK" else 1.8
+    limit = 1.5 if heating_exists == "TAK" else 1.8
 
 decision_after_cure = None
-if heating_cured == "TAK" and moisture > limit_check:
+if heating_cured == "TAK" and moisture > limit:
     st.info("💡 Proces wygrzewania został przeprowadzony, ale wilgotność jest nadal ponadnormatywna.")
     decision_after_cure = st.radio(
         "Wybierz dalszy sposób postępowania:",
@@ -99,12 +90,6 @@ humidity = st.number_input("10. Wilgotność powietrza (%)", 50)
 if st.button("GENERUJ PROTOKÓŁ OGLĘDZIN"):
     st.divider()
     
-    # Norma do wydruku
-    if substrate == "jastrych anhydrytowy":
-        limit = 0.3 if heating_exists == "TAK" else 0.5
-    else:
-        limit = 1.5 if heating_exists == "TAK" else 1.8
-        
     m_status = "POZYTYWNY" if moisture <= limit else "NEGATYWNY"
     s_status = "pozytywna" if strength_val >= 4 else "dostateczna" if strength_val == 3 else "negatywna"
 
@@ -113,7 +98,6 @@ if st.button("GENERUJ PROTOKÓŁ OGLĘDZIN"):
     
     st.markdown(f"#### **I. Oględziny i badania**")
     st.write(f"**Podłoże:** {substrate}. Ogrzewanie: {heating_info if heating_exists == 'TAK' else 'Brak'}.")
-    if heating_cured: st.write(f"**Proces wygrzewania:** {heating_cured}")
     st.write(f"**Badanie wilgotności:** {moisture} % CM (Norma: {limit} % CM) - Status: {m_status}")
 
     st.markdown(f"#### **II. Zalecenia techniczne**")
@@ -121,30 +105,32 @@ if st.button("GENERUJ PROTOKÓŁ OGLĘDZIN"):
     # --- PUNKT A: PRZYGOTOWANIE PODŁOŻA ---
     st.write("**a) przygotowanie podłoża:**")
     st.write("* Szlif podłoża w celu usunięcia mleczka i otwarcia porów, dokładne odkurzenie.")
-    
-    # NOWA LOGIKA: Doprowadzenie do normy w punkcie A
     if decision_after_cure == "Kolejny proces wygrzewania":
-        st.write(f"* **Doprowadzenie do normatywnego poziomu wilgoci ({limit}% CM) poprzez przeprowadzenie kolejnego procesu wygrzewania.**")
+        st.write(f"* **Zalecamy doprowadzenie do normatywnego poziomu wilgoci ({limit}% CM) poprzez przeprowadzenie kolejnego procesu wygrzewania.**")
 
     # --- PUNKT B: NAPRAWA I WZMOCNIENIE ---
     st.write("**b) naprawa i wzmocnienie podłoża:**")
-    if cracks == "TAK":
-        st.write(f"* Zespolenie spękań żywicą **WAKOL PS 205**.")
-    if holes == "TAK":
-        st.write(f"* Uzupełnienie ubytków zaprawą **WAKOL Z 610**.")
-    if strength_val <= 3:
-        st.write("* Wzmocnienie podłoża żywicą **WAKOL PU 280**.")
     
+    # Nagłówek sekcji B przy ponownym wygrzewaniu
+    if decision_after_cure == "Kolejny proces wygrzewania":
+        st.write(f"* **Po doprowadzeniu do normatywnego poziomu wilgoci w jastrychu, to jest {limit}% CM, zalecamy:**")
+    
+    # Szczegółowe zalecenia naprawcze
+    if cracks == "TAK":
+        st.write(f"    * Zespolenie spękań żywicą **WAKOL PS 205**.")
+    if holes == "TAK":
+        st.write(f"    * Uzupełnienie ubytków zaprawą **WAKOL Z 610**.")
+    if strength_val <= 3:
+        st.write(f"    * Wzmocnienie podłoża żywicą **WAKOL PU 280**.")
+    
+    # Logika dla bariery lub standardowego gruntowania
     if moisture > limit:
         if decision_after_cure == "Wykonanie bariery przeciwwilgociowej":
-            st.write("* Wykonanie bariery przeciwwilgociowej: żywica **WAKOL PU 280** (2 warstwy).")
-        elif decision_after_cure is None:
-            action = "wygrzewanie" if heating_exists == "TAK" else "naturalne osuszanie"
-            st.write(f"* Wymagane {action} do poziomu {limit}% CM. Alternatywnie bariera **WAKOL PU 280**.")
-    else:
-        st.write("* Gruntowanie: **WAKOL D 3004** (1:1 z wodą).")
+            st.write("* Wykonanie bariery przeciwwilgociowej żywicą **WAKOL PU 280** (2 warstwy).")
+    elif moisture <= limit:
+        st.write("* Gruntowanie podłoża koncentratem **WAKOL D 3004** (1:1 z wodą).")
 
     if needs_levelling == "TAK":
-        st.write("* Wyrównanie: system mata **WAKOL AR 150** + masa **WAKOL Z 645/635**.")
+        st.write("* Wyrównanie powierzchni systemem: mata **WAKOL AR 150** + masa **WAKOL Z 645/635**.")
 
-    st.markdown(f"**c) montaż okładziny:** Montaż okładziny **{flooring_type}** zgodnie z kartami technicznymi.")
+    st.markdown(f"**c) montaż okładziny:** Montaż okładziny **{flooring_type}** zgodnie z wytycznymi producenta i kartami technicznymi WAKOL.")
