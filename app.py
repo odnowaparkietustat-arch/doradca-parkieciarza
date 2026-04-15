@@ -72,6 +72,21 @@ if holes == "TAK":
 
 moisture = st.number_input(f"7. Poziom wilgoci podłoża: {substrate} (CM %)", 0.0, format="%.1f")
 
+# --- Logika nowej decyzji przy wygrzewaniu ---
+decision_after_cure = None
+if substrate == "jastrych anhydrytowy":
+    limit_check = 0.3 if heating_exists == "TAK" else 0.5
+else:
+    limit_check = 1.5 if heating_exists == "TAK" else 1.8
+
+if heating_cured == "TAK" and moisture > limit_check:
+    st.info("💡 Proces wygrzewania został przeprowadzony, ale wilgotność jest nadal ponadnormatywna.")
+    decision_after_cure = st.radio(
+        "Wybierz dalszy sposób postępowania:",
+        ["Kolejny proces wygrzewania", "Wykonanie bariery przeciwwilgociowej"],
+        horizontal=True
+    )
+
 st.write("8. Wytrzymałość jastrychu / płyty")
 strength_labels = {1:"Bardzo słaby", 2:"Słaby", 3:"Umiarkowanie słaby", 4:"Umiarkowanie mocny", 5:"Mocny"}
 strength_val = st.select_slider("Skala:", options=[1, 2, 3, 4, 5], value=3, format_func=lambda x: strength_labels[x])
@@ -84,10 +99,10 @@ humidity = st.number_input("10. Wilgotność powietrza (%)", 50)
 if st.button("GENERUJ PROTOKÓŁ OGLĘDZIN"):
     st.divider()
     
-    # Logika statusów wilgotności (NORMY)
+    # Logika statusów wilgotności
     if substrate == "jastrych anhydrytowy":
         limit = 0.3 if heating_exists == "TAK" else 0.5
-    else: # jastrych cementowy lub płyta fundamentowa
+    else:
         limit = 1.5 if heating_exists == "TAK" else 1.8
         
     m_status = "POZYTYWNY" if moisture <= limit else "NEGATYWNY"
@@ -101,53 +116,30 @@ if st.button("GENERUJ PROTOKÓŁ OGLĘDZIN"):
     
     **Dotyczy:** Protokół z oględzin inwestycji w budynku przy {adres} w miejscowości {miejscowosc}.
     
-    **Szanowni Państwo,**
-    
-    W dniu {data_badania.strftime('%d.%m.%Y')}r. dokonano wstępnych oględzin i pomiarów podłoża ({substrate}) przed montażem okładziny (**{flooring_type}**).
-    
     #### **I. Oględziny i badania**
     **a) oględziny optyczne**
     Podłoże stanowi {substrate}. 
     {f"Stwierdzono instalację ogrzewania podłogowego ({heating_info})." if heating_exists == "TAK" else "Brak instalacji ogrzewania podłogowego."}
     {f"**Proces wygrzewania podłoża:** {heating_cured}." if heating_cured is not None else ""}
+    {f"**Decyzja po wygrzewaniu:** {decision_after_cure}." if decision_after_cure else ""}
     {"Podłoże posiada spękania/klawiszowanie w ilości " + str(cracks_meters) + " mb." if cracks == "TAK" else "Podłoże bez widocznych spękań."}
-    {f"Stwierdzono ubytki lub zdegradowane fragmenty o wymiarach ok. {h_dim['l']}x{h_dim['w']}x{h_dim['d']} cm." if holes == "TAK" else ""}
     
     **b) badanie wytrzymałości**
     * próba młotkiem – {s_status} | próba szczotką drucianą – {s_status} | próba rysikiem – {s_status}
     
-    **c) ocena ogólna wytrzymałości**
-    Podłoże zostało ocenione jako: **{strength_labels[strength_val]}**.
-    
-    **d) test chłonności podłoża** – po przeszlifowaniu chłonne.
-    
-    **e) badanie wilgotności podłoża:**
-    Wynik pomiaru: **{moisture} % CM – Status: {m_status}**. (Norma dla {substrate}: {limit}% CM).
-    
-    **f) warunki klimatyczne:** {humidity}% RH / {temp}°C
-    
-    **Aby bezpiecznie kleić podłogę drewnianą na jastrychu cementowym lub płycie fundamentowej, jego wytrzymałość na ścinanie musi wynosić między 1,5 a 2,0 N/mm² a wilgotność nie może przekraczać 1,8% CM (z ogrzewaniem podłogowym max. 1,5% CM).**
+    **c) badanie wilgotności podłoża:**
+    Wynik pomiaru: **{moisture} % CM – Status: {m_status}**. (Norma: {limit}% CM).
     
     #### **II. Zalecenia techniczne**
-    Biorąc pod uwagę wyniki badań, zaleca się:
     
     **a) przygotowanie podłoża:**
     * Szlif podłoża w celu usunięcia mleczka cementowego/anhydrytowego i uzyskania chłonnej powierzchni.
     * Dokładne odkurzenie.
+
+    **b) naprawa i wzmocnienie podłoża:**
     """)
 
-    # Logika zaleceń dot. wilgotności (TWOJA NOWA WYTYCZNA)
-    if moisture > limit:
-        st.warning("⚠️ UWAGA: Przekroczona norma wilgotności podłoża.")
-        if heating_exists == "TAK":
-            st.write("* **Wymagane działanie:** Uzyskanie normatywnego poziomu wilgoci poprzez ponowne przeprowadzenie procesu wygrzewania jastrychu.")
-        else:
-            st.write(f"* **Wymagane działanie:** Naturalne wysuszenie podłoża poprzez zapewnienie optymalnych warunków temperaturowych i intensywnej wentylacji (obecna wentylacja: {ventilation_type}).")
-        
-        st.write("* **Rozwiązanie alternatywne:** W przypadku braku efektów osuszania naturalnego/wygrzewania, dopuszcza się wykonanie bariery przeciwwilgociowej przy użyciu żywicy **WAKOL PU 280** (2 warstwy).")
-    else:
-        st.write("* Podłoże zagruntować koncentratem **WAKOL D 3004** (1:1 z wodą).")
-
+    # Treść sekcji (b) - Logika naprawcza i wilgotnościowa
     if cracks == "TAK":
         st.write(f"* Klawiszujące fragmenty ({cracks_meters} mb) zespolić żywicą laną **WAKOL PS 205**.")
     
@@ -155,10 +147,24 @@ if st.button("GENERUJ PROTOKÓŁ OGLĘDZIN"):
         st.write(f"* Ubytki i zdegradowane fragmenty uzupełnić zaprawą **WAKOL Z 610**.")
 
     if strength_val <= 3:
-        st.write("* **Wzmocnienie:** Z uwagi na słabe podłoże, zastosować żywicę **WAKOL PU 280** lub matę **WAKOL EM 140**.")
+        st.write("* **Wzmocnienie:** Z uwagi na niewystarczającą wytrzymałość, zastosować żywicę **WAKOL PU 280** lub matę **WAKOL EM 140**.")
+
+    # Specyficzne zalecenie dla wilgotności na podstawie wywiadu
+    if moisture > limit:
+        if decision_after_cure == "Kolejny proces wygrzewania":
+            st.write("* **Osuszanie:** Z uwagi na ponadnormatywną wilgoć mimo wygrzewania, zadecydowano o przeprowadzeniu kolejnego pełnego cyklu wygrzewania jastrychu.")
+        elif decision_after_cure == "Wykonanie bariery przeciwwilgociowej":
+            st.write("* **Bariera:** Z uwagi na brak pożądanych rezultatów wygrzewania, zadecydowano o wykonaniu bariery przeciwwilgociowej żywicą **WAKOL PU 280** (2 warstwy).")
+        else:
+            if heating_exists == "TAK":
+                st.write("* **Osuszanie:** Wymagane wygrzewanie jastrychu. W przypadku braku efektu – bariera **WAKOL PU 280**.")
+            else:
+                st.write(f"* **Osuszanie:** Naturalne suszenie (wentylacja: {ventilation_type}). W przypadku braku efektu – bariera **WAKOL PU 280**.")
+    else:
+        st.write("* Podłoże zagruntować koncentratem **WAKOL D 3004** (1:1 z wodą).")
 
     if needs_levelling == "TAK":
-        st.write("* Zastosować system wyrównujący: mata **WAKOL AR 150** + masa **WAKOL Z 645** / **WAKOL Z 635**.")
+        st.write("* **Wyrównanie:** Mata **WAKOL AR 150** + masa **WAKOL Z 645** / **WAKOL Z 635**.")
 
     st.markdown(f"""
     **c) montaż okładziny:**
