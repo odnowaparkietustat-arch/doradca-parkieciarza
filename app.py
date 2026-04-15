@@ -60,7 +60,7 @@ if st.button("GENERUJ PROTOKÓŁ OGLĘDZIN"):
     # Logika statusów
     limit = 1.5 if heating_exists == "TAK" else 1.8
     m_status = "POZYTYWNY" if moisture <= limit else "NEGATYWNY (Wymagana bariera)"
-    s_status = "Pozytywna" if strength_val >= 4 else "Dostateczna" if strength_val == 3 else "Negatywna"
+    s_status = "pozytywna" if strength_val >= 4 else "dostateczna" if strength_val == 3 else "negatywna"
 
     # --- WZORZEC PROTOKOŁU ---
     st.markdown(f"""
@@ -84,15 +84,17 @@ if st.button("GENERUJ PROTOKÓŁ OGLĘDZIN"):
     * próba młotkiem – {s_status}
     * próba szczotką drucianą – {s_status}
     * próba rysikiem – {s_status}
-    * Ocena ogólna: **{strength_labels[strength_val]}**
     
-    **c) test chłonności podłoża** – po przeszlifowaniu chłonne.
+    **c) ocena ogólna wytrzymałości**
+    Podłoże zostało ocenione jako: **{strength_labels[strength_val]}**.
     
-    **d) badanie wilgotności podłoża:**
+    **d) test chłonności podłoża** – po przeszlifowaniu chłonne.
+    
+    **e) badanie wilgotności podłoża:**
     Zmierzono metodą opartą na stałej dielektrycznej za pomocą urządzenia Gann Compact B, która dała wynik:
     **{moisture} % CM – {m_status}**.
     
-    **e) wilgotność i temperatura powietrza:**
+    **f) wilgotność i temperatura powietrza:**
     **{humidity}% / {temp}°C**
     
     *Aby bezpiecznie kleić podłogę drewnianą na jastrychu cementowym, jego wytrzymałość na ścinanie musi wynosić między 1,5 a 2,0 N/mm² a wilgotność nie może przekraczać 1,8% CM (z ogrzewaniem podłogowym max. 1,5% CM)*.
@@ -130,4 +132,3 @@ if st.button("GENERUJ PROTOKÓŁ OGLĘDZIN"):
     
     **Z poważaniem,** **Loba-Wakol Polska Sp. z o.o.** **{autor}**
     """)
-    
