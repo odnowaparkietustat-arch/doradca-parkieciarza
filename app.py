@@ -20,38 +20,69 @@ with st.container():
 st.divider()
 
 # --- WYWIAD TECHNICZNY ---
-substrate = st.selectbox("1. Rodzaj podłoża", ["jastrych cementowy", "jastrych anhydrytowy", "podłoże drewniane", "płytki ceramiczne"])
 
-st.write("2. Czy jest instalacja ogrzewania podłogowego?")
+# 1. Rodzaj okładziny
+flooring_type = st.selectbox("1. Rodzaj okładziny", [
+    "wykładzina dywanowa", 
+    "pcv w rolce", 
+    "lvt cienkie", 
+    "lvt grube z twardym rdzeniem", 
+    "deska warstwowa (drewno, laminat itp.)", 
+    "deska lita"
+])
+
+# 2. Rodzaj podłoża
+substrate = st.selectbox("2. Rodzaj podłoża", ["jastrych cementowy", "jastrych anhydrytowy", "podłoże drewniane", "płytki ceramiczne"])
+
+# 3. Ogrzewanie podłogowe
+st.write("3. Czy jest instalacja ogrzewania podłogowego?")
 heating_exists = st.radio("Ogrzewanie:", ["TAK", "NIE"], index=1, horizontal=True)
-heating_type = ""
+
+heating_info = ""
 if heating_exists == "TAK":
-    heating_type = st.selectbox("Typ ogrzewania:", ["wodne klasyczne", "bruzdowane", "w suchej zabudowie", "elektryczne"])
+    h_type = st.selectbox("Typ ogrzewania:", ["wodne klasyczne", "bruzdowane", "w suchej zabudowie", "elektryczne"])
+    
+    if h_type == "elektryczne":
+        el_pos = st.radio("Umiejscowienie ogrzewania elektrycznego:", ["wewnątrz jastrychu", "na powierzchni jastrychu"], horizontal=True)
+        if el_pos == "na powierzchni jastrychu":
+            el_form = st.radio("Forma ogrzewania powierzchniowego:", ["w formie siatki", "w formie maty"], horizontal=True)
+            heating_info = f"elektryczne (na powierzchni, {el_form})"
+        else:
+            heating_info = "elektryczne (wewnątrz jastrychu)"
+    else:
+        heating_info = h_type
 
-needs_levelling = st.radio("3. Czy podłoże wymaga wyrównania (masy)?", ["TAK", "NIE"], index=1, horizontal=True)
+# 4. Wyrównanie
+needs_levelling = st.radio("4. Czy podłoże wymaga wyrównania (masy)?", ["TAK", "NIE"], index=1, horizontal=True)
 
-cracks = st.radio("4. Czy są spękania i ruchome dylatacje?", ["TAK", "NIE"], index=1, horizontal=True)
+# 5. Spękania
+cracks = st.radio("5. Czy są spękania i ruchome dylatacje?", ["TAK", "NIE"], index=1, horizontal=True)
 cracks_meters = 0
 if cracks == "TAK":
     cracks_meters = st.number_input("Ilość metrów bieżących (mb)", 0.0, step=0.5)
 
-holes = st.radio("5. Czy są ubytki w jastrychu?", ["TAK", "NIE"], index=1, horizontal=True)
-h_dim = {"l":0.0, "w":0.0, "d":0.0}
+# 6. Ubytki
+holes = st.radio("6. Czy są ubytki w jastrychu?", ["TAK", "NIE"], index=1, horizontal=True)
 if holes == "TAK":
     c1, c2, c3 = st.columns(3)
-    h_dim["l"] = c1.number_input("Długość (cm)", 0.0)
-    h_dim["w"] = c2.number_input("Szerokość (cm)", 0.0)
-    h_dim["d"] = c3.number_input("Głębokość (cm)", 0.0)
+    h_l = c1.number_input("Długość (cm)", 0.0)
+    h_w = c2.number_input("Szerokość (cm)", 0.0)
+    h_d = c3.number_input("Głębokość (cm)", 0.0)
 
-moisture = st.number_input("6. Poziom wilgoci jastrychu (CM %)", 0.0, format="%.1f")
+# 7. Wilgotność
+moisture = st.number_input("7. Poziom wilgoci jastrychu (CM %)", 0.0, format="%.1f")
 
-st.write("7. Wytrzymałość jastrychu")
+# 8. Wytrzymałość
+st.write("8. Wytrzymałość jastrychu")
 strength_labels = {1:"Bardzo słaby", 2:"Słaby", 3:"Umiarkowanie słaby", 4:"Umiarkowanie mocny", 5:"Mocny"}
 strength_val = st.select_slider("Skala:", options=[1, 2, 3, 4, 5], value=3, format_func=lambda x: strength_labels[x])
 
-ventilation = st.radio("8. Rodzaj wentylacji:", ["Grawitacyjna", "Mechaniczna (Rekuperacja)"], horizontal=True)
-temp = st.number_input("9. Temperatura powietrza (°C)", 20)
-humidity = st.number_input("9. Wilgotność powietrza (%)", 50)
+# 9. Wentylacja
+ventilation = st.radio("9. Rodzaj wentylacji:", ["Grawitacyjna", "Mechaniczna (Rekuperacja)"], horizontal=True)
+
+# 10. Warunki
+temp = st.number_input("10. Temperatura powietrza (°C)", 20)
+humidity = st.number_input("10. Wilgotność powietrza (%)", 50)
 
 # --- PRZYCISK GENEROWANIA ---
 if st.button("GENERUJ PROTOKÓŁ OGLĘDZIN"):
@@ -72,11 +103,11 @@ if st.button("GENERUJ PROTOKÓŁ OGLĘDZIN"):
     
     **Szanowni Państwo,**
     
-    W dniu {data_badania.strftime('%d.%m.%Y')}r. w budynku przy {adres} w miejscowości {miejscowosc} dokonano wstępnych oględzin i pomiarów wytrzymałości podłoża ({substrate}) oraz pomiaru wilgotności podłoża przed przyklejeniem okładziny warstwowej.
+    W dniu {data_badania.strftime('%d.%m.%Y')}r. w budynku przy {adres} w miejscowości {miejscowosc} dokonano wstępnych oględzin i pomiarów wytrzymałości podłoża ({substrate}) oraz pomiaru wilgotności podłoża przed przyklejeniem okładziny (**{flooring_type}**).
     
     #### **I. Oględziny i badania**
     **a) oględziny optyczne**
-    Podłoże stanowi {substrate}. {"Brak instalacji ogrzewania podłogowego." if heating_exists == "NIE" else "Stwierdzono instalację ogrzewania podłogowego ("+heating_type+")."}
+    Podłoże stanowi {substrate}. {"Brak instalacji ogrzewania podłogowego." if heating_exists == "NIE" else "Stwierdzono instalację ogrzewania podłogowego ("+heating_info+")."}
     {"Jastrych posiada spękania/klawiszowanie w ilości " + str(cracks_meters) + " mb." if cracks == "TAK" else "Jastrych bez widocznych spękań."}
     {"Konieczne jest wyrównanie za pomocą masy samorozlewnej." if needs_levelling == "TAK" else ""}
     
@@ -97,10 +128,10 @@ if st.button("GENERUJ PROTOKÓŁ OGLĘDZIN"):
     **f) wilgotność i temperatura powietrza:**
     **{humidity}% / {temp}°C**
     
-    *Aby bezpiecznie kleić podłogę drewnianą na jastrychu cementowym, jego wytrzymałość na ścinanie musi wynosić między 1,5 a 2,0 N/mm² a wilgotność nie może przekraczać 1,8% CM (z ogrzewaniem podłogowym max. 1,5% CM)*.
+    **Aby bezpiecznie kleić podłogę drewnianą na jastrychu cementowym, jego wytrzymałość na ścinanie musi wynosić między 1,5 a 2,0 N/mm² a wilgotność nie może przekraczać 1,8% CM (z ogrzewaniem podłogowym max. 1,5% CM).**
     
     #### **II. Zalecenia techniczne**
-    Biorąc pod uwagę w/w wyniki badań oraz klejone elementy, zaleca się:
+    Biorąc pod uwagę w/w wyniki badań oraz klejone elementy (**{flooring_type}**), zaleca się:
     
     **a) przygotowanie podłoża:**
     * Szlif podłoża w celu usunięcia wierzchniej warstwy i uzyskania porowatej i chłonnej powierzchni.
@@ -124,8 +155,8 @@ if st.button("GENERUJ PROTOKÓŁ OGLĘDZIN"):
         st.write("* Zastosować system: mata **WAKOL AR 150** + masa **WAKOL Z 645** z plastyfikatorem **WAKOL D 3060**. Następnie wylać masę **WAKOL Z 635**.")
 
     st.markdown(f"""
-    **c) klejenie desek:**
-    * Klejenie podłogi drewnianej należy przeprowadzić przy użyciu kleju **WAKOL MS 230** (szpachla B11, zużycie: 1250 g/m²).
+    **c) montaż okładziny:**
+    * Prace montażowe dla okładziny: **{flooring_type}** należy przeprowadzić zgodnie z zaleceniami producenta materiału i kartami technicznymi produktów WAKOL.
     
     ---
     *Prosimy o zapoznanie się z kartami technicznymi zalecanych produktów WAKOL. Podstawą naszego zalecenia jest stosowanie materiałów firmy WAKOL w podanej kolejności, przestrzegając reguł rzemiosła i norm*.
