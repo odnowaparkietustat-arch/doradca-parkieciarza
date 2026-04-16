@@ -151,18 +151,17 @@ if st.button("GENERUJ PROTOKÓŁ OGLĘDZIN"):
         
         # --- a) PRZYGOTOWANIE PODŁOŻA ---
         st.write("**a) przygotowanie podłoża:**")
-        
         is_mandatory_cure = False
         if heating_exists == "TAK" and heating_cured == "NIE":
             if any(x in heating_info for x in ["wodna", "wewnątrz jastrychu"]) or substrate == "płyta fundamentowa":
-                st.write("* **Przeprowadzenie pełnego procesu wygrzewania zgodnie z protokołem temperatura wody w instalacji minimum 40 stopni!**")
+                st.write("* **Przeprowadzenie pełnego procesu wygrzewania zgodnie z protokołem temperatura wody in instalacji minimum 40 stopni!**")
                 is_mandatory_cure = True
 
         if decision_after_cure == "Kolejny proces wygrzewania":
             st.write(f"* **Zalecamy doprowadzenie do normatywnego poziomu wilgoci ({limit}% CM) poprzez przeprowadzenie kolejnego procesu wygrzewania.**")
 
-        # ZMIANA: Nowa treść podpunktu szlifowania
-        st.write("* Szlif podłoża w celu uzyskania porowatej i chłonnej powierzchni, dokładne odkurzenie.")
+        st.write("* Szlif podłoża w celu uzyskania porowatej i chłonnej powierzchni.")
+        st.write("* Dokładne odkurzenie całej powierzchni.")
 
         # --- b) NAPRAWA I WZMOCNIENIE PODŁOŻA ---
         st.write("**b) naprawa i wzmocnienie podłoża:**")
@@ -178,16 +177,18 @@ if st.button("GENERUJ PROTOKÓŁ OGLĘDZIN"):
         else:
             if strength_val >= 4:
                 st.write(f"* Gruntowanie podłoża: **WAKOL D 3055**.")
-            elif strength_val == 3:
-                st.write(f"* Wzmocnienie podłoża żywicą: **WAKOL PU 280**.")
-            elif strength_val == 2:
-                st.write(f"* Wzmocnienie podłoża żywicą: **WAKOL PU 280** bądź **WAKOL PU 235**.")
+            elif strength_val in [2, 3]:
+                st.write("* Zalecamy zagruntowanie całej powierzchni podłoża gruntówką wzmacniającą **WAKOL PU 280**.")
+                st.write("  Aplikować wałkiem. Nie zostawiać kałuż tj. Zbierać nadmiar niewchłoniętej gruntówki.")
+                st.write("  **Zużycie:** ok. 150 g/m². **Czas schnięcia:** 1 godzina. (W zależności od chłonności podłoża zużycie może być większe bądź mniejsze).")
+                st.write("  **Czas do montażu:** 72 godziny.")
             elif strength_val == 1:
                 st.write(f"* Wzmocnienie podłoża żywicą: **WAKOL PS 275**.")
 
         if needs_levelling == "TAK":
             st.write("* Wyrównanie: mata **WAKOL AR 150** + masa **WAKOL Z 645/635**.")
 
+        # --- c) MONTAŻ OKŁADZINY ---
         st.write("**c) montaż okładziny:**")
         if flooring_type == "deska warstwowa (drewno, laminat itp.)":
             st.write("* Klejenie deski należy przeprowadzić przy użyciu kleju do parkietu **WAKOL PU 225** (szpachla **B11**, zużycie: **1250 g/m²**).")
