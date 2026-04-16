@@ -49,7 +49,6 @@ heating_cured = None
 if heating_exists == "TAK":
     h_type = st.selectbox("Typ ogrzewania:", ["wodne klasyczne", "bruzdowane", "w suchej zabudowie", "elektryczne"])
     
-    # Mapowanie nazw na bardziej oficjalne brzmienie w protokole
     mapping = {
         "wodne klasyczne": "instalacja ogrzewania podłogowego wodna, klasyczna",
         "bruzdowane": "instalacja ogrzewania podłogowego wodna, bruzdowana",
@@ -120,10 +119,14 @@ if st.button("GENERUJ PROTOKÓŁ OGLĘDZIN"):
         st.write(f"**Szanowni Państwo:** {klient}")
         st.markdown(f"**Dotyczy:** Protokół z oględzin inwestycji w budynku przy {adres} w miejscowości {miejscowosc}.")
 
-        # Sekcja I - ZMIANA: Bardziej profesjonalny opis instalacji
+        # Sekcja I
         st.markdown("#### **I. Oględziny i badania**")
         st.write(f"**a) oględziny optyczne:** Podłoże stanowi {substrate}. {heating_info if heating_exists == 'TAK' else 'Brak instalacji ogrzewania podłogowego.'}")
-        if heating_cured: st.write(f"**Proces wygrzewania podłoża:** {heating_cured}")
+        
+        if heating_exists == 'TAK':
+            cured_status = "przeprowadzony" if heating_cured == "TAK" else "nie przeprowadzony"
+            st.write(f"**Proces wygrzewania podłoża:** {cured_status}")
+            
         st.write(f"**b) badanie wytrzymałości:** próba młotkiem – {s_status} | próba szczotką drucianą – {s_status} | próba rysikiem – {s_status}")
         st.write(f"* Ocena ogólna wytrzymałości: **{strength_labels[strength_val]}**")
         st.write(f"**c) badanie wilgotności podłoża:** Wynik **{moisture} % CM** (Norma: {limit} % CM) - Status: **{m_status}**")
@@ -132,44 +135,14 @@ if st.button("GENERUJ PROTOKÓŁ OGLĘDZIN"):
         # Sekcja II
         st.markdown("#### **II. Zalecenia techniczne**")
         
+        # --- a) PRZYGOTOWANIE PODŁOŻA ---
         st.write("**a) przygotowanie podłoża:**")
         
         is_mandatory_cure = False
         if heating_exists == "TAK" and heating_cured == "NIE":
-            # Logika wymuszania wygrzewania przy określonych typach
             if any(x in heating_info for x in ["wodna", "wewnątrz jastrychu"]) or substrate == "płyta fundamentowa":
-                st.write("* **Przeprowadzenie pełnego procesu wygrzewania zgodnie z protokołem temperatura wody w instalacji minimum 40 stopni!**")
+                st.write("* **Przeprowadzenie pełnego procesu wygrzewania zgodnie z protokołem temperatura wody in instalacji minimum 40 stopni!**")
                 is_mandatory_cure = True
 
         if decision_after_cure == "Kolejny proces wygrzewania":
-            st.write(f"* **Zalecamy doprowadzenie do normatywnego poziomu wilgoci ({limit}% CM) poprzez przeprowadzenie kolejnego procesu wygrzewania.**")
-
-        st.write("* Szlif podłoża w celu usunięcia mleczka i otwarcia porów, dokładne odkurzenie.")
-
-        st.write("**b) naprawa i wzmocnienie podłoża:**")
-        
-        if decision_after_cure == "Kolejny proces wygrzewania" or is_mandatory_cure:
-            st.write(f"* **Po doprowadzeniu do normatywnego poziomu wilgoci w jastrychu (tj. {limit}% CM), zalecamy:**")
-        
-        if cracks == "TAK": st.write(f"    * Klawiszujące fragmenty ({cracks_meters if cracks_meters else 0} mb) zespolić żywicą laną **WAKOL PS 205**.")
-        if holes == "TAK": st.write(f"    * Ubytki i zdegradowane fragmenty uzupełnić zaprawą **WAKOL Z 610**.")
-        
-        if moisture > limit and decision_after_cure == "Wykonanie bariery przeciwwilgociowej":
-            st.write("* Wykonanie bariery przeciwwilgociowej żywicą **WAKOL PU 280** (2 warstwy).")
-        else:
-            if strength_val == 5 or strength_val == 4:
-                st.write(f"* Gruntowanie podłoża: **WAKOL D 3055**.")
-            elif strength_val == 3:
-                st.write(f"* Wzmocnienie podłoża żywicą: **WAKOL PU 280**.")
-            elif strength_val == 2:
-                st.write(f"* Wzmocnienie podłoża żywicą: **WAKOL PU 280** bądź **WAKOL PU 235**.")
-            elif strength_val == 1:
-                st.write(f"* Wzmocnienie podłoża żywicą: **WAKOL PS 275**.")
-
-        if needs_levelling == "TAK":
-            st.write("* Wyrównanie: mata **WAKOL AR 150** + masa **WAKOL Z 645/635**.")
-
-        st.markdown(f"**c) montaż okładziny:** Montaż okładziny **{flooring_type}** zgodnie z kartami technicznymi WAKOL.")
-        
-        st.write("---")
-        st.write(f"Z poważaniem, **{autor}**")
+            st.write(f"* **Zalecamy
