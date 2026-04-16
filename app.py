@@ -86,19 +86,18 @@ if substrate == "jastrych anhydrytowy":
 else:
     limit = 1.5 if heating_exists == "TAK" else 1.8
 
-# Wywiad po przekroczeniu normy (ZMIANA LOGIKI)
+# --- LOGIKA PYTANIA O BARIERĘ / OSUSZANIE ---
 decision_after_cure = None
-show_moisture_decision = False
-
 if moisture is not None and moisture > limit:
-    if heating_exists == "NIE":
-        show_moisture_decision = True
-    elif heating_exists == "TAK" and heating_cured == "TAK":
-        show_moisture_decision = True
-
-if show_moisture_decision:
     st.warning(f"💡 Wilgotność ponadnormatywna ({moisture}% CM > {limit}% CM).")
-    decision_after_cure = st.radio("Dalsze postępowanie:", ["Dalsze osuszanie / wygrzewanie", "Wykonanie bariery przeciwwilgociowej"], horizontal=True)
+    
+    # Rozróżnienie nazewnictwa w zależności od ogrzewania
+    if heating_exists == "NIE":
+        options = ["Dalsze osuszanie", "Wykonanie bariery przeciwwilgociowej"]
+    else:
+        options = ["Kolejny proces wygrzewania", "Wykonanie bariery przeciwwilgociowej"]
+    
+    decision_after_cure = st.radio("Dalsze postępowanie:", options, horizontal=True)
 
 # --- TESTY MECHANICZNE ---
 st.write("### Testy mechaniczne podłoża")
@@ -170,6 +169,7 @@ if st.button("GENERUJ PROTOKÓŁ OGLĘDZIN"):
         # Sekcja II
         st.markdown("#### **II. Zalecenia techniczne**")
         
+        # --- a) PRZYGOTOWANIE PODŁOŻA ---
         st.write("**a) przygotowanie podłoża:**")
         is_mandatory_cure = False
         if heating_exists == "TAK" and heating_cured == "NIE":
@@ -177,8 +177,9 @@ if st.button("GENERUJ PROTOKÓŁ OGLĘDZIN"):
                 st.write("* **Przeprowadzenie pełnego procesu wygrzewania zgodnie z protokołem temperatura wody w instalacji minimum 40 stopni!**")
                 is_mandatory_cure = True
 
-        if decision_after_cure == "Dalsze osuszanie / wygrzewanie":
-            st.write(f"* **Zalecamy doprowadzenie do normatywnego poziomu wilgoci ({limit}% CM) poprzez kontynuowanie procesu osuszania/wygrzewania.**")
+        # Komunikat o dalszym osuszaniu/wygrzewaniu w protokole
+        if decision_after_cure in ["Dalsze osuszanie", "Kolejny proces wygrzewania"]:
+            st.write(f"* **Zalecamy doprowadzenie do normatywnego poziomu wilgoci ({limit}% CM) poprzez kontynuowanie procesu {decision_after_cure.lower()}.**")
 
         st.write("* Szlif podłoża w celu uzyskania porowatej i chłonnej powierzchni.")
         st.write("* Dokładne odkurzenie całej powierzchni.")
@@ -186,7 +187,7 @@ if st.button("GENERUJ PROTOKÓŁ OGLĘDZIN"):
         # --- b) NAPRAWA I WZMOCNIENIE PODŁOŻA ---
         st.write("**b) naprawa i wzmocnienie podłoża:**")
         
-        if (decision_after_cure == "Dalsze osuszanie / wygrzewanie" or is_mandatory_cure):
+        if (decision_after_cure in ["Dalsze osuszanie", "Kolejny proces wygrzewania"] or is_mandatory_cure):
             st.write(f"* **Po doprowadzeniu do normatywnego poziomu wilgoci w jastrychu (tj. {limit}% CM), zalecamy:**")
         
         if cracks == "TAK": st.write(f"    * Klawiszujące fragmenty ({cracks_meters if cracks_meters else 0} mb) zespolić żywicą laną **WAKOL PS 205**.")
