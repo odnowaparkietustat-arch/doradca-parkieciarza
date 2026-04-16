@@ -131,8 +131,6 @@ if st.button("GENERUJ PROTOKÓŁ OGLĘDZIN"):
 
         # Sekcja I
         st.markdown("#### **I. Oględziny i badania**")
-        
-        # Zmiana: Wentylacja przeniesiona do oględzin optycznych
         st.write(f"**a) oględziny optyczne:** Podłoże stanowi {substrate}. {heating_info if heating_exists == 'TAK' else 'Brak instalacji ogrzewania podłogowego.'} Wentylacja w pomieszczeniu: **{ventilation_type}**.")
         
         if heating_exists == 'TAK':
@@ -146,12 +144,12 @@ if st.button("GENERUJ PROTOKÓŁ OGLĘDZIN"):
         st.write(f"* Ocena ogólna wytrzymałości: **{strength_labels[strength_val]}**")
         
         st.write(f"**c) badanie wilgotności podłoża:** Wynik **{moisture} % CM** (Norma: {limit} % CM) - Status: **{m_status}**")
-        # Zmiana: Tutaj tylko parametry powietrza
         st.write(f"**d) warunki klimatyczne:** Temperatura powietrza: **{temp if temp else '--'}°C** | Wilgotność powietrza: **{humidity if humidity else '--'}% RH**.")
 
         # Sekcja II
         st.markdown("#### **II. Zalecenia techniczne**")
         
+        # --- a) PRZYGOTOWANIE PODŁOŻA ---
         st.write("**a) przygotowanie podłoża:**")
         
         is_mandatory_cure = False
@@ -163,8 +161,10 @@ if st.button("GENERUJ PROTOKÓŁ OGLĘDZIN"):
         if decision_after_cure == "Kolejny proces wygrzewania":
             st.write(f"* **Zalecamy doprowadzenie do normatywnego poziomu wilgoci ({limit}% CM) poprzez przeprowadzenie kolejnego procesu wygrzewania.**")
 
-        st.write("* Szlif podłoża w celu usunięcia mleczka i otwarcia porów, dokładne odkurzenie.")
+        # ZMIANA: Nowa treść podpunktu szlifowania
+        st.write("* Szlif podłoża w celu uzyskania porowatej i chłonnej powierzchni, dokładne odkurzenie.")
 
+        # --- b) NAPRAWA I WZMOCNIENIE PODŁOŻA ---
         st.write("**b) naprawa i wzmocnienie podłoża:**")
         
         if decision_after_cure == "Kolejny proces wygrzewania" or is_mandatory_cure:
