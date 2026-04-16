@@ -80,25 +80,24 @@ holes = st.radio("Ubytki:", ["TAK", "NIE"], index=1, horizontal=True, label_visi
 # 7. Wilgotność
 moisture = st.number_input(f"7. Poziom wilgoci podłoża (CM %)", value=None, placeholder="Wpisz wynik pomiaru CM...", format="%.1f")
 
-# --- TESTY MECHANICZNE I RELACJA Z WYTRZYMAŁOŚCIĄ ---
+# --- TESTY MECHANICZNE ---
 st.write("### Testy mechaniczne podłoża")
-test_options = ["negatywny", "dostateczny", "pozytywny"]
+test_options_std = ["negatywny", "dostateczny", "pozytywny"]
+test_options_brush = ["negatywny", "pozytywny"] # ZMIANA: Usunięto 'dostateczny'
 
 col_t1, col_t2, col_t3 = st.columns(3)
 with col_t1:
-    test_hammer = st.selectbox("Wynik testu młotkiem", test_options, index=2)
+    test_hammer = st.selectbox("Wynik testu młotkiem", test_options_std, index=2)
 with col_t2:
-    test_ripper = st.selectbox("Wynik testu rysikiem", test_options, index=2)
+    test_ripper = st.selectbox("Wynik testu rysikiem", test_options_std, index=2)
 with col_t3:
-    test_brush = st.selectbox("Wynik testu szczotką drucianą", test_options, index=2)
+    test_brush = st.selectbox("Wynik testu szczotką drucianą", test_options_brush, index=1)
 
 # Logika przypisania wytrzymałości na podstawie testów
 default_strength = 3
-if test_brush == "negatywny":
+if test_brush == "negatywny" or test_hammer == "negatywny":
     default_strength = 1 # Bardzo słaby
-elif test_hammer == "dostateczny":
-    default_strength = 2 # Słaby (z opcją przesunięcia na bardzo słaby przez użytkownika)
-elif test_ripper == "negatywny":
+elif test_hammer == "dostateczny" or test_ripper == "negatywny":
     default_strength = 2 # Słaby
 elif test_ripper == "dostateczny":
     default_strength = 3 # Umiarkowanie słaby
@@ -168,7 +167,7 @@ if st.button("GENERUJ PROTOKÓŁ OGLĘDZIN"):
         is_mandatory_cure = False
         if heating_exists == "TAK" and heating_cured == "NIE":
             if any(x in heating_info for x in ["wodna", "wewnątrz jastrychu"]) or substrate == "płyta fundamentowa":
-                st.write("* **Przeprowadzenie pełnego procesu wygrzewania zgodnie z protokołem temperatura wody in instalacji minimum 40 stopni!**")
+                st.write("* **Przeprowadzenie pełnego procesu wygrzewania zgodnie z protokołem temperatura wody w instalacji minimum 40 stopni!**")
                 is_mandatory_cure = True
 
         if decision_after_cure == "Kolejny proces wygrzewania":
