@@ -173,7 +173,7 @@ if st.button("GENERUJ PROTOKÓŁ OGLĘDZIN"):
         if needs_levelling == "TAK":
             st.write("* Wyrównanie: mata **WAKOL AR 150** + masa **WAKOL Z 645/635**.")
 
-        # --- c) MONTAŻ OKŁADZINY ---
+        # --- c) MONTAŻ OKŁADZINY (POPRAWIONE) ---
         st.write("**c) montaż okładziny:**")
         if flooring_type == "deska warstwowa (drewno, laminat itp.)":
             st.write("* Klejenie deski należy przeprowadzić przy użyciu kleju do parkietu **WAKOL PU 225** (szpachla **B11**, zużycie: **1250 g/m²**).")
