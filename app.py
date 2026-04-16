@@ -154,7 +154,7 @@ if st.button("GENERUJ PROTOKÓŁ OGLĘDZIN"):
         is_mandatory_cure = False
         if heating_exists == "TAK" and heating_cured == "NIE":
             if any(x in heating_info for x in ["wodna", "wewnątrz jastrychu"]) or substrate == "płyta fundamentowa":
-                st.write("* **Przeprowadzenie pełnego procesu wygrzewania zgodnie z protokołem temperatura wody in instalacji minimum 40 stopni!**")
+                st.write("* **Przeprowadzenie pełnego procesu wygrzewania zgodnie z protokołem temperatura wody w instalacji minimum 40 stopni!**")
                 is_mandatory_cure = True
 
         if decision_after_cure == "Kolejny proces wygrzewania":
@@ -177,12 +177,17 @@ if st.button("GENERUJ PROTOKÓŁ OGLĘDZIN"):
         else:
             if strength_val >= 4:
                 st.write(f"* Gruntowanie podłoża: **WAKOL D 3055**.")
-            elif strength_val in [2, 3]:
+            elif strength_val == 3: # Umiarkowanie słaby
                 st.write("* Zalecamy zagruntowanie całej powierzchni podłoża gruntówką wzmacniającą **WAKOL PU 280**.")
                 st.write("  Aplikować wałkiem. Nie zostawiać kałuż tj. Zbierać nadmiar niewchłoniętej gruntówki.")
                 st.write("  **Zużycie:** ok. 150 g/m². **Czas schnięcia:** 1 godzina. (W zależności od chłonności podłoża zużycie może być większe bądź mniejsze).")
                 st.write("  **Czas do montażu:** 72 godziny.")
-            elif strength_val == 1:
+            elif strength_val == 2: # Słaby (NOWA LOGIKA PU 235)
+                st.write("* Zalecamy jednokrotną aplikację gruntówki **WAKOL PU 235**.")
+                st.write("  Aplikować wałkiem. Podczas aplikacji nie zostawiać kałuż tj. Zbierać nadmiar niewchłoniętej gruntówki.")
+                st.write("  **Zużycie:** 1-warstwa nałożona wałkiem ok. 150 g/m².")
+                st.write("  **Czas schnięcia:** 3 – 6 godzin. **Czas klejenia:** 72 godziny od zagruntowania.")
+            elif strength_val == 1: # Bardzo słaby
                 st.write(f"* Wzmocnienie podłoża żywicą: **WAKOL PS 275**.")
 
         if needs_levelling == "TAK":
@@ -195,5 +200,5 @@ if st.button("GENERUJ PROTOKÓŁ OGLĘDZIN"):
         else:
             st.write(f"* Montaż okładziny **{flooring_type}** zgodnie z kartami technicznymi WAKOL.")
         
-        st.write("---")
+        st.divider()
         st.write(f"Z poważaniem, **{autor}**")
