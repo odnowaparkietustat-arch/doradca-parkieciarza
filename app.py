@@ -80,6 +80,18 @@ holes = st.radio("Ubytki:", ["TAK", "NIE"], index=1, horizontal=True, label_visi
 # 7. Wilgotność
 moisture = st.number_input(f"7. Poziom wilgoci podłoża (CM %)", value=None, placeholder="Wpisz wynik pomiaru CM...", format="%.1f")
 
+# --- NOWE PUNKTY: TESTY MECHANICZNE ---
+st.write("### Testy mechaniczne podłoża")
+test_options = ["negatywny", "dostateczny", "pozytywny"]
+
+col_t1, col_t2, col_t3 = st.columns(3)
+with col_t1:
+    test_hammer = st.selectbox("Wynik testu młotkiem", test_options, index=2)
+with col_t2:
+    test_ripper = st.selectbox("Wynik testu rysikiem", test_options, index=2)
+with col_t3:
+    test_brush = st.selectbox("Wynik testu szczotką drucianą", test_options, index=2)
+
 # Logika norm
 if substrate == "jastrych anhydrytowy":
     limit = 0.3 if heating_exists == "TAK" else 0.5
@@ -109,7 +121,6 @@ if st.button("GENERUJ PROTOKÓŁ OGLĘDZIN"):
     else:
         st.divider()
         m_status = "POZYTYWNY" if moisture <= limit else "NEGATYWNY"
-        s_status = "pozytywna" if strength_val >= 4 else "dostateczna" if strength_val == 3 else "negatywna"
 
         # Nagłówek
         st.markdown("### **Loba-Wakol Polska Sp. z o.o.**")
@@ -127,8 +138,10 @@ if st.button("GENERUJ PROTOKÓŁ OGLĘDZIN"):
             cured_status = "przeprowadzony" if heating_cured == "TAK" else "nie przeprowadzony"
             st.write(f"**Proces wygrzewania podłoża:** {cured_status}")
             
-        st.write(f"**b) badanie wytrzymałości:** próba młotkiem – {s_status} | próba szczotką drucianą – {s_status} | próba rysikiem – {s_status}")
+        st.write(f"**b) badanie wytrzymałości:**")
+        st.write(f"* próba młotkiem – **{test_hammer}** | próba szczotką drucianą – **{test_brush}** | próba rysikiem – **{test_ripper}**")
         st.write(f"* Ocena ogólna wytrzymałości: **{strength_labels[strength_val]}**")
+        
         st.write(f"**c) badanie wilgotności podłoża:** Wynik **{moisture} % CM** (Norma: {limit} % CM) - Status: **{m_status}**")
         st.write(f"**d) warunki klimatyczne:** {temp if temp else '--'}°C | {humidity if humidity else '--'}% RH. Wentylacja: {ventilation_type}.")
 
@@ -173,7 +186,7 @@ if st.button("GENERUJ PROTOKÓŁ OGLĘDZIN"):
         if needs_levelling == "TAK":
             st.write("* Wyrównanie: mata **WAKOL AR 150** + masa **WAKOL Z 645/635**.")
 
-        # --- c) MONTAŻ OKŁADZINY (POPRAWIONE) ---
+        # --- c) MONTAŻ OKŁADZINY ---
         st.write("**c) montaż okładziny:**")
         if flooring_type == "deska warstwowa (drewno, laminat itp.)":
             st.write("* Klejenie deski należy przeprowadzić przy użyciu kleju do parkietu **WAKOL PU 225** (szpachla **B11**, zużycie: **1250 g/m²**).")
