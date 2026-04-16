@@ -86,14 +86,8 @@ if heating_cured == "TAK" and moisture is not None and moisture > limit:
     decision_after_cure = st.radio("Dalsze postępowanie:", ["Kolejny proces wygrzewania", "Wykonanie bariery przeciwwilgociowej"], horizontal=True)
 
 # 8. Wytrzymałość
+strength_labels = {1: "bardzo słaby", 2: "słaby", 3: "umiarkowanie słaby", 4: "umiarkowanie mocny", 5: "mocny"}
 st.write("8. Wytrzymałość jastrychu / płyty")
-strength_labels = {
-    1: "bardzo słaby", 
-    2: "słaby", 
-    3: "umiarkowanie słaby", 
-    4: "umiarkowanie mocny", 
-    5: "mocny"
-}
 strength_val = st.select_slider("Skala wytrzymałości:", options=[1, 2, 3, 4, 5], value=3, format_func=lambda x: strength_labels[x])
 
 # 9. Wentylacja i warunki
@@ -118,9 +112,9 @@ if st.button("GENERUJ PROTOKÓŁ OGLĘDZIN"):
         st.write(f"**Szanowni Państwo:** {klient}")
         st.markdown(f"**Dotyczy:** Protokół z oględzin inwestycji w budynku przy {adres} w miejscowości {miejscowosc}.")
 
-        # Sekcja I
+        # Sekcja I - ZMIANA: Usunięto słowo "Ogrzewanie:"
         st.markdown("#### **I. Oględziny i badania**")
-        st.write(f"**a) oględziny optyczne:** Podłoże stanowi {substrate}. {f'Stwierdzono instalację ogrzewania: {heating_info}.' if heating_exists == 'TAK' else 'Brak instalacji ogrzewania podłogowego.'}")
+        st.write(f"**a) oględziny optyczne:** Podłoże stanowi {substrate}. {heating_info if heating_exists == 'TAK' else 'Brak instalacji ogrzewania podłogowego.'}")
         if heating_cured: st.write(f"**Proces wygrzewania podłoża:** {heating_cured}")
         st.write(f"**b) badanie wytrzymałości:** próba młotkiem – {s_status} | próba szczotką drucianą – {s_status} | próba rysikiem – {s_status}")
         st.write(f"* Ocena ogólna wytrzymałości: **{strength_labels[strength_val]}**")
@@ -130,7 +124,6 @@ if st.button("GENERUJ PROTOKÓŁ OGLĘDZIN"):
         # Sekcja II
         st.markdown("#### **II. Zalecenia techniczne**")
         
-        # --- a) PRZYGOTOWANIE PODŁOŻA ---
         st.write("**a) przygotowanie podłoża:**")
         
         is_mandatory_cure = False
@@ -144,7 +137,6 @@ if st.button("GENERUJ PROTOKÓŁ OGLĘDZIN"):
 
         st.write("* Szlif podłoża w celu usunięcia mleczka i otwarcia porów, dokładne odkurzenie.")
 
-        # --- b) NAPRAWA I WZMOCNIENIE PODŁOŻA ---
         st.write("**b) naprawa i wzmocnienie podłoża:**")
         
         if decision_after_cure == "Kolejny proces wygrzewania" or is_mandatory_cure:
@@ -153,25 +145,21 @@ if st.button("GENERUJ PROTOKÓŁ OGLĘDZIN"):
         if cracks == "TAK": st.write(f"    * Klawiszujące fragmenty ({cracks_meters if cracks_meters else 0} mb) zespolić żywicą laną **WAKOL PS 205**.")
         if holes == "TAK": st.write(f"    * Ubytki i zdegradowane fragmenty uzupełnić zaprawą **WAKOL Z 610**.")
         
-        # LOGIKA GRUNTÓWEK NA PODSTAWIE WYTRZYMAŁOŚCI
         if moisture > limit and decision_after_cure == "Wykonanie bariery przeciwwilgociowej":
             st.write("* Wykonanie bariery przeciwwilgociowej żywicą **WAKOL PU 280** (2 warstwy).")
         else:
-            if strength_val == 5: # Mocny
+            if strength_val == 5 or strength_val == 4:
                 st.write(f"* Gruntowanie podłoża: **WAKOL D 3055**.")
-            elif strength_val == 4: # Umiarkowanie mocny
-                st.write(f"* Gruntowanie podłoża: **WAKOL D 3055**.")
-            elif strength_val == 3: # Umiarkowanie słaby
+            elif strength_val == 3:
                 st.write(f"* Wzmocnienie podłoża żywicą: **WAKOL PU 280**.")
-            elif strength_val == 2: # Słaby
+            elif strength_val == 2:
                 st.write(f"* Wzmocnienie podłoża żywicą: **WAKOL PU 280** bądź **WAKOL PU 235**.")
-            elif strength_val == 1: # Bardzo słaby
+            elif strength_val == 1:
                 st.write(f"* Wzmocnienie podłoża żywicą: **WAKOL PS 275**.")
 
         if needs_levelling == "TAK":
             st.write("* Wyrównanie: mata **WAKOL AR 150** + masa **WAKOL Z 645/635**.")
 
-        # --- c) MONTAŻ ---
         st.markdown(f"**c) montaż okładziny:** Montaż okładziny **{flooring_type}** zgodnie z kartami technicznymi WAKOL.")
         
         st.write("---")
