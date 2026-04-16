@@ -80,10 +80,30 @@ holes = st.radio("Ubytki:", ["TAK", "NIE"], index=1, horizontal=True, label_visi
 # 7. Wilgotność
 moisture = st.number_input(f"7. Poziom wilgoci podłoża (CM %)", value=None, placeholder="Wpisz wynik pomiaru CM...", format="%.1f")
 
+# Logika norm wilgotności
+if substrate == "jastrych anhydrytowy":
+    limit = 0.3 if heating_exists == "TAK" else 0.5
+else:
+    limit = 1.5 if heating_exists == "TAK" else 1.8
+
+# Wywiad po przekroczeniu normy (ZMIANA LOGIKI)
+decision_after_cure = None
+show_moisture_decision = False
+
+if moisture is not None and moisture > limit:
+    if heating_exists == "NIE":
+        show_moisture_decision = True
+    elif heating_exists == "TAK" and heating_cured == "TAK":
+        show_moisture_decision = True
+
+if show_moisture_decision:
+    st.warning(f"💡 Wilgotność ponadnormatywna ({moisture}% CM > {limit}% CM).")
+    decision_after_cure = st.radio("Dalsze postępowanie:", ["Dalsze osuszanie / wygrzewanie", "Wykonanie bariery przeciwwilgociowej"], horizontal=True)
+
 # --- TESTY MECHANICZNE ---
 st.write("### Testy mechaniczne podłoża")
 test_options_std = ["negatywny", "dostateczny", "pozytywny"]
-test_options_brush = ["negatywny", "pozytywny"] # ZMIANA: Usunięto 'dostateczny'
+test_options_brush = ["negatywny", "pozytywny"]
 
 col_t1, col_t2, col_t3 = st.columns(3)
 with col_t1:
@@ -93,33 +113,21 @@ with col_t2:
 with col_t3:
     test_brush = st.selectbox("Wynik testu szczotką drucianą", test_options_brush, index=1)
 
-# Logika przypisania wytrzymałości na podstawie testów
+# Logika przypisania wytrzymałości
 default_strength = 3
 if test_brush == "negatywny" or test_hammer == "negatywny":
-    default_strength = 1 # Bardzo słaby
+    default_strength = 1
 elif test_hammer == "dostateczny" or test_ripper == "negatywny":
-    default_strength = 2 # Słaby
+    default_strength = 2
 elif test_ripper == "dostateczny":
-    default_strength = 3 # Umiarkowanie słaby
+    default_strength = 3
 elif test_ripper == "pozytywny":
-    default_strength = 5 # Mocny
+    default_strength = 5
 
 # 8. Wytrzymałość
 strength_labels = {1: "bardzo słaby", 2: "słaby", 3: "umiarkowanie słaby", 4: "umiarkowanie mocny", 5: "mocny"}
 st.write("8. Wytrzymałość jastrychu / płyty")
 strength_val = st.select_slider("Skala wytrzymałości:", options=[1, 2, 3, 4, 5], value=default_strength, format_func=lambda x: strength_labels[x])
-
-# Logika norm
-if substrate == "jastrych anhydrytowy":
-    limit = 0.3 if heating_exists == "TAK" else 0.5
-else:
-    limit = 1.5 if heating_exists == "TAK" else 1.8
-
-# Wywiad po wygrzewaniu
-decision_after_cure = None
-if heating_cured == "TAK" and moisture is not None and moisture > limit:
-    st.info("💡 Wilgotność ponadnormatywna mimo wygrzewania.")
-    decision_after_cure = st.radio("Dalsze postępowanie:", ["Kolejny proces wygrzewania", "Wykonanie bariery przeciwwilgociowej"], horizontal=True)
 
 # 9. Wentylacja i warunki
 ventilation_type = st.radio("9. Rodzaj wentylacji:", ["Grawitacyjna", "Mechaniczna"], horizontal=True)
@@ -162,7 +170,6 @@ if st.button("GENERUJ PROTOKÓŁ OGLĘDZIN"):
         # Sekcja II
         st.markdown("#### **II. Zalecenia techniczne**")
         
-        # --- a) PRZYGOTOWANIE PODŁOŻA ---
         st.write("**a) przygotowanie podłoża:**")
         is_mandatory_cure = False
         if heating_exists == "TAK" and heating_cured == "NIE":
@@ -170,8 +177,8 @@ if st.button("GENERUJ PROTOKÓŁ OGLĘDZIN"):
                 st.write("* **Przeprowadzenie pełnego procesu wygrzewania zgodnie z protokołem temperatura wody w instalacji minimum 40 stopni!**")
                 is_mandatory_cure = True
 
-        if decision_after_cure == "Kolejny proces wygrzewania":
-            st.write(f"* **Zalecamy doprowadzenie do normatywnego poziomu wilgoci ({limit}% CM) poprzez przeprowadzenie kolejnego procesu wygrzewania.**")
+        if decision_after_cure == "Dalsze osuszanie / wygrzewanie":
+            st.write(f"* **Zalecamy doprowadzenie do normatywnego poziomu wilgoci ({limit}% CM) poprzez kontynuowanie procesu osuszania/wygrzewania.**")
 
         st.write("* Szlif podłoża w celu uzyskania porowatej i chłonnej powierzchni.")
         st.write("* Dokładne odkurzenie całej powierzchni.")
@@ -179,27 +186,24 @@ if st.button("GENERUJ PROTOKÓŁ OGLĘDZIN"):
         # --- b) NAPRAWA I WZMOCNIENIE PODŁOŻA ---
         st.write("**b) naprawa i wzmocnienie podłoża:**")
         
-        if decision_after_cure == "Kolejny proces wygrzewania" or is_mandatory_cure:
+        if (decision_after_cure == "Dalsze osuszanie / wygrzewanie" or is_mandatory_cure):
             st.write(f"* **Po doprowadzeniu do normatywnego poziomu wilgoci w jastrychu (tj. {limit}% CM), zalecamy:**")
         
         if cracks == "TAK": st.write(f"    * Klawiszujące fragmenty ({cracks_meters if cracks_meters else 0} mb) zespolić żywicą laną **WAKOL PS 205**.")
         if holes == "TAK": st.write(f"    * Ubytki i zdegradowane fragmenty uzupełnić zaprawą **WAKOL Z 610**.")
         
+        # LOGIKA BARIERY LUB WZMOCNIENIA
         if moisture > limit and decision_after_cure == "Wykonanie bariery przeciwwilgociowej":
-            st.write("* Wykonanie bariery przeciwwilgociowej żywicą **WAKOL PU 280** (2 warstwy).")
+            st.write("* **Wykonanie bariery przeciwwilgociowej żywicą WAKOL PU 280 (2 warstwy).**")
         else:
             if strength_val >= 4:
                 st.write(f"* Gruntowanie podłoża: **WAKOL D 3055**.")
             elif strength_val == 3:
                 st.write("* Zalecamy zagruntowanie całej powierzchni podłoża gruntówką wzmacniającą **WAKOL PU 280**.")
-                st.write("  Aplikować wałkiem. Nie zostawiać kałuż tj. Zbierać nadmiar niewchłoniętej gruntówki.")
-                st.write("  **Zużycie:** ok. 150 g/m². **Czas schnięcia:** 1 godzina. (W zależności od chłonności podłoża zużycie może być większe bądź mniejsze).")
-                st.write("  **Czas do montażu:** 72 godziny.")
+                st.write("  Aplikować wałkiem. Nie zostawiać kałuż tj. Zbierać nadmiar niewchłoniętej gruntówki. Zużycie ok. 150 g/m². Czas schnięcia 1 godzina. Czas do montażu – 72 godziny.")
             elif strength_val == 2:
                 st.write("* Zalecamy jednokrotną aplikację gruntówki **WAKOL PU 235**.")
-                st.write("  Aplikować wałkiem. Podczas aplikacji nie zostawiać kałuż tj. Zbierać nadmiar niewchłoniętej gruntówki.")
-                st.write("  **Zużycie:** 1-warstwa nałożona wałkiem ok. 150 g/m².")
-                st.write("  **Czas schnięcia:** 3 – 6 godzin. **Czas klejenia:** 72 godziny od zagruntowania.")
+                st.write("  Aplikować wałkiem. Podczas aplikacji nie zostawiać kałuż tj. Zbierać nadmiar niewchłoniętej gruntówki. Zużycie ok. 150 g/m². Czas schnięcia 3 – 6 godzin. Czas klejenia 72 godziny od zagruntowania.")
             elif strength_val == 1:
                 st.write(f"* Wzmocnienie podłoża żywicą: **WAKOL PS 275**.")
 
