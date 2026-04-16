@@ -48,11 +48,19 @@ heating_info = ""
 heating_cured = None
 if heating_exists == "TAK":
     h_type = st.selectbox("Typ ogrzewania:", ["wodne klasyczne", "bruzdowane", "w suchej zabudowie", "elektryczne"])
-    heating_info = h_type
+    
+    # Mapowanie nazw na bardziej oficjalne brzmienie w protokole
+    mapping = {
+        "wodne klasyczne": "instalacja ogrzewania podłogowego wodna, klasyczna",
+        "bruzdowane": "instalacja ogrzewania podłogowego wodna, bruzdowana",
+        "w suchej zabudowie": "instalacja ogrzewania podłogowego wodna, w suchej zabudowie",
+        "elektryczne": "instalacja ogrzewania podłogowego elektryczna"
+    }
+    heating_info = mapping.get(h_type, h_type)
     
     if h_type == "elektryczne":
         el_pos = st.radio("Umiejscowienie ogrzewania elektrycznego:", ["wewnątrz jastrychu", "na powierzchni jastrychu"], horizontal=True)
-        heating_info = f"elektryczne ({el_pos})"
+        heating_info = f"{heating_info} ({el_pos})"
         heating_cured = st.radio("Czy przeprowadzono proces wygrzewania?", ["TAK", "NIE"], index=1, horizontal=True)
     else:
         heating_cured = st.radio("Czy przeprowadzono proces wygrzewania?", ["TAK", "NIE"], index=1, horizontal=True)
@@ -112,7 +120,7 @@ if st.button("GENERUJ PROTOKÓŁ OGLĘDZIN"):
         st.write(f"**Szanowni Państwo:** {klient}")
         st.markdown(f"**Dotyczy:** Protokół z oględzin inwestycji w budynku przy {adres} w miejscowości {miejscowosc}.")
 
-        # Sekcja I
+        # Sekcja I - ZMIANA: Bardziej profesjonalny opis instalacji
         st.markdown("#### **I. Oględziny i badania**")
         st.write(f"**a) oględziny optyczne:** Podłoże stanowi {substrate}. {heating_info if heating_exists == 'TAK' else 'Brak instalacji ogrzewania podłogowego.'}")
         if heating_cured: st.write(f"**Proces wygrzewania podłoża:** {heating_cured}")
@@ -124,12 +132,12 @@ if st.button("GENERUJ PROTOKÓŁ OGLĘDZIN"):
         # Sekcja II
         st.markdown("#### **II. Zalecenia techniczne**")
         
-        # --- a) PRZYGOTOWANIE PODŁOŻA ---
         st.write("**a) przygotowanie podłoża:**")
         
         is_mandatory_cure = False
         if heating_exists == "TAK" and heating_cured == "NIE":
-            if "wodne klasyczne" in heating_info or "wewnątrz jastrychu" in heating_info or substrate == "płyta fundamentowa":
+            # Logika wymuszania wygrzewania przy określonych typach
+            if any(x in heating_info for x in ["wodna", "wewnątrz jastrychu"]) or substrate == "płyta fundamentowa":
                 st.write("* **Przeprowadzenie pełnego procesu wygrzewania zgodnie z protokołem temperatura wody w instalacji minimum 40 stopni!**")
                 is_mandatory_cure = True
 
@@ -138,7 +146,6 @@ if st.button("GENERUJ PROTOKÓŁ OGLĘDZIN"):
 
         st.write("* Szlif podłoża w celu usunięcia mleczka i otwarcia porów, dokładne odkurzenie.")
 
-        # --- b) NAPRAWA I WZMOCNIENIE PODŁOŻA ---
         st.write("**b) naprawa i wzmocnienie podłoża:**")
         
         if decision_after_cure == "Kolejny proces wygrzewania" or is_mandatory_cure:
@@ -147,7 +154,6 @@ if st.button("GENERUJ PROTOKÓŁ OGLĘDZIN"):
         if cracks == "TAK": st.write(f"    * Klawiszujące fragmenty ({cracks_meters if cracks_meters else 0} mb) zespolić żywicą laną **WAKOL PS 205**.")
         if holes == "TAK": st.write(f"    * Ubytki i zdegradowane fragmenty uzupełnić zaprawą **WAKOL Z 610**.")
         
-        # LOGIKA GRUNTÓWEK NA PODSTAWIE WYTRZYMAŁOŚCI
         if moisture > limit and decision_after_cure == "Wykonanie bariery przeciwwilgociowej":
             st.write("* Wykonanie bariery przeciwwilgociowej żywicą **WAKOL PU 280** (2 warstwy).")
         else:
@@ -163,7 +169,6 @@ if st.button("GENERUJ PROTOKÓŁ OGLĘDZIN"):
         if needs_levelling == "TAK":
             st.write("* Wyrównanie: mata **WAKOL AR 150** + masa **WAKOL Z 645/635**.")
 
-        # --- c) MONTAŻ ---
         st.markdown(f"**c) montaż okładziny:** Montaż okładziny **{flooring_type}** zgodnie z kartami technicznymi WAKOL.")
         
         st.write("---")
