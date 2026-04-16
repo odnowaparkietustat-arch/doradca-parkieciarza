@@ -141,8 +141,44 @@ if st.button("GENERUJ PROTOKÓŁ OGLĘDZIN"):
         is_mandatory_cure = False
         if heating_exists == "TAK" and heating_cured == "NIE":
             if any(x in heating_info for x in ["wodna", "wewnątrz jastrychu"]) or substrate == "płyta fundamentowa":
-                st.write("* **Przeprowadzenie pełnego procesu wygrzewania zgodnie z protokołem temperatura wody in instalacji minimum 40 stopni!**")
+                st.write("* **Przeprowadzenie pełnego procesu wygrzewania zgodnie z protokołem temperatura wody w instalacji minimum 40 stopni!**")
                 is_mandatory_cure = True
 
         if decision_after_cure == "Kolejny proces wygrzewania":
-            st.write(f"* **Zalecamy
+            st.write(f"* **Zalecamy doprowadzenie do normatywnego poziomu wilgoci ({limit}% CM) poprzez przeprowadzenie kolejnego procesu wygrzewania.**")
+
+        st.write("* Szlif podłoża w celu usunięcia mleczka i otwarcia porów, dokładne odkurzenie.")
+
+        # --- b) NAPRAWA I WZMOCNIENIE PODŁOŻA ---
+        st.write("**b) naprawa i wzmocnienie podłoża:**")
+        
+        if decision_after_cure == "Kolejny proces wygrzewania" or is_mandatory_cure:
+            st.write(f"* **Po doprowadzeniu do normatywnego poziomu wilgoci w jastrychu (tj. {limit}% CM), zalecamy:**")
+        
+        if cracks == "TAK": st.write(f"    * Klawiszujące fragmenty ({cracks_meters if cracks_meters else 0} mb) zespolić żywicą laną **WAKOL PS 205**.")
+        if holes == "TAK": st.write(f"    * Ubytki i zdegradowane fragmenty uzupełnić zaprawą **WAKOL Z 610**.")
+        
+        if moisture > limit and decision_after_cure == "Wykonanie bariery przeciwwilgociowej":
+            st.write("* Wykonanie bariery przeciwwilgociowej żywicą **WAKOL PU 280** (2 warstwy).")
+        else:
+            if strength_val >= 4:
+                st.write(f"* Gruntowanie podłoża: **WAKOL D 3055**.")
+            elif strength_val == 3:
+                st.write(f"* Wzmocnienie podłoża żywicą: **WAKOL PU 280**.")
+            elif strength_val == 2:
+                st.write(f"* Wzmocnienie podłoża żywicą: **WAKOL PU 280** bądź **WAKOL PU 235**.")
+            elif strength_val == 1:
+                st.write(f"* Wzmocnienie podłoża żywicą: **WAKOL PS 275**.")
+
+        if needs_levelling == "TAK":
+            st.write("* Wyrównanie: mata **WAKOL AR 150** + masa **WAKOL Z 645/635**.")
+
+        # --- c) MONTAŻ OKŁADZINY ---
+        st.write("**c) montaż okładziny:**")
+        if flooring_type == "deska warstwowa (drewno, laminat itp.)":
+            st.write("* Klejenie deski należy przeprowadzić przy użyciu kleju do parkietu **WAKOL PU 225** (szpachla **B11**, zużycie: **1250 g/m²**).")
+        else:
+            st.write(f"* Montaż okładziny **{flooring_type}** zgodnie z kartami technicznymi WAKOL.")
+        
+        st.write("---")
+        st.write(f"Z poważaniem, **{autor}**")
