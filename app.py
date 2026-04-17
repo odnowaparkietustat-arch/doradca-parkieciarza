@@ -29,17 +29,22 @@ flooring_type = st.selectbox("1. Rodzaj okładziny", [
     "pcv w rolce", "lvt cienkie", "lvt grube z twardym rdzeniem"
 ])
 
-# 2. Rodzaj podłoża
+# 2. Rodzaj podłoża - DODANO MASĘ SAMOROZLEWNĄ
 substrate = st.selectbox("2. Rodzaj podłoża", [
     "jastrych cementowy", "jastrych anhydrytowy", 
-    "masa samorozlewna", "inny mineralny",
-    "płyta fundamentowa", "podłoże drewniane", "płytki ceramiczne"
+    "płyta fundamentowa", "podłoże drewniane (parkiet, deska, OSB)", 
+    "płytki ceramiczne", "masa samorozlewna"
 ])
 
-# NOWY PUNKT: Wiek jastrychu (wyświetlany dla podłoży mineralnych)
+# Dodatkowe pytanie o grubość istniejącej masy
+existing_levelling_thickness = None
+if substrate == "masa samorozlewna":
+    existing_levelling_thickness = st.number_input("Grubość wylanej masy (mm):", min_value=1, value=3)
+
+# Wiek podłoża (warunkowy dla mineralnych)
 substrate_age = None
-if substrate in ["jastrych cementowy", "jastrych anhydrytowy", "masa samorozlewna", "inny mineralny"]:
-    substrate_age = st.number_input("Wiek jastrychu (w miesiącach):", min_value=0, step=1, value=1)
+if any(x in substrate for x in ["jastrych", "płyta", "masa"]):
+    substrate_age = st.number_input("Wiek podłoża (w dniach/tygodniach/miesiącach) - wpisz tekst:", placeholder="np. 28 dni, 3 miesiące...", value="")
 
 # 3. Ogrzewanie podłogowe
 st.write("3. Czy jest instalacja ogrzewania podłogowego?")
@@ -56,7 +61,7 @@ if heating_exists == "TAK":
     }
     heating_info = mapping.get(h_type, h_type)
 
-# 4. Wyrównanie
+# 4. Wyrównanie (Zalecenie nowej masy)
 st.write("4. Czy podłoże wymaga wyrównania (masy)?")
 needs_levelling = st.radio("Wymaga wyrównania:", ["TAK", "NIE"], index=1, horizontal=True, label_visibility="collapsed")
 leveling_thickness = 0
@@ -81,7 +86,7 @@ pek_meters = 0.0
 if cracks_pek == "TAK":
     pek_meters = st.number_input("Ilość mb pęknięć do zespolenia:", value=0.0, step=0.5)
 
-# 8. Ubytki (Centymetry)
+# 8. Ubytki
 st.write("8. Czy są ubytki lub zdegradowane miejsca wymagające wypełnienia?")
 holes = st.radio("Ubytki:", ["TAK", "NIE"], index=1, horizontal=True, label_visibility="collapsed")
 hole_details = ""
@@ -122,11 +127,11 @@ barrier_max = 2.5 if heating_exists == "TAK" else 3.5
 
 decision_after_cure = None
 if moisture is not None and moisture > limit:
-    st.warning(f"💡 Wilgotność ponadnormatywna ({moisture}% CM > {limit}% CM).")
+    st.warning(f"💡 Wilgotność ponadnormatywna.")
     opt_dry = "Dalsze osuszanie" if heating_exists == "NIE" else "Kolejny proces wygrzewania"
     
     if moisture > barrier_max:
-        st.error(f"❌ Wilgotność {moisture}% CM przekracza dopuszczalny próg dla bariery żywicznej ({barrier_max}% CM).")
+        st.error(f"❌ Wilgotność za wysoka na barierę.")
         decision_after_cure = opt_dry
     else:
         decision_after_cure = st.radio("Postępowanie:", [opt_dry, "Wykonanie bariery przeciwwilgociowej"], horizontal=True)
@@ -156,22 +161,22 @@ if st.button("GENERUJ PROTOKÓŁ OGLĘDZIN"):
 
         st.markdown("#### **I. Oględziny i badania**")
         
-        # Wiek jastrychu w opisie
-        age_txt = f" Wiek podłoża: {substrate_age} mies." if substrate_age is not None else ""
-
-        # Logika dylatacji obwodowych
+        # Logika dylatacji
         actual_obw_ok = dilatations_obw_ok
         if cracks_klaw == "TAK":
             actual_obw_ok = "NIE"
         obw_status = "Dylatacje obwodowe zachowane prawidłowo." if actual_obw_ok == "TAK" else "Dylatacje obwodowe niezachowane prawidłowo."
 
-        # Logika klawiszowania i pęknięć
         klaw_desc = f" Stwierdzono klawiszujące dylatacje pozorne ({klaw_meters} mb)." if cracks_klaw == "TAK" else " Brak klawiszujących dylatacji."
         pek_desc = f" Stwierdzono pęknięcia podłoża wymagające zespolenia ({pek_meters} mb)." if cracks_pek == "TAK" else " Brak pęknięć wymagających zespolenia."
         
         heat_status_txt = f" {heating_info}." if heating_exists == "TAK" else " Brak instalacji ogrzewania podłogowego."
+        
+        # Wiek i grubość masy
+        age_txt = f" Wiek podłoża: {substrate_age}." if substrate_age else ""
+        thickness_txt = f" (grubość wylanej warstwy: {existing_levelling_thickness} mm)" if existing_levelling_thickness else ""
 
-        st.write(f"**a) oględziny optyczne:** Podłoże stanowi {substrate}.{age_txt}{heat_status_txt} {obw_status}{klaw_desc}{pek_desc} Wentylacja: **{ventilation_type}**.")
+        st.write(f"**a) oględziny optyczne:** Podłoże stanowi {substrate}{thickness_txt}.{age_txt}{heat_status_txt} {obw_status}{klaw_desc}{pek_desc} Wentylacja: **{ventilation_type}**.")
         
         if extra_notes:
             st.write(f"**Uwagi dodatkowe:** {extra_notes}")
@@ -202,18 +207,14 @@ if st.button("GENERUJ PROTOKÓŁ OGLĘDZIN"):
             st.write(f"* Ubytki i zdegradowane fragmenty{hole_details} uzupełnić zaprawą szybkosprawną **WAKOL Z 610**.")
             
         if decision_after_cure == "Wykonanie bariery przeciwwilgociowej":
-            st.write("* **Z uwagi na podwyższoną wilgotność zalecamy stworzenie bariery przeciwwilgociowej poprzez zagruntowanie powierzchni jastrychu gruntówką poliuretanową WAKOL PU 280.**")
-            st.write("  Aplikować wałkiem. Podczas aplikacji nie zostawiać kałuż. Zbierać nadmiar nie wchłoniętej gruntówki.")
-            st.write("  - 1 warstwa: nałożona wałkiem ok. 100-150 g/m². Czas schnięcia – jedna godzina.")
-            st.write("  - 2 warstwa: ok. 100 g/m² – czas schnięcia – jedna godzina.")
-            st.markdown("  *Należy zaślepić dylatacje pozorne.*")
+            st.write("* **Zalecamy barierę przeciwwilgociową WAKOL PU 280 (2 warstwy). Schnięcie 1h/warstwę. Zaślepić dylatacje pozorne.**")
         else:
             if strength_val >= 4:
-                st.write("* Zalecamy zagruntowanie całej powierzchni jastrychu gruntówką dyspersyjną **WAKOL D 3055** - aplikacja wałkiem ok. 150 g/m2. Czas schnięcia ok 30 min.")
+                st.write("* Zalecamy gruntówkę dyspersyjną **WAKOL D 3055** (150 g/m2, 30 min).")
             elif strength_val == 3:
-                st.write("* Zalecamy zagruntowanie całej powierzchni podłoża gruntówką wzmacniającą **WAKOL PU 280**. Zużycie ok. 150 g/m². Czas schnięcia 1 godzina.")
+                st.write("* Zalecamy gruntówkę wzmacniającą **WAKOL PU 280**.")
             elif strength_val == 2:
-                st.write("* Zalecamy jednokrotną aplikację gruntówki **WAKOL PU 235**. Zużycie ok. 150 g/m². Czas schnięcia 3-6 godzin.")
+                st.write("* Zalecamy gruntówkę **WAKOL PU 235**.")
             else:
                 st.write("* Wzmocnienie głębokie żywicą: **WAKOL PS 275**.")
 
