@@ -208,23 +208,30 @@ if st.button("GENERUJ PROTOKÓŁ OGLĘDZIN", type="primary", use_container_width
         if holes == "TAK":
             st.write(f"* Ubytki i zdegradowane fragmenty{hole_details} uzupełnić zaprawą szybkosprawną **WAKOL Z 610**.")
             
-        # DEFINICJE FORMÓŁ DLA GRUNTÓWEK PU
-        pu_280_exact_text = "Zalecamy zagruntowanie całej powierzchni podłoża gruntówką wzmacniającą WAKOL PU 280. Aplikować wałkiem. Nie zostawiać kałuż tj. Zbierać nadmiar niewchłoniętej gruntówki. Zużycie ok. 150 g/m². Czas schnięcia 1 godzina. W zależności od chłonności podłoża zużycie może być większe bądź mniejsze. Czas do montażu – 72 godziny."
-        pu_235_exact_text = "Zalecamy jednokrotną aplikację gruntówki WAKOL PU 235. Aplikować wałkiem. Podczas aplikacji nie zostawiać kałuż tj. Zbierać nadmiar niewchłoniętej gruntówki. 1 - warstwa nałożona wałkiem ok.150 g/m². Czas schnięcia 3 – 6 godzin. Czas klejenia 72 godziny od zagruntowania."
-
+        # LOGIKA GRUNTOWANIA PU
         if decision_after_cure == "Wykonanie bariery przeciwwilgociowej":
             if strength_val == 2:
-                 st.write(f"* **{pu_235_exact_text} (Zastosowanie jako bariera przeciwwilgociowa).**")
+                # PU 235 BARIERA (2 WARSTWY) - WEDŁUG NAJNOWSZEGO WZORU
+                st.write("* **Zalecamy wykonanie bariery przeciwwilgociowej poprzez dwukrotne zagruntowanie gruntówką wzmacniającą WAKOL PU 235. Podczas aplikacji nie zostawiać kałuż tj. Zbierać nadmiar niewchłoniętej gruntówki.**")
+                st.write("  - 1 - warstwa nałożona wałkiem ok. 150 g/m². Czas schnięcia – 3-6 godzin.")
+                st.write("  - 2 warstwa zużycie ok. 100 g/m². Czas schnięcia – 3-6 godzin.")
+                st.write("  - Czas klejenia 72 godziny od zagruntowania.")
             else:
-                 st.write(f"* **{pu_280_exact_text} (Zastosowanie jako bariera przeciwwilgociowa).**")
+                # PU 280 BARIERA (2 WARSTWY)
+                st.write("* **Z uwagi na podwyższoną wilgotność zalecamy stworzenie bariery przeciwwilgociowej poprzez zagruntowanie powierzchni jastrychu gruntówką poliuretanową WAKOL PU 280. Aplikować wałkiem. Podczas aplikacji nie zostawiać kałuż tj. Zbierać nadmiar niewchłoniętej gruntówki.**")
+                st.write("  - 1 warstwa nałożona wałkiem ok. 100-150 g/m². Czas schnięcia – jedna godzina.")
+                st.write("  - 2 warstwa ok. 100 g/m² - czas schnięcia – jedna godzina.")
+                st.write("  - *W zależności od chłonności podłoża zużycie gruntówki może być większe bądź mniejsze, większa ilość nałożonego materiału wydłuża czas schnięcia.*")
+                st.write("  - Czas do klejenia: 72 godziny od zagruntowania.")
             st.markdown("  *Należy zaślepić dylatacje pozorne przed aplikacją.*")
         else:
+            # GRUNTOWANIE WZMOCNIAJĄCE (1 WARSTWA)
             if strength_val >= 4:
                 st.write("* Zalecamy zagruntowanie całej powierzchni jastrychu gruntówką dyspersyjną **WAKOL D 3055** - aplikacja wałkiem ok. 150 g/m2. Czas schnięcia ok 30 min.")
             elif strength_val == 3:
-                st.write(f"* {pu_280_exact_text}")
+                st.write("* Zalecamy zagruntowanie całej powierzchni podłoża gruntówką wzmacniającą **WAKOL PU 280**. Aplikować wałkiem. Nie zostawiać kałuż tj. Zbierać nadmiar niewchłoniętej gruntówki. Zużycie ok. 150 g/m². Czas schnięcia 1 godzina. W zależności od chłonności podłoża zużycie może być większe bądź mniejsze. Czas do montażu – 72 godziny.")
             elif strength_val == 2:
-                st.write(f"* {pu_235_exact_text}")
+                st.write("* Zalecamy jednokrotną aplikację gruntówki **WAKOL PU 235**. Aplikować wałkiem. Podczas aplikacji nie zostawiać kałuż tj. Zbierać nadmiar niewchłoniętej gruntówki. 1 - warstwa nałożona wałkiem ok.150 g/m². Czas schnięcia 3 – 6 godzin. Czas klejenia 72 godziny od zagruntowania.")
             else:
                 st.write("* Wzmocnienie głębokie żywicą: **WAKOL PS 275**.")
 
