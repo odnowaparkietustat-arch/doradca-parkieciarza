@@ -32,8 +32,14 @@ flooring_type = st.selectbox("1. Rodzaj okładziny", [
 # 2. Rodzaj podłoża
 substrate = st.selectbox("2. Rodzaj podłoża", [
     "jastrych cementowy", "jastrych anhydrytowy", 
+    "masa samorozlewna", "inny mineralny",
     "płyta fundamentowa", "podłoże drewniane", "płytki ceramiczne"
 ])
+
+# NOWY PUNKT: Wiek jastrychu (wyświetlany dla podłoży mineralnych)
+substrate_age = None
+if substrate in ["jastrych cementowy", "jastrych anhydrytowy", "masa samorozlewna", "inny mineralny"]:
+    substrate_age = st.number_input("Wiek jastrychu (w miesiącach):", min_value=0, step=1, value=1)
 
 # 3. Ogrzewanie podłogowe
 st.write("3. Czy jest instalacja ogrzewania podłogowego?")
@@ -141,7 +147,7 @@ if st.button("GENERUJ PROTOKÓŁ OGLĘDZIN"):
         st.error("Proszę podać wilgotność podłoża!")
     else:
         st.divider()
-        m_status = "POZYTYWNY" if moisture <= limit else "NEGATWVNY"
+        m_status = "POZYTYWNY" if moisture <= limit else "NEGATYWNY"
 
         st.markdown("### **Loba-Wakol Polska Sp. z o.o.**")
         st.write(f"**Data badania:** {data_badania.strftime('%d.%m.%Y')} | **Autor:** {autor}")
@@ -150,6 +156,9 @@ if st.button("GENERUJ PROTOKÓŁ OGLĘDZIN"):
 
         st.markdown("#### **I. Oględziny i badania**")
         
+        # Wiek jastrychu w opisie
+        age_txt = f" Wiek podłoża: {substrate_age} mies." if substrate_age is not None else ""
+
         # Logika dylatacji obwodowych
         actual_obw_ok = dilatations_obw_ok
         if cracks_klaw == "TAK":
@@ -162,12 +171,11 @@ if st.button("GENERUJ PROTOKÓŁ OGLĘDZIN"):
         
         heat_status_txt = f" {heating_info}." if heating_exists == "TAK" else " Brak instalacji ogrzewania podłogowego."
 
-        st.write(f"**a) oględziny optyczne:** Podłoże stanowi {substrate}.{heat_status_txt} {obw_status}{klaw_desc}{pek_desc} Wentylacja: **{ventilation_type}**.")
+        st.write(f"**a) oględziny optyczne:** Podłoże stanowi {substrate}.{age_txt}{heat_status_txt} {obw_status}{klaw_desc}{pek_desc} Wentylacja: **{ventilation_type}**.")
         
         if extra_notes:
             st.write(f"**Uwagi dodatkowe:** {extra_notes}")
 
-        # ZMIANA: Wyniki testów pod sobą jako podpunkty
         st.write(f"**b) badanie wytrzymałości:**")
         st.write(f"* próba młotkiem: **{test_hammer}**")
         st.write(f"* próba szczotką drucianą: **{test_brush}**")
