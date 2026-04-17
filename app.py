@@ -42,7 +42,12 @@ heating_exists = st.radio("Ogrzewanie:", ["TAK", "NIE"], index=1, horizontal=Tru
 heating_info = ""
 if heating_exists == "TAK":
     h_type = st.selectbox("Typ ogrzewania:", ["wodne klasyczne", "bruzdowane", "w suchej zabudowie", "elektryczne"])
-    mapping = {"wodne klasyczne": "instalacja ogrzewania podłogowego wodna, klasyczna", "bruzdowane": "instalacja ogrzewania podłogowego wodna, bruzdowana", "w suchej zabudowie": "instalacja ogrzewania podłogowego wodna, w suchej zabudowie", "elektryczne": "instalacja ogrzewania podłogowego elektryczna"}
+    mapping = {
+        "wodne klasyczne": "instalacja ogrzewania podłogowego wodna, klasyczna", 
+        "bruzdowane": "instalacja ogrzewania podłogowego wodna, bruzdowana", 
+        "w suchej zabudowie": "instalacja ogrzewania podłogowego wodna, w suchej zabudowie", 
+        "elektryczne": "instalacja ogrzewania podłogowego elektryczna"
+    }
     heating_info = mapping.get(h_type, h_type)
 
 # 4. Wyrównanie
@@ -81,26 +86,44 @@ if holes == "TAK":
     with col_h3: h_length = st.number_input("Długość (cm)", min_value=0.1, format="%.1f")
     hole_details = f" o wymiarach ok. {h_length}x{h_width} cm i głębokości {h_depth} cm"
 
-# 9. Wilgotność
-moisture = st.number_input("9. Poziom wilgoci podłoża (CM %)", value=None, placeholder="Wpisz wynik...", format="%.1f")
+# 9. Wentylacja i warunki otoczenia (PRZYWRÓCONE DO WYWIADU)
+st.write("9. Rodzaj wentylacji w pomieszczeniu")
+ventilation_type = st.radio("Wentylacja:", ["Grawitacyjna", "Mechaniczna"], horizontal=True, label_visibility="collapsed")
 
-# 10. Dodatkowe uwagi
-st.write("10. Dodatkowe uwagi")
+col_w1, col_w2 = st.columns(2)
+with col_w1:
+    temp_air = st.number_input("10. Temperatura powietrza (°C)", value=20.0, step=0.5)
+with col_w2:
+    hum_air = st.number_input("11. Wilgotność powietrza (%)", value=50.0, step=1.0)
+
+# 12. Wilgotność podłoża
+moisture = st.number_input("12. Poziom wilgoci podłoża (CM %)", value=None, placeholder="Wpisz wynik...", format="%.1f")
+
+# 13. Dodatkowe uwagi
+st.write("13. Dodatkowe uwagi")
 extra_notes = st.text_area("Wpisz spostrzeżenia:", placeholder="Dodatkowe informacje...")
 
-# Logika norm i decyzji
+# Logika norm
 if substrate == "jastrych anhydrytowy": limit = 0.3 if heating_exists == "TAK" else 0.5
 else: limit = 1.5 if heating_exists == "TAK" else 1.8
 
 decision_after_cure = None
 if moisture is not None and moisture > limit:
+    st.warning(f"💡 Wilgotność ponadnormatywna.")
     opt_dry = "Dalsze osuszanie" if heating_exists == "NIE" else "Kolejny proces wygrzewania"
     decision_after_cure = st.radio("Postępowanie:", [opt_dry, "Wykonanie bariery przeciwwilgociowej"], horizontal=True)
+
+# --- TESTY MECHANICZNE ---
+st.write("### Testy mechaniczne")
+col_t1, col_t2, col_t3 = st.columns(3)
+with col_t1: test_hammer = st.selectbox("Młotek", ["negatywny", "dostateczny", "pozytywny"], index=2)
+with col_t2: test_ripper = st.selectbox("Rysik", ["negatywny", "dostateczny", "pozytywny"], index=2)
+with col_t3: test_brush = st.selectbox("Szczotka", ["negatywny", "pozytywny"], index=1)
 
 # --- GENEROWANIE PROTOKOŁU ---
 if st.button("GENERUJ PROTOKÓŁ OGLĘDZIN"):
     if moisture is None:
-        st.error("Proszę podać wilgotność!")
+        st.error("Proszę podać wilgotność podłoża!")
     else:
         st.divider()
         st.markdown("### **Loba-Wakol Polska Sp. z o.o.**")
@@ -109,30 +132,27 @@ if st.button("GENERUJ PROTOKÓŁ OGLĘDZIN"):
 
         st.markdown("#### **I. Oględziny i badania**")
         
-        # Opis dylatacji obwodowych
         obw_status = "Dylatacje obwodowe zachowane prawidłowo." if dilatations_obw_ok == "TAK" else "Dylatacje obwodowe niezachowane prawidłowo."
-        
-        # Opis klawiszowania i pęknięć
         klaw_desc = f" Stwierdzono klawiszujące dylatacje pozorne ({klaw_meters} mb)." if cracks_klaw == "TAK" else ""
         pek_desc = f" Stwierdzono pęknięcia podłoża wymagające zespolenia ({pek_meters} mb)." if cracks_pek == "TAK" else ""
         
-        st.write(f"**a) oględziny optyczne:** Podłoże: {substrate}. {heating_info if heating_exists == 'TAK' else 'Brak ogrzewania.'} {obw_status}{klaw_desc}{pek_desc}")
+        st.write(f"**a) oględziny optyczne:** Podłoże: {substrate}. {heating_info if heating_exists == 'TAK' else 'Brak ogrzewania.'} {obw_status}{klaw_desc}{pek_desc} Wentylacja: **{ventilation_type}**.")
         
         if extra_notes:
-            st.write(f"**Uwagi:** {extra_notes}")
+            st.write(f"**Uwagi dodatkowe:** {extra_notes}")
+
+        st.write(f"**b) badanie wytrzymałości:** Młotek: {test_hammer}, Szczotka: {test_brush}, Rysik: {test_ripper}.")
+        st.write(f"**c) badanie wilgotności:** Wynik **{moisture} % CM** (Norma: {limit} % CM).")
+        st.write(f"**d) warunki klimatyczne:** Temp. powietrza: **{temp_air}°C** | Wilgotność powietrza: **{hum_air}% RH**.")
 
         st.markdown("#### **II. Zalecenia techniczne**")
+        # ... (reszta logiki zaleceń pozostaje bez zmian)
         st.write("**b) naprawa i wzmocnienie podłoża:**")
-        
         total_cracks = klaw_meters + pek_meters
         if total_cracks > 0:
-            st.write(f"* Wszystkie pęknięcia oraz dylatacje klawiszujące (łącznie ok. {total_cracks} mb) należy zespolić siłowo przy użyciu żywicy lanej **WAKOL PS 205**.")
-        
+            st.write(f"* Zespolić pęknięcia/dylatacje ({total_cracks} mb) żywicą **WAKOL PS 205**.")
         if holes == "TAK":
             st.write(f"* Ubytki{hole_details} wypełnić zaprawą **WAKOL Z 610**.")
-        
-        if decision_after_cure == "Wykonanie bariery przeciwwilgociowej":
-            st.write("* **Zalecamy barierę przeciwwilgociową WAKOL PU 280.**")
         
         st.divider()
         st.write(f"Z poważaniem, **{autor}**")
