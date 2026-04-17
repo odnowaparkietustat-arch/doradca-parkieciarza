@@ -44,7 +44,7 @@ if substrate == "masa samorozlewna":
 # Wiek podłoża
 substrate_age = ""
 if any(x in substrate for x in ["jastrych", "płyta", "masa"]):
-    substrate_age = st.text_input("Wiek podłoża (w dniach/tygodniach/miesiącach):", placeholder="np. 28 dni, 3 miesiące...")
+    substrate_age = st.text_input("Wiek podłoża (wpisz np. 3 miesiące, 28 dni):", placeholder="np. 3 miesiące temu")
 
 # 3. Ogrzewanie podłogowe
 st.write("3. Czy jest instalacja ogrzewania podłogowego?")
@@ -151,7 +151,6 @@ if st.button("GENERUJ PROTOKÓŁ OGLĘDZIN", type="primary", use_container_width
     if moisture is None:
         st.error("Proszę podać wilgotność podłoża!")
     else:
-        st.success("Protokół wygenerowany pomyślnie! Przewiń w dół.")
         st.divider()
         m_status = "POZYTYWNY" if moisture <= limit else "NEGATYWNY"
 
@@ -171,7 +170,9 @@ if st.button("GENERUJ PROTOKÓŁ OGLĘDZIN", type="primary", use_container_width
         pek_desc = f" Stwierdzono pęknięcia podłoża wymagające zespolenia ({pek_meters} mb)." if cracks_pek == "TAK" else " Brak pęknięć wymagających zespolenia."
         
         heat_status_txt = f" {heating_info}." if heating_exists == "TAK" else " Brak instalacji ogrzewania podłogowego."
-        age_txt = f" Wiek podłoża: {substrate_age}." if substrate_age else ""
+        
+        # ZMIANA: Logika opisu wieku podłoża
+        age_txt = f" Podłoże wykonane {substrate_age}." if substrate_age else ""
         thickness_txt = f" (grubość wylanej warstwy: {existing_levelling_thickness} mm)" if existing_levelling_thickness else ""
 
         st.write(f"**a) oględziny optyczne:** Podłoże stanowi {substrate}{thickness_txt}.{age_txt}{heat_status_txt} {obw_status}{klaw_desc}{pek_desc} Wentylacja: **{ventilation_type}**.")
