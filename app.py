@@ -61,7 +61,7 @@ if heating_exists == "TAK":
     }
     heating_info = mapping.get(h_type, h_type)
 
-# 4. Wyrównanie (zalecenie nowej masy)
+# 4. Wyrównanie
 st.write("4. Czy podłoże wymaga wyrównania (masy)?")
 needs_levelling = st.radio("Wymaga wyrównania:", ["TAK", "NIE"], index=1, horizontal=True, label_visibility="collapsed")
 leveling_thickness = 0
@@ -86,7 +86,7 @@ pek_meters = 0.0
 if cracks_pek == "TAK":
     pek_meters = st.number_input("Ilość mb pęknięć do zespolenia:", min_value=0.1, step=0.1)
 
-# 8. Ubytki (Centymetry)
+# 8. Ubytki
 st.write("8. Czy są ubytki lub zdegradowane miejsca wymagające wypełnienia?")
 holes = st.radio("Ubytki:", ["TAK", "NIE"], index=1, horizontal=True, label_visibility="collapsed")
 hole_details = ""
@@ -115,7 +115,7 @@ moisture = st.number_input("12. Poziom wilgoci podłoża (CM %)", value=None, pl
 st.write("13. Dodatkowe uwagi")
 extra_notes = st.text_area("Wpisz spostrzeżenia z oględzin:")
 
-# Logika norm i limitów
+# --- LOGIKA NORM ---
 if substrate == "jastrych cementowy":
     limit = 1.5 if heating_exists == "TAK" else 1.8
 elif substrate == "jastrych anhydrytowy":
@@ -126,3 +126,99 @@ else:
 barrier_max = 2.5 if heating_exists == "TAK" else 3.5
 
 decision_after_cure = None
+if moisture is not None and moisture > limit:
+    st.warning("💡 Wilgotność ponadnormatywna.")
+    opt_dry = "Dalsze osuszanie" if heating_exists == "NIE" else "Kolejny proces wygrzewania"
+    if moisture <= barrier_max:
+        decision_after_cure = st.radio("Postępowanie:", [opt_dry, "Wykonanie bariery przeciwwilgociowej"], horizontal=True)
+    else:
+        st.error(f"❌ Wilgotność za wysoka na barierę (max {barrier_max}%).")
+        decision_after_cure = opt_dry
+
+# --- TESTY MECHANICZNE ---
+st.write("### Testy mechaniczne i Wytrzymałość")
+col_t1, col_t2, col_t3 = st.columns(3)
+with col_t1: test_hammer = st.selectbox("Młotek", ["negatywny", "dostateczny", "pozytywny"], index=2)
+with col_t2: test_ripper = st.selectbox("Rysik", ["negatywny", "dostateczny", "pozytywny"], index=2)
+with col_t3: test_brush = st.selectbox("Szczotka", ["negatywny", "pozytywny"], index=1)
+
+strength_labels = {1: "bardzo słaby", 2: "słaby", 3: "umiarkowanie słaby", 4: "umiarkowanie mocny", 5: "mocny"}
+strength_val = st.select_slider("Ocena ogólna wytrzymałości podłoża:", options=[1, 2, 3, 4, 5], value=3, format_func=lambda x: strength_labels[x])
+
+# --- SEKCJA GENEROWANIA PROTOKOŁU ---
+st.divider()
+if st.button("GENERUJ PROTOKÓŁ OGLĘDZIN", type="primary", use_container_width=True):
+    if moisture is None:
+        st.error("Proszę podać wilgotność podłoża!")
+    else:
+        st.success("Protokół wygenerowany pomyślnie! Przewiń w dół.")
+        st.divider()
+        m_status = "POZYTYWNY" if moisture <= limit else "NEGATYWNY"
+
+        st.markdown("### **Loba-Wakol Polska Sp. z o.o.**")
+        st.write(f"**Data badania:** {data_badania.strftime('%d.%m.%Y')} | **Autor:** {autor}")
+        st.write(f"**Inwestycja:** {inwestycja}, {adres}, {miejscowosc}")
+        st.write(f"**Szanowni Państwo:** {klient}")
+
+        st.markdown("#### **I. Oględziny i badania**")
+        
+        # Logika dylatacji
+        actual_obw_ok = dilatations_obw_ok
+        if cracks_klaw == "TAK": actual_obw_ok = "NIE"
+        obw_status = "Dylatacje obwodowe zachowane prawidłowo." if actual_obw_ok == "TAK" else "Dylatacje obwodowe niezachowane prawidłowo."
+
+        klaw_desc = f" Stwierdzono klawiszujące dylatacje pozorne ({klaw_meters} mb)." if cracks_klaw == "TAK" else " Brak klawiszujących dylatacji."
+        pek_desc = f" Stwierdzono pęknięcia podłoża wymagające zespolenia ({pek_meters} mb)." if cracks_pek == "TAK" else " Brak pęknięć wymagających zespolenia."
+        
+        heat_status_txt = f" {heating_info}." if heating_exists == "TAK" else " Brak instalacji ogrzewania podłogowego."
+        age_txt = f" Wiek podłoża: {substrate_age}." if substrate_age else ""
+        thickness_txt = f" (grubość wylanej warstwy: {existing_levelling_thickness} mm)" if existing_levelling_thickness else ""
+
+        st.write(f"**a) oględziny optyczne:** Podłoże stanowi {substrate}{thickness_txt}.{age_txt}{heat_status_txt} {obw_status}{klaw_desc}{pek_desc} Wentylacja: **{ventilation_type}**.")
+        
+        if extra_notes:
+            st.write(f"**Uwagi dodatkowe:** {extra_notes}")
+
+        st.write(f"**b) badanie wytrzymałości:**")
+        st.write(f"* próba młotkiem: **{test_hammer}**")
+        st.write(f"* próba szczotką drucianą: **{test_brush}**")
+        st.write(f"* próba rysikiem: **{test_ripper}**")
+        st.write(f"* Ocena ogólna wytrzymałości: **{strength_labels[strength_val]}**")
+
+        st.write(f"**c) badanie wilgotności podłoża:** Wynik **{moisture} % CM** (Norma: {limit} % CM) - Status: **{m_status}**")
+        st.write(f"**d) warunki klimatyczne:** Temp. powietrza: **{temp_air}°C** | Wilgotność powietrza: **{hum_air}% RH**.")
+
+        st.markdown("#### **II. Zalecenia techniczne**")
+        st.write("**a) przygotowanie podłoża:**")
+        st.write("* Szlifowanie podłoża w celu usunięcia mleczka jastrychowego i otwarcia porów.")
+        st.write("* Dokładne odkurzenie powierzchni.")
+        
+        if decision_after_cure in ["Dalsze osuszanie", "Kolejny proces wygrzewania"]:
+            st.write(f"* **Zalecamy doprowadzenie do normatywnego poziomu wilgoci ({limit}% CM) poprzez kontynuowanie procesu {decision_after_cure.lower()}.**")
+
+        st.write("**b) naprawa i wzmocnienie podłoża:**")
+        total_cracks = klaw_meters + pek_meters
+        if total_cracks > 0:
+            st.write(f"* Wszystkie pęknięcia oraz dylatacje klawiszujące (łącznie ok. {total_cracks} mb) należy zespolić siłowo przy użyciu żywicy lanej **WAKOL PS 205**.")
+        
+        if holes == "TAK":
+            st.write(f"* Ubytki i zdegradowane fragmenty{hole_details} uzupełnić zaprawą szybkosprawną **WAKOL Z 610**.")
+            
+        if decision_after_cure == "Wykonanie bariery przeciwwilgociowej":
+            st.write("* **Zalecamy barierę przeciwwilgociową WAKOL PU 280 (2 warstwy). Schnięcie 1h/warstwę. Zaślepić dylatacje pozorne.**")
+        else:
+            if strength_val >= 4:
+                st.write("* Zalecamy gruntówkę dyspersyjną **WAKOL D 3055** (150 g/m2, 30 min).")
+            elif strength_val == 3:
+                st.write("* Zalecamy gruntówkę wzmacniającą **WAKOL PU 280**.")
+            elif strength_val == 2:
+                st.write("* Zalecamy gruntówkę **WAKOL PU 235**.")
+            else:
+                st.write("* Wzmocnienie głębokie żywicą: **WAKOL PS 275**.")
+
+        if needs_levelling == "TAK":
+            st.write(f"* Wyrównanie: montaż maty wzmacniającej **WAKOL AR 150** oraz wylanie masy samopoziomującej **WAKOL Z 645/635** o grubości **{leveling_thickness} mm**.")
+
+        st.write(f"**c) montaż okładziny:** Klejenie okładziny **{flooring_type}** zgodnie z technologią WAKOL.")
+        st.divider()
+        st.write(f"Z poważaniem, **{autor}**")
