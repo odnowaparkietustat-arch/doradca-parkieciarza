@@ -41,7 +41,7 @@ existing_levelling_thickness = None
 if substrate == "masa samorozlewna":
     existing_levelling_thickness = st.number_input("Grubość wylanej masy (mm):", min_value=1, value=3)
 
-# Wiek podłoża (ZMIENIONO NA text_input, aby uniknąć błędu)
+# Wiek podłoża
 substrate_age = ""
 if any(x in substrate for x in ["jastrych", "płyta", "masa"]):
     substrate_age = st.text_input("Wiek podłoża (w dniach/tygodniach/miesiącach):", placeholder="np. 28 dni, 3 miesiące...")
@@ -61,7 +61,7 @@ if heating_exists == "TAK":
     }
     heating_info = mapping.get(h_type, h_type)
 
-# 4. Wyrównanie (Zalecenie nowej masy)
+# 4. Wyrównanie
 st.write("4. Czy podłoże wymaga wyrównania (masy)?")
 needs_levelling = st.radio("Wymaga wyrównania:", ["TAK", "NIE"], index=1, horizontal=True, label_visibility="collapsed")
 leveling_thickness = 0
@@ -77,8 +77,44 @@ st.write("6. Czy występują klawiszujące dylatacje pozorne?")
 cracks_klaw = st.radio("Klawiszowanie pozorne:", ["TAK", "NIE"], index=1, horizontal=True, label_visibility="collapsed")
 klaw_meters = 0.0
 if cracks_klaw == "TAK":
-    klaw_meters = st.number_input("Ilość mb dylatacji pozornych klawiszujących:", value=0.0, step=0.5)
+    klaw_meters = st.number_input("Ilość mb dylatacji pozornych klawiszujących:", min_value=0.1, step=0.1)
 
 # 7. Pęknięcia wymagające zespolenia
 st.write("7. Czy występują pęknięcia podłoża wymagające zespolenia?")
 cracks_pek = st.radio("Pęknięcia do zespolenia:", ["TAK", "NIE"], index=1, horizontal=True, label_visibility="collapsed")
+pek_meters = 0.0
+if cracks_pek == "TAK":
+    pek_meters = st.number_input("Ilość mb pęknięć do zespolenia:", min_value=0.1, step=0.1)
+
+# 8. Ubytki (Centymetry)
+st.write("8. Czy są ubytki lub zdegradowane miejsca wymagające wypełnienia?")
+holes = st.radio("Ubytki:", ["TAK", "NIE"], index=1, horizontal=True, label_visibility="collapsed")
+hole_details = ""
+if holes == "TAK":
+    col_h1, col_h2, col_h3 = st.columns(3)
+    with col_h1: h_depth = st.number_input("Głębokość (cm)", min_value=0.1, format="%.1f")
+    with col_h2: h_width = st.number_input("Szerokość (cm)", min_value=0.1, format="%.1f")
+    with col_h3: h_length = st.number_input("Długość (cm)", min_value=0.1, format="%.1f")
+    hole_details = f" o wymiarach ok. {h_length}x{h_width} cm i głębokości {h_depth} cm"
+
+# 9. Wentylacja
+st.write("9. Rodzaj wentylacji w pomieszczeniu")
+ventilation_type = st.radio("Wentylacja:", ["Grawitacyjna", "Mechaniczna"], horizontal=True, label_visibility="collapsed")
+
+# 10, 11. Warunki otoczenia
+col_w1, col_w2 = st.columns(2)
+with col_w1:
+    temp_air = st.number_input("10. Temperatura powietrza (°C)", value=20.0, step=0.5)
+with col_w2:
+    hum_air = st.number_input("11. Wilgotność powietrza (%)", value=50.0, step=1.0)
+
+# 12. Wilgotność podłoża
+moisture = st.number_input("12. Poziom wilgoci podłoża (CM %)", value=None, placeholder="Wpisz wynik...", format="%.1f")
+
+# 13. Dodatkowe uwagi
+st.write("13. Dodatkowe uwagi")
+extra_notes = st.text_area("Wpisz spostrzeżenia z oględzin:")
+
+# Logika norm
+if substrate == "jastrych cementowy":
+    limit = 1.5 if heating
