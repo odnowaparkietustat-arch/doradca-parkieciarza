@@ -129,9 +129,9 @@ barrier_max = 2.5 if heating_exists == "TAK" else 3.5
 decision_after_cure = None
 if moisture is not None and moisture > limit:
     st.warning("💡 Wilgotność ponadnormatywna.")
-    opt_dry = "Dalsze osuszanie" if heating_exists == "NIE" else "Kolejny proces wygrzewania"
+    opt_dry = "dalsze osuszanie" if heating_exists == "NIE" else "kolejny proces wygrzewania"
     if moisture <= barrier_max:
-        decision_after_cure = st.radio("Postępowanie:", [opt_dry, "Wykonanie bariery przeciwwilgociowej"], horizontal=True)
+        decision_after_cure = st.radio("Postępowanie:", ["Wykonanie bariery przeciwwilgociowej", opt_dry], horizontal=True)
     else:
         st.error(f"❌ Wilgotność za wysoka na barierę (max {barrier_max}%).")
         decision_after_cure = opt_dry
@@ -197,8 +197,9 @@ if st.button("GENERUJ PROTOKÓŁ OGLĘDZIN", type="primary", use_container_width
         st.write("* Szlifowanie podłoża w celu usunięcia mleczka jastrychowego i otwarcia porów.")
         st.write("* Dokładne odkurzenie powierzchni.")
         
-        if decision_after_cure in ["Dalsze osuszanie", "Kolejny proces wygrzewania"]:
-            st.write(f"* **Zalecamy doprowadzenie do normatywnego poziomu wilgoci ({limit}% CM) poprzez kontynuowanie procesu {decision_after_cure.lower()}.**")
+        # AKTUALIZACJA: Formuła doprowadzenia do normatywnej wilgoci
+        if decision_after_cure in ["dalsze osuszanie", "kolejny proces wygrzewania"]:
+            st.write(f"* **Zalecamy doprowadzenie do normatywnego poziomu wilgoci ({limit}% CM) poprzez {decision_after_cure}.**")
 
         st.write("**b) naprawa i wzmocnienie podłoża:**")
         total_cracks = klaw_meters + pek_meters
@@ -208,24 +209,20 @@ if st.button("GENERUJ PROTOKÓŁ OGLĘDZIN", type="primary", use_container_width
         if holes == "TAK":
             st.write(f"* Ubytki i zdegradowane fragmenty{hole_details} uzupełnić zaprawą szybkosprawną **WAKOL Z 610**.")
             
-        # LOGIKA GRUNTOWANIA PU
         if decision_after_cure == "Wykonanie bariery przeciwwilgociowej":
             if strength_val == 2:
-                # PU 235 BARIERA (2 WARSTWY) - WEDŁUG NAJNOWSZEGO WZORU
                 st.write("* **Zalecamy wykonanie bariery przeciwwilgociowej poprzez dwukrotne zagruntowanie gruntówką wzmacniającą WAKOL PU 235. Podczas aplikacji nie zostawiać kałuż tj. Zbierać nadmiar niewchłoniętej gruntówki.**")
                 st.write("  - 1 - warstwa nałożona wałkiem ok. 150 g/m². Czas schnięcia – 3-6 godzin.")
                 st.write("  - 2 warstwa zużycie ok. 100 g/m². Czas schnięcia – 3-6 godzin.")
                 st.write("  - Czas klejenia 72 godziny od zagruntowania.")
             else:
-                # PU 280 BARIERA (2 WARSTWY)
-                st.write("* **Z uwagi na podwyższoną wilgotność zalecamy stworzenie bariery przeciwwilgociowej poprzez zagruntowanie powierzchni jastrychu gruntówką poliuretanową WAKOL PU 280. Aplikować wałkiem. Podczas aplikacji nie zostawiać kałuż tj. Zbierać nadmiar niewchłoniętej gruntówki.**")
+                st.write("* **Z uwagi na podwyższoną wilgotność zalecamy stworzenie bariery przeciwwilgociowej poprzez zagruntowanie powierzchni jastrychu gruntówką poliuretanową WAKOL PU 280. Aplikować wałkiem. Podczas aplikacji nie zostawiać kałuż tj. Zbierać nadmiar nie wchłoniętej gruntówki.**")
                 st.write("  - 1 warstwa nałożona wałkiem ok. 100-150 g/m². Czas schnięcia – jedna godzina.")
                 st.write("  - 2 warstwa ok. 100 g/m² - czas schnięcia – jedna godzina.")
                 st.write("  - *W zależności od chłonności podłoża zużycie gruntówki może być większe bądź mniejsze, większa ilość nałożonego materiału wydłuża czas schnięcia.*")
                 st.write("  - Czas do klejenia: 72 godziny od zagruntowania.")
             st.markdown("  *Należy zaślepić dylatacje pozorne przed aplikacją.*")
         else:
-            # GRUNTOWANIE WZMOCNIAJĄCE (1 WARSTWA)
             if strength_val >= 4:
                 st.write("* Zalecamy zagruntowanie całej powierzchni jastrychu gruntówką dyspersyjną **WAKOL D 3055** - aplikacja wałkiem ok. 150 g/m2. Czas schnięcia ok 30 min.")
             elif strength_val == 3:
