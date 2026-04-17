@@ -62,7 +62,7 @@ if heating_exists == "TAK":
 
 needs_levelling = st.radio("4. Czy podłoże wymaga wyrównania (masy)?", ["TAK", "NIE"], index=1, horizontal=True)
 
-# NOWY PUNKT: Prawidłowość dylatacji
+# PUNKT 5: Prawidłowość dylatacji (Domyślnie TAK)
 st.write("5. Czy dylatacje zachowane prawidłowo?")
 dilatations_ok = st.radio("Dylatacje prawidłowe:", ["TAK", "NIE"], index=0, horizontal=True, label_visibility="collapsed")
 
@@ -77,7 +77,7 @@ holes = st.radio("Ubytki:", ["TAK", "NIE"], index=1, horizontal=True, label_visi
 
 moisture = st.number_input("8. Poziom wilgoci podłoża (CM %)", value=None, placeholder="Wpisz wynik pomiaru CM...", format="%.1f")
 
-# Logika norm i progów bariery
+# Logika norm i progów
 if substrate == "jastrych anhydrytowy":
     limit = 0.3 if heating_exists == "TAK" else 0.5
 else:
@@ -131,10 +131,10 @@ humidity = st.number_input("11. Wilgotność powietrza (%)", value=None, placeho
 # --- GENEROWANIE PROTOKOŁU ---
 if st.button("GENERUJ PROTOKÓŁ OGLĘDZIN"):
     if moisture is None:
-        st.error("Proszę wpisać poziom wilgoci przed generowaniem protokołu!")
+        st.error("Proszę wpisać poziom wilgoci!")
     else:
         st.divider()
-        m_status = "POZYTYWNY" if moisture <= limit else "NEGATWVNY"
+        m_status = "POZYTYWNY" if moisture <= limit else "NEGATYWNY"
 
         st.markdown("### **Loba-Wakol Polska Sp. z o.o.**")
         st.write(f"**Data badania:** {data_badania.strftime('%d.%m.%Y')} | **Autor:** {autor}")
@@ -143,12 +143,13 @@ if st.button("GENERUJ PROTOKÓŁ OGLĘDZIN"):
 
         st.markdown("#### **I. Oględziny i badania**")
         
-        # Logika dylatacji w opisie
+        # Logika opisu dylatacji
         dilation_text = ""
-        if dilatations_ok == "TAK" and cracks == "NIE":
-            dilation_text = " Dylatacje zachowane prawidłowo."
-        elif dilatations_ok == "NIE":
-            dilation_text = " Dylatacje wymagają poprawy/nacięcia."
+        if dilatations_ok == "TAK":
+            if cracks == "NIE":
+                dilation_text = " Dylatacje zachowane prawidłowo."
+        else:
+            dilation_text = " Brak prawidłowych dylatacji."
 
         st.write(f"**a) oględziny optyczne:** Podłoże stanowi {substrate}. {heating_info if heating_exists == 'TAK' else 'Brak instalacji ogrzewania podłogowego.'}{dilation_text} Wentylacja: **{ventilation_type}**.")
         
@@ -193,11 +194,9 @@ if st.button("GENERUJ PROTOKÓŁ OGLĘDZIN"):
             if strength_val >= 4:
                 st.write(f"* Gruntowanie podłoża: **WAKOL D 3055**.")
             elif strength_val == 3:
-                st.write("* Zalecamy zagruntowanie całej powierzchni podłoża gruntówką wzmacniającą **WAKOL PU 280**.")
-                st.write("  Aplikować wałkiem. Nie zostawiać kałuż tj. Zbierać nadmiar niewchłoniętej gruntówki. Zużycie ok. 150 g/m². Czas schnięcia 1 godzina. Czas do montażu – 72 godziny.")
+                st.write("* Zalecamy zagruntowanie całej powierzchni podłoża gruntówką wzmacniającą **WAKOL PU 280**. Zużycie ok. 150 g/m². Czas schnięcia 1 godzina. Czas do montażu – 72 godziny.")
             elif strength_val == 2:
-                st.write("* Zalecamy jednokrotną aplikację gruntówki **WAKOL PU 235**.")
-                st.write("  Aplikować wałkiem. Podczas aplikacji nie zostawiać kałuż tj. Zbierać nadmiar niewchłoniętej gruntówki. Zużycie ok. 150 g/m². Czas schnięcia 3 – 6 godzin. Czas klejenia 72 godziny od zagruntowania.")
+                st.write("* Zalecamy jednokrotną aplikację gruntówki **WAKOL PU 235**. Zużycie ok. 150 g/m². Czas schnięcia 3 – 6 godzin. Czas klejenia 72 godziny od zagruntowania.")
             elif strength_val == 1:
                 st.write(f"* Wzmocnienie podłoża żywicą: **WAKOL PS 275**.")
 
