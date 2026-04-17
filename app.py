@@ -60,7 +60,12 @@ if heating_exists == "TAK":
     else:
         heating_cured = st.radio("Czy przeprowadzono proces wygrzewania?", ["TAK", "NIE"], index=1, horizontal=True)
 
-needs_levelling = st.radio("4. Czy podłoże wymaga wyrównania (masy)?", ["TAK", "NIE"], index=1, horizontal=True)
+# 4. Wyrównanie - DODANO GRUBOŚĆ
+st.write("4. Czy podłoże wymaga wyrównania (masy)?")
+needs_levelling = st.radio("Wymaga wyrównania:", ["TAK", "NIE"], index=1, horizontal=True, label_visibility="collapsed")
+leveling_thickness = 0
+if needs_levelling == "TAK":
+    leveling_thickness = st.number_input("Planowana grubość masy (mm):", min_value=1, max_value=30, value=3)
 
 st.write("5. Czy dylatacje zachowane prawidłowo?")
 dilatations_ok = st.radio("Dylatacje prawidłowe:", ["TAK", "NIE"], index=0, horizontal=True, label_visibility="collapsed")
@@ -135,7 +140,7 @@ if st.button("GENERUJ PROTOKÓŁ OGLĘDZIN"):
         st.error("Proszę wpisać poziom wilgoci!")
     else:
         st.divider()
-        m_status = "POZYTYWNY" if moisture <= limit else "NEGATYWNY"
+        m_status = "POZYTYWNY" if moisture <= limit else "NEGATWVNY"
 
         st.markdown("### **Loba-Wakol Polska Sp. z o.o.**")
         st.write(f"**Data badania:** {data_badania.strftime('%d.%m.%Y')} | **Autor:** {autor}")
@@ -200,8 +205,9 @@ if st.button("GENERUJ PROTOKÓŁ OGLĘDZIN"):
             elif strength_val == 1:
                 st.write(f"* Wzmocnienie podłoża żywicą: **WAKOL PS 275**.")
 
+        # Zaktualizowane wyrównanie w zaleceniach
         if needs_levelling == "TAK":
-            st.write("* Wyrównanie: mata **WAKOL AR 150** + masa **WAKOL Z 645/635**.")
+            st.write(f"* Wyrównanie: montaż maty wzmacniającej **WAKOL AR 150** oraz wylanie masy samopoziomującej **WAKOL Z 645/635** o grubości **{leveling_thickness} mm**.")
 
         st.write("**c) montaż okładziny:**")
         if flooring_type == "deska warstwowa (drewno, laminat itp.)":
