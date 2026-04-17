@@ -62,7 +62,6 @@ if heating_exists == "TAK":
 
 needs_levelling = st.radio("4. Czy podłoże wymaga wyrównania (masy)?", ["TAK", "NIE"], index=1, horizontal=True)
 
-# PUNKT 5: Prawidłowość dylatacji (Domyślnie TAK)
 st.write("5. Czy dylatacje zachowane prawidłowo?")
 dilatations_ok = st.radio("Dylatacje prawidłowe:", ["TAK", "NIE"], index=0, horizontal=True, label_visibility="collapsed")
 
@@ -76,6 +75,9 @@ st.write("7. Czy są ubytki lub degradacja podłoża?")
 holes = st.radio("Ubytki:", ["TAK", "NIE"], index=1, horizontal=True, label_visibility="collapsed")
 
 moisture = st.number_input("8. Poziom wilgoci podłoża (CM %)", value=None, placeholder="Wpisz wynik pomiaru CM...", format="%.1f")
+
+st.write("9. Dodatkowe uwagi")
+extra_notes = st.text_area("Wpisz dodatkowe spostrzeżenia z oględzin:", placeholder="np. Podłoże mocno zabrudzone resztkami tynku...")
 
 # Logika norm i progów
 if substrate == "jastrych anhydrytowy":
@@ -109,7 +111,6 @@ with col_t2:
 with col_t3:
     test_brush = st.selectbox("Wynik testu szczotką drucianą", test_options_brush, index=1)
 
-# Logika wytrzymałości
 default_strength = 3
 if test_hammer == "negatywny" or test_brush == "negatywny":
     default_strength = 1
@@ -121,12 +122,12 @@ elif test_ripper == "pozytywny":
     default_strength = 5
 
 strength_labels = {1: "bardzo słaby", 2: "słaby", 3: "umiarkowanie słaby", 4: "umiarkowanie mocny", 5: "mocny"}
-st.write("9. Wytrzymałość jastrychu / płyty")
+st.write("10. Wytrzymałość jastrychu / płyty")
 strength_val = st.select_slider("Skala wytrzymałości:", options=[1, 2, 3, 4, 5], value=default_strength, format_func=lambda x: strength_labels[x])
 
-ventilation_type = st.radio("10. Rodzaj wentylacji:", ["Grawitacyjna", "Mechaniczna"], horizontal=True)
-temp = st.number_input("11. Temperatura powietrza (°C)", value=None, placeholder="°C")
-humidity = st.number_input("11. Wilgotność powietrza (%)", value=None, placeholder="%")
+ventilation_type = st.radio("11. Rodzaj wentylacji:", ["Grawitacyjna", "Mechaniczna"], horizontal=True)
+temp = st.number_input("12. Temperatura powietrza (°C)", value=None, placeholder="°C")
+humidity = st.number_input("12. Wilgotność powietrza (%)", value=None, placeholder="%")
 
 # --- GENEROWANIE PROTOKOŁU ---
 if st.button("GENERUJ PROTOKÓŁ OGLĘDZIN"):
@@ -143,7 +144,6 @@ if st.button("GENERUJ PROTOKÓŁ OGLĘDZIN"):
 
         st.markdown("#### **I. Oględziny i badania**")
         
-        # Logika opisu dylatacji
         dilation_text = ""
         if dilatations_ok == "TAK":
             if cracks == "NIE":
@@ -153,6 +153,9 @@ if st.button("GENERUJ PROTOKÓŁ OGLĘDZIN"):
 
         st.write(f"**a) oględziny optyczne:** Podłoże stanowi {substrate}. {heating_info if heating_exists == 'TAK' else 'Brak instalacji ogrzewania podłogowego.'}{dilation_text} Wentylacja: **{ventilation_type}**.")
         
+        if extra_notes:
+            st.write(f"**Uwagi dodatkowe:** {extra_notes}")
+            
         if heating_exists == 'TAK':
             st.write(f"**Proces wygrzewania podłoża:** {'przeprowadzony' if heating_cured == 'TAK' else 'nie przeprowadzony'}")
         
@@ -186,15 +189,12 @@ if st.button("GENERUJ PROTOKÓŁ OGLĘDZIN"):
         
         if decision_after_cure == "Wykonanie bariery przeciwwilgociowej":
             st.write("* **Z uwagi na podwyższoną wilgotność zalecamy stworzenie bariery przeciwwilgociowej poprzez zagruntowanie powierzchni jastrychu gruntówką poliuretanową WAKOL PU 280.**")
-            st.write("  Aplikować wałkiem. Podczas aplikacji nie zostawiać kałuż tj. Zbierać nadmiar niewchłoniętej gruntówki.")
-            st.write("  - **1 warstwa:** nałożona wałkiem ok. 100-150 g/m². Czas schnięcia – jedna godzina.")
-            st.write("  - **2 warstwa:** ok. 100 g/m² – czas schnięcia – jedna godzina.")
-            st.markdown("  *W zależności od chłonności podłoża zużycie gruntówki może być większe bądź mniejsze. Większa ilość nałożonego materiału wydłuża czas schnięcia. Należy zaślepić dylatacje pozorne.*")
+            st.write("  - 1 warstwa: nałożona wałkiem ok. 100-150 g/m². 2 warstwa: ok. 100 g/m². Czas schnięcia: 1h na warstwę.")
         else:
             if strength_val >= 4:
-                st.write(f"* Gruntowanie podłoża: **WAKOL D 3055**.")
+                st.write("* Zalecamy zagruntowanie całej powierzchni jastrychu gruntówką dyspersyjną **WAKOL D 3055** - aplikacja wałkiem ok. 150 g/m2. Czas schnięcia ok 30 min.")
             elif strength_val == 3:
-                st.write("* Zalecamy zagruntowanie całej powierzchni podłoża gruntówką wzmacniającą **WAKOL PU 280**. Zużycie ok. 150 g/m². Czas schnięcia 1 godzina. Czas do montażu – 72 godziny.")
+                st.write("* Zalecamy zagruntowanie całej powierzchni podłoża gruntówką wzmacniającą **WAKOL PU 280**. Aplikować wałkiem. Zużycie ok. 150 g/m². Czas schnięcia 1 godzina. Czas do montażu – 72 godziny.")
             elif strength_val == 2:
                 st.write("* Zalecamy jednokrotną aplikację gruntówki **WAKOL PU 235**. Zużycie ok. 150 g/m². Czas schnięcia 3 – 6 godzin. Czas klejenia 72 godziny od zagruntowania.")
             elif strength_val == 1:
