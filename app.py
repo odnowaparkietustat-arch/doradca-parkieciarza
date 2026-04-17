@@ -41,10 +41,10 @@ existing_levelling_thickness = None
 if substrate == "masa samorozlewna":
     existing_levelling_thickness = st.number_input("Grubość wylanej masy (mm):", min_value=1, value=3)
 
-# Wiek podłoża
-substrate_age = ""
+# Wiek podłoża - ZMIENIONO NA liczbę (miesiące)
+substrate_age_val = None
 if any(x in substrate for x in ["jastrych", "płyta", "masa"]):
-    substrate_age = st.text_input("Wiek podłoża (wpisz np. 3 miesiące, 28 dni):", placeholder="np. 3 miesiące temu")
+    substrate_age_val = st.number_input("Wiek podłoża (podaj ilość miesięcy):", min_value=0.5, step=0.5, format="%.1f")
 
 # 3. Ogrzewanie podłogowe
 st.write("3. Czy jest instalacja ogrzewania podłogowego?")
@@ -171,8 +171,12 @@ if st.button("GENERUJ PROTOKÓŁ OGLĘDZIN", type="primary", use_container_width
         
         heat_status_txt = f" {heating_info}." if heating_exists == "TAK" else " Brak instalacji ogrzewania podłogowego."
         
-        # ZMIANA: Logika opisu wieku podłoża
-        age_txt = f" Podłoże wykonane {substrate_age}." if substrate_age else ""
+        # LOGIKA WIEKU (MIESIĄCE)
+        age_txt = ""
+        if substrate_age_val:
+            suffix = "miesiąca" if substrate_age_val == 1 or substrate_age_val == 0.5 else "miesiące"
+            age_txt = f" Podłoże wykonane {substrate_age_val} {suffix} temu."
+
         thickness_txt = f" (grubość wylanej warstwy: {existing_levelling_thickness} mm)" if existing_levelling_thickness else ""
 
         st.write(f"**a) oględziny optyczne:** Podłoże stanowi {substrate}{thickness_txt}.{age_txt}{heat_status_txt} {obw_status}{klaw_desc}{pek_desc} Wentylacja: **{ventilation_type}**.")
@@ -191,8 +195,7 @@ if st.button("GENERUJ PROTOKÓŁ OGLĘDZIN", type="primary", use_container_width
 
         st.markdown("#### **II. Zalecenia techniczne**")
         st.write("**a) przygotowanie podłoża:**")
-        st.write("* Szlifowanie podłoża w celu usunięcia mleczka jastrychowego i otwarcia porów.")
-        st.write("* Dokładne odkurzenie powierzchni.")
+        st.write("* Szlifowanie podłoża i dokładne odkurzenie powierzchni.")
         
         if decision_after_cure in ["Dalsze osuszanie", "Kolejny proces wygrzewania"]:
             st.write(f"* **Zalecamy doprowadzenie do normatywnego poziomu wilgoci ({limit}% CM) poprzez kontynuowanie procesu {decision_after_cure.lower()}.**")
