@@ -141,7 +141,7 @@ if st.button("GENERUJ PROTOKÓŁ OGLĘDZIN"):
         st.error("Proszę podać wilgotność podłoża!")
     else:
         st.divider()
-        m_status = "POZYTYWNY" if moisture <= limit else "NEGATYWNY"
+        m_status = "POZYTYWNY" if moisture <= limit else "NEGATWVNY"
 
         st.markdown("### **Loba-Wakol Polska Sp. z o.o.**")
         st.write(f"**Data badania:** {data_badania.strftime('%d.%m.%Y')} | **Autor:** {autor}")
@@ -160,7 +160,6 @@ if st.button("GENERUJ PROTOKÓŁ OGLĘDZIN"):
         klaw_desc = f" Stwierdzono klawiszujące dylatacje pozorne ({klaw_meters} mb)." if cracks_klaw == "TAK" else " Brak klawiszujących dylatacji."
         pek_desc = f" Stwierdzono pęknięcia podłoża wymagające zespolenia ({pek_meters} mb)." if cracks_pek == "TAK" else " Brak pęknięć wymagających zespolenia."
         
-        # LOGIKA OGRZEWANIA W OPISIE
         heat_status_txt = f" {heating_info}." if heating_exists == "TAK" else " Brak instalacji ogrzewania podłogowego."
 
         st.write(f"**a) oględziny optyczne:** Podłoże stanowi {substrate}.{heat_status_txt} {obw_status}{klaw_desc}{pek_desc} Wentylacja: **{ventilation_type}**.")
@@ -168,7 +167,13 @@ if st.button("GENERUJ PROTOKÓŁ OGLĘDZIN"):
         if extra_notes:
             st.write(f"**Uwagi dodatkowe:** {extra_notes}")
 
-        st.write(f"**b) badanie wytrzymałości:** Młotek: {test_hammer}, Szczotka: {test_brush}, Rysik: {test_ripper}. Ocena ogólna: **{strength_labels[strength_val]}**.")
+        # ZMIANA: Wyniki testów pod sobą jako podpunkty
+        st.write(f"**b) badanie wytrzymałości:**")
+        st.write(f"* próba młotkiem: **{test_hammer}**")
+        st.write(f"* próba szczotką drucianą: **{test_brush}**")
+        st.write(f"* próba rysikiem: **{test_ripper}**")
+        st.write(f"* Ocena ogólna wytrzymałości: **{strength_labels[strength_val]}**")
+
         st.write(f"**c) badanie wilgotności podłoża:** Wynik **{moisture} % CM** (Norma: {limit} % CM) - Status: **{m_status}**")
         st.write(f"**d) warunki klimatyczne:** Temp. powietrza: **{temp_air}°C** | Wilgotność powietrza: **{hum_air}% RH**.")
 
