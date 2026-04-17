@@ -60,7 +60,7 @@ if heating_exists == "TAK":
     else:
         heating_cured = st.radio("Czy przeprowadzono proces wygrzewania?", ["TAK", "NIE"], index=1, horizontal=True)
 
-# 4. Wyrównanie - DODANO GRUBOŚĆ
+# 4. Wyrównanie
 st.write("4. Czy podłoże wymaga wyrównania (masy)?")
 needs_levelling = st.radio("Wymaga wyrównania:", ["TAK", "NIE"], index=1, horizontal=True, label_visibility="collapsed")
 leveling_thickness = 0
@@ -76,15 +76,26 @@ cracks_meters = 0.0
 if cracks == "TAK":
     cracks_meters = st.number_input("Ilość metrów bieżących (mb)", value=0.0, step=0.5)
 
-st.write("7. Czy są ubytki lub degradacja podłoża?")
-holes = st.radio("Ubytki:", ["TAK", "NIE"], index=1, horizontal=True, label_visibility="collapsed")
+# 7. Ubytki - ZMIANA: Nowy opis i pola wyboru
+st.write("7. Czy są ubytki lub zdegradowane miejsca wymagające wypełnienia?")
+holes = st.radio("Ubytki/Degradacja:", ["TAK", "NIE"], index=1, horizontal=True, label_visibility="collapsed")
+hole_details = ""
+if holes == "TAK":
+    col_h1, col_h2, col_h3 = st.columns(3)
+    with col_h1:
+        h_depth = st.number_input("Głębokość (mm)", min_value=1, step=1, key="h_depth")
+    with col_h2:
+        h_width = st.number_input("Szerokość (mm)", min_value=1, step=1, key="h_width")
+    with col_h3:
+        h_length = st.number_input("Długość (mm)", min_value=1, step=1, key="h_length")
+    hole_details = f" o wymiarach ok. {h_length}x{h_width} mm i głębokości {h_depth} mm"
 
 moisture = st.number_input("8. Poziom wilgoci podłoża (CM %)", value=None, placeholder="Wpisz wynik pomiaru CM...", format="%.1f")
 
 st.write("9. Dodatkowe uwagi")
-extra_notes = st.text_area("Wpisz dodatkowe spostrzeżenia z oględzin:", placeholder="np. Podłoże mocno zabrudzone resztkami tynku...")
+extra_notes = st.text_area("Wpisz dodatkowe spostrzeżenia z oględzin:", placeholder="Dodatkowe informacje dla klienta...")
 
-# Logika norm i progów
+# Logika norm
 if substrate == "jastrych anhydrytowy":
     limit = 0.3 if heating_exists == "TAK" else 0.5
 else:
@@ -165,9 +176,7 @@ if st.button("GENERUJ PROTOKÓŁ OGLĘDZIN"):
             st.write(f"**Proces wygrzewania podłoża:** {'przeprowadzony' if heating_cured == 'TAK' else 'nie przeprowadzony'}")
         
         st.write("**b) badanie wytrzymałości:**")
-        st.write(f"* próba młotkiem – **{test_hammer}**")
-        st.write(f"* próba szczotką drucianą – **{test_brush}**")
-        st.write(f"* próba rysikiem – **{test_ripper}**")
+        st.write(f"* próba młotkiem – **{test_hammer}**\n* próba szczotką drucianą – **{test_brush}**\n* próba rysikiem – **{test_ripper}**")
         st.write(f"* Ocena ogólna wytrzymałości: **{strength_labels[strength_val]}**")
         
         st.write(f"**c) badanie wilgotności podłoża:** Wynik **{moisture} % CM** (Norma: {limit} % CM) - Status: **{m_status}**")
@@ -189,31 +198,8 @@ if st.button("GENERUJ PROTOKÓŁ OGLĘDZIN"):
         
         if cracks == "TAK": 
             st.write(f"    * Klawiszujące fragmenty ({cracks_meters} mb) zespolić żywicą laną **WAKOL PS 205**.")
+        
         if holes == "TAK": 
-            st.write(f"    * Ubytki uzupełnić zaprawą **WAKOL Z 610**.")
+            st.write(f"    * Ubytki i zdegradowane fragmenty{hole_details} uzupełnić zaprawą **WAKOL Z 610**.")
         
         if decision_after_cure == "Wykonanie bariery przeciwwilgociowej":
-            st.write("* **Z uwagi na podwyższoną wilgotność zalecamy stworzenie bariery przeciwwilgociowej poprzez zagruntowanie powierzchni jastrychu gruntówką poliuretanową WAKOL PU 280.**")
-            st.write("  - 1 warstwa: nałożona wałkiem ok. 100-150 g/m². 2 warstwa: ok. 100 g/m². Czas schnięcia: 1h na warstwę.")
-        else:
-            if strength_val >= 4:
-                st.write("* Zalecamy zagruntowanie całej powierzchni jastrychu gruntówką dyspersyjną **WAKOL D 3055** - aplikacja wałkiem ok. 150 g/m2. Czas schnięcia ok 30 min.")
-            elif strength_val == 3:
-                st.write("* Zalecamy zagruntowanie całej powierzchni podłoża gruntówką wzmacniającą **WAKOL PU 280**. Aplikować wałkiem. Zużycie ok. 150 g/m². Czas schnięcia 1 godzina. Czas do montażu – 72 godziny.")
-            elif strength_val == 2:
-                st.write("* Zalecamy jednokrotną aplikację gruntówki **WAKOL PU 235**. Zużycie ok. 150 g/m². Czas schnięcia 3 – 6 godzin. Czas klejenia 72 godziny od zagruntowania.")
-            elif strength_val == 1:
-                st.write(f"* Wzmocnienie podłoża żywicą: **WAKOL PS 275**.")
-
-        # Zaktualizowane wyrównanie w zaleceniach
-        if needs_levelling == "TAK":
-            st.write(f"* Wyrównanie: montaż maty wzmacniającej **WAKOL AR 150** oraz wylanie masy samopoziomującej **WAKOL Z 645/635** o grubości **{leveling_thickness} mm**.")
-
-        st.write("**c) montaż okładziny:**")
-        if flooring_type == "deska warstwowa (drewno, laminat itp.)":
-            st.write("* Klejenie deski należy przeprowadzić przy użyciu kleju do parkietu **WAKOL PU 225** (szpachla **B11**, zużycie: **1250 g/m²**).")
-        else:
-            st.write(f"* Montaż okładziny **{flooring_type}** zgodnie z kartami technicznymi WAKOL.")
-        
-        st.divider()
-        st.write(f"Z poważaniem, **{autor}**")
