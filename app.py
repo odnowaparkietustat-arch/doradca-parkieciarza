@@ -40,12 +40,12 @@ substrate = st.selectbox("2. Rodzaj podłoża", [
 # Grubość istniejącej masy
 existing_levelling_thickness = None
 if substrate == "masa samorozlewna":
-    existing_levelling_thickness = st.number_input("Grubość wylanej masy (mm):", min_value=1, value=3)
+    existing_levelling_thickness = st.number_input("Grubość wylanej masy (mm):", min_value=1, value=None, placeholder="Wpisz mm...")
 
 # Wiek podłoża (w miesiącach)
 substrate_age_val = None
 if any(x in substrate for x in ["jastrych", "płyta", "masa"]):
-    substrate_age_val = st.number_input("Wiek podłoża (podaj ilość miesięcy):", min_value=0.5, step=0.5, format="%.1f")
+    substrate_age_val = st.number_input("Wiek podłoża (podaj ilość miesięcy):", min_value=0.5, step=0.5, format="%.1f", value=None, placeholder="Wpisz ilość miesięcy...")
 
 # 3. Ogrzewanie podłogowe - DOMYŚLNIE "NIE"
 st.write("3. Czy jest instalacja ogrzewania podłogowego?")
@@ -83,7 +83,7 @@ st.write("4. Czy podłoże wymaga wyrównania (masy)?")
 needs_levelling = st.radio("Wymaga wyrównania:", ["TAK", "NIE"], index=1, horizontal=True, label_visibility="collapsed")
 leveling_thickness = 0
 if needs_levelling == "TAK":
-    leveling_thickness = st.number_input("Planowana grubość masy (mm):", min_value=1, value=3)
+    leveling_thickness = st.number_input("Planowana grubość masy (mm):", min_value=1, value=None, placeholder="Wpisz mm...")
 
 # 5. Dylatacje obwodowe
 st.write("5. Czy dylatacje obwodowe zachowane prawidłowo?")
@@ -94,14 +94,14 @@ st.write("6. Czy występują klawiszujące dylatacje pozorne?")
 cracks_klaw = st.radio("Klawiszowanie pozorne:", ["TAK", "NIE"], index=1, horizontal=True, label_visibility="collapsed")
 klaw_meters = 0.0
 if cracks_klaw == "TAK":
-    klaw_meters = st.number_input("Ilość mb dylatacji pozornych klawiszujących:", min_value=0.1, step=0.1)
+    klaw_meters = st.number_input("Ilość mb dylatacji pozornych klawiszujących:", min_value=0.1, step=0.1, value=None, placeholder="Wpisz mb...")
 
 # 7. Pęknięcia wymagające zespolenia
 st.write("7. Czy występują pęknięcia podłoża wymagające zespolenia?")
 cracks_pek = st.radio("Pęknięcia do zespolenia:", ["TAK", "NIE"], index=1, horizontal=True, label_visibility="collapsed")
 pek_meters = 0.0
 if cracks_pek == "TAK":
-    pek_meters = st.number_input("Ilość mb pęknięć do zespolenia:", min_value=0.1, step=0.1)
+    pek_meters = st.number_input("Ilość mb pęknięć do zespolenia:", min_value=0.1, step=0.1, value=None, placeholder="Wpisz mb...")
 
 # 8. Ubytki (cm)
 st.write("8. Czy są ubytki lub zdegradowane miejsca wymagające wypełnienia?")
@@ -109,10 +109,11 @@ holes = st.radio("Ubytki:", ["TAK", "NIE"], index=1, horizontal=True, label_visi
 hole_details = ""
 if holes == "TAK":
     col_h1, col_h2, col_h3 = st.columns(3)
-    with col_h1: h_depth = st.number_input("Głębokość (cm)", min_value=0.1, format="%.1f")
-    with col_h2: h_width = st.number_input("Szerokość (cm)", min_value=0.1, format="%.1f")
-    with col_h3: h_length = st.number_input("Długość (cm)", min_value=0.1, format="%.1f")
-    hole_details = f" o wymiarach ok. {h_length}x{h_width} cm i głębokości {h_depth} cm"
+    with col_h1: h_depth = st.number_input("Głębokość (cm)", min_value=0.1, format="%.1f", value=None, placeholder="cm...")
+    with col_h2: h_width = st.number_input("Szerokość (cm)", min_value=0.1, format="%.1f", value=None, placeholder="cm...")
+    with col_h3: h_length = st.number_input("Długość (cm)", min_value=0.1, format="%.1f", value=None, placeholder="cm...")
+    if h_depth and h_width and h_length:
+        hole_details = f" o wymiarach ok. {h_length}x{h_width} cm i głębokości {h_depth} cm"
 
 # 9. Wentylacja
 st.write("9. Rodzaj wentylacji w pomieszczeniu")
@@ -121,12 +122,12 @@ ventilation_type = st.radio("Wentylacja:", ["Grawitacyjna", "Mechaniczna"], hori
 # 10, 11. Warunki otoczenia
 col_w1, col_w2 = st.columns(2)
 with col_w1:
-    temp_air = st.number_input("10. Temperatura powietrza (°C)", value=20.0, step=0.5)
+    temp_air = st.number_input("10. Temperatura powietrza (°C)", step=0.5, value=None, placeholder="°C...")
 with col_w2:
-    hum_air = st.number_input("11. Wilgotność powietrza (%)", value=50.0, step=1.0)
+    hum_air = st.number_input("11. Wilgotność powietrza (%)", step=1.0, value=None, placeholder="% RH...")
 
 # 12. Wilgotność podłoża
-moisture = st.number_input("12. Poziom wilgoci podłoża (CM %)", value=None, placeholder="Wpisz wynik...", format="%.1f")
+moisture = st.number_input("12. Poziom wilgoci podłoża (CM %)", placeholder="Wpisz wynik CM...", format="%.1f", value=None)
 
 # 13. Dodatkowe uwagi
 st.write("13. Dodatkowe uwagi")
@@ -164,11 +165,11 @@ with col_t1: test_hammer = st.selectbox("Młotek", ["negatywny", "dostateczny", 
 with col_t2: test_ripper = st.selectbox("Rysik", ["negatywny", "dostateczny", "pozytywny"], index=2)
 with col_t3: test_brush = st.selectbox("Szczotka", ["negatywny", "pozytywny"], index=1)
 
-# NOWA SEKCJA: Wynik badania PressoMess
+# NOWA SEKCJA: Wynik badania PressoMess (Puste domyślnie)
 st.write("#### Wynik badania PressoMess")
 presso_results = []
 for i in range(6):
-    res = st.number_input(f"Próba {i+1} (N/mm²)", min_value=0.0, step=0.1, format="%.1f", key=f"presso_{i}")
+    res = st.number_input(f"Próba {i+1} (N/mm²)", min_value=0.0, step=0.1, format="%.1f", key=f"presso_{i}", value=None, placeholder="N/mm²...")
     presso_results.append(res)
 
 strength_labels = {1: "bardzo słaby", 2: "słaby", 3: "umiarkowanie słaby", 4: "umiarkowanie mocny", 5: "mocny"}
@@ -215,16 +216,15 @@ if st.button("GENERUJ PROTOKÓŁ OGLĘDZIN", type="primary", use_container_width
         st.write(f"* próba szczotką drucianą: **{test_brush}**")
         st.write(f"* próba rysikiem: **{test_ripper}**")
         
-        # Generator protokołu: Wynik PressoMess pod sobą
         st.write(f"**Wynik badania PressoMess:**")
         for i, val in enumerate(presso_results):
-            if val > 0:
+            if val is not None and val > 0:
                 st.write(f"* Próba {i+1}: **{val} N/mm²**")
         
         st.write(f"* Ocena ogólna wytrzymałości: **{strength_labels[strength_val]}**")
 
         st.write(f"**c) badanie wilgotności podłoża:** Wynik **{moisture} % CM** (Norma: {limit} % CM) - Status: **{m_status}**")
-        st.write(f"**d) warunki klimatyczne:** Temp. powietrza: **{temp_air}°C** | Wilgotność powietrza: **{hum_air}% RH**.")
+        st.write(f"**d) warunki klimatyczne:** Temp. powietrza: **{temp_air if temp_air else '--'}°C** | Wilgotność powietrza: **{hum_air if hum_air else '--'}% RH**.")
 
         st.markdown("#### **II. Zalecenia techniczne**")
         st.write("**a) przygotowanie podłoża:**")
@@ -235,7 +235,7 @@ if st.button("GENERUJ PROTOKÓŁ OGLĘDZIN", type="primary", use_container_width
             st.write(f"* **Zalecamy doprowadzenie do normatywnego poziomu wilgoci ({limit}% CM) poprzez {decision_after_cure}.**")
 
         st.write("**b) naprawa i wzmocnienie podłoża:**")
-        total_cracks = klaw_meters + pek_meters
+        total_cracks = (klaw_meters if klaw_meters else 0) + (pek_meters if pek_meters else 0)
         if total_cracks > 0:
             st.write(f"* Wszystkie pęknięcia oraz dylatacje klawiszujące (łącznie ok. {total_cracks} mb) należy zespolić siłowo przy użyciu żywicy lanej **WAKOL PS 205**.")
         if holes == "TAK":
@@ -263,7 +263,7 @@ if st.button("GENERUJ PROTOKÓŁ OGLĘDZIN", type="primary", use_container_width
                 st.write("* Wzmocnienie głębokie żywicą: **WAKOL PS 275**.")
 
         if needs_levelling == "TAK":
-            st.write(f"* Wyrównanie: montaż maty wzmacniającej **WAKOL AR 150** oraz wylanie masy samopoziomującej **WAKOL Z 645/635** o grubości **{leveling_thickness} mm**.")
+            st.write(f"* Wyrównanie: montaż maty wzmacniającej **WAKOL AR 150** oraz wylanie masy samopoziomującej **WAKOL Z 645/635** o grubości **{leveling_thickness if leveling_thickness else '--'} mm**.")
 
         st.write(f"**c) montaż okładziny:**")
         ms_230_name = "**WAKOL MS 230** (szpachla **B13**, zużycie **1350 g/m²**)"
