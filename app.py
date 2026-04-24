@@ -47,7 +47,7 @@ substrate_age_val = None
 if any(x in substrate for x in ["jastrych", "płyta", "masa"]):
     substrate_age_val = st.number_input("Wiek podłoża (podaj ilość miesięcy):", min_value=0.5, step=0.5, format="%.1f")
 
-# 3. Ogrzewanie podłogowe - Pełna lista (Święta)
+# 3. Ogrzewanie podłogowe
 st.write("3. Czy jest instalacja ogrzewania podłogowego?")
 heating_exists = st.radio("Ogrzewanie:", ["TAK", "NIE"], index=1, horizontal=True, label_visibility="collapsed")
 
@@ -160,7 +160,6 @@ with col_t2: test_ripper = st.selectbox("Rysik", ["negatywny", "dostateczny", "p
 with col_t3: test_brush = st.selectbox("Szczotka", ["negatywny", "pozytywny"], index=1)
 
 strength_labels = {1: "bardzo słaby", 2: "słaby", 3: "umiarkowanie słaby", 4: "umiarkowanie mocny", 5: "mocny"}
-# NAPRAWA BŁĘDU (ZAMKNIĘCIE NAWIASU):
 strength_val = st.select_slider("Ocena ogólna wytrzymałości podłoża:", options=[1, 2, 3, 4, 5], value=3, format_func=lambda x: strength_labels[x])
 
 # --- SEKCJA GENEROWANIA PROTOKOŁU ---
@@ -183,11 +182,12 @@ if st.button("GENERUJ PROTOKÓŁ OGLĘDZIN", type="primary", use_container_width
         klaw_desc = f" Stwierdzono klawiszujące dylatacje pozorne ({klaw_meters} mb)." if cracks_klaw == "TAK" else " Brak klawiszujących dylatacji."
         pek_desc = f" Stwierdzono pęknięcia podłoża wymagające zespolenia ({pek_meters} mb)." if cracks_pek == "TAK" else " Brak pęknięć wymagających zespolenia."
         
+        # Logika opisu wygrzewania (DOKŁADNE SFORMUŁOWANIA)
         curing_txt = ""
         if heating_curing_done == "TAK":
-            curing_txt = " Proces wygrzewania przeprowadzony zgodnie z protokołem."
+            curing_txt = " przeprowadzono proces wygrzewania zgodnie z protokołem."
         elif heating_curing_done == "NIE":
-            curing_txt = " Proces wygrzewania NIE został przeprowadzony zgodnie z protokołem."
+            curing_txt = " nieprzeprowadzono procesów wygrzewania zgodnie z protokołem."
 
         heat_status_txt = f" {heating_info}.{curing_txt}" if heating_exists == "TAK" else " Brak instalacji ogrzewania podłogowego."
         age_txt = ""
