@@ -164,6 +164,13 @@ with col_t1: test_hammer = st.selectbox("Młotek", ["negatywny", "dostateczny", 
 with col_t2: test_ripper = st.selectbox("Rysik", ["negatywny", "dostateczny", "pozytywny"], index=2)
 with col_t3: test_brush = st.selectbox("Szczotka", ["negatywny", "pozytywny"], index=1)
 
+# NOWA SEKCJA: Wynik badania PressoMess
+st.write("#### Wynik badania PressoMess")
+presso_results = []
+for i in range(6):
+    res = st.number_input(f"Próba {i+1} (N/mm²)", min_value=0.0, step=0.1, format="%.1f", key=f"presso_{i}")
+    presso_results.append(res)
+
 strength_labels = {1: "bardzo słaby", 2: "słaby", 3: "umiarkowanie słaby", 4: "umiarkowanie mocny", 5: "mocny"}
 strength_val = st.select_slider("Ocena ogólna wytrzymałości podłoża:", options=[1, 2, 3, 4, 5], value=3, format_func=lambda x: strength_labels[x])
 
@@ -207,6 +214,13 @@ if st.button("GENERUJ PROTOKÓŁ OGLĘDZIN", type="primary", use_container_width
         st.write(f"* próba młotkiem: **{test_hammer}**")
         st.write(f"* próba szczotką drucianą: **{test_brush}**")
         st.write(f"* próba rysikiem: **{test_ripper}**")
+        
+        # Generator protokołu: Wynik PressoMess pod sobą
+        st.write(f"**Wynik badania PressoMess:**")
+        for i, val in enumerate(presso_results):
+            if val > 0:
+                st.write(f"* Próba {i+1}: **{val} N/mm²**")
+        
         st.write(f"* Ocena ogólna wytrzymałości: **{strength_labels[strength_val]}**")
 
         st.write(f"**c) badanie wilgotności podłoża:** Wynik **{moisture} % CM** (Norma: {limit} % CM) - Status: **{m_status}**")
@@ -263,7 +277,6 @@ if st.button("GENERUJ PROTOKÓŁ OGLĘDZIN", type="primary", use_container_width
                 st.write(f"* Klejenie parkietu litego należy przeprowadzić przy użyciu kleju poliuretanowego {pu_225_name}. Klej nadaje się na ogrzewanie podłogowe.")
         elif flooring_type == "deska warstwowa (drewno, laminat itp.)":
             st.write(f"* Klejenie parkietu należy przeprowadzić przy użyciu jednego z poniższych klejów (do wyboru):")
-            # AKTUALIZACJA: Przejrzyste dwa punkty bez dublowania fraz
             st.write(f"  - klej elastyczny {ms_230_name}")
             st.write(f"  - klej poliuretanowy {pu_225_name}")
         else:
