@@ -47,7 +47,7 @@ substrate_age_val = None
 if any(x in substrate for x in ["jastrych", "płyta", "masa"]):
     substrate_age_val = st.number_input("Wiek podłoża (podaj ilość miesięcy):", min_value=0.5, step=0.5, format="%.1f")
 
-# 3. Ogrzewanie podłogowe
+# 3. Ogrzewanie podłogowe - Pełna lista
 st.write("3. Czy jest instalacja ogrzewania podłogowego?")
 heating_exists = st.radio("Ogrzewanie:", ["TAK", "NIE"], index=1, horizontal=True, label_visibility="collapsed")
 
@@ -118,5 +118,46 @@ if holes == "TAK":
 st.write("9. Rodzaj wentylacji w pomieszczeniu")
 ventilation_type = st.radio("Wentylacja:", ["Grawitacyjna", "Mechaniczna"], horizontal=True, label_visibility="collapsed")
 
-# 10, 11. Warunki otoczenia
-col
+# 10, 11. Warunki otoczenia - POPRAWKA LITERÓWKI
+col_w1, col_w2 = st.columns(2)
+with col_w1:
+    temp_air = st.number_input("10. Temperatura powietrza (°C)", value=20.0, step=0.5)
+with col_w2:
+    hum_air = st.number_input("11. Wilgotność powietrza (%)", value=50.0, step=1.0)
+
+# 12. Wilgotność podłoża
+moisture = st.number_input("12. Poziom wilgoci podłoża (CM %)", value=None, placeholder="Wpisz wynik...", format="%.1f")
+
+# 13. Dodatkowe uwagi
+st.write("13. Dodatkowe uwagi")
+extra_notes = st.text_area("Wpisz spostrzeżenia z oględzin:")
+
+# --- LOGIKA NORM ---
+if substrate == "jastrych cementowy":
+    limit = 1.5 if heating_exists == "TAK" else 1.8
+elif substrate == "jastrych anhydrytowy":
+    limit = 0.3 if heating_exists == "TAK" else 0.5
+else:
+    limit = 1.5
+
+barrier_max = 2.5 if heating_exists == "TAK" else 3.5
+
+decision_after_cure = None
+if moisture is not None and moisture > limit:
+    st.warning("💡 Wilgotność ponadnormatywna.")
+    opt_dry = "dalsze osuszanie" if heating_exists == "NIE" else "kolejny proces wygrzewania"
+    if moisture <= barrier_max:
+        decision_after_cure = st.radio("Postępowanie:", ["Wykonanie bariery przeciwwilgociowej", opt_dry], horizontal=True)
+    else:
+        st.error(f"❌ Wilgotność za wysoka na barierę (max {barrier_max}%).")
+        decision_after_cure = opt_dry
+
+# --- TESTY MECHANICZNE ---
+st.write("### Testy mechaniczne i Wytrzymałość")
+col_t1, col_t2, col_t3 = st.columns(3)
+with col_t1: test_hammer = st.selectbox("Młotek", ["negatywny", "dostateczny", "pozytywny"], index=2)
+with col_t2: test_ripper = st.selectbox("Rysik", ["negatywny", "dostateczny", "pozytywny"], index=2)
+with col_t3: test_brush = st.selectbox("Szczotka", ["negatywny", "pozytywny"], index=1)
+
+strength_labels = {1: "bardzo słaby", 2: "słaby", 3: "umiarkowanie słaby", 4: "umiarkowanie mocny", 5: "mocny"}
+strength_val = st.select_slider("Ocena ogólna wytrzymałości podłoża:", options=[1, 2, 3, 4, 5], value
