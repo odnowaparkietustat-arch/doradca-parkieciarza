@@ -232,14 +232,25 @@ if st.button("GENERUJ PROTOKÓŁ OGLĘDZIN", type="primary", use_container_width
         total_cracks = (klaw_meters if klaw_meters else 0) + (pek_meters if pek_meters else 0)
         moisture_prefix = f"**Po doprowadzeniu do normatywnego poziomu wilgoci tj. {limit}% CM zalecamy:**" if decision_after_cure in ["dalsze osuszanie", "kolejny proces wygrzewania"] else ""
 
-        if total_cracks > 0 or holes == "TAK" or (strength_val == 1):
+        if total_cracks > 0 or holes == "TAK":
             if moisture_prefix: st.write(f"* {moisture_prefix}")
             if total_cracks > 0: st.write(f"  - Wszystkie pęknięcia oraz dylatacje klawiszujące (łącznie ok. {total_cracks} mb) należy zespolić siłowo przy użyciu żywicy lanej **WAKOL PS 205**.")
             if holes == "TAK": st.write(f"  - Ubytki i zdegradowane fragmenty{hole_details} uzupełnić zaprawą szybkosprawną **WAKOL Z 610**.")
-            if strength_val == 1:
-                st.write(f"* Zalecamy aplikację gruntówki wzmacniającej **Wakol PS 275** w dwóch warstwach – grubym wałkiem sznurkowym, zużycie w sumie ok. 700 g/m2. Każda z warstw po 350g/m2, aplikowane po sobie w odstępie jednej godziny. Aplikując gruntówkę **Wakol PS 275** należy zwrócić uwagę, aby dobrze wchłaniała się w podłoże i unikać powstawania kałuż na powierzchni jastrychu. Po nałożeniu drugiej warstwy gruntówki w razie potrzeby wykonać posypkę z piasku kwarcowego. Po 7 dniach schnięcia powierzchnię należy przeszlifować papierem o gradacji 24 – 40 usuwając przyklejony do powierzchni piasek kwarcowy i dokładnie odkurzyć.")
         
-        if decision_after_cure == "Wykonanie bariery przeciwwilgociowej":
+        # LOGIKA GRUNTOWANIA POD MASĘ SAMOROZLEWNĄ
+        if needs_levelling == "TAK" and decision_after_cure != "Wykonanie bariery przeciwwilgociowej":
+            p = moisture_prefix + " " if moisture_prefix else ""
+            if strength_val == 1:
+                st.write(f"* {p}Zalecamy jednokrotną aplikację gruntówki **WAKOL PU 235**. Aplikować wałkiem. Podczas aplikacji nie zostawiać kałuż tj. Zbierać nadmiar niewchłoniętej gruntówki. 1 - warstwa nałożona wałkiem ok.150 g/m². Czas schnięcia 3 – 6 godzin. Czas klejenia 72 godziny od zagruntowania.")
+                st.write(f"* **Następnie należy zaaplikować mostek sczepny za pomocą produktu WAKOL D 3045. Aplikacja wałkiem. Zużycie - 150 gr. Czas schnięcia - 1 godzina.**")
+            elif strength_val == 2:
+                st.write(f"* {p}Zalecamy zagruntowanie całej powierzchni podłoża gruntówką wzmacniającą **WAKOL PU 280**. Aplikować wałkiem. Nie zostawiać kałuż tj. Zbierać nadmiar niewchłoniętej gruntówki. Zużycie ok. 150 g/m². Czas schnięcia 1 godzina. Czas do montażu – 72 godziny.")
+                st.write(f"* **Następnie należy zaaplikować mostek sczepny za pomocą produktu WAKOL D 3045. Aplikacja wałkiem. Zużycie - 150 gr. Czas schnięcia - 1 godzina.**")
+            elif strength_val >= 3:
+                st.write(f"* {p}**Zagruntować podłoże koncentratem gruntówki dyspersyjnej WAKOL D 3040. Proporcje mieszania: 1 część WAKOL D 3040 + 2 części wody; Czas schnięcia: na jastrychach cementowych i betonie po optycznym wyschnięciu ok. 30min. Sposób nanoszenia: wałek do gruntowania microfazer. Zużycie: ok. 50 g/m² koncentratu.**")
+
+        # LOGIKA GRUNTOWANIA STANDARDOWEGO (BEZ MASY)
+        elif decision_after_cure == "Wykonanie bariery przeciwwilgociowej":
             if strength_val == 2:
                 st.write("* **Zalecamy wykonanie bariery przeciwwilgociowej poprzez dwukrotne zagruntowanie gruntówką wzmacniającą WAKOL PU 235. Podczas aplikacji nie zostawiać kałuż tj. Zbierać nadmiar niewchłoniętej gruntówki.**\n1 - warstwa nałożona wałkiem ok. 150 g/m². Czas schnięcia – 3-6 godzin.\n2 warstwa zużycie ok. 100 g/m². Czas schnięcia – 3-6 godzin.\nCzas klejenia 72 godziny od zagruntowania.")
             else:
@@ -247,18 +258,21 @@ if st.button("GENERUJ PROTOKÓŁ OGLĘDZIN", type="primary", use_container_width
             st.markdown("  *Należy zaślepić dylatacje pozorne przed aplikacją.*")
         elif decision_after_cure not in ["dalsze osuszanie", "kolejny proces wygrzewania"]:
             p = moisture_prefix + " " if moisture_prefix else ""
-            if strength_val >= 4: st.write(f"* {p}Zalecamy zagruntowanie całej powierzchni jastrychu gruntówką dyspersyjną **WAKOL D 3055** - aplikacja wałkiem ok. 150 g/m2. Czas schnięcia ok 30 min.")
-            elif strength_val == 3: st.write(f"* {p}Zalecamy zagruntowanie całej powierzchni podłoża gruntówką wzmacniającą **WAKOL PU 280**. Aplikować wałkiem. Nie zostawiać kałuż tj. Zbierać nadmiar niewchłoniętej gruntówki. Zużycie ok. 150 g/m². Czas schnięcia 1 godzina. Czas do montażu – 72 godziny.")
-            elif strength_val == 2: st.write(f"* {p}Zalecamy jednokrotną aplikację gruntówki **WAKOL PU 235**. Aplikować wałkiem. Podczas aplikacji nie zostawiać kałuż tj. Zbierać nadmiar niewchłoniętej gruntówki. 1 - warstwa nałożona wałkiem ok.150 g/m². Czas schnięcia 3 – 6 godzin. Czas klejenia 72 godziny od zagruntowania.")
+            if strength_val == 1:
+                st.write(f"* {p}Zalecamy aplikację gruntówki wzmacniającej **Wakol PS 275** w dwóch warstwach – grubym wałkiem sznurkowym, zużycie w sumie ok. 700 g/m2. Każda z warstw po 350g/m2, aplikowane po sobie w odstępie jednej godziny. Aplikując gruntówkę **Wakol PS 275** należy zwrócić uwagę, aby dobrze wchłaniała się w podłoże i unikać powstawania kałuż na powierzchni jastrychu. Po nałożeniu drugiej warstwy gruntówki w razie potrzeby wykonać posypkę z piasku kwarcowego. Po 7 dniach schnięcia powierzchnię należy przeszlifować papierem o gradacji 24 – 40 usuwając przyklejony do powierzchni piasek kwarcowy i dokładnie odkurzyć.")
+            elif strength_val == 2:
+                st.write(f"* {p}Zalecamy jednokrotną aplikację gruntówki **WAKOL PU 235**. Aplikować wałkiem. Podczas aplikacji nie zostawiać kałuż tj. Zbierać nadmiar niewchłoniętej gruntówki. 1 - warstwa nałożona wałkiem ok.150 g/m². Czas schnięcia 3 – 6 godzin. Czas klejenia 72 godziny od zagruntowania.")
+            elif strength_val == 3:
+                st.write(f"* {p}Zalecamy zagruntowanie całej powierzchni podłoża gruntówką wzmacniającą **WAKOL PU 280**. Aplikować wałkiem. Nie zostawiać kałuż tj. Zbierać nadmiar niewchłoniętej gruntówki. Zużycie ok. 150 g/m². Czas schnięcia 1 godzina. Czas do montażu – 72 godziny.")
+            elif strength_val >= 4:
+                st.write(f"* {p}Zalecamy zagruntowanie całej powierzchni jastrychu gruntówką dyspersyjną **WAKOL D 3055** - aplikacja wałkiem ok. 150 g/m2. Czas schnięcia ok 30 min.")
 
-        # SEKCJA WYRÓWNANIA (LOGIKA Z 675 vs PARKIEI)
+        # SEKCJA WYRÓWNANIA
         if needs_levelling == "TAK":
             elastic_floors = ["wykładzina dywanowa", "pcv w rolce", "lvt cienkie", "lvt grube z twardym rdzeniem"]
             if flooring_type in elastic_floors:
-                # AKTUALIZACJA: Masa Z 675 dla elastycznych
                 st.write(f"* {moisture_prefix if moisture_prefix else ''} **Wylanie masy wyrównawczej Wakol Z 675 w jednej warstwie o grubości 5mm. W proporcji 25kg masy + 6,0 litrów wody. Zużycie 1,5kg/m2 przy 1mm grubości. Wymieszać w czystym pojemniku z zimną wodą w unikając tworzenia się grudek. Prędkość obrotowa mieszadła może wynosić maksymalnie 600 obrotów na minutę. Masę pozostawić do odparowania na ok. 2 - 3 minuty a następnie ponownie przemieszać. Wymieszaną masę nanosić w żądanej grubości na podłoże przy pomocy szpachli, łaty lub rakli. Przed pracą należy zwrócić uwagę na obecność wypełnień fug przy ścianach. Schnącą masę należy chronić przed działaniem promieni słonecznych i przeciągów. Przy warstwie 5mm schnięcie masy trwa 48 godziny.**")
             else:
-                # Standard dla parkietów
                 st.write(f"* {moisture_prefix if moisture_prefix else ''} Wyrównanie: montaż maty wzmacniającej **WAKOL AR 150** oraz wylanie masy samopoziomującej **WAKOL Z 645/635** o grubości **{leveling_thickness if leveling_thickness else '--'} mm**.")
 
         st.write(f"**c) montaż okładziny:**")
