@@ -47,11 +47,13 @@ substrate_age_val = None
 if any(x in substrate for x in ["jastrych", "płyta", "masa"]):
     substrate_age_val = st.number_input("Wiek podłoża (podaj ilość miesięcy):", min_value=0.5, step=0.5, format="%.1f")
 
-# 3. Ogrzewanie podłogowe - PEŁNA LISTA (PRZYWRÓCONA)
+# 3. Ogrzewanie podłogowe
 st.write("3. Czy jest instalacja ogrzewania podłogowego?")
 heating_exists = st.radio("Ogrzewanie:", ["TAK", "NIE"], index=1, horizontal=True, label_visibility="collapsed")
 
 heating_info = ""
+heating_curing_done = None # Zmienna dla nowego pytania
+
 if heating_exists == "TAK":
     h_type = st.selectbox("Typ ogrzewania:", [
         "wodne klasyczne", 
@@ -61,6 +63,12 @@ if heating_exists == "TAK":
         "elektryczne (głębokie)",
         "płyta fundamentowa grzewcza"
     ])
+    
+    # NOWA LOGIKA: Pytanie o wygrzewanie
+    if h_type in ["wodne klasyczne", "płyta fundamentowa grzewcza"]:
+        st.write("❓ Czy został przeprowadzony proces wygrzewania zgodnie z protokołem?")
+        heating_curing_done = st.radio("Proces wygrzewania:", ["TAK", "NIE"], index=1, horizontal=True, label_visibility="collapsed")
+
     mapping = {
         "wodne klasyczne": "instalacja ogrzewania podłogowego wodna, klasyczna", 
         "bruzdowane": "instalacja ogrzewania podłogowego wodna, bruzdowana", 
@@ -178,7 +186,14 @@ if st.button("GENERUJ PROTOKÓŁ OGLĘDZIN", type="primary", use_container_width
         klaw_desc = f" Stwierdzono klawiszujące dylatacje pozorne ({klaw_meters} mb)." if cracks_klaw == "TAK" else " Brak klawiszujących dylatacji."
         pek_desc = f" Stwierdzono pęknięcia podłoża wymagające zespolenia ({pek_meters} mb)." if cracks_pek == "TAK" else " Brak pęknięć wymagających zespolenia."
         
-        heat_status_txt = f" {heating_info}." if heating_exists == "TAK" else " Brak instalacji ogrzewania podłogowego."
+        # Logika opisu wygrzewania w protokole
+        curing_txt = ""
+        if heating_curing_done == "TAK":
+            curing_txt = " Proces wygrzewania przeprowadzony zgodnie z protokołem."
+        elif heating_curing_done == "NIE":
+            curing_txt = " Proces wygrzewania NIE został przeprowadzony zgodnie z protokołem."
+
+        heat_status_txt = f" {heating_info}.{curing_txt}" if heating_exists == "TAK" else " Brak instalacji ogrzewania podłogowego."
         
         age_txt = ""
         if substrate_age_val:
@@ -217,7 +232,6 @@ if st.button("GENERUJ PROTOKÓŁ OGLĘDZIN", type="primary", use_container_width
         if holes == "TAK":
             st.write(f"* Ubytki i zdegradowane fragmenty{hole_details} uzupełnić zaprawą szybkosprawną **WAKOL Z 610**.")
             
-        # LOGIKA GRUNTOWANIA PU (DOKŁADNE WPISY)
         if decision_after_cure == "Wykonanie bariery przeciwwilgociowej":
             if strength_val == 2:
                 st.write("* **Zalecamy wykonanie bariery przeciwwilgociowej poprzez dwukrotne zagruntowanie gruntówką wzmacniającą WAKOL PU 235. Podczas aplikacji nie zostawiać kałuż tj. Zbierać nadmiar niewchłoniętej gruntówki.**")
@@ -237,30 +251,4 @@ if st.button("GENERUJ PROTOKÓŁ OGLĘDZIN", type="primary", use_container_width
             elif strength_val == 3:
                 st.write("* Zalecamy zagruntowanie całej powierzchni podłoża gruntówką wzmacniającą **WAKOL PU 280**. Aplikować wałkiem. Nie zostawiać kałuż tj. Zbierać nadmiar niewchłoniętej gruntówki. Zużycie ok. 150 g/m². Czas schnięcia 1 godzina. W zależności od chłonności podłoża zużycie może być większe bądź mniejsze. Czas do montażu – 72 godziny.")
             elif strength_val == 2:
-                st.write("* Zalecamy jednokrotną aplikację gruntówki **WAKOL PU 235**. Aplikować wałkiem. Podczas aplikacji nie zostawiać kałuż tj. Zbierać nadmiar niewchłoniętej gruntówki. 1 - warstwa nałożona wałkiem ok.150 g/m². Czas schnięcia 3 – 6 godzin. Czas klejenia 72 godziny od zagruntowania.")
-            else:
-                st.write("* Wzmocnienie głębokie żywicą: **WAKOL PS 275**.")
-
-        if needs_levelling == "TAK":
-            st.write(f"* Wyrównanie: montaż maty wzmacniającej **WAKOL AR 150** oraz wylanie masy samopoziomującej **WAKOL Z 645/635** o grubości **{leveling_thickness} mm**.")
-
-        st.write(f"**c) montaż okładziny:**")
-        ms_230_desc = "kleju elastycznego **WAKOL MS 230** (szpachla **B13**, zużycie **1350 g/m²**)"
-        ms_260_desc = "kleju twardo-elastycznego **WAKOL MS 260** (szpachla **B13**, zużycie **1350 g/m²**)"
-        pu_225_desc = "kleju poliuretanowego **WAKOL PU 225** (szpachla **B11**, zużycie **1250 g/m²**)"
-
-        if flooring_type == "deska lita":
-            if strength_val <= 2:
-                st.write(f"* Klejenie parkietu litego należy przeprowadzić przy użyciu {ms_260_desc}. Klej nadaje się na ogrzewanie podłogowe.")
-            else:
-                st.write(f"* Klejenie parkietu litego należy przeprowadzić przy użyciu {pu_225_desc}. Klej nadaje się na ogrzewanie podłogowe.")
-        
-        elif flooring_type == "deska warstwowa (drewno, laminat itp.)":
-            st.write(f"* Klejenie parkietu należy przeprowadzić przy użyciu jednego z poniższych klejów (do wyboru):")
-            st.write(f"  - Klej elastyczny {ms_230_desc}")
-            st.write(f"  - Klej poliuretanowy {pu_225_desc}")
-        else:
-            st.write(f"* Montaż okładziny **{flooring_type}** należy przeprowadzić zgodnie z systemem WAKOL dedykowanym dla tego typu materiału.")
-        
-        st.divider()
-        st.write(f"Z poważaniem, **{autor}**")
+                st.write("* Zalec
