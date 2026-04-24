@@ -47,18 +47,27 @@ substrate_age_val = None
 if any(x in substrate for x in ["jastrych", "płyta", "masa"]):
     substrate_age_val = st.number_input("Wiek podłoża (podaj ilość miesięcy):", min_value=0.5, step=0.5, format="%.1f")
 
-# 3. Ogrzewanie podłogowe
+# 3. Ogrzewanie podłogowe - PEŁNA LISTA (PRZYWRÓCONA)
 st.write("3. Czy jest instalacja ogrzewania podłogowego?")
 heating_exists = st.radio("Ogrzewanie:", ["TAK", "NIE"], index=1, horizontal=True, label_visibility="collapsed")
 
 heating_info = ""
 if heating_exists == "TAK":
-    h_type = st.selectbox("Typ ogrzewania:", ["wodne klasyczne", "bruzdowane", "w suchej zabudowie", "elektryczne"])
+    h_type = st.selectbox("Typ ogrzewania:", [
+        "wodne klasyczne", 
+        "bruzdowane", 
+        "w suchej zabudowie", 
+        "elektryczne (powierzchniowe)", 
+        "elektryczne (głębokie)",
+        "płyta fundamentowa grzewcza"
+    ])
     mapping = {
         "wodne klasyczne": "instalacja ogrzewania podłogowego wodna, klasyczna", 
         "bruzdowane": "instalacja ogrzewania podłogowego wodna, bruzdowana", 
         "w suchej zabudowie": "instalacja ogrzewania podłogowego wodna, w suchej zabudowie", 
-        "elektryczne": "instalacja ogrzewania podłogowego elektryczna"
+        "elektryczne (powierzchniowe)": "instalacja ogrzewania podłogowego elektryczna, powierzchniowa",
+        "elektryczne (głębokie)": "instalacja ogrzewania podłogowego elektryczna, umieszczona głęboko w podłożu",
+        "płyta fundamentowa grzewcza": "ogrzewanie realizowane poprzez płytę fundamentową grzewczą"
     }
     heating_info = mapping.get(h_type, h_type)
 
@@ -153,7 +162,7 @@ if st.button("GENERUJ PROTOKÓŁ OGLĘDZIN", type="primary", use_container_width
         st.error("Proszę podać wilgotność podłoża!")
     else:
         st.divider()
-        m_status = "POZYTYWNY" if moisture <= limit else "NEGATYWNY"
+        m_status = "POZYTYWNY" if moisture <= limit else "NEGATWVNY"
 
         st.markdown("### **Loba-Wakol Polska Sp. z o.o.**")
         st.write(f"**Data badania:** {data_badania.strftime('%d.%m.%Y')} | **Autor:** {autor}")
@@ -197,7 +206,6 @@ if st.button("GENERUJ PROTOKÓŁ OGLĘDZIN", type="primary", use_container_width
         st.write("* Szlifowanie podłoża w celu usunięcia mleczka jastrychowego i otwarcia porów.")
         st.write("* Dokładne odkurzenie powierzchni.")
         
-        # AKTUALIZACJA: Formuła doprowadzenia do normatywnej wilgoci
         if decision_after_cure in ["dalsze osuszanie", "kolejny proces wygrzewania"]:
             st.write(f"* **Zalecamy doprowadzenie do normatywnego poziomu wilgoci ({limit}% CM) poprzez {decision_after_cure}.**")
 
@@ -209,6 +217,7 @@ if st.button("GENERUJ PROTOKÓŁ OGLĘDZIN", type="primary", use_container_width
         if holes == "TAK":
             st.write(f"* Ubytki i zdegradowane fragmenty{hole_details} uzupełnić zaprawą szybkosprawną **WAKOL Z 610**.")
             
+        # LOGIKA GRUNTOWANIA PU (DOKŁADNE WPISY)
         if decision_after_cure == "Wykonanie bariery przeciwwilgociowej":
             if strength_val == 2:
                 st.write("* **Zalecamy wykonanie bariery przeciwwilgociowej poprzez dwukrotne zagruntowanie gruntówką wzmacniającą WAKOL PU 235. Podczas aplikacji nie zostawiać kałuż tj. Zbierać nadmiar niewchłoniętej gruntówki.**")
