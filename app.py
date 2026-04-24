@@ -132,7 +132,7 @@ moisture = st.number_input("12. Poziom wilgoci podłoża (CM %)", value=None, pl
 st.write("13. Dodatkowe uwagi")
 extra_notes = st.text_area("Wpisz spostrzeżenia z oględzin:")
 
-# --- LOGIKA NORM ---
+# --- LOGIKA NORM I POSTĘPOWANIA ---
 if substrate == "jastrych cementowy":
     limit = 1.5 if heating_exists == "TAK" else 1.8
 elif substrate == "jastrych anhydrytowy":
@@ -145,12 +145,20 @@ barrier_max = 2.5 if heating_exists == "TAK" else 3.5
 decision_after_cure = None
 if moisture is not None and moisture > limit:
     st.warning("💡 Wilgotność ponadnormatywna.")
+    
+    # Warunek osuszania vs wygrzewania
     opt_dry = "dalsze osuszanie" if heating_exists == "NIE" else "kolejny proces wygrzewania"
-    if moisture <= barrier_max:
-        decision_after_cure = st.radio("Postępowanie:", ["Wykonanie bariery przeciwwilgociowej", opt_dry], horizontal=True)
+    
+    # NOWA LOGIKA ZALEŻNA OD WYGRZEWANIA:
+    if heating_exists == "TAK" and heating_curing_done == "NIE":
+        st.error("Konieczne jest wykonanie procesu wygrzewania (brak protokołu z poprzedniego procesu).")
+        decision_after_cure = "kolejny proces wygrzewania"
     else:
-        st.error(f"❌ Wilgotność za wysoka na barierę (max {barrier_max}%).")
-        decision_after_cure = opt_dry
+        if moisture <= barrier_max:
+            decision_after_cure = st.radio("Postępowanie:", ["Wykonanie bariery przeciwwilgociowej", opt_dry], horizontal=True)
+        else:
+            st.error(f"❌ Wilgotność za wysoka na barierę (max {barrier_max}%).")
+            decision_after_cure = opt_dry
 
 # --- TESTY MECHANICZNE ---
 st.write("### Testy mechaniczne i Wytrzymałość")
@@ -182,7 +190,6 @@ if st.button("GENERUJ PROTOKÓŁ OGLĘDZIN", type="primary", use_container_width
         klaw_desc = f" Stwierdzono klawiszujące dylatacje pozorne ({klaw_meters} mb)." if cracks_klaw == "TAK" else " Brak klawiszujących dylatacji."
         pek_desc = f" Stwierdzono pęknięcia podłoża wymagające zespolenia ({pek_meters} mb)." if cracks_pek == "TAK" else " Brak pęknięć wymagających zespolenia."
         
-        # Logika opisu wygrzewania (DOKŁADNE SFORMUŁOWANIA)
         curing_txt = ""
         if heating_curing_done == "TAK":
             curing_txt = " przeprowadzono proces wygrzewania zgodnie z protokołem."
