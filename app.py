@@ -134,7 +134,6 @@ with col_t1: test_hammer = st.selectbox("Młotek", ["negatywny", "dostateczny", 
 with col_t2: test_ripper = st.selectbox("Rysik", ["negatywny", "dostateczny", "pozytywny"], index=2)
 with col_t3: test_brush = st.selectbox("Szczotka", ["negatywny", "pozytywny"], index=1)
 
-st.write("#### Wynik badania PressoMess")
 presso_results = []
 for i in range(6):
     res = st.number_input(f"Próba {i+1} (N/mm²)", min_value=0.0, step=0.1, format="%.1f", key=f"presso_{i}", value=None, placeholder="N/mm²...")
@@ -158,22 +157,16 @@ if moisture is not None and moisture > limit:
     st.warning("💡 Wilgotność ponadnormatywna.")
     opt_dry = "dalsze osuszanie" if heating_exists == "NIE" else "kolejny proces wygrzewania"
     
-    # 1. Blokada: Brak wygrzewania
     if heating_exists == "TAK" and heating_curing_done == "NIE":
         st.error("Konieczne jest wykonanie procesu wygrzewania (brak protokołu z poprzedniego procesu).")
         decision_after_cure = opt_dry
-    
-    # 2. NOWA BLOKADA: Podłoże bardzo słabe + wilgoć
     elif strength_val == 1:
         st.error("⚠️ Podłoże bardzo słabe i wilgotne. Nie ma możliwości wykonania bariery. Jedyną opcją jest doprowadzenie do normy poprzez osuszanie/wygrzewanie.")
         decision_after_cure = opt_dry
-    
-    # 3. Standardowa logika bariery
     else:
         if moisture <= barrier_max:
             decision_after_cure = st.radio("Postępowanie:", ["Wykonanie bariery przeciwwilgociowej", opt_dry], horizontal=True)
         else:
-            st.error(f"❌ Wilgotność za wysoka na barierę (max {barrier_max}%).")
             decision_after_cure = opt_dry
 
 # --- GENEROWANIE PROTOKOŁU ---
@@ -207,9 +200,13 @@ if st.button("GENERUJ PROTOKÓŁ OGLĘDZIN", type="primary", use_container_width
         st.write(f"* próba młotkiem: **{test_hammer}**")
         st.write(f"* próba szczotką drucianą: **{test_brush}**")
         st.write(f"* próba rysikiem: **{test_ripper}**")
-        st.write(f"**Wynik badania PressoMess:**")
-        for i, val in enumerate(presso_results):
-            if val: st.write(f"* Próba {i+1}: **{val} N/mm²**")
+        
+        valid_presso = [v for v in presso_results if v is not None and v > 0]
+        if valid_presso:
+            st.write(f"**Wynik badania PressoMess:**")
+            for i, val in enumerate(presso_results):
+                if val: st.write(f"* Próba {i+1}: **{val} N/mm²**")
+        
         st.write(f"* Ocena ogólna wytrzymałości: **{strength_labels[strength_val]}**")
 
         st.write(f"**c) badanie wilgotności podłoża:** Wynik **{moisture} % CM** (Norma: {limit} % CM) - Status: **{m_status}**")
@@ -228,8 +225,22 @@ if st.button("GENERUJ PROTOKÓŁ OGLĘDZIN", type="primary", use_container_width
 
         st.write("**b) naprawa i wzmocnienie podłoża:**")
         total_cracks = (klaw_meters if klaw_meters else 0) + (pek_meters if pek_meters else 0)
-        if total_cracks > 0: st.write(f"* Wszystkie pęknięcia oraz dylatacje klawiszujące (łącznie ok. {total_cracks} mb) należy zespolić siłowo przy użyciu żywicy lanej **WAKOL PS 205**.")
-        if holes == "TAK": st.write(f"* Ubytki i zdegradowane fragmenty{hole_details} uzupełnić zaprawą szybkosprawną **WAKOL Z 610**.")
+        
+        # LOGIKA: Naprawa zaczyna się od frazy warunkowej jeśli zalecane jest suszenie
+        prefix = ""
+        if decision_after_cure in ["dalsze osuszanie", "kolejny proces wygrzewania"]:
+            prefix = f"Po doprowadzeniu do normatywnego poziomu wilgoci (norma: {limit}% CM) zalecamy: "
+        
+        if total_cracks > 0 or holes == "TAK":
+            if prefix:
+                st.write(f"* {prefix}")
+            
+            if total_cracks > 0:
+                st.write(f"  - Wszystkie pęknięcia oraz dylatacje klawiszujące (łącznie ok. {total_cracks} mb) należy zespolić siłowo przy użyciu żywicy lanej **WAKOL PS 205**.")
+            if holes == "TAK":
+                st.write(f"  - Ubytki i zdegradowane fragmenty{hole_details} uzupełnić zaprawą szybkosprawną **WAKOL Z 610**.")
+        else:
+            st.write("* Brak widocznych uszkodzeń wymagających naprawy żywicami.")
             
         if decision_after_cure == "Wykonanie bariery przeciwwilgociowej":
             if strength_val == 2:
@@ -244,9 +255,12 @@ if st.button("GENERUJ PROTOKÓŁ OGLĘDZIN", type="primary", use_container_width
                 st.write("Czas do klejenia: 72 godziny od zagruntowania.")
             st.markdown("  *Należy zaślepić dylatacje pozorne przed aplikacją.*")
         else:
-            if strength_val >= 4: st.write("* Zalecamy zagruntowanie całej powierzchni jastrychu gruntówką dyspersyjną **WAKOL D 3055** - aplikacja wałkiem ok. 150 g/m2. Czas schnięcia ok 30 min.")
-            elif strength_val == 3: st.write("* Zalecamy zagruntowanie całej powierzchni podłoża gruntówką wzmacniającą **WAKOL PU 280**. Aplikować wałkiem. Nie zostawiać kałuż tj. Zbierać nadmiar niewchłoniętej gruntówki. Zużycie ok. 150 g/m². Czas schnięcia 1 godzina. Czas do montażu – 72 godziny.")
-            elif strength_val == 2: st.write("* Zalecamy jednokrotną aplikację gruntówki **WAKOL PU 235**. Aplikować wałkiem. Podczas aplikacji nie zostawiać kałuż tj. Zbierać nadmiar niewchłoniętej gruntówki. 1 - warstwa nałożona wałkiem ok.150 g/m². Czas schnięcia 3 – 6 godzin. Czas klejenia 72 godziny od zagruntowania.")
+            if strength_val >= 4:
+                st.write("* Zalecamy zagruntowanie całej powierzchni jastrychu gruntówką dyspersyjną **WAKOL D 3055** - aplikacja wałkiem ok. 150 g/m2. Czas schnięcia ok 30 min.")
+            elif strength_val == 3:
+                st.write("* Zalecamy zagruntowanie całej powierzchni podłoża gruntówką wzmacniającą **WAKOL PU 280**. Aplikować wałkiem. Nie zostawiać kałuż tj. Zbierać nadmiar niewchłoniętej gruntówki. Zużycie ok. 150 g/m². Czas schnięcia 1 godzina. Czas do montażu – 72 godziny.")
+            elif strength_val == 2:
+                st.write("* Zalecamy jednokrotną aplikację gruntówki **WAKOL PU 235**. Aplikować wałkiem. Podczas aplikacji nie zostawiać kałuż tj. Zbierać nadmiar niewchłoniętej gruntówki. 1 - warstwa nałożona wałkiem ok.150 g/m². Czas schnięcia 3 – 6 godzin. Czas klejenia 72 godziny od zagruntowania.")
             elif strength_val == 1:
                 st.write("* Zalecamy aplikację gruntówki wzmacniającej **Wakol PS 275** w dwóch warstwach – grubym wałkiem sznurkowym, zużycie w sumie ok. 700 g/m2. Każda z warstw po 350g/m2, aplikowane po sobie w odstępie jednej godziny. Aplikując gruntówkę **Wakol PS 275** należy zwrócić uwagę, aby dobrze wchłaniała się w podłoże i unikać powstawania kałuż na powierzchni jastrychu. Po nałożeniu drugiej warstwy gruntówki w razie potrzeby wykonać posypkę z piasku kwarcowego. Po 7 dniach schnięcia powierzchnię należy przeszlifować papierem o gradacji 24 – 40 usuwając przyklejony do powierzchni piasek kwarcowy i dokładnie odkurzyć.")
 
