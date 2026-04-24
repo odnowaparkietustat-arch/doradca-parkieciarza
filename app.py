@@ -180,12 +180,19 @@ if st.button("GENERUJ PROTOKÓŁ OGLĘDZIN", type="primary", use_container_width
         st.write(f"**Inwestycja:** {inwestycja}, {adres}, {miejscowosc}")
         st.markdown("#### **I. Oględziny i badania**")
         
-        actual_obw_ok = dilatations_obw_ok if cracks_klaw == "NIE" else "NIE"
-        obw_status = "Dylatacje obwodowe zachowane prawidłowo." if actual_obw_ok == "TAK" else "Dylatacje obwodowe niezachowane prawidłowo."
-        klaw_desc = f" Stwierdzono klawiszujące dylatacje pozorne ({klaw_meters} mb)." if cracks_klaw == "TAK" else ""
-        pek_desc = f" Stwierdzono pęknięcia podłoża wymagające zespolenia ({pek_meters} mb)." if cracks_pek == "TAK" else ""
-        st.write(f"**a) oględziny optyczne:** Podłoże stanowi {substrate}. {obw_status}{klaw_desc}{pek_desc} Wentylacja: **{ventilation_type}**.")
+        # AKTUALIZACJA: Opis optyczny (teraz z informacją o potrzebie wyrównania)
+        age_txt = f" (wiek: {substrate_age_val} mies.)" if substrate_age_val else ""
+        heat_txt = f" Stwierdzono {heating_info}." if heating_exists == "TAK" else " Brak instalacji ogrzewania podłogowego."
+        curing_txt = " Przeprowadzono proces wygrzewania zgodnie z protokołem." if heating_curing_done == "TAK" else " Brak protokołu wygrzewania." if heating_exists == "TAK" else ""
+        obw_txt = " Dylatacje obwodowe zachowane prawidłowo." if dilatations_obw_ok == "TAK" else " Dylatacje obwodowe niezachowane prawidłowo."
+        klaw_txt = f" Stwierdzono klawiszujące dylatacje pozorne ({klaw_meters} mb)." if cracks_klaw == "TAK" else " Brak klawiszujących dylatacji."
+        pek_txt = f" Stwierdzono pęknięcia podłoża ({pek_meters} mb)." if cracks_pek == "TAK" else " Brak pęknięć podłoża."
+        holes_txt = " Stwierdzono ubytki w podłożu." if holes == "TAK" else " Brak ubytków w podłożu."
+        level_txt = f" Podłoże wymaga wyrównania (planowana grubość: {leveling_thickness} mm)." if needs_levelling == "TAK" else " Podłoże nie wymaga wyrównania masami samopoziomującymi."
         
+        st.write(f"**a) oględziny optyczne:** Podłoże stanowi {substrate}{age_txt}. {heat_txt}{curing_txt}{obw_txt} {klaw_txt} {pek_txt} {holes_txt} {level_txt} Wentylacja: **{ventilation_type}**.")
+        
+        # Sekcja B i C
         st.write(f"**b) badanie wytrzymałości:**")
         valid_presso = [v for v in presso_results if v is not None and v > 0]
         if valid_presso:
@@ -216,7 +223,7 @@ if st.button("GENERUJ PROTOKÓŁ OGLĘDZIN", type="primary", use_container_width
             if total_cracks > 0: st.write(f"  - Zespolić pęknięcia żywicą **WAKOL PS 205**.")
             if holes == "TAK": st.write(f"  - Uzupełnić ubytki zaprawą **WAKOL Z 610**.")
 
-        # LOGIKA GRUNTOWANIA
+        # GRUNTOWANIE
         if decision_after_cure == "Wykonanie bariery przeciwwilgociowej":
             if strength_val <= 2:
                 st.write("* **Zalecamy wykonanie bariery przeciwwilgociowej poprzez dwukrotne zagruntowanie gruntówką wzmacniającą WAKOL PU 235.**\n1 - warstwa nałożona wałkiem ok. 150 g/m². Czas schnięcia – 3-6 godzin.\n2 warstwa zużycie ok. 100 g/m². Czas schnięcia – 3-6 godzin.\nCzas klejenia 72 godziny od zagruntowania.")
@@ -239,25 +246,18 @@ if st.button("GENERUJ PROTOKÓŁ OGLĘDZIN", type="primary", use_container_width
                     st.write(f"* **Następnie należy zaaplikować mostek sczepny za pomocą produktu WAKOL D 3045.**")
             elif strength_val >= 3 and needs_levelling == "TAK":
                 st.write(f"* {p}**Zagruntować podłoże koncentratem WAKOL D 3040 (1:2 z wodą).**")
+            elif strength_val >= 4 and needs_levelling == "NIE":
+                st.write(f"* {p}Zalecamy zagruntowanie gruntówką **WAKOL D 3055**.")
 
-        # SEKCJA WYRÓWNANIA (TRZY ŚCIEŻKI LOGICZNE)
+        # SEKCJA MAS WYRÓWNAWCZYCH
         if needs_levelling == "TAK":
-            elastic_floors = ["wykładzina dywanowa", "pcv w rolce", "lvt cienkie", "lvt grube z twardym rdzeniem"]
-            
+            elastic = ["wykładzina dywanowa", "pcv w rolce", "lvt cienkie", "lvt grube z twardym rdzeniem"]
             if flooring_type == "deska lita":
-                # AKTUALIZACJA: Pełny opis dla Z 625 (tylko dla deski litej)
-                st.write(f"* {moisture_prefix if moisture_prefix else ''} **Wylać masę wyrównawczą WAKOL Z 625 - wymieszać ją w czystym naczyniu z zimną wodą w proporcji 6,00 – 6,25 litrów wody na 25 kg masy. Mieszać unikając tworzenia się grudek. Prędkość obrotowa mieszadła może wynosić max. 600 obrotów na minutę. Wymieszaną masę nanosić w żądanej grubości na podłoże przy pomocy szpachli, łaty lub rakli. Przed pracą należy zwrócić uwagę na obecność wypełnień fug przy ścianach. Zużycie ok. 1,5 kg/m²/ mm. Możliwość chodzenia po 2 godzinach. Możliwość klejenia podłóg drewnianych przy warstwie do 5 mm – po 6 godzinach, przy warstwie do 10 mm – po 12 godzinach, przy warstwie 30 mm – po 24 godzinach.**")
-            
-            elif flooring_type in elastic_floors:
-                # System dla winyli/wykładzin (Z 675)
-                st.write(f"* {moisture_prefix if moisture_prefix else ''} **Wylanie masy wyrównawczej Wakol Z 675 w jednej warstwie o grubości 7mm. W proporcji 25kg masy + 6,0 litrów wody. Zużycie 1,5kg/m2 przy 1mm grubości. Wymieszać w czystym pojemniku z zimną wodą w unikając tworzenia się grudek. Prędkość obrotowa mieszadła może wynosić maksymalnie 600 obrotów na minutę. Masę pozostawić do odparowania na ok. 2 - 3 minuty a następnie ponownie przemieszać. Wymieszaną masę nanosić w żądanej grubości na podłoże przy pomocy szpachli, łaty lub rakli. Przed pracą należy zwrócić uwagę na obecność wypełnień fug przy ścianach. Schnącą masę należy chronić przed działaniem promieni słonecznych i przeciągów. Warstwa do 2 mm - możliwość klejenia i układania po 24 godzinach, do 5 mm - po 48 godzinach, do 10 mm - po 72 godzinach.**")
-            
+                st.write(f"* {moisture_prefix if moisture_prefix else ''} **Wylać masę wyrównawczą WAKOL Z 625 (proporcja 25kg+6.25L wody). Możliwość klejenia po 6h (do 5mm).**")
+            elif flooring_type in elastic:
+                st.write(f"* {moisture_prefix if moisture_prefix else ''} **Wylanie masy wyrównawczej Wakol Z 675 (warstwa 7mm, schnięcie do 72h).**")
             elif flooring_type == "deska warstwowa (drewno, laminat itp.)":
-                # System dla drewna warstwowego (Z 635)
-                st.write(f"* {moisture_prefix if moisture_prefix else ''} **Następnie na podłoże wylać masę wyrównawczą WAKOL Z 635 - Wylewając masę wyrównawczą WAKOL Z 635 wymieszać ją w czystym naczyniu z zimną wodą w proporcji 6,25 litrów wody na 25 kg masy. Mieszać unikając tworzenia się grudek. Prędkość obrotowa mieszadła może wynosić max. 600 obrotów na minutę. Wymieszaną masę nanosić w żądanej grubości na podłoże przy pomocy szpachli, łaty lub rakli. Przed pracą należy zwrócić uwagę na obecność wypełnień fug przy ścianach. Zużycie ok. 1,5 kg/m²/ mm. Możliwość chodzenia po 2,5 godzinach. Możliwość klejenia podłóg drewnianych przy warstwie do 5 mm – po 24 godzinach, przy warstwie do 10 mm – po 72 godzinach.**")
-            
-            else:
-                st.write(f"* {moisture_prefix if moisture_prefix else ''} Wyrównanie: montaż maty **WAKOL AR 150** oraz masy **WAKOL Z 645/635**.")
+                st.write(f"* {moisture_prefix if moisture_prefix else ''} **Wylać masę wyrównawczą WAKOL Z 635 (proporcja 25kg+6.25L wody). Możliwość klejenia po 24h (do 5mm).**")
 
         st.divider()
         st.markdown(f"""
