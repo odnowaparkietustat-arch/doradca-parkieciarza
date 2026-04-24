@@ -189,7 +189,6 @@ if st.button("GENERUJ PROTOKÓŁ OGLĘDZIN", type="primary", use_container_width
         age_txt = f" Podłoże wykonane {substrate_age_val} miesiąca temu." if substrate_age_val else ""
         thickness_txt = f" (grubość wylanej warstwy: {existing_levelling_thickness} mm)" if existing_levelling_thickness else ""
 
-        # PRZYWRÓCONO: Wentylacja w opisie oględzin
         st.write(f"**a) oględziny optyczne:** Podłoże stanowi {substrate}{thickness_txt}.{age_txt}{heat_status_txt} {obw_status}{klaw_desc}{pek_desc} Wentylacja: **{ventilation_type}**.")
         if extra_notes: st.write(f"**Uwagi dodatkowe:** {extra_notes}")
 
@@ -204,6 +203,9 @@ if st.button("GENERUJ PROTOKÓŁ OGLĘDZIN", type="primary", use_container_width
 
         st.write(f"**c) badanie wilgotności podłoża:** Wynik **{moisture} % CM** (Norma: {limit} % CM) - Status: **{m_status}**")
         st.write(f"**d) warunki klimatyczne:** Temp. powietrza: **{temp_air if temp_air else '--'}°C** | Wilgotność powietrza: **{hum_air if hum_air else '--'}% RH**.")
+
+        if substrate == "jastrych cementowy":
+            st.info("Aby bezpiecznie kleić podłogę drewnianą na jastrychu cementowym, jego wytrzymałość na ścinanie musi wynosić między 1,5 a 2,0 N/mm² a wilgotność nie może przekraczać 1,8% CM. (z ogrzewaniem podłogowym max. 1,5% CM).")
 
         st.markdown("#### **II. Zalecenia techniczne**")
         st.write("**a) przygotowanie podłoża:**")
@@ -225,7 +227,7 @@ if st.button("GENERUJ PROTOKÓŁ OGLĘDZIN", type="primary", use_container_width
                 st.write("2 warstwa zużycie ok. 100 g/m². Czas schnięcia – 3-6 godzin.")
                 st.write("Czas klejenia 72 godziny od zagruntowania.")
             else:
-                st.write("* **Z uwagi na podwyższoną wilgotność zalecamy stworzenie bariery przeciwwilgociowej poprzez zagruntowanie powierzchni jastrychu gruntówką poliuretanową WAKOL PU 280. Aplikować wałkiem. Podczas aplikacji nie zostawiać kałuż tj. Zbierać nadmiar nie wchłoniętej gruntówki.**")
+                st.write("* Z uwagi na podwyższoną wilgotność zalecamy **stworzenie bariery przeciwwilgociowej** poprzez zagruntowanie powierzchni jastrychu gruntówką poliuretanową **WAKOL PU 280**. Aplikować wałkiem. Podczas aplikacji nie zostawiać kałuż tj. Zbierać nadmiar nie wchłoniętej gruntówki.")
                 st.write("1 warstwa nałożona wałkiem ok. 100-150 g/m². Czas schnięcia – jedna godzina.")
                 st.write("2 warstwa ok. 100 g/m² - czas schnięcia – jedna godzina.")
                 st.write("Czas do klejenia: 72 godziny od zagruntowania.")
@@ -251,4 +253,15 @@ if st.button("GENERUJ PROTOKÓŁ OGLĘDZIN", type="primary", use_container_width
         else: st.write(f"* Montaż okładziny **{flooring_type}** należy przeprowadzić zgodnie z systemem WAKOL.")
         
         st.divider()
-        st.write(f"Z poważaniem, **{autor}**")
+        
+        # --- NOWA KLAUZULA KOŃCOWA ---
+        st.markdown(f"""
+        <div style="font-size: 13px; line-height: 1.5; border-top: 1px solid #ccc; padding-top: 15px;">
+            Prosimy o zapoznanie się z kartami technicznymi zalecanych produktów WAKOL.<br>
+            Podstawą naszego zalecenia jest stosowanie i prawidłowa obróbka wszystkich wymienionych materiałów firmy WAKOL w podanej kolejności, przestrzegając reguł rzemiosła i obowiązujących norm oraz instrukcji.<br><br>
+            W przypadku jakichkolwiek pytań lub wątpliwości proszę o kontakt pod numer telefonu: <b>603 214 218</b><br><br>
+            Z poważaniem,<br>
+            <b>Loba-Wakol Polska Sp. z o.o.</b><br>
+            Przemysław Tyszko
+        </div>
+        """, unsafe_allow_html=True)
