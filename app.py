@@ -113,6 +113,9 @@ if holes == "TAK":
     if h_depth and h_width and h_length:
         hole_details = f" o wymiarach ok. {h_length}x{h_width} cm i głębokości {h_depth} cm"
 
+st.write("9. Rodzaj wentylacji w pomieszczeniu")
+ventilation_type = st.radio("Wentylacja:", ["Grawitacyjna", "Mechaniczna"], horizontal=True, label_visibility="collapsed")
+
 col_w1, col_w2 = st.columns(2)
 with col_w1:
     temp_air = st.number_input("10. Temperatura powietrza (°C)", step=0.5, value=None, placeholder="°C...")
@@ -186,7 +189,8 @@ if st.button("GENERUJ PROTOKÓŁ OGLĘDZIN", type="primary", use_container_width
         age_txt = f" Podłoże wykonane {substrate_age_val} miesiąca temu." if substrate_age_val else ""
         thickness_txt = f" (grubość wylanej warstwy: {existing_levelling_thickness} mm)" if existing_levelling_thickness else ""
 
-        st.write(f"**a) oględziny optyczne:** Podłoże stanowi {substrate}{thickness_txt}.{age_txt}{heat_status_txt} {obw_status}{klaw_desc}{pek_desc}")
+        # PRZYWRÓCONO: Wentylacja w opisie oględzin
+        st.write(f"**a) oględziny optyczne:** Podłoże stanowi {substrate}{thickness_txt}.{age_txt}{heat_status_txt} {obw_status}{klaw_desc}{pek_desc} Wentylacja: **{ventilation_type}**.")
         if extra_notes: st.write(f"**Uwagi dodatkowe:** {extra_notes}")
 
         st.write(f"**b) badanie wytrzymałości:**")
@@ -216,16 +220,15 @@ if st.button("GENERUJ PROTOKÓŁ OGLĘDZIN", type="primary", use_container_width
             
         if decision_after_cure == "Wykonanie bariery przeciwwilgociowej":
             if strength_val == 2:
-                # AKTUALIZACJA: Formatowanie myślników jeden pod drugim
                 st.write("* **Zalecamy wykonanie bariery przeciwwilgociowej poprzez dwukrotne zagruntowanie gruntówką wzmacniającą WAKOL PU 235. Podczas aplikacji nie zostawiać kałuż tj. Zbierać nadmiar niewchłoniętej gruntówki.**")
-                st.write("  - 1 - warstwa nałożona wałkiem ok. 150 g/m². Czas schnięcia – 3-6 godzin.")
-                st.write("  - 2 warstwa zużycie ok. 100 g/m². Czas schnięcia – 3-6 godzin.")
-                st.write("  - Czas klejenia 72 godziny od zagruntowania.")
+                st.write("1 - warstwa nałożona wałkiem ok. 150 g/m². Czas schnięcia – 3-6 godzin.")
+                st.write("2 warstwa zużycie ok. 100 g/m². Czas schnięcia – 3-6 godzin.")
+                st.write("Czas klejenia 72 godziny od zagruntowania.")
             else:
                 st.write("* **Z uwagi na podwyższoną wilgotność zalecamy stworzenie bariery przeciwwilgociowej poprzez zagruntowanie powierzchni jastrychu gruntówką poliuretanową WAKOL PU 280. Aplikować wałkiem. Podczas aplikacji nie zostawiać kałuż tj. Zbierać nadmiar nie wchłoniętej gruntówki.**")
-                st.write("  - 1 warstwa nałożona wałkiem ok. 100-150 g/m². Czas schnięcia – jedna godzina.")
-                st.write("  - 2 warstwa ok. 100 g/m² - czas schnięcia – jedna godzina.")
-                st.write("  - Czas do klejenia: 72 godziny od zagruntowania.")
+                st.write("1 warstwa nałożona wałkiem ok. 100-150 g/m². Czas schnięcia – jedna godzina.")
+                st.write("2 warstwa ok. 100 g/m² - czas schnięcia – jedna godzina.")
+                st.write("Czas do klejenia: 72 godziny od zagruntowania.")
             st.markdown("  *Należy zaślepić dylatacje pozorne przed aplikacją.*")
         else:
             if strength_val >= 4: st.write("* Zalecamy zagruntowanie całej powierzchni jastrychu gruntówką dyspersyjną **WAKOL D 3055** - aplikacja wałkiem ok. 150 g/m2. Czas schnięcia ok 30 min.")
@@ -244,9 +247,7 @@ if st.button("GENERUJ PROTOKÓŁ OGLĘDZIN", type="primary", use_container_width
             if strength_val <= 2: st.write(f"* Klejenie parkietu litego należy przeprowadzić przy użyciu kleju twardo-elastycznego {ms_260_name}. Klej nadaje się na ogrzewanie podłogowe.")
             else: st.write(f"* Klejenie parkietu litego należy przeprowadzić przy użyciu kleju poliuretanowego {pu_225_name}. Klej nadaje się na ogrzewanie podłogowe.")
         elif flooring_type == "deska warstwowa (drewno, laminat itp.)":
-            st.write(f"* Klejenie parkietu należy przeprowadzić przy użyciu jednego z poniższych klejów (do wyboru):")
-            st.write(f"  - klej elastyczny {ms_230_name}")
-            st.write(f"  - klej poliuretanowy {pu_225_name}")
+            st.write(f"* Klejenie parkietu należy przeprowadzić przy użyciu jednego z poniższych klejów (do wyboru):\n  - klej elastyczny {ms_230_name}\n  - klej poliuretanowy {pu_225_name}")
         else: st.write(f"* Montaż okładziny **{flooring_type}** należy przeprowadzić zgodnie z systemem WAKOL.")
         
         st.divider()
