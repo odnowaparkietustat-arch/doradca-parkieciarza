@@ -47,7 +47,7 @@ substrate_age_val = None
 if any(x in substrate for x in ["jastrych", "płyta", "masa"]):
     substrate_age_val = st.number_input("Wiek podłoża (podaj ilość miesięcy):", min_value=0.5, step=0.5, format="%.1f")
 
-# 3. Ogrzewanie podłogowe
+# 3. Ogrzewanie podłogowe - DOMYŚLNIE ZAZNACZONE "NIE"
 st.write("3. Czy jest instalacja ogrzewania podłogowego?")
 heating_exists = st.radio("Ogrzewanie:", ["TAK", "NIE"], index=1, horizontal=True, label_visibility="collapsed")
 
@@ -145,11 +145,9 @@ barrier_max = 2.5 if heating_exists == "TAK" else 3.5
 decision_after_cure = None
 if moisture is not None and moisture > limit:
     st.warning("💡 Wilgotność ponadnormatywna.")
-    
-    # Warunek osuszania vs wygrzewania
     opt_dry = "dalsze osuszanie" if heating_exists == "NIE" else "kolejny proces wygrzewania"
     
-    # NOWA LOGIKA ZALEŻNA OD WYGRZEWANIA:
+    # Blokada przy braku wygrzewania
     if heating_exists == "TAK" and heating_curing_done == "NIE":
         st.error("Konieczne jest wykonanie procesu wygrzewania (brak protokołu z poprzedniego procesu).")
         decision_after_cure = "kolejny proces wygrzewania"
