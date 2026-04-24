@@ -222,7 +222,6 @@ if st.button("GENERUJ PROTOKÓŁ OGLĘDZIN", type="primary", use_container_width
                 st.write("* **Zalecamy wykonanie bariery przeciwwilgociowej poprzez dwukrotne zagruntowanie gruntówką wzmacniającą WAKOL PU 235.**\n1 - warstwa nałożona wałkiem ok. 150 g/m². Czas schnięcia – 3-6 godzin.\n2 warstwa zużycie ok. 100 g/m². Czas schnięcia – 3-6 godzin.\nCzas klejenia 72 godziny od zagruntowania.")
             else:
                 st.write("* Z uwagi na podwyższoną wilgotność zalecamy **stworzenie bariery przeciwwilgociowej** gruntówką **WAKOL PU 280**.\n1 warstwa ok. 100-150 g/m². Czas schnięcia – jedna godzina.\n2 warstwa ok. 100 g/m² - czas schnięcia – jedna godzina.\nCzas do klejenia: 72 godziny od zagruntowania.")
-            
             if needs_levelling == "TAK":
                 st.write(f"* **Następnie należy zaaplikować mostek sczepny za pomocą produktu WAKOL D 3045. Aplikacja wałkiem. Zużycie - 150 gr. Czas schnięcia - 1 godzina.**")
         
@@ -230,7 +229,7 @@ if st.button("GENERUJ PROTOKÓŁ OGLĘDZIN", type="primary", use_container_width
             p = moisture_prefix + " " if moisture_prefix else ""
             if strength_val == 1:
                 if needs_levelling == "NIE":
-                    st.write(f"* {p}Zalecamy aplikację gruntówki wzmacniającej **Wakol PS 275** w dwóch warstwach – grubym wałkiem sznurkowym, zużycie w sumie ok. 700 g/m2. Każda z warstw po 350g/m2, aplikowane po sobie w odstępie jednej godziny. Aplikując gruntówkę **Wakol PS 275** należy zwrócić uwagę, aby dobrze wchłaniała się w podłoże i unikać powstawania kałuż na powierzchni jastrychu. Po nałożeniu drugiej warstwy gruntówki w razie potrzeby wykonać posypkę z piasku kwarcowego. Po 7 dniach schnięcia powierzchnię należy przeszlifować papierem o gradacji 24 – 40 usuwając przyklejony do powierzchni piasek kwarcowy i dokładnie odkurzyć.")
+                    st.write(f"* {p}Zalecamy aplikację gruntówki wzmacniającej **Wakol PS 275** (2 warstwy, gruby wałek, 700 g/m2).")
                 else:
                     st.write(f"* {p}Zalecamy gruntowanie wzmacniające **WAKOL PU 235** (zużycie 150g/m2).")
                     st.write(f"* **Następnie należy zaaplikować mostek sczepny za pomocą produktu WAKOL D 3045.**")
@@ -240,17 +239,25 @@ if st.button("GENERUJ PROTOKÓŁ OGLĘDZIN", type="primary", use_container_width
                     st.write(f"* **Następnie należy zaaplikować mostek sczepny za pomocą produktu WAKOL D 3045.**")
             elif strength_val >= 3 and needs_levelling == "TAK":
                 st.write(f"* {p}**Zagruntować podłoże koncentratem WAKOL D 3040 (1:2 z wodą).**")
-            elif strength_val >= 4 and needs_levelling == "NIE":
-                st.write(f"* {p}Zalecamy zagruntowanie gruntówką **WAKOL D 3055**.")
 
-        # SEKCJA WYRÓWNANIA
+        # SEKCJA WYRÓWNANIA (TRZY ŚCIEŻKI LOGICZNE)
         if needs_levelling == "TAK":
             elastic_floors = ["wykładzina dywanowa", "pcv w rolce", "lvt cienkie", "lvt grube z twardym rdzeniem"]
-            if flooring_type in elastic_floors:
-                # AKTUALIZACJA: Pełny opis technologiczny Z 675
+            
+            if flooring_type == "deska lita":
+                # AKTUALIZACJA: Pełny opis dla Z 625 (tylko dla deski litej)
+                st.write(f"* {moisture_prefix if moisture_prefix else ''} **Wylać masę wyrównawczą WAKOL Z 625 - wymieszać ją w czystym naczyniu z zimną wodą w proporcji 6,00 – 6,25 litrów wody na 25 kg masy. Mieszać unikając tworzenia się grudek. Prędkość obrotowa mieszadła może wynosić max. 600 obrotów na minutę. Wymieszaną masę nanosić w żądanej grubości na podłoże przy pomocy szpachli, łaty lub rakli. Przed pracą należy zwrócić uwagę na obecność wypełnień fug przy ścianach. Zużycie ok. 1,5 kg/m²/ mm. Możliwość chodzenia po 2 godzinach. Możliwość klejenia podłóg drewnianych przy warstwie do 5 mm – po 6 godzinach, przy warstwie do 10 mm – po 12 godzinach, przy warstwie 30 mm – po 24 godzinach.**")
+            
+            elif flooring_type in elastic_floors:
+                # System dla winyli/wykładzin (Z 675)
                 st.write(f"* {moisture_prefix if moisture_prefix else ''} **Wylanie masy wyrównawczej Wakol Z 675 w jednej warstwie o grubości 7mm. W proporcji 25kg masy + 6,0 litrów wody. Zużycie 1,5kg/m2 przy 1mm grubości. Wymieszać w czystym pojemniku z zimną wodą w unikając tworzenia się grudek. Prędkość obrotowa mieszadła może wynosić maksymalnie 600 obrotów na minutę. Masę pozostawić do odparowania na ok. 2 - 3 minuty a następnie ponownie przemieszać. Wymieszaną masę nanosić w żądanej grubości na podłoże przy pomocy szpachli, łaty lub rakli. Przed pracą należy zwrócić uwagę na obecność wypełnień fug przy ścianach. Schnącą masę należy chronić przed działaniem promieni słonecznych i przeciągów. Warstwa do 2 mm - możliwość klejenia i układania po 24 godzinach, do 5 mm - po 48 godzinach, do 10 mm - po 72 godzinach.**")
+            
+            elif flooring_type == "deska warstwowa (drewno, laminat itp.)":
+                # System dla drewna warstwowego (Z 635)
+                st.write(f"* {moisture_prefix if moisture_prefix else ''} **Następnie na podłoże wylać masę wyrównawczą WAKOL Z 635 - Wylewając masę wyrównawczą WAKOL Z 635 wymieszać ją w czystym naczyniu z zimną wodą w proporcji 6,25 litrów wody na 25 kg masy. Mieszać unikając tworzenia się grudek. Prędkość obrotowa mieszadła może wynosić max. 600 obrotów na minutę. Wymieszaną masę nanosić w żądanej grubości na podłoże przy pomocy szpachli, łaty lub rakli. Przed pracą należy zwrócić uwagę na obecność wypełnień fug przy ścianach. Zużycie ok. 1,5 kg/m²/ mm. Możliwość chodzenia po 2,5 godzinach. Możliwość klejenia podłóg drewnianych przy warstwie do 5 mm – po 24 godzinach, przy warstwie do 10 mm – po 72 godzinach.**")
+            
             else:
-                st.write(f"* {moisture_prefix if moisture_prefix else ''} Wyrównanie: montaż maty **WAKOL AR 150** oraz masy **WAKOL Z 645/635** o grubości {leveling_thickness if leveling_thickness else '--'} mm.")
+                st.write(f"* {moisture_prefix if moisture_prefix else ''} Wyrównanie: montaż maty **WAKOL AR 150** oraz masy **WAKOL Z 645/635**.")
 
         st.divider()
         st.markdown(f"""
