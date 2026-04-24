@@ -127,28 +127,6 @@ moisture = st.number_input("12. Poziom wilgoci podłoża (CM %)", placeholder="W
 st.write("13. Dodatkowe uwagi")
 extra_notes = st.text_area("Wpisz spostrzeżenia z oględzin:")
 
-# --- LOGIKA NORM ---
-if substrate == "jastrych cementowy":
-    limit = 1.5 if heating_exists == "TAK" else 1.8
-elif substrate == "jastrych anhydrytowy":
-    limit = 0.3 if heating_exists == "TAK" else 0.5
-else:
-    limit = 1.5
-
-barrier_max = 2.5 if heating_exists == "TAK" else 3.5
-decision_after_cure = None
-if moisture is not None and moisture > limit:
-    st.warning("💡 Wilgotność ponadnormatywna.")
-    opt_dry = "dalsze osuszanie" if heating_exists == "NIE" else "kolejny proces wygrzewania"
-    if heating_exists == "TAK" and heating_curing_done == "NIE":
-        st.error("Konieczne jest wykonanie procesu wygrzewania (brak protokołu z poprzedniego procesu).")
-        decision_after_cure = "kolejny proces wygrzewania"
-    else:
-        if moisture <= barrier_max:
-            decision_after_cure = st.radio("Postępowanie:", ["Wykonanie bariery przeciwwilgociowej", opt_dry], horizontal=True)
-        else:
-            decision_after_cure = opt_dry
-
 # --- TESTY MECHANICZNE ---
 st.write("### Testy mechaniczne i Wytrzymałość")
 col_t1, col_t2, col_t3 = st.columns(3)
@@ -164,6 +142,39 @@ for i in range(6):
 
 strength_labels = {1: "bardzo słaby", 2: "słaby", 3: "umiarkowanie słaby", 4: "umiarkowanie mocny", 5: "mocny"}
 strength_val = st.select_slider("Ocena ogólna wytrzymałości podłoża:", options=[1, 2, 3, 4, 5], value=3, format_func=lambda x: strength_labels[x])
+
+# --- LOGIKA NORM I POSTĘPOWANIA ---
+if substrate == "jastrych cementowy":
+    limit = 1.5 if heating_exists == "TAK" else 1.8
+elif substrate == "jastrych anhydrytowy":
+    limit = 0.3 if heating_exists == "TAK" else 0.5
+else:
+    limit = 1.5
+
+barrier_max = 2.5 if heating_exists == "TAK" else 3.5
+decision_after_cure = None
+
+if moisture is not None and moisture > limit:
+    st.warning("💡 Wilgotność ponadnormatywna.")
+    opt_dry = "dalsze osuszanie" if heating_exists == "NIE" else "kolejny proces wygrzewania"
+    
+    # 1. Blokada: Brak wygrzewania
+    if heating_exists == "TAK" and heating_curing_done == "NIE":
+        st.error("Konieczne jest wykonanie procesu wygrzewania (brak protokołu z poprzedniego procesu).")
+        decision_after_cure = opt_dry
+    
+    # 2. NOWA BLOKADA: Podłoże bardzo słabe + wilgoć
+    elif strength_val == 1:
+        st.error("⚠️ Podłoże bardzo słabe i wilgotne. Nie ma możliwości wykonania bariery. Jedyną opcją jest doprowadzenie do normy poprzez osuszanie/wygrzewanie.")
+        decision_after_cure = opt_dry
+    
+    # 3. Standardowa logika bariery
+    else:
+        if moisture <= barrier_max:
+            decision_after_cure = st.radio("Postępowanie:", ["Wykonanie bariery przeciwwilgociowej", opt_dry], horizontal=True)
+        else:
+            st.error(f"❌ Wilgotność za wysoka na barierę (max {barrier_max}%).")
+            decision_after_cure = opt_dry
 
 # --- GENEROWANIE PROTOKOŁU ---
 st.divider()
@@ -236,32 +247,31 @@ if st.button("GENERUJ PROTOKÓŁ OGLĘDZIN", type="primary", use_container_width
             if strength_val >= 4: st.write("* Zalecamy zagruntowanie całej powierzchni jastrychu gruntówką dyspersyjną **WAKOL D 3055** - aplikacja wałkiem ok. 150 g/m2. Czas schnięcia ok 30 min.")
             elif strength_val == 3: st.write("* Zalecamy zagruntowanie całej powierzchni podłoża gruntówką wzmacniającą **WAKOL PU 280**. Aplikować wałkiem. Nie zostawiać kałuż tj. Zbierać nadmiar niewchłoniętej gruntówki. Zużycie ok. 150 g/m². Czas schnięcia 1 godzina. Czas do montażu – 72 godziny.")
             elif strength_val == 2: st.write("* Zalecamy jednokrotną aplikację gruntówki **WAKOL PU 235**. Aplikować wałkiem. Podczas aplikacji nie zostawiać kałuż tj. Zbierać nadmiar niewchłoniętej gruntówki. 1 - warstwa nałożona wałkiem ok.150 g/m². Czas schnięcia 3 – 6 godzin. Czas klejenia 72 godziny od zagruntowania.")
-            else: st.write("* Wzmocnienie głębokie żywicą: **WAKOL PS 275**.")
+            elif strength_val == 1:
+                st.write("* Zalecamy aplikację gruntówki wzmacniającej **Wakol PS 275** w dwóch warstwach – grubym wałkiem sznurkowym, zużycie w sumie ok. 700 g/m2. Każda z warstw po 350g/m2, aplikowane po sobie w odstępie jednej godziny. Aplikując gruntówkę **Wakol PS 275** należy zwrócić uwagę, aby dobrze wchłaniała się w podłoże i unikać powstawania kałuż na powierzchni jastrychu. Po nałożeniu drugiej warstwy gruntówki w razie potrzeby wykonać posypkę z piasku kwarcowego. Po 7 dniach schnięcia powierzchnię należy przeszlifować papierem o gradacji 24 – 40 usuwając przyklejony do powierzchni piasek kwarcowy i dokładnie odkurzyć.")
 
         if needs_levelling == "TAK": st.write(f"* Wyrównanie: montaż maty wzmacniającej **WAKOL AR 150** oraz wylanie masy samopoziomującej **WAKOL Z 645/635** o grubości **{leveling_thickness if leveling_thickness else '--'} mm**.")
 
         st.write(f"**c) montaż okładziny:**")
         ms_230_name = "**WAKOL MS 230** (szpachla **B13**, zużycie **1350 g/m²**)"
-        ms_260_name = "**WAKOL MS 260** (szpachla **B13**, zużycie **1350 g/m²**)"
         pu_225_name = "**WAKOL PU 225** (szpachla **B11**, zużycie **1250 g/m²**)"
 
         if flooring_type == "deska lita":
-            if strength_val <= 2: st.write(f"* Klejenie parkietu litego należy przeprowadzić przy użyciu kleju twardo-elastycznego {ms_260_name}. Klej nadaje się na ogrzewanie podłogowe.")
-            else: st.write(f"* Klejenie parkietu litego należy przeprowadzić przy użyciu kleju poliuretanowego {pu_225_name}. Klej nadaje się na ogrzewanie podłogowe.")
+            st.write(f"* Klejenie parkietu litego należy przeprowadzić przy użyciu kleju poliuretanowego {pu_225_name}. Klej nadaje się na ogrzewanie podłogowe.")
         elif flooring_type == "deska warstwowa (drewno, laminat itp.)":
             st.write(f"* Klejenie parkietu należy przeprowadzić przy użyciu jednego z poniższych klejów (do wyboru):\n  - klej elastyczny {ms_230_name}\n  - klej poliuretanowy {pu_225_name}")
         else: st.write(f"* Montaż okładziny **{flooring_type}** należy przeprowadzić zgodnie z systemem WAKOL.")
         
         st.divider()
         
-        # --- NOWA KLAUZULA KOŃCOWA ---
+        # --- OFICJALNA KLAUZULA KOŃCOWA - TŁUSTY DRUK ---
         st.markdown(f"""
-        <div style="font-size: 13px; line-height: 1.5; border-top: 1px solid #ccc; padding-top: 15px;">
-            Prosimy o zapoznanie się z kartami technicznymi zalecanych produktów WAKOL.<br>
-            Podstawą naszego zalecenia jest stosowanie i prawidłowa obróbka wszystkich wymienionych materiałów firmy WAKOL w podanej kolejności, przestrzegając reguł rzemiosła i obowiązujących norm oraz instrukcji.<br><br>
-            W przypadku jakichkolwiek pytań lub wątpliwości proszę o kontakt pod numer telefonu: <b>603 214 218</b><br><br>
-            Z poważaniem,<br>
+        <div style="font-size: 13px; line-height: 1.5; border-top: 1px solid #ccc; padding-top: 15px; color: #000;">
+            <b>Prosimy o zapoznanie się z kartami technicznymi zalecanych produktów WAKOL.</b><br>
+            <b>Podstawą naszego zalecenia jest stosowanie i prawidłowa obróbka wszystkich wymienionych materiałów firmy WAKOL w podanej kolejności, przestrzegając reguł rzemiosła i obowiązujących norm oraz instrukcji.</b><br><br>
+            <b>W przypadku jakichkolwiek pytań lub wątpliwości proszę o kontakt pod numer telefonu: 603 214 218</b><br><br>
+            <b>Z poważaniem,</b><br>
             <b>Loba-Wakol Polska Sp. z o.o.</b><br>
-            Przemysław Tyszko
+            <b>Przemysław Tyszko</b>
         </div>
         """, unsafe_allow_html=True)
