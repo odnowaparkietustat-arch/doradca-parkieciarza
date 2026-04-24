@@ -2,18 +2,16 @@ import streamlit as st
 from datetime import date
 
 # 1. KONFIGURACJA STRONY
-st.set_page_config(page_title="Ekspert Parkieciarski Loba-Wakol", layout="wide")
+st.set_page_config(page_title="Ekspert Parkieciarski WAKOL", layout="wide")
 
-# --- NAGŁÓWEK FIRMOWY Z LOGOTYPIAMI ---
+# --- NAGŁÓWEK FIRMOWY - TYLKO WAKOL ---
 def insert_header():
-    # Linki do logotypów (transparentne PNG dla lepszego efektu)
     logo_wakol = "https://www.wakol.com/fileadmin/templates/images/wakol_logo.png"
-    logo_loba = "https://www.loba.de/fileadmin/templates/images/loba_logo.png"
     
     st.markdown(f"""
     <div style="display: flex; justify-content: space-between; align-items: center; background-color: #f8f9fa; padding: 20px; border-radius: 10px; border: 1px solid #dee2e6;">
         <div style="flex: 1;">
-            <img src="{logo_wakol}" width="180">
+            <img src="{logo_wakol}" width="220">
             <div style="margin-top: 15px; font-size: 11px; color: #555; line-height: 1.4;">
                 <b>Loba-Wakol Polska Sp. z o.o.</b><br>
                 ul. Sławęcińska 16, Macierzysz | 05-850 Ożarów Mazowiecki<br>
@@ -22,10 +20,10 @@ def insert_header():
             </div>
         </div>
         <div style="flex: 1; text-align: right;">
-            <img src="{logo_loba}" width="150">
-            <div style="margin-top: 10px; font-weight: bold; color: #000;">
-                PROTOKÓŁ TECHNICZNY / OGLĘDZINY
+            <div style="font-size: 18px; font-weight: bold; color: #000; margin-bottom: 5px;">
+                PROTOKÓŁ TECHNICZNY
             </div>
+            <div style="font-size: 14px; color: #333;">Anspruch verbindet</div>
         </div>
     </div>
     <br>
@@ -218,11 +216,16 @@ if st.button("GENERUJ PROTOKÓŁ OGLĘDZIN", type="primary", use_container_width
             
         if decision_after_cure == "Wykonanie bariery przeciwwilgociowej":
             if strength_val == 2:
+                # AKTUALIZACJA: Formatowanie myślników jeden pod drugim
                 st.write("* **Zalecamy wykonanie bariery przeciwwilgociowej poprzez dwukrotne zagruntowanie gruntówką wzmacniającą WAKOL PU 235. Podczas aplikacji nie zostawiać kałuż tj. Zbierać nadmiar niewchłoniętej gruntówki.**")
-                st.write("  - 1 - warstwa nałożona wałkiem ok. 150 g/m². Czas schnięcia – 3-6 godzin.\n  - 2 warstwa zużycie ok. 100 g/m². Czas schnięcia – 3-6 godzin. Czas klejenia 72 godziny od zagruntowania.")
+                st.write("  - 1 - warstwa nałożona wałkiem ok. 150 g/m². Czas schnięcia – 3-6 godzin.")
+                st.write("  - 2 warstwa zużycie ok. 100 g/m². Czas schnięcia – 3-6 godzin.")
+                st.write("  - Czas klejenia 72 godziny od zagruntowania.")
             else:
                 st.write("* **Z uwagi na podwyższoną wilgotność zalecamy stworzenie bariery przeciwwilgociowej poprzez zagruntowanie powierzchni jastrychu gruntówką poliuretanową WAKOL PU 280. Aplikować wałkiem. Podczas aplikacji nie zostawiać kałuż tj. Zbierać nadmiar nie wchłoniętej gruntówki.**")
-                st.write("  - 1 warstwa nałożona wałkiem ok. 100-150 g/m². Czas schnięcia – jedna godzina.\n  - 2 warstwa ok. 100 g/m² - czas schnięcia – jedna godzina.\n  - Czas do klejenia: 72 godziny od zagruntowania.")
+                st.write("  - 1 warstwa nałożona wałkiem ok. 100-150 g/m². Czas schnięcia – jedna godzina.")
+                st.write("  - 2 warstwa ok. 100 g/m² - czas schnięcia – jedna godzina.")
+                st.write("  - Czas do klejenia: 72 godziny od zagruntowania.")
             st.markdown("  *Należy zaślepić dylatacje pozorne przed aplikacją.*")
         else:
             if strength_val >= 4: st.write("* Zalecamy zagruntowanie całej powierzchni jastrychu gruntówką dyspersyjną **WAKOL D 3055** - aplikacja wałkiem ok. 150 g/m2. Czas schnięcia ok 30 min.")
@@ -241,7 +244,9 @@ if st.button("GENERUJ PROTOKÓŁ OGLĘDZIN", type="primary", use_container_width
             if strength_val <= 2: st.write(f"* Klejenie parkietu litego należy przeprowadzić przy użyciu kleju twardo-elastycznego {ms_260_name}. Klej nadaje się na ogrzewanie podłogowe.")
             else: st.write(f"* Klejenie parkietu litego należy przeprowadzić przy użyciu kleju poliuretanowego {pu_225_name}. Klej nadaje się na ogrzewanie podłogowe.")
         elif flooring_type == "deska warstwowa (drewno, laminat itp.)":
-            st.write(f"* Klejenie parkietu należy przeprowadzić przy użyciu jednego z poniższych klejów (do wyboru):\n  - klej elastyczny {ms_230_name}\n  - klej poliuretanowy {pu_225_name}")
+            st.write(f"* Klejenie parkietu należy przeprowadzić przy użyciu jednego z poniższych klejów (do wyboru):")
+            st.write(f"  - klej elastyczny {ms_230_name}")
+            st.write(f"  - klej poliuretanowy {pu_225_name}")
         else: st.write(f"* Montaż okładziny **{flooring_type}** należy przeprowadzić zgodnie z systemem WAKOL.")
         
         st.divider()
