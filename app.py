@@ -47,7 +47,7 @@ substrate_age_val = None
 if any(x in substrate for x in ["jastrych", "płyta", "masa"]):
     substrate_age_val = st.number_input("Wiek podłoża (podaj ilość miesięcy):", min_value=0.5, step=0.5, format="%.1f")
 
-# 3. Ogrzewanie podłogowe - DOMYŚLNIE ZAZNACZONE "NIE"
+# 3. Ogrzewanie podłogowe - DOMYŚLNIE "NIE"
 st.write("3. Czy jest instalacja ogrzewania podłogowego?")
 heating_exists = st.radio("Ogrzewanie:", ["TAK", "NIE"], index=1, horizontal=True, label_visibility="collapsed")
 
@@ -147,7 +147,6 @@ if moisture is not None and moisture > limit:
     st.warning("💡 Wilgotność ponadnormatywna.")
     opt_dry = "dalsze osuszanie" if heating_exists == "NIE" else "kolejny proces wygrzewania"
     
-    # Blokada przy braku wygrzewania
     if heating_exists == "TAK" and heating_curing_done == "NIE":
         st.error("Konieczne jest wykonanie procesu wygrzewania (brak protokołu z poprzedniego procesu).")
         decision_after_cure = "kolejny proces wygrzewania"
@@ -205,7 +204,9 @@ if st.button("GENERUJ PROTOKÓŁ OGLĘDZIN", type="primary", use_container_width
         if extra_notes: st.write(f"**Uwagi dodatkowe:** {extra_notes}")
 
         st.write(f"**b) badanie wytrzymałości:**")
-        st.write(f"* próba młotkiem: **{test_hammer}** | próba szczotką drucianą: **{test_brush}** | próba rysikiem: **{test_ripper}**")
+        st.write(f"* próba młotkiem: **{test_hammer}**")
+        st.write(f"* próba szczotką drucianą: **{test_brush}**")
+        st.write(f"* próba rysikiem: **{test_ripper}**")
         st.write(f"* Ocena ogólna wytrzymałości: **{strength_labels[strength_val]}**")
 
         st.write(f"**c) badanie wilgotności podłoża:** Wynik **{moisture} % CM** (Norma: {limit} % CM) - Status: **{m_status}**")
@@ -213,7 +214,8 @@ if st.button("GENERUJ PROTOKÓŁ OGLĘDZIN", type="primary", use_container_width
 
         st.markdown("#### **II. Zalecenia techniczne**")
         st.write("**a) przygotowanie podłoża:**")
-        st.write("* Szlifowanie podłoża w celu usunięcia mleczka jastrychowego i otwarcia porów. Dokładne odkurzenie powierzchni.")
+        st.write("* szlif podłoża w celu uzyskania porowatej i chłonnej powierzchni")
+        st.write("* dokładny odkurzenie")
         
         if decision_after_cure in ["dalsze osuszanie", "kolejny proces wygrzewania"]:
             st.write(f"* **Zalecamy doprowadzenie do normatywnego poziomu wilgoci ({limit}% CM) poprzez {decision_after_cure}.**")
@@ -250,16 +252,20 @@ if st.button("GENERUJ PROTOKÓŁ OGLĘDZIN", type="primary", use_container_width
             st.write(f"* Wyrównanie: montaż maty wzmacniającej **WAKOL AR 150** oraz wylanie masy samopoziomującej **WAKOL Z 645/635** o grubości **{leveling_thickness} mm**.")
 
         st.write(f"**c) montaż okładziny:**")
-        ms_230_desc = "kleju elastycznego **WAKOL MS 230** (szpachla **B13**, zużycie **1350 g/m²**)"
-        ms_260_desc = "kleju twardo-elastycznego **WAKOL MS 260** (szpachla **B13**, zużycie **1350 g/m²**)"
-        pu_225_desc = "kleju poliuretanowego **WAKOL PU 225** (szpachla **B11**, zużycie **1250 g/m²**)"
+        ms_230_name = "**WAKOL MS 230** (szpachla **B13**, zużycie **1350 g/m²**)"
+        ms_260_name = "**WAKOL MS 260** (szpachla **B13**, zużycie **1350 g/m²**)"
+        pu_225_name = "**WAKOL PU 225** (szpachla **B11**, zużycie **1250 g/m²**)"
 
         if flooring_type == "deska lita":
-            if strength_val <= 2: st.write(f"* Klejenie parkietu litego należy przeprowadzić przy użyciu {ms_260_desc}. Klej nadaje się na ogrzewanie podłogowe.")
-            else: st.write(f"* Klejenie parkietu litego należy przeprowadzić przy użyciu {pu_225_desc}. Klej nadaje się na ogrzewanie podłogowe.")
+            if strength_val <= 2: 
+                st.write(f"* Klejenie parkietu litego należy przeprowadzić przy użyciu kleju twardo-elastycznego {ms_260_name}. Klej nadaje się na ogrzewanie podłogowe.")
+            else: 
+                st.write(f"* Klejenie parkietu litego należy przeprowadzić przy użyciu kleju poliuretanowego {pu_225_name}. Klej nadaje się na ogrzewanie podłogowe.")
         elif flooring_type == "deska warstwowa (drewno, laminat itp.)":
             st.write(f"* Klejenie parkietu należy przeprowadzić przy użyciu jednego z poniższych klejów (do wyboru):")
-            st.write(f"  - Klej elastyczny {ms_230_desc} | - Klej poliuretanowy {pu_225_desc}")
+            # AKTUALIZACJA: Przejrzyste dwa punkty bez dublowania fraz
+            st.write(f"  - klej elastyczny {ms_230_name}")
+            st.write(f"  - klej poliuretanowy {pu_225_name}")
         else:
             st.write(f"* Montaż okładziny **{flooring_type}** należy przeprowadzić zgodnie z systemem WAKOL dedykowanym dla tego typu materiału.")
         
