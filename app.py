@@ -165,7 +165,7 @@ with col_t1: test_hammer = st.selectbox("Młotek", ["negatywny", "dostateczny", 
 with col_t2: test_ripper = st.selectbox("Rysik", ["negatywny", "dostateczny", "pozytywny"], index=2)
 with col_t3: test_brush = st.selectbox("Szczotka", ["negatywny", "pozytywny"], index=1)
 
-# NOWA SEKCJA: Wynik badania PressoMess (Puste domyślnie)
+# Wynik badania PressoMess
 st.write("#### Wynik badania PressoMess")
 presso_results = []
 for i in range(6):
@@ -228,8 +228,9 @@ if st.button("GENERUJ PROTOKÓŁ OGLĘDZIN", type="primary", use_container_width
 
         st.markdown("#### **II. Zalecenia techniczne**")
         st.write("**a) przygotowanie podłoża:**")
-        st.write("* szlif podłoża w celu uzyskania porowatej i chłonnej powierzchni")
-        st.write("* dokładny odkurzenie")
+        # AKTUALIZACJA: Nowe formatowanie przygotowania podłoża (Duża litera, Wytłuszczenie, Wykrzyknik)
+        st.write("* **SZLIF PODŁOŻA W CELU UZYSKANIA POROWATEJ I CHŁONNEJ POWIERZCHNI!**")
+        st.write("* **DOKŁADNE ODKURZENIE!**")
         
         if decision_after_cure in ["dalsze osuszanie", "kolejny proces wygrzewania"]:
             st.write(f"* **Zalecamy doprowadzenie do normatywnego poziomu wilgoci ({limit}% CM) poprzez {decision_after_cure}.**")
