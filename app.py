@@ -124,9 +124,6 @@ with col_w2:
 
 moisture = st.number_input("12. Poziom wilgoci podłoża (CM %)", placeholder="Wpisz wynik CM...", format="%.1f", value=None)
 
-st.write("13. Dodatkowe uwagi")
-extra_notes = st.text_area("Wpisz spostrzeżenia z oględzin:")
-
 # --- TESTY MECHANICZNE ---
 st.write("### Testy mechaniczne i Wytrzymałość")
 col_t1, col_t2, col_t3 = st.columns(3)
@@ -161,7 +158,6 @@ if moisture is not None and moisture > limit:
         st.error("Konieczne jest wykonanie procesu wygrzewania.")
         decision_after_cure = opt_dry
     else:
-        # NOWA LOGIKA: Przy bardzo słabym podłożu bariera możliwa tylko gdy wylewamy masę (PU 235)
         if moisture <= barrier_max:
             if strength_val == 1 and needs_levelling == "NIE":
                 st.error("⚠️ Podłoże bardzo słabe. Bariera możliwa tylko w systemie z masą wyrównawczą.")
@@ -184,15 +180,12 @@ if st.button("GENERUJ PROTOKÓŁ OGLĘDZIN", type="primary", use_container_width
         st.write(f"**Inwestycja:** {inwestycja}, {adres}, {miejscowosc}")
         st.markdown("#### **I. Oględziny i badania**")
         
-        # Sekcja A
         actual_obw_ok = dilatations_obw_ok if cracks_klaw == "NIE" else "NIE"
         obw_status = "Dylatacje obwodowe zachowane prawidłowo." if actual_obw_ok == "TAK" else "Dylatacje obwodowe niezachowane prawidłowo."
         klaw_desc = f" Stwierdzono klawiszujące dylatacje pozorne ({klaw_meters} mb)." if cracks_klaw == "TAK" else ""
         pek_desc = f" Stwierdzono pęknięcia podłoża wymagające zespolenia ({pek_meters} mb)." if cracks_pek == "TAK" else ""
-        curing_txt = " przeprowadzono proces wygrzewania zgodnie z protokołem." if heating_curing_done == "TAK" else ""
         st.write(f"**a) oględziny optyczne:** Podłoże stanowi {substrate}. {obw_status}{klaw_desc}{pek_desc} Wentylacja: **{ventilation_type}**.")
         
-        # Sekcja B
         st.write(f"**b) badanie wytrzymałości:**")
         valid_presso = [v for v in presso_results if v is not None and v > 0]
         if valid_presso:
@@ -202,7 +195,7 @@ if st.button("GENERUJ PROTOKÓŁ OGLĘDZIN", type="primary", use_container_width
         st.write(f"* Ocena ogólna wytrzymałości: **{strength_labels[strength_val]}**")
 
         st.write(f"**c) badanie wilgotności:** Wynik **{moisture} % CM** (Norma: {limit} % CM) - Status: **{m_status}**")
-
+        
         if substrate == "jastrych cementowy":
             st.info(f"Aby bezpiecznie kleić podłogę drewnianą na jastrychu cementowym, jego wytrzymałość na ścinanie musi wynosić między 1,5 a 2,0 N/mm² a wilgotność nie może przekraczać 1,8% CM. (z ogrzewaniem podłogowym max. 1,5% CM).")
 
@@ -218,7 +211,6 @@ if st.button("GENERUJ PROTOKÓŁ OGLĘDZIN", type="primary", use_container_width
         total_cracks = (klaw_meters if klaw_meters else 0) + (pek_meters if pek_meters else 0)
         moisture_prefix = f"**Po doprowadzeniu do normatywnego poziomu wilgoci tj. {limit}% CM zalecamy:**" if decision_after_cure in ["dalsze osuszanie", "kolejny proces wygrzewania"] else ""
 
-        # Naprawy żywicą
         if total_cracks > 0 or holes == "TAK":
             if moisture_prefix: st.write(f"* {moisture_prefix}")
             if total_cracks > 0: st.write(f"  - Zespolić pęknięcia żywicą **WAKOL PS 205**.")
@@ -226,7 +218,6 @@ if st.button("GENERUJ PROTOKÓŁ OGLĘDZIN", type="primary", use_container_width
 
         # LOGIKA GRUNTOWANIA
         if decision_after_cure == "Wykonanie bariery przeciwwilgociowej":
-            # Przy barierze na bardzo słabym (1) stosujemy PU 235 (zgodnie z nową zasadą)
             if strength_val <= 2:
                 st.write("* **Zalecamy wykonanie bariery przeciwwilgociowej poprzez dwukrotne zagruntowanie gruntówką wzmacniającą WAKOL PU 235.**\n1 - warstwa nałożona wałkiem ok. 150 g/m². Czas schnięcia – 3-6 godzin.\n2 warstwa zużycie ok. 100 g/m². Czas schnięcia – 3-6 godzin.\nCzas klejenia 72 godziny od zagruntowania.")
             else:
@@ -238,7 +229,6 @@ if st.button("GENERUJ PROTOKÓŁ OGLĘDZIN", type="primary", use_container_width
         elif decision_after_cure not in ["dalsze osuszanie", "kolejny proces wygrzewania"]:
             p = moisture_prefix + " " if moisture_prefix else ""
             if strength_val == 1:
-                # AKTUALIZACJA: PS 275 tylko gdy NIE wylewamy masy
                 if needs_levelling == "NIE":
                     st.write(f"* {p}Zalecamy aplikację gruntówki wzmacniającej **Wakol PS 275** w dwóch warstwach – grubym wałkiem sznurkowym, zużycie w sumie ok. 700 g/m2. Każda z warstw po 350g/m2, aplikowane po sobie w odstępie jednej godziny. Aplikując gruntówkę **Wakol PS 275** należy zwrócić uwagę, aby dobrze wchłaniała się w podłoże i unikać powstawania kałuż na powierzchni jastrychu. Po nałożeniu drugiej warstwy gruntówki w razie potrzeby wykonać posypkę z piasku kwarcowego. Po 7 dniach schnięcia powierzchnię należy przeszlifować papierem o gradacji 24 – 40 usuwając przyklejony do powierzchni piasek kwarcowy i dokładnie odkurzyć.")
                 else:
@@ -250,14 +240,17 @@ if st.button("GENERUJ PROTOKÓŁ OGLĘDZIN", type="primary", use_container_width
                     st.write(f"* **Następnie należy zaaplikować mostek sczepny za pomocą produktu WAKOL D 3045.**")
             elif strength_val >= 3 and needs_levelling == "TAK":
                 st.write(f"* {p}**Zagruntować podłoże koncentratem WAKOL D 3040 (1:2 z wodą).**")
+            elif strength_val >= 4 and needs_levelling == "NIE":
+                st.write(f"* {p}Zalecamy zagruntowanie gruntówką **WAKOL D 3055**.")
 
         # SEKCJA WYRÓWNANIA
         if needs_levelling == "TAK":
             elastic_floors = ["wykładzina dywanowa", "pcv w rolce", "lvt cienkie", "lvt grube z twardym rdzeniem"]
             if flooring_type in elastic_floors:
-                st.write(f"* {moisture_prefix if moisture_prefix else ''} **Wylanie masy wyrównawczej Wakol Z 675 (warstwa 5mm, proporcja 25kg+6L wody, schnięcie 48h).**")
+                # AKTUALIZACJA: Pełny opis technologiczny Z 675
+                st.write(f"* {moisture_prefix if moisture_prefix else ''} **Wylanie masy wyrównawczej Wakol Z 675 w jednej warstwie o grubości 7mm. W proporcji 25kg masy + 6,0 litrów wody. Zużycie 1,5kg/m2 przy 1mm grubości. Wymieszać w czystym pojemniku z zimną wodą w unikając tworzenia się grudek. Prędkość obrotowa mieszadła może wynosić maksymalnie 600 obrotów na minutę. Masę pozostawić do odparowania na ok. 2 - 3 minuty a następnie ponownie przemieszać. Wymieszaną masę nanosić w żądanej grubości na podłoże przy pomocy szpachli, łaty lub rakli. Przed pracą należy zwrócić uwagę na obecność wypełnień fug przy ścianach. Schnącą masę należy chronić przed działaniem promieni słonecznych i przeciągów. Warstwa do 2 mm - możliwość klejenia i układania po 24 godzinach, do 5 mm - po 48 godzinach, do 10 mm - po 72 godzinach.**")
             else:
-                st.write(f"* {moisture_prefix if moisture_prefix else ''} Wyrównanie: montaż maty **WAKOL AR 150** oraz masy **WAKOL Z 645/635**.")
+                st.write(f"* {moisture_prefix if moisture_prefix else ''} Wyrównanie: montaż maty **WAKOL AR 150** oraz masy **WAKOL Z 645/635** o grubości {leveling_thickness if leveling_thickness else '--'} mm.")
 
         st.divider()
         st.markdown(f"""
