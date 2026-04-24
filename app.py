@@ -226,22 +226,26 @@ if st.button("GENERUJ PROTOKÓŁ OGLĘDZIN", type="primary", use_container_width
         st.write("**b) naprawa i wzmocnienie podłoża:**")
         total_cracks = (klaw_meters if klaw_meters else 0) + (pek_meters if pek_meters else 0)
         
-        # LOGIKA: Naprawa zaczyna się od frazy warunkowej jeśli zalecane jest suszenie
-        prefix = ""
+        # ZASADA: Przed każdą gruntówką/naprawą, jeśli zalecamy suszenie
+        moisture_prefix = ""
         if decision_after_cure in ["dalsze osuszanie", "kolejny proces wygrzewania"]:
-            prefix = f"Po doprowadzeniu do normatywnego poziomu wilgoci (norma: {limit}% CM) zalecamy: "
-        
-        if total_cracks > 0 or holes == "TAK":
-            if prefix:
-                st.write(f"* {prefix}")
-            
+            moisture_prefix = f"Po doprowadzeniu do normatywnego poziomu wilgoci tj. {limit}% CM zalecamy: "
+
+        # Wyświetlamy sekcję B tylko jeśli są uszkodzenia lub wymagane jest wzmocnienie
+        if total_cracks > 0 or holes == "TAK" or (strength_val <= 3 and decision_after_cure != "Wykonanie bariery przeciwwilgociowej"):
+            if moisture_prefix and (total_cracks > 0 or holes == "TAK" or strength_val <= 3):
+                st.write(f"* {moisture_prefix}")
+
             if total_cracks > 0:
                 st.write(f"  - Wszystkie pęknięcia oraz dylatacje klawiszujące (łącznie ok. {total_cracks} mb) należy zespolić siłowo przy użyciu żywicy lanej **WAKOL PS 205**.")
             if holes == "TAK":
                 st.write(f"  - Ubytki i zdegradowane fragmenty{hole_details} uzupełnić zaprawą szybkosprawną **WAKOL Z 610**.")
-        else:
-            st.write("* Brak widocznych uszkodzeń wymagających naprawy żywicami.")
             
+            # Gruntówka wzmacniająca Wakol PS 275
+            if strength_val == 1:
+                st.write("* Zalecamy aplikację gruntówki wzmacniającej **Wakol PS 275** w dwóch warstwach – grubym wałkiem sznurkowym, zużycie w sumie ok. 700 g/m2. Każda z warstw po 350g/m2, aplikowane po sobie w odstępie jednej godziny. Aplikując gruntówkę **Wakol PS 275** należy zwrócić uwagę, aby dobrze wchłaniała się w podłoże i unikać powstawania kałuż na powierzchni jastrychu. Po nałożeniu drugiej warstwy gruntówki w razie potrzeby wykonać posypkę z piasku kwarcowego. Po 7 dniach schnięcia powierzchnię należy przeszlifować papierem o gradacji 24 – 40 usuwając przyklejony do powierzchni piasek kwarcowy i dokładnie odkurzyć.")
+        
+        # Sekcja bariery lub gruntowania standardowego
         if decision_after_cure == "Wykonanie bariery przeciwwilgociowej":
             if strength_val == 2:
                 st.write("* **Zalecamy wykonanie bariery przeciwwilgociowej poprzez dwukrotne zagruntowanie gruntówką wzmacniającą WAKOL PU 235. Podczas aplikacji nie zostawiać kałuż tj. Zbierać nadmiar niewchłoniętej gruntówki.**")
@@ -254,15 +258,14 @@ if st.button("GENERUJ PROTOKÓŁ OGLĘDZIN", type="primary", use_container_width
                 st.write("2 warstwa ok. 100 g/m² - czas schnięcia – jedna godzina.")
                 st.write("Czas do klejenia: 72 godziny od zagruntowania.")
             st.markdown("  *Należy zaślepić dylatacje pozorne przed aplikacją.*")
-        else:
+        elif decision_after_cure not in ["dalsze osuszanie", "kolejny proces wygrzewania"]:
+            # Standardowe gruntowanie z uwzględnieniem prefixu wilgotności (jeśli był)
             if strength_val >= 4:
-                st.write("* Zalecamy zagruntowanie całej powierzchni jastrychu gruntówką dyspersyjną **WAKOL D 3055** - aplikacja wałkiem ok. 150 g/m2. Czas schnięcia ok 30 min.")
+                st.write(f"* {moisture_prefix if moisture_prefix else ''}Zalecamy zagruntowanie całej powierzchni jastrychu gruntówką dyspersyjną **WAKOL D 3055** - aplikacja wałkiem ok. 150 g/m2. Czas schnięcia ok 30 min.")
             elif strength_val == 3:
-                st.write("* Zalecamy zagruntowanie całej powierzchni podłoża gruntówką wzmacniającą **WAKOL PU 280**. Aplikować wałkiem. Nie zostawiać kałuż tj. Zbierać nadmiar niewchłoniętej gruntówki. Zużycie ok. 150 g/m². Czas schnięcia 1 godzina. Czas do montażu – 72 godziny.")
+                st.write(f"* {moisture_prefix if moisture_prefix else ''}Zalecamy zagruntowanie całej powierzchni podłoża gruntówką wzmacniającą **WAKOL PU 280**. Aplikować wałkiem. Nie zostawiać kałuż tj. Zbierać nadmiar niewchłoniętej gruntówki. Zużycie ok. 150 g/m². Czas schnięcia 1 godzina. Czas do montażu – 72 godziny.")
             elif strength_val == 2:
-                st.write("* Zalecamy jednokrotną aplikację gruntówki **WAKOL PU 235**. Aplikować wałkiem. Podczas aplikacji nie zostawiać kałuż tj. Zbierać nadmiar niewchłoniętej gruntówki. 1 - warstwa nałożona wałkiem ok.150 g/m². Czas schnięcia 3 – 6 godzin. Czas klejenia 72 godziny od zagruntowania.")
-            elif strength_val == 1:
-                st.write("* Zalecamy aplikację gruntówki wzmacniającej **Wakol PS 275** w dwóch warstwach – grubym wałkiem sznurkowym, zużycie w sumie ok. 700 g/m2. Każda z warstw po 350g/m2, aplikowane po sobie w odstępie jednej godziny. Aplikując gruntówkę **Wakol PS 275** należy zwrócić uwagę, aby dobrze wchłaniała się w podłoże i unikać powstawania kałuż na powierzchni jastrychu. Po nałożeniu drugiej warstwy gruntówki w razie potrzeby wykonać posypkę z piasku kwarcowego. Po 7 dniach schnięcia powierzchnię należy przeszlifować papierem o gradacji 24 – 40 usuwając przyklejony do powierzchni piasek kwarcowy i dokładnie odkurzyć.")
+                st.write(f"* {moisture_prefix if moisture_prefix else ''}Zalecamy jednokrotną aplikację gruntówki **WAKOL PU 235**. Aplikować wałkiem. Podczas aplikacji nie zostawiać kałuż tj. Zbierać nadmiar niewchłoniętej gruntówki. 1 - warstwa nałożona wałkiem ok.150 g/m². Czas schnięcia 3 – 6 godzin. Czas klejenia 72 godziny od zagruntowania.")
 
         if needs_levelling == "TAK": st.write(f"* Wyrównanie: montaż maty wzmacniającej **WAKOL AR 150** oraz wylanie masy samopoziomującej **WAKOL Z 645/635** o grubości **{leveling_thickness if leveling_thickness else '--'} mm**.")
 
