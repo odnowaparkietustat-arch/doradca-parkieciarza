@@ -2,26 +2,33 @@ import streamlit as st
 from datetime import date
 
 # 1. KONFIGURACJA STRONY
-st.set_page_config(page_title="Ekspert Parkieciarski WAKOL", layout="centered")
+st.set_page_config(page_title="Ekspert Parkieciarski Loba-Wakol", layout="wide")
 
-# --- NAGŁÓWEK FIRMOWY ---
+# --- NAGŁÓWEK FIRMOWY Z LOGOTYPIAMI ---
 def insert_header():
-    st.markdown("""
-    <div style="display: flex; justify-content: space-between; align-items: center;">
-        <div style="font-size: 10px; line-height: 1.2;">
-            <b>Loba-Wakol Polska Sp. z o.o.</b><br>
-            ul. Sławęcińska 16, Macierzysz<br>
-            05-850 Ożarów Mazowiecki<br>
-            tel.: +48 22 436 24 20 | fax: +48 22 436 24 21<br>
-            KRS: 0000163623 | NIP: 118-13-89-053 | REGON: 013285030<br>
-            biuro@loba-wakol.pl
+    # Linki do logotypów (transparentne PNG dla lepszego efektu)
+    logo_wakol = "https://www.wakol.com/fileadmin/templates/images/wakol_logo.png"
+    logo_loba = "https://www.loba.de/fileadmin/templates/images/loba_logo.png"
+    
+    st.markdown(f"""
+    <div style="display: flex; justify-content: space-between; align-items: center; background-color: #f8f9fa; padding: 20px; border-radius: 10px; border: 1px solid #dee2e6;">
+        <div style="flex: 1;">
+            <img src="{logo_wakol}" width="180">
+            <div style="margin-top: 15px; font-size: 11px; color: #555; line-height: 1.4;">
+                <b>Loba-Wakol Polska Sp. z o.o.</b><br>
+                ul. Sławęcińska 16, Macierzysz | 05-850 Ożarów Mazowiecki<br>
+                tel.: +48 22 436 24 20 | fax: +48 22 436 24 21<br>
+                KRS: 0000163623 | NIP: 118-13-89-053 | biuro@loba-wakol.pl
+            </div>
         </div>
-        <div style="text-align: right;">
-            <h2 style="margin: 0; color: #333;">WAKOL / LOBA</h2>
-            <small>Anspruch verbindet | On Top!</small>
+        <div style="flex: 1; text-align: right;">
+            <img src="{logo_loba}" width="150">
+            <div style="margin-top: 10px; font-weight: bold; color: #000;">
+                PROTOKÓŁ TECHNICZNY / OGLĘDZINY
+            </div>
         </div>
     </div>
-    <hr style="margin-top: 5px; margin-bottom: 20px;">
+    <br>
     """, unsafe_allow_html=True)
 
 # --- DANE IDENTYFIKACYJNE ---
@@ -41,7 +48,6 @@ with st.container():
 st.divider()
 
 # --- WYWIAD TECHNICZNY ---
-
 flooring_options = ["deska warstwowa (drewno, laminat itp.)", "deska lita", "wykładzina dywanowa", "pcv w rolce", "lvt cienkie", "lvt grube z twardym rdzeniem"]
 flooring_type = st.selectbox("1. Rodzaj okładziny", flooring_options)
 
@@ -108,9 +114,6 @@ if holes == "TAK":
     with col_h3: h_length = st.number_input("Długość (cm)", min_value=0.1, format="%.1f", value=None, placeholder="cm...")
     if h_depth and h_width and h_length:
         hole_details = f" o wymiarach ok. {h_length}x{h_width} cm i głębokości {h_depth} cm"
-
-st.write("9. Rodzaj wentylacji w pomieszczeniu")
-ventilation_type = st.radio("Wentylacja:", ["Grawitacyjna", "Mechaniczna"], horizontal=True, label_visibility="collapsed")
 
 col_w1, col_w2 = st.columns(2)
 with col_w1:
@@ -185,7 +188,7 @@ if st.button("GENERUJ PROTOKÓŁ OGLĘDZIN", type="primary", use_container_width
         age_txt = f" Podłoże wykonane {substrate_age_val} miesiąca temu." if substrate_age_val else ""
         thickness_txt = f" (grubość wylanej warstwy: {existing_levelling_thickness} mm)" if existing_levelling_thickness else ""
 
-        st.write(f"**a) oględziny optyczne:** Podłoże stanowi {substrate}{thickness_txt}.{age_txt}{heat_status_txt} {obw_status}{klaw_desc}{pek_desc} Wentylacja: **{ventilation_type}**.")
+        st.write(f"**a) oględziny optyczne:** Podłoże stanowi {substrate}{thickness_txt}.{age_txt}{heat_status_txt} {obw_status}{klaw_desc}{pek_desc}")
         if extra_notes: st.write(f"**Uwagi dodatkowe:** {extra_notes}")
 
         st.write(f"**b) badanie wytrzymałości:**")
