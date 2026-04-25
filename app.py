@@ -181,23 +181,22 @@ if st.button("GENERUJ PROTOKÓŁ OGLĘDZIN", type="primary", use_container_width
         if (klaw_meters + pek_meters) > 0: st.write("- Zespolić pęknięcia i dylatacje pozorne żywicą **WAKOL PS 205**.")
         if holes == "TAK": st.write(f"- Uzupełnić ubytki zaprawą **WAKOL Z 610**{hole_details}.")
 
+        used_d3004 = False
         if decision_after_cure == "Wykonanie bariery przeciwwilgociowej":
             if strength_val <= 2: st.write(FULL_PU235_BARRIER)
             else: st.write(FULL_PU280_BARRIER)
         
         elif not decision_after_cure or "Wykonanie" not in str(decision_after_cure):
             if needs_levelling == "TAK":
-                # LOGIKA OSTATECZNEJ GRUNTÓWKI D 3004
-                if strength_val in [3, 4, 5]:
-                    st.write(FULL_D3004) # Po tym nie ma już innej gruntówki
-                else:
-                    if strength_val == 1:
-                        if substrate == "jastrych anhydrytowy": 
-                            st.write(FULL_PU235_1W)
-                        else: 
-                            st.write(FULL_PS275)
-                            st.write(FULL_PU280_1W)
-                    elif strength_val == 2: st.write(FULL_PU280_1W)
+                if strength_val == 1:
+                    if substrate == "jastrych anhydrytowy": st.write(FULL_PU235_1W)
+                    else: 
+                        st.write(FULL_PS275)
+                        st.write(FULL_PU280_1W)
+                elif strength_val == 2: st.write(FULL_PU280_1W)
+                elif strength_val in [3, 4, 5]: 
+                    st.write(FULL_D3004)
+                    used_d3004 = True
             else:
                 if strength_val == 1:
                     if substrate == "jastrych anhydrytowy": st.write(FULL_PU235_1W)
@@ -207,8 +206,10 @@ if st.button("GENERUJ PROTOKÓŁ OGLĘDZIN", type="primary", use_container_width
                 elif strength_val == 5: st.write(FULL_D3055)
 
         if needs_levelling == "TAK":
-            # NOWA ZASADA: Tylko mostek i masa po D 3004 (lub innym gruntowaniu poliuretanowym)
-            st.write("* **Następnie należy zaaplikować specjalistyczny mostek sczepny za pomocą produktu WAKOL D 3045. Aplikować równomiernie za pomocą wałka. Zużycie wynosi ok. 150 g/m². Czas schnięcia 1 godzina.**")
+            # NOWA REGUŁA: Jeśli użyto D 3004, pomiń mostek sczepny
+            if not used_d3004:
+                st.write("* **Następnie należy zaaplikować specjalistyczny mostek sczepny za pomocą produktu WAKOL D 3045. Aplikować równomiernie za pomocą wałka. Zużycie wynosi ok. 150 g/m². Czas schnięcia 1 godzina.**")
+            
             if flooring_type == "deska lita": st.write(FULL_Z625)
             elif flooring_type == "deska warstwowa (drewno, laminat itp.)": st.write("* **Następnie na podłoże wylać masę wyrównawczą WAKOL Z 635 [Pełny opis...]**")
             else: st.write("* **Wylanie masy wyrównawczej Wakol Z 675 [Pełny opis...]**")
