@@ -42,12 +42,12 @@ substrate = st.selectbox("2. Rodzaj podłoża", ["jastrych cementowy", "jastrych
 substrate_age_val = st.number_input("Wiek podłoża (podaj ilość miesięcy):", min_value=0.5, step=0.5, format="%.1f", value=None)
 
 st.write("3. Czy jest instalacja ogrzewania podłogowego?")
-heating_exists = st.radio("Ogrzewanie:", ["TAK", "NIE"], index=1, horizontal=True, key="h_exists")
+heating_exists = st.radio("Ogrzewanie:", ["TAK", "NIE"], index=1, horizontal=True)
 heating_info = ""; heating_curing_done = None
 if heating_exists == "TAK":
     h_type = st.selectbox("Typ ogrzewania:", ["wodne klasyczne", "bruzdowane", "w suchej zabudowie", "elektryczne (powierzchniowe)", "elektryczne (głębokie)", "płyta fundamentowa grzewcza"])
     st.write("❓ Czy został przeprowadzony proces wygrzewania zgodnie z protokołem?")
-    heating_curing_done = st.radio("Proces wygrzewania:", ["TAK", "NIE"], index=1, horizontal=True, key="h_curing")
+    heating_curing_done = st.radio("Proces wygrzewania:", ["TAK", "NIE"], index=1, horizontal=True)
     mapping = {"wodne klasyczne": "instalacja ogrzewania podłogowego wodna, klasyczna", "bruzdowane": "instalacja ogrzewania podłogowego wodna, bruzdowana", "w suchej zabudowie": "instalacja ogrzewania podłogowego wodna, w suchej zabudowie", "elektryczne (powierzchniowe)": "instalacja ogrzewania podłogowego elektryczna, powierzchniowa", "elektryczne (głębokie)": "instalacja ogrzewania podłogowego elektryczna, umieszczona głęboko w podłożu", "płyta fundamentowa grzewcza": "ogrzewanie realizowane poprzez płytę fundamentową grzewczą"}
     heating_info = mapping.get(h_type, h_type)
 
@@ -95,20 +95,25 @@ for i in range(6):
 strength_labels = {1: "bardzo słaby", 2: "słaby", 3: "umiarkowanie słaby", 4: "umiarkowanie mocny", 5: "mocny"}
 strength_val = st.select_slider("Ocena ogólna wytrzymałości:", options=[1, 2, 3, 4, 5], value=3, format_func=lambda x: strength_labels[x])
 
-# --- LOGIKA NORM I BARIER (FIXED) ---
+# --- LOGIKA NORM I BARIER ---
 limit = 1.5 if substrate == "jastrych cementowy" and heating_exists == "TAK" else 1.8 if substrate == "jastrych cementowy" else 0.3 if substrate == "jastrych anhydrytowy" and heating_exists == "TAK" else 0.5 if substrate == "jastrych anhydrytowy" else 1.5
 barrier_max = 2.5 if heating_exists == "TAK" else 3.5
 
 decision_after_cure = None
+needs_drying_action = False
 if moisture is not None and moisture > limit:
+    needs_drying_action = True
     opt_dry = "przeprowadzenie procesu wygrzewania" if heating_exists == "TAK" else "dalsze osuszanie"
     
-    # RYGRORYSTYCZNA BLOKADA BARIERY:
     if heating_exists == "TAK" and heating_curing_done == "NIE":
-        decision_after_cure = opt_dry # Brak możliwości wyboru bariery
+        decision_after_cure = opt_dry
     else:
         if moisture <= barrier_max:
             decision_after_cure = st.radio("Postępowanie:", ["Wykonanie bariery przeciwwilgociowej", opt_dry], horizontal=True)
+            if decision_after_cure != "Wykonanie bariery przeciwwilgociowej":
+                needs_drying_action = True
+            else:
+                needs_drying_action = False
         else:
             decision_after_cure = opt_dry
 
@@ -164,9 +169,11 @@ if st.button("GENERUJ PROTOKÓŁ OGLĘDZIN", type="primary", use_container_width
         if decision_after_cure in ["dalsze osuszanie", "przeprowadzenie procesu wygrzewania"]:
             st.write(f"* **Zalecamy doprowadzenie do normatywnego poziomu wilgoci ({limit}% CM) poprzez {decision_after_cure}.**")
 
+        # --- SEKCJA NAPRAWY Z NOWĄ REGUŁĄ ---
         st.write("**b) naprawa i wzmocnienie podłoża:**")
-        moisture_prefix = f"**Po doprowadzeniu do normatywnego poziomu wilgoci tj. {limit}% CM poprzez wykonanie procesu wygrzewania Zalecamy:**" if heating_exists == "TAK" and heating_curing_done == "NIE" else f"**Po doprowadzeniu do normatywnego poziomu wilgoci tj. {limit}% CM zalecamy:**" if decision_after_cure and "osusza" in decision_after_cure else ""
-        if moisture_prefix: st.write(moisture_prefix)
+        if needs_drying_action:
+            st.write("**Po doprowadzeniu do normatywnego poziomu wilgoci zalecamy:**")
+        
         if (klaw_meters + pek_meters) > 0: st.write("- Zespolić pęknięcia i dylatacje pozorne żywicą **WAKOL PS 205**.")
         if holes == "TAK": st.write(f"- Uzupełnić ubytki zaprawą **WAKOL Z 610**{hole_details}.")
 
