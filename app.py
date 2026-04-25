@@ -101,7 +101,7 @@ for i in range(6): presso_results.append(st.number_input(f"Próba {i+1} (N/mm²)
 strength_labels = {1: "bardzo słaby", 2: "słaby", 3: "umiarkowanie słaby", 4: "umiarkowanie mocny", 5: "mocny"}
 strength_val = st.select_slider("Ocena ogólna wytrzymałości:", options=[1, 2, 3, 4, 5], value=3, format_func=lambda x: strength_labels[x])
 
-# --- LOGIKA NORM I TERMINOLOGII ---
+# --- LOGIKA NORM I DECYZJI ---
 if substrate == "jastrych cementowy": limit = 1.5 if heating_exists == "TAK" else 1.8
 elif substrate == "jastrych anhydrytowy": limit = 0.3 if heating_exists == "TAK" else 0.5
 else: limit = 1.5
@@ -113,15 +113,14 @@ if moisture is not None and moisture > limit:
         opt_dry = "konieczność wykonania kolejnego procesu wygrzewania" if heating_curing_done == "TAK" else "konieczność przeprowadzenia procesu wygrzewania"
     else:
         opt_dry = "dalsze osuszanie"
-        
-    if strength_val == 1:
+    
+    # Jeśli podłoże jest bardzo słabe LUB wilgotność > barrier_max -> jedyna opcja to osuszanie
+    if strength_val == 1 or moisture > barrier_max:
         decision_after_cure = opt_dry
-    elif moisture <= barrier_max:
-        decision_after_cure = st.radio("Postępowanie:", ["konieczność wykonania bariery przeciwwilgociowej", opt_dry], horizontal=True)
     else:
-        decision_after_cure = opt_dry
+        decision_after_cure = st.radio("Postępowanie:", ["konieczność wykonania bariery przeciwwilgociowej", opt_dry], horizontal=True)
 
-# --- STAŁE TECHNOLOGICZNE ---
+# --- STAŁE TECHNOLOGICZNE (BEZ UPROSZCZEŃ) ---
 FULL_PU280 = "* **Zalecamy stworzenie bariery przeciwwilgociowej lub gruntowania wzmacniającego poprzez zagruntowanie powierzchni jastrychu gruntówką poliuretanową WAKOL PU 280. Aplikować wałkiem. Podczas aplikacji nie zostawiać kałuż tj. Zbierać nadmiar nie wchłoniętej gruntówki.**\n**1 warstwa nałożona wałkiem ok. 100-150 g/m². Czas schnięcia – jedna godzina.**\n**2 warstwa ok. 100 g/m² - czas schnięcia – jedna godzina.**\n**Czas do klejenia: 72 godziny od zagruntowania.**"
 FULL_D3045 = "* **Następnie należy zaaplikować specjalistyczny mostek sczepny za pomocą produktu WAKOL D 3045. Produkt należy dokładnie wymieszać przed użyciem. Aplikować równomiernie za pomocą wałka. Zużycie wynosi ok. 150 g/m². Należy zachować czas schnięcia wynoszący minimum 1 godzinę przed przystąpieniem do dalszych prac.**"
 
@@ -135,7 +134,7 @@ if st.button("GENERUJ PROTOKÓŁ OGLĘDZIN", type="primary", use_container_width
         st.write(f"**Szanowni Państwo:** {klient}")
         st.markdown("#### **I. Oględziny i badania**")
         
-        # Opis optyczny (Z dużej litery dla dylatacji)
+        # Opis optyczny
         age_txt = f" (wiek: {substrate_age_val} mies.)" if substrate_age_val else ""
         heat_txt = f" Stwierdzono {heating_info}." if heating_exists == "TAK" else " Brak instalacji ogrzewania podłogowego."
         curing_txt = " Przeprowadzono proces wygrzewania zgodnie z protokołem." if heating_curing_done == "TAK" else " Brak protokołu wygrzewania." if heating_exists == "TAK" else ""
@@ -154,38 +153,38 @@ if st.button("GENERUJ PROTOKÓŁ OGLĘDZIN", type="primary", use_container_width
         st.write("* **Szlif podłoża w celu uzyskania porowatej i chłonnej powierzchni!**")
         st.write("* **Dokładne odkurzenie**")
         
-        # AKTUALIZACJA: Stylizowana informacja o konieczności
         if decision_after_cure and ("konieczność" in decision_after_cure or "osuszanie" in decision_after_cure):
             st.write(f"* **Stwierdzono {decision_after_cure} celem doprowadzenia jastrychu do normatywnego poziomu wilgoci tj. {limit}% CM.**")
 
         st.write("**b) naprawa, gruntowanie i wyrównanie podłoża:**")
-        moisture_prefix = f"**Po doprowadzeniu do normatywnego poziomu wilgoci jastrychu tj. {limit}% CM zalecamy:**" if decision_after_cure and ("wygrzewania" in decision_after_cure or "osuszanie" in decision_after_cure) else ""
+        # Logika prefiksu osuszania
+        after_dry_prefix = f"**Po doprowadzeniu do normatywnego poziomu wilgoci jastrychu tj. {limit}% CM zalecamy:**" if decision_after_cure and ("wygrzewania" in decision_after_cure or "osuszanie" in decision_after_cure) else ""
 
         if (klaw_meters + pek_meters) > 0 or holes == "TAK":
-            if moisture_prefix: st.write(f"* {moisture_prefix}")
+            if after_dry_prefix: st.write(f"* {after_dry_prefix}")
             if (klaw_meters + pek_meters) > 0: st.write(f"  - Zespolić pęknięcia i dylatacje pozorne żywicą **WAKOL PS 205**.")
             if holes == "TAK": st.write(f"  - Uzupełnić ubytki i zdegradowane fragmenty zaprawą szybkosprawną **WAKOL Z 610**.")
 
-        # --- SEKWENCJA GRUNTOWANIA ---
+        # --- SEKWENCJA GRUNTOWANIA (ZAKAZ UPROSZCZEŃ I BŁĘDÓW LOGICZNYCH) ---
         if decision_after_cure == "konieczność wykonania bariery przeciwwilgociowej":
-            if strength_val == 2:
-                st.write(FULL_PU280)
-            else:
-                st.write(FULL_PU280)
+            # WYBÓR BARIERY (PU 280 zawsze dla słabego/masy)
+            st.write(FULL_PU280)
             if needs_levelling == "TAK": st.write(FULL_D3045)
-        
         else:
-            p = moisture_prefix + " " if moisture_prefix else ""
+            # SCENARIUSZ: Podłoże suche LUB po doprowadzeniu do normy (Brak bariery!)
+            p = after_dry_prefix + " " if after_dry_prefix else ""
             if strength_val == 1:
                 st.write(f"* {p}Zalecamy aplikację gruntówki wzmacniającej **Wakol PS 275** w dwóch warstwach – grubym wałkiem sznurkowym, zużycie w sumie ok. 700 g/m2. Każda z warstw po 350g/m2, aplikowane po sobie w odstępie jednej godziny. Aplikując gruntówkę **Wakol PS 275** należy zwrócić uwagę, aby dobrze wchłaniała się w podłoże i unikać powstawania kałuż na powierzchni jastrychu. Po nałożeniu drugiej warstwy gruntówki w razie potrzeby wykonać posypkę z piasku kwarcowego. Po 7 dniach schnięcia powierzchnię należy przeszlifować papierem o gradacji 24 – 40 usuwając przyklejony do powierzchni piasek kwarcowy i dokładnie odkurzyć.")
                 if needs_levelling == "TAK":
                     st.write(FULL_PU280)
                     st.write(FULL_D3045)
             elif strength_val == 2:
+                # Słabe podłoże -> PU 280 wzmacniający
                 st.write(f"* {p}{FULL_PU280}")
                 if needs_levelling == "TAK": st.write(FULL_D3045)
-            elif strength_val >= 3 and needs_levelling == "TAK":
-                st.write(f"* {p}**Zagruntować podłoże koncentratem gruntówki dyspersyjnej WAKOL D 3040. Proporcje mieszania: 1 część WAKOL D 3040 + 2 części wody; Czas schnięcia: na jastrychach cementowych i betonie po optycznym wyschnięciu ok. 30min. Sposób nanoszenia: wałek do gruntowania microfazer. Zużycie: ok. 50 g/m² koncentratu.**")
+            elif strength_val >= 3:
+                if needs_levelling == "TAK":
+                    st.write(f"* {p}**Zagruntować podłoże koncentratem gruntówki dyspersyjnej WAKOL D 3040. Proporcje mieszania: 1 część WAKOL D 3040 + 2 części wody; Czas schnięcia: na jastrychach cementowych i betonie po optycznym wyschnięciu ok. 30min. Sposób nanoszenia: wałek do gruntowania microfazer. Zużycie: ok. 50 g/m² koncentratu.**")
 
         # --- SEKCJA MAS ---
         if needs_levelling == "TAK":
