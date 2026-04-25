@@ -55,7 +55,7 @@ st.write("4. Czy podłoże wymaga wyrównania (masy)?")
 needs_levelling = st.radio("Wymaga wyrównania:", ["TAK", "NIE"], index=1, horizontal=True)
 leveling_thickness = st.number_input("Planowana grubość masy (mm):", min_value=1, value=None) if needs_levelling == "TAK" else 0
 
-# Sekcja wywiadu (wymagane pytania 1-4 z Twoich instrukcji)
+# Sekcja wywiadu (stałe pytania)
 st.write("5. Czy dylatacje obwodowe zachowane prawidłowo?")
 dilatations_obw_ok = st.radio("Dylatacje obwodowe:", ["TAK", "NIE"], index=0, horizontal=True)
 st.write("6. Czy występują klawiszujące dylatacje pozorne?")
@@ -103,17 +103,16 @@ barrier_max = 2.5 if heating_exists == "TAK" else 3.5
 decision_after_cure = None
 needs_drying_action = False
 if moisture is not None and moisture > limit:
+    needs_drying_action = True
     opt_dry = "przeprowadzenie procesu wygrzewania" if heating_exists == "TAK" else "dalsze osuszanie"
     if substrate == "jastrych anhydrytowy" or (heating_exists == "TAK" and heating_curing_done == "NIE"):
         decision_after_cure = opt_dry
-        needs_drying_action = True
     else:
         if moisture <= barrier_max:
             decision_after_cure = st.radio("Postępowanie:", ["Wykonanie bariery przeciwwilgociowej", opt_dry], horizontal=True)
             needs_drying_action = (decision_after_cure != "Wykonanie bariery przeciwwilgociowej")
         else:
             decision_after_cure = opt_dry
-            needs_drying_action = True
 
 # --- STAŁE TECHNOLOGICZNE ---
 FULL_PS275 = "* **Zalecamy aplikację gruntówki wzmacniającej Wakol PS 275 w dwóch warstwach – grubym wałkiem sznurkowym, zużycie w sumie ok. 700 g/m2. Każda z warstw po 350g/m2, aplikowane po sobie w odstępie jednej godziny. Aplikując gruntówkę Wakol PS 275 należy zwrócić uwagę, aby dobrze wchłaniała się w podłoże i unikać powstawania kałuż na powierzchni jastrychu. Po nałożeniu drugiej warstwy gruntówki w razie potrzeby wykonać posypkę z piasku kwarcowego. Po 7 dniach schnięcia powierzchnię należy przeszlifować papierem o gradacji 24 – 40 usuwając przyklejony do powierzchni piasek kwarcowy i dokładnie odkurzyć.**"
@@ -138,7 +137,7 @@ if st.button("GENERUJ PROTOKÓŁ OGLĘDZIN", type="primary", use_container_width
         heat_txt = f" Została zainstalowana {heating_info}." if heating_exists == "TAK" else " Brak instalacji ogrzewania podłogowego."
         curing_txt = " Został przeprowadzony proces wygrzewania zgodnie z protokołem." if heating_curing_done == "TAK" else " Nie został przeprowadzony proces wygrzewania podłoża." if heating_exists == "TAK" else ""
         dil_txt = " Dylatacje obwodowe zostały zachowane prawidłowo." if dilatations_obw_ok == "TAK" else " Dylatacje obwodowe nie zostały zachowane prawidłowo."
-        klaw_txt = f" Stwierdzono występowanie klawiszujących dylatacji pozornych in ilości {klaw_meters} metrów bieżących." if cracks_klaw == "TAK" else " Nie stwierdzono występowania klawiszujących dylatacji pozornych."
+        klaw_txt = f" Stwierdzono występowanie klawiszujących dylatacji pozornych w ilości {klaw_meters} metrów bieżących." if cracks_klaw == "TAK" else " Nie stwierdzono występowania klawiszujących dylatacji pozornych."
         pek_txt = f" Stwierdzono występowanie pęknięć podłoża wymagających zespolenia w ilości {pek_meters} metrów bieżących." if cracks_pek == "TAK" else " Nie stwierdzono występowania pęknięć podłoża wymagających zespolenia."
         holes_txt = f" Stwierdzono ubytki lub zdegradowane miejsca wymagające wypełnienia{hole_details}." if holes == "TAK" else " Nie stwierdzono ubytków lub zdegradowanych miejsc wymagających wypełnienia."
         level_txt = f" Podłoże wymaga wyrównania masą wyrównawczą o planowanej grubości {leveling_thickness} milimetrów." if needs_levelling == "TAK" else " Podłoże nie wymaga wyrównania masą wyrównawczą."
@@ -147,7 +146,6 @@ if st.button("GENERUJ PROTOKÓŁ OGLĘDZIN", type="primary", use_container_width
         full_opt_report = f"Podłoże pod planowaną okładzinę ({flooring_type}) stanowi {substrate}{age_txt}.{heat_txt}{curing_txt}{dil_txt}{klaw_txt}{pek_txt}{holes_txt}{level_txt} {vent_txt}"
         st.write(f"**a) oględziny optyczne:** {full_opt_report}")
         
-        # WYNIKI WYTRZYMAŁOŚCI
         st.markdown("**b) badanie wytrzymałości:**")
         st.write(f"Wynik badania młotkiem: {test_hammer}")
         st.write(f"Wynik badania szczotką: {test_brush}")
@@ -155,11 +153,10 @@ if st.button("GENERUJ PROTOKÓŁ OGLĘDZIN", type="primary", use_container_width
         valid_presso = [v for v in presso_results if v is not None and v > 0]
         if valid_presso:
             st.write("Wyniki badania PressoMess:")
-            for i, val in enumerate(valid_presso):
-                st.write(f"- Próba {i+1}: {val} N/mm²")
+            for i, val in enumerate(valid_presso): st.write(f"- Próba {i+1}: {val} N/mm²")
         st.write(f"Ocena ogólna wytrzymałości podłoża: **{strength_labels[strength_val]}**")
         
-        # NOWA REGUŁA: Wynik pozytywny/negatywny wilgotności
+        # BADANIE WILGOTNOŚCI Z WYNIKIEM
         moisture_status = "POZYTYWNY" if moisture <= limit else "NEGATYWNY"
         st.write(f"**c) badanie wilgotności:** Wynik badania wilgotności metodą CM: **{moisture} % CM** (Norma: {limit} % CM) — **Wynik: {moisture_status}**")
 
@@ -168,21 +165,22 @@ if st.button("GENERUJ PROTOKÓŁ OGLĘDZIN", type="primary", use_container_width
 
         st.markdown("#### **II. Zalecenia techniczne**")
         
-        needs_curing_msg = False
-        if heating_exists == "TAK" and heating_curing_done == "NIE":
-            st.write(f"* **Konieczność przeprowadzenia pełnego procesu wygrzewania podłoża zgodnie z protokołem.**")
-            needs_curing_msg = True
-
+        # LOGIKA NOWEJ REGUŁY:
+        heating_curing_needed = (heating_exists == "TAK" and heating_curing_done == "NIE")
+        
         st.write("**a) przygotowanie podłoża:**")
         st.write("* **Szlif podłoża w celu uzyskania porowatej i chłonnej powierzchni!**")
         st.write("* **Dokładne odkurzenie powierzchni odkurzaczem przemysłowym.**")
         
-        if decision_after_cure and decision_after_cure != "Wykonanie bariery przeciwwilgociowej":
-            st.write(f"* **Zalecamy doprowadzenie do normatywnego poziomu wilgoci ({limit}% CM) poprzez {decision_after_cure}.**")
+        if moisture > limit:
+            if heating_curing_needed:
+                st.write(f"* **Konieczność doprowadzenia do normatywnego poziomu wilgoci w jastrychu poprzez przeprowadzenie procesu wygrzewania.**")
+            else:
+                st.write(f"* **Zalecamy doprowadzenie do normatywnego poziomu wilgoci ({limit}% CM) poprzez {decision_after_cure}.**")
 
         st.write("**b) naprawa i wzmocnienie podłoża:**")
-        if needs_curing_msg:
-            st.write("**Po przeprowadzeniu pełnego procesu wygrzewania Zalecamy:**")
+        if moisture > limit and heating_curing_needed:
+            st.write("**Po doprowadzeniu do normatywnego poziomu wilgoci w jastrychu zalecamy:**")
         elif needs_drying_action:
             st.write("**Po doprowadzeniu do normatywnego poziomu wilgoci zalecamy:**")
         
@@ -193,21 +191,17 @@ if st.button("GENERUJ PROTOKÓŁ OGLĘDZIN", type="primary", use_container_width
         if decision_after_cure == "Wykonanie bariery przeciwwilgociowej":
             if strength_val <= 2: st.write(FULL_PU235_BARRIER)
             else: st.write(FULL_PU280_BARRIER)
-        
         elif not decision_after_cure or "Wykonanie" not in str(decision_after_cure):
             if needs_levelling == "TAK":
                 if strength_val in [3, 4, 5]:
-                    if substrate == "jastrych anhydrytowy" and leveling_thickness and leveling_thickness > 5:
-                        st.write(FULL_PU280_1W)
+                    if substrate == "jastrych anhydrytowy" and leveling_thickness and leveling_thickness > 5: st.write(FULL_PU280_1W)
                     else:
                         st.write(FULL_D3004)
                         used_d3004 = True
                 else:
                     if strength_val == 1:
                         if substrate == "jastrych anhydrytowy": st.write(FULL_PU235_1W)
-                        else: 
-                            st.write(FULL_PS275)
-                            st.write(FULL_PU280_1W)
+                        else: (st.write(FULL_PS275), st.write(FULL_PU280_1W))
                     elif strength_val == 2: st.write(FULL_PU280_1W)
             else:
                 if strength_val == 1:
@@ -218,21 +212,16 @@ if st.button("GENERUJ PROTOKÓŁ OGLĘDZIN", type="primary", use_container_width
                 elif strength_val == 5: st.write("* **Zalecamy zagruntowanie podłoża gruntówką dyspersyjną WAKOL D 3055. Sposób nanoszenia: wałek do gruntowania microfazer. Zużycie: ok. 150 g/m². Czas schnięcia: ok. 30 min.**")
 
         if needs_levelling == "TAK":
-            if not used_d3004:
-                st.write("* **Następnie należy zaaplikować specjalistyczny mostek sczepny za pomocą produktu WAKOL D 3045. Aplikować równomiernie za pomocą wałka. Zużycie wynosi ok. 150 g/m². Czas schnięcia 1 godzina.**")
+            if not used_d3004: st.write("* **Następnie należy zaaplikować specjalistyczny mostek sczepny za pomocą produktu WAKOL D 3045. Aplikować równomiernie za pomocą wałka. Zużycie wynosi ok. 150 g/m². Czas schnięcia 1 godzina.**")
             if flooring_type == "deska lita": st.write(FULL_Z625)
             elif flooring_type == "deska warstwowa (drewno, laminat itp.)": st.write("* **Następnie na podłoże wylać masę wyrównawczą WAKOL Z 635 [Pełny opis...]**")
             else: st.write("* **Wylanie masy wyrównawczej Wakol Z 675 [Pełny opis...]**")
 
         st.write("**c) klejenie okładziny:**")
         ms260_desc = "Klejenie podłogi drewnianej należy przeprowadzić przy użyciu kleju polimerowego twardo-elastycznego WAKOL MS 260. (szpachla B13, zużycie: 1350 g/m²)."
-        
-        if substrate == "płyta fundamentowa" or flooring_type == "deska lita":
-            st.write(ms260_desc)
+        if substrate == "płyta fundamentowa" or flooring_type == "deska lita": st.write(ms260_desc)
         elif flooring_type == "deska warstwowa (drewno, laminat itp.)":
-            if substrate == "jastrych anhydrytowy" and strength_val == 1:
-                st.write("Klejenie podłogi drewnianej należy przeprowadzić przy użyciu kleju do parkietu **WAKOL MS 230** (szpachla B13, zużycie: 1350 g/m²).")
-            else:
-                st.write("Klejenie podłogi drewnianej należy przeprowadzić przy użyciu kleju do parkietu **WAKOL MS 230** (szpachla B13, zużycie: 1350 g/m²) bądź kleju do parkietu **WAKOL PU 225** (szpachla B11, zużycie: 1250 g/m²).")
+            if substrate == "jastrych anhydrytowy" and strength_val == 1: st.write("Klejenie podłogi drewnianej należy przeprowadzić przy użyciu kleju do parkietu **WAKOL MS 230** (szpachla B13, zużycie: 1350 g/m²).")
+            else: st.write("Klejenie podłogi drewnianej należy przeprowadzić przy użyciu kleju do parkietu **WAKOL MS 230** (szpachla B13, zużycie: 1350 g/m²) bądź kleju do parkietu **WAKOL PU 225** (szpachla B11, zużycie: 1250 g/m²).")
 
         st.divider(); st.markdown("<b>Z poważaniem, Loba-Wakol Polska Sp. z o.o. | Przemysław Tyszko</b>", unsafe_allow_html=True)
