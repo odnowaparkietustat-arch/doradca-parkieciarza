@@ -188,15 +188,20 @@ if st.button("GENERUJ PROTOKÓŁ OGLĘDZIN", type="primary", use_container_width
         
         elif not decision_after_cure or "Wykonanie" not in str(decision_after_cure):
             if needs_levelling == "TAK":
-                if strength_val == 1:
-                    if substrate == "jastrych anhydrytowy": st.write(FULL_PU235_1W)
-                    else: 
-                        st.write(FULL_PS275)
+                # NOWA REGUŁA: Ograniczenie D 3004 na Anhydrycie do 5 mm masy
+                if strength_val in [3, 4, 5]:
+                    if substrate == "jastrych anhydrytowy" and leveling_thickness and leveling_thickness > 5:
                         st.write(FULL_PU280_1W)
-                elif strength_val == 2: st.write(FULL_PU280_1W)
-                elif strength_val in [3, 4, 5]: 
-                    st.write(FULL_D3004)
-                    used_d3004 = True
+                    else:
+                        st.write(FULL_D3004)
+                        used_d3004 = True
+                else:
+                    if strength_val == 1:
+                        if substrate == "jastrych anhydrytowy": st.write(FULL_PU235_1W)
+                        else: 
+                            st.write(FULL_PS275)
+                            st.write(FULL_PU280_1W)
+                    elif strength_val == 2: st.write(FULL_PU280_1W)
             else:
                 if strength_val == 1:
                     if substrate == "jastrych anhydrytowy": st.write(FULL_PU235_1W)
@@ -206,7 +211,6 @@ if st.button("GENERUJ PROTOKÓŁ OGLĘDZIN", type="primary", use_container_width
                 elif strength_val == 5: st.write(FULL_D3055)
 
         if needs_levelling == "TAK":
-            # NOWA REGUŁA: Jeśli użyto D 3004, pomiń mostek sczepny
             if not used_d3004:
                 st.write("* **Następnie należy zaaplikować specjalistyczny mostek sczepny za pomocą produktu WAKOL D 3045. Aplikować równomiernie za pomocą wałka. Zużycie wynosi ok. 150 g/m². Czas schnięcia 1 godzina.**")
             
