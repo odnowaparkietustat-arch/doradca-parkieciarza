@@ -46,9 +46,8 @@ heating_exists = st.radio("Ogrzewanie:", ["TAK", "NIE"], index=1, horizontal=Tru
 heating_info = ""; heating_curing_done = None
 if heating_exists == "TAK":
     h_type = st.selectbox("Typ ogrzewania:", ["wodne klasyczne", "bruzdowane", "w suchej zabudowie", "elektryczne (powierzchniowe)", "elektryczne (głębokie)", "płyta fundamentowa grzewcza"])
-    if h_type in ["wodne klasyczne", "płyta fundamentowa grzewcza"]:
-        st.write("❓ Czy został przeprowadzony proces wygrzewania zgodnie z protokołem?")
-        heating_curing_done = st.radio("Proces wygrzewania:", ["TAK", "NIE"], index=1, horizontal=True, label_visibility="collapsed")
+    st.write("❓ Czy został przeprowadzony proces wygrzewania zgodnie z protokołem?")
+    heating_curing_done = st.radio("Proces wygrzewania:", ["TAK", "NIE"], index=1, horizontal=True, label_visibility="collapsed")
     mapping = {"wodne klasyczne": "instalacja ogrzewania podłogowego wodna, klasyczna", "bruzdowane": "instalacja ogrzewania podłogowego wodna, bruzdowana", "w suchej zabudowie": "instalacja ogrzewania podłogowego wodna, w suchej zabudowie", "elektryczne (powierzchniowe)": "instalacja ogrzewania podłogowego elektryczna, powierzchniowa", "elektryczne (głębokie)": "instalacja ogrzewania podłogowego elektryczna, umieszczona głęboko w podłożu", "płyta fundamentowa grzewcza": "ogrzewanie realizowane poprzez płytę fundamentową grzewczą"}
     heating_info = mapping.get(h_type, h_type)
 
@@ -100,7 +99,7 @@ if moisture is not None and moisture > limit:
     if moisture <= barrier_max: decision_after_cure = st.radio("Postępowanie:", ["Wykonanie bariery przeciwwilgociowej", opt_dry], horizontal=True)
     else: decision_after_cure = opt_dry
 
-# --- STAŁE TECHNOLOGICZNE GRUNTÓWEK (PEŁNE OPISY) ---
+# --- STAŁE TECHNOLOGICZNE GRUNTÓWEK ---
 FULL_PS275 = "* **Zalecamy aplikację gruntówki wzmacniającej Wakol PS 275 w dwóch warstwach – grubym wałkiem sznurkowym, zużycie w sumie ok. 700 g/m2. Każda z warstw po 350g/m2, aplikowane po sobie w odstępie jednej godziny. Aplikując gruntówkę Wakol PS 275 należy zwrócić uwagę, aby dobrze wchłaniała się w podłoże i unikać powstawania kałuż na powierzchni jastrychu. Po nałożeniu drugiej warstwy gruntówki w razie potrzeby wykonać posypkę z piasku kwarcowego. Po 7 dniach schnięcia powierzchnię należy przeszlifować papierem o gradacji 24 – 40 usuwając przyklejony do powierzchni piasek kwarcowy i dokładnie odkurzyć.**"
 FULL_PU235_1W = "* **Zalecamy wykonanie gruntowania wzmacniającego poprzez zagruntowanie powierzchni jastrychu gruntówką poliuretanową WAKOL PU 235. Aplikować wałkiem. Podczas aplikacji nie zostawiać kałuż tj. Zbierać nadmiar nie wchłoniętej gruntówki. Zużycie ok. 150 g/m². Czas schnięcia – jedna godzina.**"
 FULL_PU235_BARRIER = "* **Zalecamy wykonanie bariery przeciwwilgociowej poprzez dwukrotne zagruntowanie gruntówką wzmacniającą WAKOL PU 235. Podczas aplikacji nie zostawiać kałuż tj. Zbierać nadmiar niewchłoniętej gruntówki. 1 - warstwa nałożona wałkiem ok. 150 g/m². Czas schnięcia – 3-6 godzin. 2 warstwa zużycie ok. 100 g/m². Czas schnięcia – 3-6 godzin. Czas klejenia 72 godziny od zagruntowania.**"
@@ -117,11 +116,16 @@ if st.button("GENERUJ PROTOKÓŁ OGLĘDZIN", type="primary", use_container_width
         st.write(f"**Data badania:** {data_badania.strftime('%d.%m.%Y')} | **Autor:** {autor}")
         st.write(f"**Inwestycja:** {inwestycja}, {adres}, {miejscowosc}")
         st.markdown("#### **I. Oględziny i badania**")
-        st.write(f"**a) oględziny optyczne:** Podłoże stanowi {substrate}. Dylatacje obwodowe: {dilatations_obw_ok}. Klawiszowanie: {klaw_meters}mb. Pęknięcia: {pek_meters}mb.")
+        st.write(f"**a) oględziny optyczne:** Podłoże stanowi {substrate}. Ogrzewanie: {heating_info if heating_exists=='TAK' else 'Brak'}. Dylatacje obwodowe: {dilatations_obw_ok}. Klawiszowanie: {klaw_meters}mb. Pęknięcia: {pek_meters}mb.")
         st.write(f"**b) badanie wytrzymałości:** Ocena ogólna: **{strength_labels[strength_val]}**.")
         st.write(f"**c) badanie wilgotności:** Wynik **{moisture} % CM** (Norma: {limit} % CM) - Wynik **{'POZYTYWNY' if moisture <= limit else 'NEGATYWNY'}**")
 
         st.markdown("#### **II. Zalecenia techniczne**")
+        
+        # NOWA ZASADA: KONIECZNOŚĆ WYGRZEWANIA PRZED SZLIFEM
+        if heating_exists == "TAK" and heating_curing_done == "NIE":
+            st.write(f"* **Konieczność przeprowadzenia pełnego procesu wygrzewania podłoża zgodnie z protokołem (niezależnie od aktualnego poziomu wilgoci).**")
+
         st.write("**a) przygotowanie podłoża:**")
         st.write("* **Szlif podłoża w celu uzyskania porowatej i chłonnej powierzchni!**")
         st.write("* **Dokładne odkurzenie powierzchni odkurzaczem przemysłowym.**")
