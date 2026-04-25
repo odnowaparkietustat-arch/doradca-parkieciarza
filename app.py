@@ -146,19 +146,16 @@ if st.button("GENERUJ PROTOKÓŁ OGLĘDZIN", type="primary", use_container_width
         full_opt_report = f"Podłoże pod planowaną okładzinę ({flooring_type}) stanowi {substrate}{age_txt}.{heat_txt}{curing_txt}{dil_txt}{klaw_txt}{pek_txt}{holes_txt}{level_txt} {vent_txt}"
         st.write(f"**a) oględziny optyczne:** {full_opt_report}")
         
-        # WYNIKI WYTRZYMAŁOŚCI (W TYM PRESSOMESS JEDEN POD DRUGIM)
+        # WYNIKI WYTRZYMAŁOŚCI
         st.markdown("**b) badanie wytrzymałości:**")
         st.write(f"Wynik badania młotkiem: {test_hammer}")
         st.write(f"Wynik badania szczotką: {test_brush}")
         st.write(f"Wynik badania rysikiem: {test_ripper}")
-        
-        # NOWA REGUŁA: Wypisywanie wyników PressoMess jeden pod drugim
         valid_presso = [v for v in presso_results if v is not None and v > 0]
         if valid_presso:
             st.write("Wyniki badania PressoMess:")
             for i, val in enumerate(valid_presso):
                 st.write(f"- Próba {i+1}: {val} N/mm²")
-        
         st.write(f"Ocena ogólna wytrzymałości podłoża: **{strength_labels[strength_val]}**")
         st.write(f"**c) badanie wilgotności:** Wynik badania wilgotności metodą CM: **{moisture} % CM** (Norma: {limit} % CM) - Wynik **{'POZYTYWNY' if moisture <= limit else 'NEGATYWNY'}**")
 
@@ -211,8 +208,9 @@ if st.button("GENERUJ PROTOKÓŁ OGLĘDZIN", type="primary", use_container_width
             else: st.write("* **Wylanie masy wyrównawczej Wakol Z 675 [Pełny opis...]**")
 
         st.write("**c) klejenie okładziny:**")
+        # NOWA REGUŁA: Formuła Master dla MS 260 oraz Anhydryt 1 (wyłącznie MS 230)
         if flooring_type == "deska lita":
-            st.write("Do montażu podłogi litej należy użyć twardo-elastycznego kleju polimerowego WAKOL MS 260. Klej nanosić odpowiednią szpachlą ząbkowaną B13 lub B15. Podczas klejenia należy zwracać uwagę na dokładne pokrycie spodu elementów klejem. Zużycie zależne od spodu deski i szpachli ok. 1100 - 1300 g/m2. Klej charakteryzuje się bardzo wysoką siłą wiązania początkowego.")
+            st.write("Klej polimerowy twardo-elastycznego WAKOL MS 260. (szpachla B13, zużycie: 1350 g/m²).")
         elif flooring_type == "deska warstwowa (drewno, laminat itp.)":
             if substrate == "jastrych anhydrytowy" and strength_val == 1:
                 st.write("Klejenie podłogi drewnianej należy przeprowadzić przy użyciu kleju do parkietu **WAKOL MS 230** (szpachla B13, zużycie: 1350 g/m²).")
