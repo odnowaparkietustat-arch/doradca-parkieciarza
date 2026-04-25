@@ -88,7 +88,7 @@ with col_t1: test_hammer = st.selectbox("Młotek", ["negatywny", "dostateczny", 
 with col_t2: test_ripper = st.selectbox("Rysik", ["negatywny", "dostateczny", "pozytywny"], index=2)
 with col_t3: test_brush = st.selectbox("Szczotka", ["negatywny", "pozytywny"], index=1)
 
-st.write("**Badanie PressoMess**") # DODANO ZGODNIE Z POLECENIEM
+st.write("**Badanie PressoMess**")
 presso_results = []
 for i in range(6): 
     presso_results.append(st.number_input(f"Próba {i+1} (N/mm²)", min_value=0.0, step=0.1, key=f"p_{i}", value=None))
@@ -122,7 +122,7 @@ if st.button("GENERUJ PROTOKÓŁ OGLĘDZIN", type="primary", use_container_width
         st.write(f"**Inwestycja:** {inwestycja}, {adres}, {miejscowosc}")
         st.markdown("#### **I. Oględziny i badania**")
         
-        # --- PEŁNY OPIS OPTYCZNY (ZGODNIE Z ZASADĄ) ---
+        # --- PEŁNY OPIS OPTYCZNY (BEZ SKRÓTÓW) ---
         age_txt = f" w wieku {substrate_age_val} miesięcy" if substrate_age_val else ""
         heat_txt = f" Została zainstalowana {heating_info}." if heating_exists == "TAK" else " Brak instalacji ogrzewania podłogowego."
         curing_txt = " Został przeprowadzony proces wygrzewania zgodnie z protokołem." if heating_curing_done == "TAK" else " Nie został przeprowadzony proces wygrzewania podłoża." if heating_exists == "TAK" else ""
@@ -136,7 +136,13 @@ if st.button("GENERUJ PROTOKÓŁ OGLĘDZIN", type="primary", use_container_width
         full_opt_report = f"Podłoże pod planowaną okładzinę ({flooring_type}) stanowi {substrate}{age_txt}.{heat_txt}{curing_txt}{dil_txt}{klaw_txt}{pek_txt}{holes_txt}{level_txt} {vent_txt}"
         st.write(f"**a) oględziny optyczne:** {full_opt_report}")
         
-        st.write(f"**b) badanie wytrzymałości:** Ocena ogólna wytrzymałości podłoża: **{strength_labels[strength_val]}**.")
+        # --- ZMODYFIKOWANA SEKCJA WYTRZYMAŁOŚCI (WYNIKI JEDEN POD DRUGIM) ---
+        st.markdown("**b) badanie wytrzymałości:**")
+        st.write(f"Wynik badania młotkiem: {test_hammer}")
+        st.write(f"Wynik badania szczotką: {test_brush}")
+        st.write(f"Wynik badania rysikiem: {test_ripper}")
+        st.write(f"Ocena ogólna wytrzymałości podłoża: **{strength_labels[strength_val]}**")
+        
         st.write(f"**c) badanie wilgotności:** Wynik badania wilgotności metodą CM: **{moisture} % CM** (Norma dla tego podłoża: {limit} % CM) - Wynik badania jest **{'POZYTYWNY' if moisture <= limit else 'NEGATYWNY'}**")
 
         st.markdown("#### **II. Zalecenia techniczne**")
