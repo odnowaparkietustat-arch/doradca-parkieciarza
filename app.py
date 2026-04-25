@@ -87,6 +87,8 @@ col_t1, col_t2, col_t3 = st.columns(3)
 with col_t1: test_hammer = st.selectbox("Młotek", ["negatywny", "dostateczny", "pozytywny"], index=2)
 with col_t2: test_ripper = st.selectbox("Rysik", ["negatywny", "dostateczny", "pozytywny"], index=2)
 with col_t3: test_brush = st.selectbox("Szczotka", ["negatywny", "pozytywny"], index=1)
+
+st.write("**Badanie PressoMess**") # DODANO ZGODNIE Z POLECENIEM
 presso_results = []
 for i in range(6): 
     presso_results.append(st.number_input(f"Próba {i+1} (N/mm²)", min_value=0.0, step=0.1, key=f"p_{i}", value=None))
@@ -120,7 +122,7 @@ if st.button("GENERUJ PROTOKÓŁ OGLĘDZIN", type="primary", use_container_width
         st.write(f"**Inwestycja:** {inwestycja}, {adres}, {miejscowosc}")
         st.markdown("#### **I. Oględziny i badania**")
         
-        # --- NOWY PEŁNY OPIS OPTYCZNY (BEZ SKRÓTÓW) ---
+        # --- PEŁNY OPIS OPTYCZNY (ZGODNIE Z ZASADĄ) ---
         age_txt = f" w wieku {substrate_age_val} miesięcy" if substrate_age_val else ""
         heat_txt = f" Została zainstalowana {heating_info}." if heating_exists == "TAK" else " Brak instalacji ogrzewania podłogowego."
         curing_txt = " Został przeprowadzony proces wygrzewania zgodnie z protokołem." if heating_curing_done == "TAK" else " Nie został przeprowadzony proces wygrzewania podłoża." if heating_exists == "TAK" else ""
