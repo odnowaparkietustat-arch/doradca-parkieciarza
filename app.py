@@ -63,7 +63,7 @@ st.write("4. Czy podłoże wymaga wyrównania (masy)?")
 needs_levelling = st.radio("Wymaga wyrównania:", ["TAK", "NIE"], index=lev_idx, horizontal=True)
 leveling_thickness = st.number_input("Planowana grubość masy (mm):", min_value=0.0, value=thick_val)
 
-# STAŁE PYTANIA WAKOL
+# STAŁE PYTANIA WAKOL (Bezwzględny zakaz zmiany treści i kolejności)
 st.subheader("Parametry jastrychu")
 col_wak1, col_wak2 = st.columns(2)
 with col_wak1:
@@ -115,9 +115,8 @@ if moisture is not None and moisture > limit:
         decision_after_cure = st.radio("Postępowanie z wilgocią:", ["Wykonanie bariery przeciwwilgociowej", opt_dry], horizontal=True)
         needs_drying_action = (decision_after_cure != "Wykonanie bariery przeciwwilgociowej")
 
-# STAŁE TECHNOLOGICZNE WAKOL
+# STAŁE TECHNOLOGICZNE WAKOL (Bezwzględny zakaz modyfikacji treści)
 FULL_D3004 = "* **Zagruntować podłoże koncentratem gruntówki dyspersyjnej WAKOL D 3004. Proporcje mieszania: 1 część WAKOL D 3004 + 2 części wody; Czas schnięcia: na jastrychach cementowych i betonie po optycznym wyschnięciu ok. 30min. Sposób nanoszenia: wałek do gruntowania microfazer. Zużycie: ok. 50 g/m² koncentratu.**"
-FULL_PU280_1W = "* **Zalecamy wykonanie gruntowania wzmacniającego poprzez zagruntowanie powierzchni jastrychu gruntówką poliuretanową WAKOL PU 280. Aplikować wałkiem. Podczas aplikacji nie zostawiać kałuż tj. Zbierać nadmiar nie wchłoniętej gruntówki. Zużycie ok. 150 g/m². Czas schnięcia – jedna godzina.**"
 FULL_Z675 = "* **Wylać masę wyrównawczą WAKOL Z 675 - wymieszać ją w czystym naczyniu z zimną wodą w proporcji 6,0 – 6,5 litrów wody na 25 kg masy. Mieszać unikając tworzenia się grudek. Prędkość obrotowa mieszadła może wynosić max. 600 obrotów na minutę. Wymieszaną masę nanosić w żądanej grubości na podłoże przy pomocy szpachli, łaty lub rakli. Przed pracą należy zwrócić uwagę na obecność wypełnień fug przy ścianach. Zużycie ok. 1,5 kg/m²/ mm. Możliwość chodzenia po 2-3 godzinach. Możliwość klejenia podłóg po ok. 24 godzinach przy grubości warstwy do 3 mm, przy większych grubościach czas schnięcia ulega wydłużeniu.**"
 
 # --- GENEROWANIE PROTOKOŁU ---
@@ -127,23 +126,28 @@ if st.button("GENERUJ PROTOKÓŁ OGLĘDZIN", type="primary", use_container_width
         st.divider(); insert_header()
         st.markdown("#### **I. Oględziny i badania**")
         
-        # PEŁNY OPIS OPTYCZNY
+        # --- REGUŁA PEŁNEGO OPISU OPTYCZNEGO ---
         age_info = f" w wieku {substrate_age_val} miesięcy" if substrate_age_val else ""
         heat_info_full = f" Została zainstalowana {heating_info}." if heating_exists == "TAK" else " Brak instalacji ogrzewania podłogowego."
         curing_info_full = " Został przeprowadzony proces wygrzewania zgodnie z protokołem." if heating_curing_done == "TAK" else " Nie został przeprowadzony proces wygrzewania podłoża." if heating_exists == "TAK" else ""
         dil_info = " Dylatacje obwodowe zostały zachowane prawidłowo." if dilatations_obw_ok == "TAK" else " Dylatacje obwodowe nie zostały zachowane prawidłowo."
         klaw_info = f" Stwierdzono występowanie klawiszujących dylatacji pozornych w ilości {klaw_meters} metrów bieżących." if cracks_klaw == "TAK" else " Nie stwierdzono występowania klawiszujących dylatacji pozornych."
-        pek_info = f" Stwierdzono występowanie pęknięć podłoża wymagających zespolenia in ilości {pek_meters} metrów bieżących." if cracks_pek == "TAK" else " Nie stwierdzono występowania pęknięć podłoża wymagających zespolenia."
+        pek_info = f" Stwierdzono występowanie pęknięć podłoża wymagających zespolenia w ilości {pek_meters} metrów bieżących." if cracks_pek == "TAK" else " Nie stwierdzono występowania pęknięć podłoża wymagających zespolenia."
         holes_info = f" Stwierdzono ubytki lub zdegradowane miejsca wymagające wypełnienia ({hole_details_input})." if holes == "TAK" else " Nie stwierdzono ubytków lub zdegradowanych miejsc wymagających wypełnienia."
         lev_info = f" Podłoże wymaga wyrównania masą wyrównawczą o planowanej grubości {leveling_thickness} milimetrów." if needs_levelling == "TAK" else " Podłoże nie wymaga wyrównania masą wyrównawczą."
         vent_info = f" Rodzaj zastosowanej wentylacji: wentylacja {ventilation_type.lower()}."
         
+        # Scalenie w jeden pełny opis optyczny
         full_optical_description = f"Podłoże pod planowaną okładzinę ({flooring_type}) stanowi {substrate}{age_info}.{heat_info_full}{curing_info_full} {dil_info} {klaw_info} {pek_info} {holes_info} {lev_info} {vent_info}"
+        
         st.write(f"**a) oględziny optyczne:** {full_optical_description}")
         
-        moisture_status = "POZYTYWNY" if moisture <= limit else "NEGATYWNY"
+        # Badania CM i Wytrzymałość
+        moisture_status = "POZYTYWNY" if moisture <= limit else "NEGATWVNY"
         st.write(f"**b) badanie wilgotności:** Wynik: **{moisture} % CM** (Norma: {limit} % CM) — **Wynik: {moisture_status}**")
         st.write(f"**c) wytrzymałość:** Ocena: **{strength_labels[strength_val]}** (Młotek: {test_hammer}, Rysik: {test_ripper}, Szczotka: {test_brush})")
+        if any(v > 0 for v in p_vals):
+            st.write(f"Wyniki PressoMess [N/mm²]: {', '.join(map(str, [v for v in p_vals if v > 0]))}")
 
         st.markdown("#### **II. Zalecenia techniczne**")
         
@@ -165,19 +169,15 @@ if st.button("GENERUJ PROTOKÓŁ OGLĘDZIN", type="primary", use_container_width
         if curing_not_done:
             poczatek = f"Po doprowadzeniu do normatywnego poziomu wilgoci {norm_val_bracket} jastrychu poprzez przeprowadzenie procesu wygrzewania" if is_moisture_neg else "Po przeprowadzeniu pełnego procesu wygrzewania"
             st.write(f"**{poczatek} zalecamy:**")
+        elif needs_drying_action:
+            st.write(f"**Po doprowadzeniu do normatywnego poziomu wilgoci {norm_val_bracket} zalecamy:**")
         
         if holes == "TAK": st.write("- Uzupełnić ubytki zaprawą **WAKOL Z 610**.")
         if (klaw_meters + pek_meters) > 0: st.write("- Zespolić pęknięcia/dylatacje żywicą **WAKOL PS 205**.")
 
-        # --- NOWA REGUŁA: DOBÓR GRUNTU POD LVT CIENKIE ---
+        # Logika masy i gruntu (Reguła LVT Cienkie)
         if is_lvt_thin:
-            if strength_val <= 2:
-                st.write("* **Z uwagi na słabą wytrzymałość podłoża pod okładzinę lvt cienkie, należy wykonać gruntowanie wzmacniające:**")
-                st.write(FULL_PU280_1W)
-                st.write("* **Następnie, w celu zapewnienia przyczepności masy do gruntówki PU, należy zaaplikować specjalistyczny mostek sczepny WAKOL D 3045 (zużycie ok. 150 g/m², czas schnięcia 1h).**")
-            else:
-                st.write("* **Z uwagi na dobrą wytrzymałość podłoża pod okładzinę lvt cienkie, należy wykonać gruntowanie dyspersyjne:**")
-                st.write(FULL_D3004)
+            st.write("* **Z uwagi na okładzinę lvt cienkie, po naprawach należy przejść bezpośrednio do wylewania masy bez gruntowania.**")
             st.write(FULL_Z675)
         else:
             st.write(FULL_D3004)
@@ -186,7 +186,9 @@ if st.button("GENERUJ PROTOKÓŁ OGLĘDZIN", type="primary", use_container_width
         st.write("**c) klejenie okładziny:**")
         if is_lvt_thin:
             st.write("Klejenie podłogi winylowej należy przeprowadzić przy użyciu kleju WAKOL D 3318 (szpachla TKB A2, zużycie: 350 g/m²). · Czas wstępnego odparowania: ok. 5 - 10 minut. · Czas układania: ok. 10 minut")
+        elif substrate == "płyta fundamentowa" or flooring_type == "deska lita":
+            st.write("Klejenie podłogi drewnianej przy użyciu kleju polimerowego twardo-elastycznego **WAKOL MS 260** (szpachla B13, zużycie: 1350 g/m²).")
         else:
-            st.write("Klejenie okładziny zgodnie z systemem WAKOL dla wybranego rodzaju podłogi.")
+            st.write("Klejenie okładziny należy przeprowadzić zgodnie z systemem WAKOL (MS 230 / PU 225).")
 
         st.divider(); st.markdown(f"<b>Z poważaniem, Loba-Wakol Polska Sp. z o.o. | {autor}</b>", unsafe_allow_html=True)
