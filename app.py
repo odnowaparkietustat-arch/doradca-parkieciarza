@@ -102,20 +102,17 @@ barrier_max = 2.5 if heating_exists == "TAK" else 3.5
 decision_after_cure = None
 needs_drying_action = False
 if moisture is not None and moisture > limit:
-    needs_drying_action = True
     opt_dry = "przeprowadzenie procesu wygrzewania" if heating_exists == "TAK" else "dalsze osuszanie"
-    
     if heating_exists == "TAK" and heating_curing_done == "NIE":
         decision_after_cure = opt_dry
+        needs_drying_action = True
     else:
         if moisture <= barrier_max:
             decision_after_cure = st.radio("Postępowanie:", ["Wykonanie bariery przeciwwilgociowej", opt_dry], horizontal=True)
-            if decision_after_cure != "Wykonanie bariery przeciwwilgociowej":
-                needs_drying_action = True
-            else:
-                needs_drying_action = False
+            needs_drying_action = (decision_after_cure != "Wykonanie bariery przeciwwilgociowej")
         else:
             decision_after_cure = opt_dry
+            needs_drying_action = True
 
 # --- STAŁE TECHNOLOGICZNE GRUNTÓWEK ---
 FULL_PS275 = "* **Zalecamy aplikację gruntówki wzmacniającej Wakol PS 275 w dwóch warstwach – grubym wałkiem sznurkowym, zużycie w sumie ok. 700 g/m2. Każda z warstw po 350g/m2, aplikowane po sobie w odstępie jednej godziny. Aplikując gruntówkę Wakol PS 275 należy zwrócić uwagę, aby dobrze wchłaniała się w podłoże i unikać powstawania kałuż na powierzchni jastrychu. Po nałożeniu drugiej warstwy gruntówki w razie potrzeby wykonać posypkę z piasku kwarcowego. Po 7 dniach schnięcia powierzchnię należy przeszlifować papierem o gradacji 24 – 40 usuwając przyklejony do powierzchni piasek kwarcowy i dokładnie odkurzyć.**"
@@ -135,7 +132,7 @@ if st.button("GENERUJ PROTOKÓŁ OGLĘDZIN", type="primary", use_container_width
         st.write(f"**Inwestycja:** {inwestycja}, {adres}, {miejscowosc}")
         st.markdown("#### **I. Oględziny i badania**")
         
-        # --- PEŁNY OPIS OPTYCZNY (BEZ SKRÓTÓW) ---
+        # PEŁNY OPIS OPTYCZNY
         age_txt = f" w wieku {substrate_age_val} miesięcy" if substrate_age_val else ""
         heat_txt = f" Została zainstalowana {heating_info}." if heating_exists == "TAK" else " Brak instalacji ogrzewania podłogowego."
         curing_txt = " Został przeprowadzony proces wygrzewania zgodnie z protokołem." if heating_curing_done == "TAK" else " Nie został przeprowadzony proces wygrzewania podłoża." if heating_exists == "TAK" else ""
@@ -154,8 +151,11 @@ if st.button("GENERUJ PROTOKÓŁ OGLĘDZIN", type="primary", use_container_width
         st.write(f"Wynik badania szczotką: {test_brush}")
         st.write(f"Wynik badania rysikiem: {test_ripper}")
         st.write(f"Ocena ogólna wytrzymałości podłoża: **{strength_labels[strength_val]}**")
-        
-        st.write(f"**c) badanie wilgotności:** Wynik badania wilgotności metodą CM: **{moisture} % CM** (Norma dla tego podłoża: {limit} % CM) - Wynik badania jest **{'POZYTYWNY' if moisture <= limit else 'NEGATYWNY'}**")
+        st.write(f"**c) badanie wilgotności:** Wynik badania wilgotności metodą CM: **{moisture} % CM** (Norma: {limit} % CM) - Wynik **{'POZYTYWNY' if moisture <= limit else 'NEGATYWNY'}**")
+
+        # --- NOWA REGUŁA (DLA JASTRYCHU CEMENTOWEGO I DREWNA) ---
+        if substrate == "jastrych cementowy" and flooring_type in ["deska warstwowa (drewno, laminat itp.)", "deska lita"]:
+            st.info("Aby bezpiecznie kleić podłogę drewnianę na jastrychu cementowym, jego wytrzymałość na ścinanie musi wynosić między 1,5 a 2,0 N/mm² a wilgotność nie może przekraczać 1,8% CM. (z ogrzewaniem podłogowym max. 1,5% CM).")
 
         st.markdown("#### **II. Zalecenia techniczne**")
         
@@ -166,10 +166,9 @@ if st.button("GENERUJ PROTOKÓŁ OGLĘDZIN", type="primary", use_container_width
         st.write("* **Szlif podłoża w celu uzyskania porowatej i chłonnej powierzchni!**")
         st.write("* **Dokładne odkurzenie powierzchni odkurzaczem przemysłowym.**")
         
-        if decision_after_cure in ["dalsze osuszanie", "przeprowadzenie procesu wygrzewania"]:
+        if decision_after_cure and decision_after_cure != "Wykonanie bariery przeciwwilgociowej":
             st.write(f"* **Zalecamy doprowadzenie do normatywnego poziomu wilgoci ({limit}% CM) poprzez {decision_after_cure}.**")
 
-        # --- SEKCJA NAPRAWY Z NOWĄ REGUŁĄ ---
         st.write("**b) naprawa i wzmocnienie podłoża:**")
         if needs_drying_action:
             st.write("**Po doprowadzeniu do normatywnego poziomu wilgoci zalecamy:**")
