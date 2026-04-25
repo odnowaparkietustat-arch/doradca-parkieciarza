@@ -36,70 +36,53 @@ with st.container():
 
 st.divider()
 
-# --- I. WYWIAD TECHNICZNY (PODSTAWOWY) ---
-st.header("I. Wywiad i Oględziny")
-col_base1, col_base2 = st.columns(2)
-with col_base1:
-    flooring_type = st.selectbox("1. Rodzaj okładziny", ["deska warstwowa (drewno, laminat itp.)", "deska lita", "wykładzina dywanowa", "pcv w rolce", "lvt cienkie", "lvt grube z twardym rdzeniem"])
-    substrate = st.selectbox("2. Rodzaj podłoża", ["jastrych cementowy", "jastrych anhydrytowy", "płyta fundamentowa", "podłoże drewniane (parkiet, deska, OSB)", "płytki ceramiczne", "masa samorozlewna"])
-with col_base2:
-    substrate_age_val = st.number_input("Wiek podłoża (podaj ilość miesięcy):", min_value=0.5, step=0.5, format="%.1f", value=None)
-    heating_exists = st.radio("Czy jest instalacja ogrzewania podłogowego?", ["TAK", "NIE"], index=1, horizontal=True)
+# --- I. WYWIAD TECHNICZNY ---
+flooring_type = st.selectbox("1. Rodzaj okładziny", ["deska warstwowa (drewno, laminat itp.)", "deska lita", "wykładzina dywanowa", "pcv w rolce", "lvt cienkie", "lvt grube z twardym rdzeniem"])
+substrate = st.selectbox("2. Rodzaj podłoża", ["jastrych cementowy", "jastrych anhydrytowy", "płyta fundamentowa", "podłoże drewniane (parkiet, deska, OSB)", "płytki ceramiczne", "masa samorozlewna"])
+substrate_age_val = st.number_input("Wiek podłoża (podaj ilość miesięcy):", min_value=0.5, step=0.5, format="%.1f", value=None)
 
-# Logika Ogrzewania
+st.write("3. Czy jest instalacja ogrzewania podłogowego?")
+heating_exists = st.radio("Ogrzewanie:", ["TAK", "NIE"], index=1, horizontal=True)
 heating_info = ""; heating_curing_done = None
 if heating_exists == "TAK":
     h_type = st.selectbox("Typ ogrzewania:", ["wodne klasyczne", "bruzdowane", "w suchej zabudowie", "elektryczne (powierzchniowe)", "elektryczne (głębokie)", "płyta fundamentowa grzewcza"])
-    heating_curing_done = st.radio("❓ Czy został przeprowadzony proces wygrzewania zgodnie z protokołem?", ["TAK", "NIE"], index=1, horizontal=True)
+    st.write("❓ Czy został przeprowadzony proces wygrzewania zgodnie z protokołem?")
+    heating_curing_done = st.radio("Proces wygrzewania:", ["TAK", "NIE"], index=1, horizontal=True)
     mapping = {"wodne klasyczne": "instalacja ogrzewania podłogowego wodna, klasyczna", "bruzdowane": "instalacja ogrzewania podłogowego wodna, bruzdowana", "w suchej zabudowie": "instalacja ogrzewania podłogowego wodna, w suchej zabudowie", "elektryczne (powierzchniowe)": "instalacja ogrzewania podłogowego elektryczna, powierzchniowa", "elektryczne (głębokie)": "instalacja ogrzewania podłogowego elektryczna, umieszczona głęboko w podłożu", "płyta fundamentowa grzewcza": "ogrzewanie realizowane poprzez płytę fundamentową grzewczą"}
     heating_info = mapping.get(h_type, h_type)
 
-# Logika Wyrównania (Reguła LVT Cienkie)
-if flooring_type == "lvt cienkie":
-    st.info("💡 Dla okładziny 'lvt cienkie' automatycznie przyjęto konieczność wyrównania masą o grubości 3 mm.")
+# REGUŁA: lvt cienkie zawsze wymaga masy
+force_levelling = True if flooring_type == "lvt cienkie" else False
+st.write("4. Czy podłoże wymaga wyrównania (masy)?")
+if force_levelling:
+    st.info("Okładzina 'lvt cienkie' bezwzględnie wymaga wylania masy wyrównawczej.")
     needs_levelling = "TAK"
-    leveling_thickness = 3
 else:
-    st.write("4. Czy podłoże wymaga wyrównania (masy)?")
     needs_levelling = st.radio("Wymaga wyrównania:", ["TAK", "NIE"], index=1, horizontal=True)
-    leveling_thickness = st.number_input("Planowana grubość masy (mm):", min_value=1, value=None) if needs_levelling == "TAK" else 0
 
-# --- STAŁE PYTANIA WAKOL (ZGODNIE Z INSTRUKCJĄ) ---
-st.subheader("Parametry jastrychu")
-col_wak1, col_wak2 = st.columns(2)
-with col_wak1:
-    dilatations_obw_ok = st.radio("1. Czy dylatacje obwodowe zachowane prawidłowo?", ["TAK", "NIE"], index=0)
-    cracks_klaw = st.radio("2. Czy występują klawiszujące dylatacje pozorne?", ["TAK", "NIE"], index=1)
-with col_wak2:
-    cracks_pek = st.radio("3. Czy występują pęknięcia podłoża wymagające zespolenia?", ["TAK", "NIE"], index=1)
-    holes = st.radio("4. Czy są ubytki lub zdegradowane miejsca wymagające wypełnienia?", ["TAK", "NIE"], index=1)
+leveling_thickness = st.number_input("Planowana grubość masy (mm):", min_value=1, value=3) if needs_levelling == "TAK" else 0
 
-moisture = st.number_input("Wilgotność podłoża (CM %)", format="%.1f", value=None)
+st.write("5. Czy dylatacje obwodowe zachowane prawidłowo?")
+dilatations_obw_ok = st.radio("Dylatacje obwodowe:", ["TAK", "NIE"], index=0, horizontal=True)
+st.write("6. Czy występują klawiszujące dylatacje pozorne?")
+cracks_klaw = st.radio("Klawiszowanie pozorne:", ["TAK", "NIE"], index=1, horizontal=True)
+klaw_meters = st.number_input("Ilość mb klawiszujących:", min_value=0.1, step=0.1, value=None) if cracks_klaw == "TAK" else 0.0
+st.write("7. Czy występują pęknięcia podłoża wymagające zespolenia?")
+cracks_pek = st.radio("Pęknięcia do zespolenia:", ["TAK", "NIE"], index=1, horizontal=True)
+pek_meters = st.number_input("Ilość mb pęknięć do zespolenia:", min_value=0.1, step=0.1, value=None) if cracks_pek == "TAK" else 0.0
+st.write("8. Czy są ubytki lub zdegradowane miejsca wymagające wypełnienia?")
+holes = st.radio("Ubytki:", ["TAK", "NIE"], index=1, horizontal=True)
+hole_details = ""
+if holes == "TAK":
+    col_h1, col_h2, col_h3 = st.columns(3)
+    with col_h1: h_depth = st.number_input("Głębokość (cm)", min_value=0.1, value=None)
+    with col_h2: h_width = st.number_input("Szerokość (cm)", min_value=0.1, value=None)
+    with col_h3: h_length = st.number_input("Długość (cm)", min_value=0.1, value=None)
+    if h_depth and h_width and h_length: hole_details = f" o wymiarach ok. {h_length}x{h_width} cm i głębokości {h_depth} cm"
 
-# --- II. TESTY MECHANICZNE (PRZYWRÓCONE NA STAŁE MIEJSCE) ---
-st.header("II. Testy mechaniczne")
-col_mech1, col_mech2, col_mech3 = st.columns(3)
-with col_mech1:
-    test_hammer = st.selectbox("Młotek", ["negatywny", "dostateczny", "pozytywny"], index=2)
-with col_mech2:
-    test_ripper = st.selectbox("Rysik", ["negatywny", "dostateczny", "pozytywny"], index=2)
-with col_mech3:
-    test_brush = st.selectbox("Szczotka", ["negatywny", "pozytywny"], index=1)
+moisture = st.number_input("12. Poziom wilgoci podłoża (CM %)", format="%.1f", value=None)
 
-st.write("**Badanie PressoMess**")
-presso_results = []
-col_p1, col_p2, col_p3, col_p4, col_p5, col_p6 = st.columns(6)
-with col_p1: presso_results.append(st.number_input("Próba 1", min_value=0.0, step=0.1, key="p1"))
-with col_p2: presso_results.append(st.number_input("Próba 2", min_value=0.0, step=0.1, key="p2"))
-with col_p3: presso_results.append(st.number_input("Próba 3", min_value=0.0, step=0.1, key="p3"))
-with col_p4: presso_results.append(st.number_input("Próba 4", min_value=0.0, step=0.1, key="p4"))
-with col_p5: presso_results.append(st.number_input("Próba 5", min_value=0.0, step=0.1, key="p5"))
-with col_p6: presso_results.append(st.number_input("Próba 6", min_value=0.0, step=0.1, key="p6"))
-
-strength_labels = {1: "bardzo słaby", 2: "słaby", 3: "umiarkowanie słaby", 4: "umiarkowanie mocny", 5: "mocny"}
-strength_val = st.select_slider("Ocena ogólna wytrzymałości podłoża:", options=[1, 2, 3, 4, 5], value=3, format_func=lambda x: strength_labels[x])
-
-# --- LOGIKA TECHNOLOGICZNA ---
+# --- LOGIKA NORM ---
 limit = 1.5 if substrate == "jastrych cementowy" and heating_exists == "TAK" else 1.8 if substrate == "jastrych cementowy" else 0.3 if substrate == "jastrych anhydrytowy" and heating_exists == "TAK" else 0.5 if substrate == "jastrych anhydrytowy" else 1.5
 barrier_max = 2.5 if heating_exists == "TAK" else 3.5
 
@@ -112,16 +95,16 @@ if moisture is not None and moisture > limit:
         decision_after_cure = opt_dry
     else:
         if moisture <= barrier_max:
-            decision_after_cure = st.radio("Postępowanie z wilgocią:", ["Wykonanie bariery przeciwwilgociowej", opt_dry], horizontal=True)
+            decision_after_cure = st.radio("Postępowanie:", ["Wykonanie bariery przeciwwilgociowej", opt_dry], horizontal=True)
             needs_drying_action = (decision_after_cure != "Wykonanie bariery przeciwwilgociowej")
         else:
             decision_after_cure = opt_dry
 
-# --- STAŁE TECHNOLOGICZNE (1:1) ---
+# --- STAŁE TECHNOLOGICZNE ---
 FULL_D3004 = "* **Zagruntować podłoże koncentratem gruntówki dyspersyjnej WAKOL D 3004. Proporcje mieszania: 1 część WAKOL D 3004 + 2 części wody; Czas schnięcia: na jastrychach cementowych i betonie po optycznym wyschnięciu ok. 30min. Sposób nanoszenia: wałek do gruntowania microfazer. Zużycie: ok. 50 g/m² koncentratu.**"
 FULL_Z675 = "* **Wylać masę wyrównawczą WAKOL Z 675 - wymieszać ją w czystym naczyniu z zimną wodą w proporcji 6,0 – 6,5 litrów wody na 25 kg masy. Mieszać unikając tworzenia się grudek. Prędkość obrotowa mieszadła może wynosić max. 600 obrotów na minutę. Wymieszaną masę nanosić w żądanej grubości na podłoże przy pomocy szpachli, łaty lub rakli. Przed pracą należy zwrócić uwagę na obecność wypełnień fug przy ścianach. Zużycie ok. 1,5 kg/m²/ mm. Możliwość chodzenia po 2-3 godzinach. Możliwość klejenia podłóg po ok. 24 godzinach przy grubości warstwy do 3 mm, przy większych grubościach czas schnięcia ulega wydłużeniu.**"
 
-# --- GENEROWANIE PROTOKOŁU ---
+# --- GENEROWANIE ---
 if st.button("GENERUJ PROTOKÓŁ OGLĘDZIN", type="primary", use_container_width=True):
     if moisture is None: st.error("Proszę podać wilgotność podłoża!")
     else:
@@ -133,7 +116,6 @@ if st.button("GENERUJ PROTOKÓŁ OGLĘDZIN", type="primary", use_container_width
         
         st.markdown("#### **I. Oględziny i badania**")
         st.write(f"Badanie wilgotności CM: **{moisture} % CM** (Norma: {limit} % CM) — **Wynik: {moisture_status}**")
-        st.write(f"Wytrzymałość: **{strength_labels[strength_val]}** (Młotek: {test_hammer}, Rysik: {test_ripper})")
 
         st.markdown("#### **II. Zalecenia techniczne**")
         
@@ -154,11 +136,15 @@ if st.button("GENERUJ PROTOKÓŁ OGLĘDZIN", type="primary", use_container_width
         elif needs_drying_action:
             st.write(f"**Po doprowadzeniu do normatywnego poziomu wilgoci {norm_val_bracket} zalecamy:**")
         
-        # LOGIKA DLA LVT CIENKIE (BEZ GRUNTU)
+        if (klaw_meters + pek_meters) > 0: st.write("- Zespolić pęknięcia i dylatacje pozorne żywicą **WAKOL PS 205**.")
+        if holes == "TAK": st.write(f"- Uzupełnić ubytki zaprawą **WAKOL Z 610**{hole_details}.")
+
+        # REGUŁA: lvt cienkie = BRAK GRUNTÓWKI
         if flooring_type == "lvt cienkie":
-            st.write("* **Z uwagi na rodzaj okładziny (lvt cienkie), po przygotowaniu podłoża należy przejść bezpośrednio do wylewania masy wyrównawczej bez gruntowania powierzchni.**")
+            st.write("* **Z uwagi na rodzaj okładziny (lvt cienkie), po przygotowaniu podłoża i ewentualnych naprawach należy przejść bezpośrednio do wylewania masy wyrównawczej bez gruntowania powierzchni.**")
             st.write(FULL_Z675)
         else:
+            # Standardowa logika gruntowania
             st.write(FULL_D3004)
             if needs_levelling == "TAK": st.write(FULL_Z675)
 
@@ -166,6 +152,6 @@ if st.button("GENERUJ PROTOKÓŁ OGLĘDZIN", type="primary", use_container_width
         if flooring_type == "lvt cienkie":
             st.write("Klejenie podłogi winylowej należy przeprowadzić przy użyciu kleju WAKOL D 3318 (szpachla TKB A2, zużycie: 350 g/m²). · Czas wstępnego odparowania: ok. 5 - 10 minut. · Czas układania: ok. 10 minut")
         else:
-            st.write("Klejenie okładziny należy przeprowadzić zgodnie z systemem WAKOL dla danego rodzaju podłogi.")
+            st.write("Klejenie okładziny należy przeprowadzić zgodnie z systemem WAKOL dla wybranego rodzaju podłogi.")
 
         st.divider(); st.markdown(f"<b>Z poważaniem, Loba-Wakol Polska Sp. z o.o. | {autor}</b>", unsafe_allow_html=True)
