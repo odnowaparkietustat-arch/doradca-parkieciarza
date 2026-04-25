@@ -38,10 +38,10 @@ with st.container():
 
 st.divider()
 
-# --- WYWIAD TECHNICZNY (STAŁE PYTANIA) ---
+# --- WYWIAD TECHNICZNY (STAŁE PYTANIA ZGODNIE Z SI) ---
 st.header("I. Wywiad i dane podstawowe")
-flooring_type = st.selectbox("1. Rodzaj okładziny", ["deska warstwowa (drewno, laminat itp.)", "deska lita", "wykładzina dywanowa", "pcv w rolce", "lvt cienkie", "lvt grube z twardym rdzeniem"])
-substrate = st.selectbox("2. Rodzaj podłoża", ["jastrych cementowy", "jastrych anhydrytowy", "płyta fundamentowa", "podłoże drewniane", "płytki ceramiczne", "masa samorozlewna"])
+flooring_type = st.selectbox("Rodzaj planowanej okładziny", ["deska warstwowa (drewno, laminat itp.)", "deska lita", "wykładzina dywanowa", "pcv w rolce", "lvt cienkie", "lvt grube z twardym rdzeniem"])
+substrate = st.selectbox("Rodzaj podłoża", ["jastrych cementowy", "jastrych anhydrytowy", "płyta fundamentowa", "podłoże drewniane", "płytki ceramiczne", "masa samorozlewna"])
 substrate_age_val = st.number_input("Wiek podłoża (miesiące):", min_value=0.5, step=0.5, format="%.1f", value=None)
 
 st.write("3. Czy jest instalacja ogrzewania podłogowego?")
@@ -56,27 +56,27 @@ st.write("4. Czy podłoże wymaga wyrównania (masy)?")
 needs_levelling = st.radio("Wymaga wyrównania:", ["TAK", "NIE"], index=1, horizontal=True, label_visibility="collapsed")
 leveling_thickness = st.number_input("Planowana grubość masy (mm):", min_value=1, value=None) if needs_levelling == "TAK" else 0
 
-st.write("5. Czy dylatacje obwodowe zachowane prawidłowo?")
+st.write("1. Czy dylatacje obwodowe zachowane prawidłowo?")
 dilatations_obw_ok = st.radio("Dylatacje obwodowe:", ["TAK", "NIE"], index=0, horizontal=True, label_visibility="collapsed")
 
-st.write("6. Czy występują klawiszujące dylatacje pozorne?")
+st.write("2. Czy występują klawiszujące dylatacje pozorne?")
 cracks_klaw = st.radio("Klawiszowanie:", ["TAK", "NIE"], index=1, horizontal=True, label_visibility="collapsed")
 klaw_meters = st.number_input("Ilość mb klawiszujących:", min_value=0.1, step=0.1, value=None) if cracks_klaw == "TAK" else 0.0
 
-st.write("7. Czy występują pęknięcia podłoża wymagające zespolenia?")
+st.write("3. Czy występują pęknięcia podłoża wymagające zespolenia?")
 cracks_pek = st.radio("Pęknięcia:", ["TAK", "NIE"], index=1, horizontal=True, label_visibility="collapsed")
 pek_meters = st.number_input("Ilość mb pęknięć do zespolenia:", min_value=0.1, step=0.1, value=None) if cracks_pek == "TAK" else 0.0
 
-st.write("8. Czy są ubytki lub zdegradowane miejsca wymagające wypełnienia?")
+st.write("4. Czy są ubytki lub zdegradowane miejsca wymagające wypełnienia?")
 holes = st.radio("Ubytki:", ["TAK", "NIE"], index=1, horizontal=True, label_visibility="collapsed")
-hole_details = st.text_input("Wymiary ubytków:") if holes == "TAK" else ""
+hole_details = st.text_input("Opis/wymiary ubytków:") if holes == "TAK" else ""
 
-# --- BADANIA ---
+# --- BADANIA MECHANICZNE ---
 st.header("II. Badania organoleptyczne i mechaniczne")
 col_m1, col_m2, col_m3 = st.columns(3)
-with col_m1: test_hammer = st.selectbox("Młotek (opukiwanie)", ["pozytywny", "negatywny", "dostateczny"], index=0)
-with col_m2: test_scratch = st.selectbox("Rysik (twardość)", ["pozytywny", "negatywny", "dostateczny"], index=0)
-with col_m3: test_brush = st.selectbox("Szczotka (pylenie)", ["pozytywny", "negatywny"], index=0)
+with col_m1: test_hammer = st.selectbox("Młotek (opukiwanie)", ["pozytywny", "negatywny", "dostateczny"])
+with col_m2: test_scratch = st.selectbox("Rysik (twardość)", ["pozytywny", "negatywny", "dostateczny"])
+with col_m3: test_brush = st.selectbox("Szczotka (pylenie)", ["pozytywny", "negatywny"])
 
 # --- POMIARY KLIMATYCZNE ---
 st.header("III. Pomiary klimatyczne i wytrzymałościowe")
@@ -114,22 +114,32 @@ FULL_PU280_REINFORCE = "* **Zalecamy wykonanie gruntowania wzmacniającego poprz
 FULL_D3045 = "* **Następnie należy zaaplikować specjalistyczny mostek sczepny za pomocą produktu WAKOL D 3045. Produkt należy dokładnie wymieszać przed użyciem. Aplikować równomiernie za pomocą wałka. Zużycie wynosi ok. 150 g/m². Należy zachować czas schnięcia wynoszący minimum 1 godzinę przed przystąpieniem do dalszych prac.**"
 FULL_D3040 = "* **Zagruntować podłoże koncentratem gruntówki dyspersyjnej WAKOL D 3040. Proporcje mieszania: 1 część WAKOL D 3040 + 2 części wody; Czas schnięcia: na jastrychach cementowych i betonie po optycznym wyschnięciu ok. 30min. Sposób nanoszenia: wałek do gruntowania microfazer. Zużycie: ok. 50 g/m² koncentratu.**"
 
-# --- GENERATOR PROTOKOŁU ---
+# --- GENERATOR ---
 if st.button("GENERUJ PROTOKÓŁ OGLĘDZIN", type="primary", use_container_width=True):
-    if moisture is None: st.error("Wprowadź wilgotność!")
+    if moisture is None: st.error("Podaj wilgotność!")
     else:
         st.divider(); insert_header()
         st.write(f"**Data badania:** {data_badania.strftime('%d.%m.%Y')} | **Autor:** {autor}")
         st.write(f"**Inwestycja:** {inwestycja}, {adres}")
         
         st.markdown("#### **I. Oględziny optyczne i wywiad techniczny**")
-        obw_txt = "Dylatacje obwodowe zachowane prawidłowo." if dilatations_obw_ok == "TAK" else "Dylatacje obwodowe niezachowane prawidłowo."
+        
+        # PEŁNY OPIS OPTYCYZNY NA PODSTAWIE WYWIADU
+        heating_txt = f"z zainstalowanym ogrzewaniem podłogowym ({heating_info})" if heating_exists == "TAK" else "bez ogrzewania podłogowego"
+        curing_txt = f" (wygrzewanie: {heating_curing_done})" if heating_exists == "TAK" else ""
+        dil_txt = "Dylatacje obwodowe zachowane prawidłowo." if dilatations_obw_ok == "TAK" else "Dylatacje obwodowe niezachowane prawidłowo."
         klaw_txt = f"Stwierdzono klawiszujące dylatacje pozorne ({klaw_meters} mb)." if cracks_klaw == "TAK" else "Dylatacje pozorne nie klawiszują."
         pek_txt = f"Stwierdzono pęknięcia podłoża ({pek_meters} mb)." if cracks_pek == "TAK" else "Brak pęknięć podłoża."
-        st.write(f"Podłoże stanowi {substrate} {f'wiek: {substrate_age_val} mies.' if substrate_age_val else ''}. {obw_txt} {klaw_txt} {pek_txt}")
+        holes_txt = f"Występują ubytki lub zdegradowane miejsca: {hole_details}." if holes == "TAK" else "Nie stwierdzono ubytków wymagających wypełnienia."
+        level_txt = f"Podłoże wymaga wyrównania masą (grubość ok. {leveling_thickness} mm)." if needs_levelling == "TAK" else "Podłoże nie wymaga wyrównania masą."
+        
+        full_opt_desc = f"Podłoże pod planowaną okładzinę ({flooring_type}) stanowi {substrate} {f'w wieku ok. {substrate_age_val} mies.' if substrate_age_val else ''}, {heating_txt}{curing_txt}. "
+        full_opt_desc += f"{dil_txt} {klaw_txt} {pek_txt} {holes_txt} {level_txt}"
+        
+        st.write(full_opt_desc)
         st.write(f"Badanie młotkiem: {test_hammer} | Rysikiem: {test_scratch} | Szczotką: {test_brush}")
 
-        st.markdown("#### **II. Warunki klimatyczne i fizyczne**")
+        st.markdown("#### **II. Warunki klimatyczne i parametry fizyczne**")
         st.write(f"* Wilgotność podłoża: **{moisture} % CM** (Norma: {limit} % CM)")
         st.write(f"* Temp. powietrza: **{temp_air}°C** | Wilgotność powietrza: **{hum_air}%**")
         valid_p = [v for v in presso_results if v is not None and v > 0]
@@ -142,7 +152,6 @@ if st.button("GENERUJ PROTOKÓŁ OGLĘDZIN", type="primary", use_container_width
 
         st.write("**a) Przygotowanie podłoża:**")
         st.write(FULL_PREP)
-        
         if (klaw_meters + pek_meters) > 0: st.write(f"* **Zespolenie pęknięć i dylatacji pozornych żywicą WAKOL PS 205.**")
 
         st.write("**b) Gruntowanie i wyrównanie podłoża:**")
@@ -156,7 +165,7 @@ if st.button("GENERUJ PROTOKÓŁ OGLĘDZIN", type="primary", use_container_width
         else:
             if strength_val == 1:
                 st.write(FULL_PS275)
-                if needs_levelling == "TAK":
+                if needs_levelling == "TAK": 
                     st.write(FULL_PU280_REINFORCE)
                     st.write(FULL_D3045)
             elif strength_val == 2:
