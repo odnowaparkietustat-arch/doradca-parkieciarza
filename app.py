@@ -55,6 +55,7 @@ st.write("4. Czy podłoże wymaga wyrównania (masy)?")
 needs_levelling = st.radio("Wymaga wyrównania:", ["TAK", "NIE"], index=1, horizontal=True)
 leveling_thickness = st.number_input("Planowana grubość masy (mm):", min_value=1, value=None) if needs_levelling == "TAK" else 0
 
+# Sekcja wywiadu (wymagane pytania 1-4 z Twoich instrukcji)
 st.write("5. Czy dylatacje obwodowe zachowane prawidłowo?")
 dilatations_obw_ok = st.radio("Dylatacje obwodowe:", ["TAK", "NIE"], index=0, horizontal=True)
 st.write("6. Czy występują klawiszujące dylatacje pozorne?")
@@ -137,7 +138,7 @@ if st.button("GENERUJ PROTOKÓŁ OGLĘDZIN", type="primary", use_container_width
         heat_txt = f" Została zainstalowana {heating_info}." if heating_exists == "TAK" else " Brak instalacji ogrzewania podłogowego."
         curing_txt = " Został przeprowadzony proces wygrzewania zgodnie z protokołem." if heating_curing_done == "TAK" else " Nie został przeprowadzony proces wygrzewania podłoża." if heating_exists == "TAK" else ""
         dil_txt = " Dylatacje obwodowe zostały zachowane prawidłowo." if dilatations_obw_ok == "TAK" else " Dylatacje obwodowe nie zostały zachowane prawidłowo."
-        klaw_txt = f" Stwierdzono występowanie klawiszujących dylatacji pozornych w ilości {klaw_meters} metrów bieżących." if cracks_klaw == "TAK" else " Nie stwierdzono występowania klawiszujących dylatacji pozornych."
+        klaw_txt = f" Stwierdzono występowanie klawiszujących dylatacji pozornych in ilości {klaw_meters} metrów bieżących." if cracks_klaw == "TAK" else " Nie stwierdzono występowania klawiszujących dylatacji pozornych."
         pek_txt = f" Stwierdzono występowanie pęknięć podłoża wymagających zespolenia w ilości {pek_meters} metrów bieżących." if cracks_pek == "TAK" else " Nie stwierdzono występowania pęknięć podłoża wymagających zespolenia."
         holes_txt = f" Stwierdzono ubytki lub zdegradowane miejsca wymagające wypełnienia{hole_details}." if holes == "TAK" else " Nie stwierdzono ubytków lub zdegradowanych miejsc wymagających wypełnienia."
         level_txt = f" Podłoże wymaga wyrównania masą wyrównawczą o planowanej grubości {leveling_thickness} milimetrów." if needs_levelling == "TAK" else " Podłoże nie wymaga wyrównania masą wyrównawczą."
@@ -146,6 +147,7 @@ if st.button("GENERUJ PROTOKÓŁ OGLĘDZIN", type="primary", use_container_width
         full_opt_report = f"Podłoże pod planowaną okładzinę ({flooring_type}) stanowi {substrate}{age_txt}.{heat_txt}{curing_txt}{dil_txt}{klaw_txt}{pek_txt}{holes_txt}{level_txt} {vent_txt}"
         st.write(f"**a) oględziny optyczne:** {full_opt_report}")
         
+        # WYNIKI WYTRZYMAŁOŚCI
         st.markdown("**b) badanie wytrzymałości:**")
         st.write(f"Wynik badania młotkiem: {test_hammer}")
         st.write(f"Wynik badania szczotką: {test_brush}")
@@ -156,7 +158,10 @@ if st.button("GENERUJ PROTOKÓŁ OGLĘDZIN", type="primary", use_container_width
             for i, val in enumerate(valid_presso):
                 st.write(f"- Próba {i+1}: {val} N/mm²")
         st.write(f"Ocena ogólna wytrzymałości podłoża: **{strength_labels[strength_val]}**")
-        st.write(f"**c) badanie wilgotności:** Wynik badania wilgotności metodą CM: **{moisture} % CM** (Norma: {limit} % CM)")
+        
+        # NOWA REGUŁA: Wynik pozytywny/negatywny wilgotności
+        moisture_status = "POZYTYWNY" if moisture <= limit else "NEGATYWNY"
+        st.write(f"**c) badanie wilgotności:** Wynik badania wilgotności metodą CM: **{moisture} % CM** (Norma: {limit} % CM) — **Wynik: {moisture_status}**")
 
         if substrate == "jastrych cementowy" and flooring_type in ["deska warstwowa (drewno, laminat itp.)", "deska lita"]:
             st.info("Aby bezpiecznie kleić podłogę drewnianą na jastrychu cementowym, jego wytrzymałość na ścinanie musi wynosić między 1,5 a 2,0 N/mm² a wilgotność nie może przekraczać 1,8% CM. (z ogrzewaniem podłogowym max. 1,5% CM).")
@@ -220,7 +225,6 @@ if st.button("GENERUJ PROTOKÓŁ OGLĘDZIN", type="primary", use_container_width
             else: st.write("* **Wylanie masy wyrównawczej Wakol Z 675 [Pełny opis...]**")
 
         st.write("**c) klejenie okładziny:**")
-        # REGUŁA DLA PŁYTY FUNDAMENTOWEJ ORAZ DEDYKOWANA FORMA MS 260
         ms260_desc = "Klejenie podłogi drewnianej należy przeprowadzić przy użyciu kleju polimerowego twardo-elastycznego WAKOL MS 260. (szpachla B13, zużycie: 1350 g/m²)."
         
         if substrate == "płyta fundamentowa" or flooring_type == "deska lita":
