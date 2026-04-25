@@ -160,26 +160,31 @@ if st.button("GENERUJ PROTOKÓŁ OGLĘDZIN", type="primary", use_container_width
         moisture_status = "POZYTYWNY" if moisture <= limit else "NEGATYWNY"
         st.write(f"**c) badanie wilgotności:** Wynik badania wilgotności metodą CM: **{moisture} % CM** (Norma: {limit} % CM) — **Wynik: {moisture_status}**")
 
-        if substrate == "jastrych cementowy" and flooring_type in ["deska warstwowa (drewno, laminat itp.)", "deska lita"]:
-            st.info("Aby bezpiecznie kleić podłogę drewnianą na jastrychu cementowym, jego wytrzymałość na ścinanie musi wynosić między 1,5 a 2,0 N/mm² a wilgotność nie może przekraczać 1,8% CM. (z ogrzewaniem podłogowym max. 1,5% CM).")
-
         st.markdown("#### **II. Zalecenia techniczne**")
         
+        # LOGIKA ROZRÓŻNIENIA SYTUACJI WYGRZEWANIA
         curing_not_done = (heating_exists == "TAK" and heating_curing_done == "NIE")
+        is_moisture_neg = (moisture > limit)
         
         st.write("**a) przygotowanie podłoża:**")
         st.write("* **Szlif podłoża w celu uzyskania porowatej i chłonnej powierzchni!**")
         st.write("* **Dokładne odkurzenie powierzchni odkurzaczem przemysłowym.**")
         
         if curing_not_done:
-            st.write(f"* **Konieczność przeprowadzenia pełnego procesu wygrzewania podłoża zgodnie z protokołem.**")
-        elif moisture > limit:
+            if is_moisture_neg:
+                st.write(f"* **Konieczność przeprowadzenia pełnego procesu wygrzewania podłoża w celu uzyskania normatywnego poziomu wilgoci.**")
+            else:
+                st.write(f"* **Konieczność przeprowadzenia pełnego procesu wygrzewania podłoża zgodnie z protokołem.**")
+        elif is_moisture_neg:
             st.write(f"* **Zalecamy doprowadzenie do normatywnego poziomu wilgoci ({limit}% CM) poprzez {decision_after_cure}.**")
 
         st.write("**b) naprawa i wzmocnienie podłoża:**")
-        # NOWA REGUŁA: Fraza "Po przeprowadzeniu pełnego procesu wygrzewania zalecamy:"
+        # NOWA REGUŁA ROZRÓŻNIAJĄCA POCZĄTEK SEKCJI B
         if curing_not_done:
-            st.write("**Po przeprowadzeniu pełnego procesu wygrzewania zalecamy:**")
+            if is_moisture_neg:
+                st.write("**Po doprowadzeniu do normatywnego poziomu wilgoci jastrychu poprzez przeprowadzenie procesu wygrzewania zalecamy:**")
+            else:
+                st.write("**Po przeprowadzeniu pełnego procesu wygrzewania zalecamy:**")
         elif needs_drying_action:
             st.write("**Po doprowadzeniu do normatywnego poziomu wilgoci zalecamy:**")
         
