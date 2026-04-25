@@ -65,14 +65,16 @@ if heating_exists == "TAK":
 st.write("4. Czy podłoże wymaga wyrównania (masy)?")
 needs_levelling = st.radio("Wymaga wyrównania:", ["TAK", "NIE"], index=1, horizontal=True, label_visibility="collapsed")
 leveling_thickness = 0
-if needs_levelling == "TAK": leveling_thickness = st.number_input("Planowana grubość masy (mm):", min_value=1, value=None, placeholder="Wpisz mm...")
+if needs_levelling == "TAK": 
+    leveling_thickness = st.number_input("Planowana grubość masy (mm):", min_value=1, value=None, placeholder="Wpisz mm...")
 
 st.write("5. Czy dylatacje obwodowe zachowane prawidłowo?")
 dilatations_obw_ok = st.radio("Dylatacje obwodowe:", ["TAK", "NIE"], index=0, horizontal=True, label_visibility="collapsed")
 st.write("6. Czy występują klawiszujące dylatacje pozorne?")
 cracks_klaw = st.radio("Klawiszowanie pozorne:", ["TAK", "NIE"], index=1, horizontal=True, label_visibility="collapsed")
 klaw_meters = 0.0
-if cracks_klaw == "TAK": klaw_meters = st.number_input("Ilość mb klawiszujących:", min_value=0.1, step=0.1, value=None, placeholder="Wpisz mb...")
+if cracks_klaw == "TAK": 
+    klaw_meters = st.number_input("Ilość mb klawiszujących:", min_value=0.1, step=0.1, value=None, placeholder="Wpisz mb...")
 
 st.write("7. Czy występują pęknięcia podłoża wymagające zespolenia?")
 cracks_pek = st.radio("Pęknięcia do zespolenia:", ["TAK", "NIE"], index=1, horizontal=True, label_visibility="collapsed")
@@ -88,9 +90,27 @@ if holes == "TAK":
     with col_h1: h_depth = st.number_input("Głębokość (cm)", min_value=0.1, value=None)
     with col_h2: h_width = st.number_input("Szerokość (cm)", min_value=0.1, value=None)
     with col_h3: h_length = st.number_input("Długość (cm)", min_value=0.1, value=None)
-    if h_depth and h_width and h_length: hole_details = f" o wymiarach ok. {h_length}x{h_width} cm i głębokości {h_depth} cm"
+    if h_depth and h_width and h_length: 
+        hole_details = f" o wymiarach ok. {h_length}x{h_width} cm i głębokości {h_depth} cm"
 
 st.write("9. Rodzaj wentylacji")
 ventilation_type = st.radio("Wentylacja:", ["Grawitacyjna", "Mechaniczna"], horizontal=True, label_visibility="collapsed")
+
 col_w1, col_w2 = st.columns(2)
-with col_w1: temp_air = st.number_input("10. Temperatura powietrza (°C)", step=0.5, value=
+with col_w1: 
+    temp_air = st.number_input("10. Temperatura powietrza (°C)", step=0.5, value=None)
+with col_w2: 
+    hum_air = st.number_input("11. Wilgotność powietrza (%)", step=1.0, value=None)
+
+moisture = st.number_input("12. Poziom wilgoci podłoża (CM %)", format="%.1f", value=None, placeholder="Wpisz wynik CM...")
+
+# --- TESTY MECHANICZNE ---
+st.write("### Testy mechaniczne i Wytrzymałość")
+col_t1, col_t2, col_t3 = st.columns(3)
+with col_t1: test_hammer = st.selectbox("Młotek", ["negatywny", "dostateczny", "pozytywny"], index=2)
+with col_t2: test_ripper = st.selectbox("Rysik", ["negatywny", "dostateczny", "pozytywny"], index=2)
+with col_t3: test_brush = st.selectbox("Szczotka", ["negatywny", "pozytywny"], index=1)
+
+presso_results = []
+for i in range(6): 
+    presso_
