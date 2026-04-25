@@ -103,8 +103,6 @@ decision_after_cure = None
 needs_drying_action = False
 if moisture is not None and moisture > limit:
     opt_dry = "przeprowadzenie procesu wygrzewania" if heating_exists == "TAK" else "dalsze osuszanie"
-    
-    # REGUŁA: Jastrych anhydrytowy LUB brak wygrzewania przy podłogówce = BRAK BARIERY
     if substrate == "jastrych anhydrytowy" or (heating_exists == "TAK" and heating_curing_done == "NIE"):
         decision_after_cure = opt_dry
         needs_drying_action = True
@@ -182,13 +180,19 @@ if st.button("GENERUJ PROTOKÓŁ OGLĘDZIN", type="primary", use_container_width
             else: st.write(FULL_PU280_BARRIER)
         
         elif not decision_after_cure or "Wykonanie" not in str(decision_after_cure):
+            # LOGIKA GRUNTOWANIA ZALEŻNA OD KONIECZNOŚCI WYRÓWNANIA
             if needs_levelling == "TAK":
-                if strength_val == 1: 
-                    st.write(FULL_PS275); st.write(FULL_PU280_1W)
+                # NOWA REGUŁA: Anhydryt Bardzo Słaby (1) stosuje PU 235 zamiast PS 275
+                if strength_val == 1:
+                    if substrate == "jastrych anhydrytowy": st.write(FULL_PU235_1W)
+                    else: st.write(FULL_PS275)
+                    st.write(FULL_PU280_1W)
                 elif strength_val == 2: st.write(FULL_PU280_1W)
                 elif strength_val in [3, 4, 5]: st.write(FULL_D3040)
             else:
-                if strength_val == 1: st.write(FULL_PS275)
+                if strength_val == 1:
+                    if substrate == "jastrych anhydrytowy": st.write(FULL_PU235_1W)
+                    else: st.write(FULL_PS275)
                 elif strength_val == 2: st.write(FULL_PU235_1W)
                 elif strength_val in [3, 4]: st.write(FULL_PU280_1W)
                 elif strength_val == 5: st.write(FULL_D3055)
@@ -200,9 +204,13 @@ if st.button("GENERUJ PROTOKÓŁ OGLĘDZIN", type="primary", use_container_width
             else: st.write("* **Wylanie masy wyrównawczej Wakol Z 675 [Pełny opis...]**")
 
         st.write("**c) klejenie okładziny:**")
+        # NOWA REGUŁA: Anhydryt Bardzo Słaby (1) blokuje PU 225
         if flooring_type == "deska lita":
             st.write("Do montażu podłogi litej należy użyć twardo-elastycznego kleju polimerowego WAKOL MS 260. Klej nanosić odpowiednią szpachlą ząbkowaną B13 lub B15. Podczas klejenia należy zwracać uwagę na dokładne pokrycie spodu elementów klejem. Zużycie zależne od spodu deski i szpachli ok. 1100 - 1300 g/m2. Klej charakteryzuje się bardzo wysoką siłą wiązania początkowego.")
         elif flooring_type == "deska warstwowa (drewno, laminat itp.)":
-            st.write("Klejenie podłogi drewnianej należy przeprowadzić przy użyciu kleju do parkietu **WAKOL MS 230** (szpachla B13, zużycie: 1350 g/m²) bądź kleju do parkietu **WAKOL PU 225** (szpachla B11, zużycie: 1250 g/m²).")
+            if substrate == "jastrych anhydrytowy" and strength_val == 1:
+                st.write("Klejenie podłogi drewnianej należy przeprowadzić przy użyciu kleju do parkietu **WAKOL MS 230** (szpachla B13, zużycie: 1350 g/m²).")
+            else:
+                st.write("Klejenie podłogi drewnianej należy przeprowadzić przy użyciu kleju do parkietu **WAKOL MS 230** (szpachla B13, zużycie: 1350 g/m²) bądź kleju do parkietu **WAKOL PU 225** (szpachla B11, zużycie: 1250 g/m²).")
 
         st.divider(); st.markdown("<b>Z poważaniem, Loba-Wakol Polska Sp. z o.o. | Przemysław Tyszko</b>", unsafe_allow_html=True)
