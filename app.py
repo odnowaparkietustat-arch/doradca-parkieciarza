@@ -101,10 +101,15 @@ barrier_max = 2.5 if heating_exists == "TAK" else 3.5
 
 decision_after_cure = None
 if moisture is not None and moisture > limit:
-    if heating_exists == "TAK": opt_dry = "konieczność wykonania kolejnego procesu wygrzewania" if heating_curing_done == "TAK" else "konieczność przeprowadzenia procesu wygrzewania"
-    else: opt_dry = "dalsze osuszanie"
-    if strength_val == 1 or moisture > barrier_max: decision_after_cure = opt_dry
-    else: decision_after_cure = st.radio("Postępowanie:", ["konieczność wykonania bariery przeciwwilgociowej", opt_dry], horizontal=True)
+    if heating_exists == "TAK": 
+        opt_dry = "Konieczność wykonania kolejnego procesu wygrzewania celem doprowadzenia do normatywnego poziomu wilgoci w jastrychu tj. 1.5% CM." if heating_curing_done == "TAK" else "Konieczność przeprowadzenia procesu wygrzewania celem doprowadzenia do normatywnego poziomu wilgoci w jastrychu tj. 1.5% CM."
+    else: 
+        opt_dry = "dalsze osuszanie"
+    
+    if strength_val == 1 or moisture > barrier_max: 
+        decision_after_cure = opt_dry
+    else: 
+        decision_after_cure = st.radio("Postępowanie:", ["konieczność wykonania bariery przeciwwilgociowej", opt_dry], horizontal=True)
 
 # --- STAŁE TECHNOLOGICZNE WAKOL (1:1) ---
 FULL_PREP = "* **Szlif podłoża w celu uzyskania porowatej i chłonnej powierzchni!**\n* **Dokładne odkurzenie powierzchni odkurzaczem przemysłowym.**"
@@ -150,15 +155,15 @@ if st.button("GENERUJ PROTOKÓŁ OGLĘDZIN", type="primary", use_container_width
         st.write(f"* Ocena wytrzymałości końcowa: **{strength_labels[strength_val]}**")
 
         st.markdown("#### **IV. Zalecenia technologiczne**")
-        if decision_after_cure and ("osuszanie" in decision_after_cure or "wygrzewania" in decision_after_cure):
-            st.write(f"* **{decision_after_cure.capitalize()} celem doprowadzenia do normy tj. {limit}% CM.**")
+        if decision_after_cure and ("wygrzewania" in decision_after_cure or "osuszanie" in decision_after_cure or "Konieczność" in decision_after_cure):
+            st.write(f"* **{decision_after_cure}**")
 
         st.write("**a) Przygotowanie podłoża:**")
         st.write(FULL_PREP)
         if (klaw_meters + pek_meters) > 0: st.write(f"* **Zespolenie pęknięć i dylatacje pozorne żywicą WAKOL PS 205.**")
 
         st.write("**b) Gruntowanie i wyrównanie:**")
-        after_dry_prefix = f"**Po doprowadzeniu do normatywnego poziomu wilgoci jastrychu tj. {limit}% CM zalecamy:**" if decision_after_cure and ("osuszanie" in decision_after_cure or "wygrzewania" in decision_after_cure) else ""
+        after_dry_prefix = f"**Po doprowadzeniu do normatywnego poziomu wilgoci jastrychu tj. {limit}% CM zalecamy:**" if decision_after_cure and ("osuszanie" in decision_after_cure or "wygrzewania" in decision_after_cure or "Konieczność" in decision_after_cure) else ""
         if after_dry_prefix: st.write(after_dry_prefix)
 
         if decision_after_cure == "konieczność wykonania bariery przeciwwilgociowej":
