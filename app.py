@@ -103,7 +103,9 @@ decision_after_cure = None
 needs_drying_action = False
 if moisture is not None and moisture > limit:
     opt_dry = "przeprowadzenie procesu wygrzewania" if heating_exists == "TAK" else "dalsze osuszanie"
-    if heating_exists == "TAK" and heating_curing_done == "NIE":
+    
+    # REGUŁA: Jastrych anhydrytowy LUB brak wygrzewania przy podłogówce = BRAK BARIERY
+    if substrate == "jastrych anhydrytowy" or (heating_exists == "TAK" and heating_curing_done == "NIE"):
         decision_after_cure = opt_dry
         needs_drying_action = True
     else:
@@ -153,9 +155,8 @@ if st.button("GENERUJ PROTOKÓŁ OGLĘDZIN", type="primary", use_container_width
         st.write(f"Ocena ogólna wytrzymałości podłoża: **{strength_labels[strength_val]}**")
         st.write(f"**c) badanie wilgotności:** Wynik badania wilgotności metodą CM: **{moisture} % CM** (Norma: {limit} % CM) - Wynik **{'POZYTYWNY' if moisture <= limit else 'NEGATYWNY'}**")
 
-        # --- NOWA REGUŁA (DLA JASTRYCHU CEMENTOWEGO I DREWNA) ---
         if substrate == "jastrych cementowy" and flooring_type in ["deska warstwowa (drewno, laminat itp.)", "deska lita"]:
-            st.info("Aby bezpiecznie kleić podłogę drewnianę na jastrychu cementowym, jego wytrzymałość na ścinanie musi wynosić między 1,5 a 2,0 N/mm² a wilgotność nie może przekraczać 1,8% CM. (z ogrzewaniem podłogowym max. 1,5% CM).")
+            st.info("Aby bezpiecznie kleić podłogę drewnianą na jastrychu cementowym, jego wytrzymałość na ścinanie musi wynosić między 1,5 a 2,0 N/mm² a wilgotność nie może przekraczać 1,8% CM. (z ogrzewaniem podłogowym max. 1,5% CM).")
 
         st.markdown("#### **II. Zalecenia techniczne**")
         
