@@ -145,7 +145,6 @@ if st.button("GENERUJ PROTOKÓŁ OGLĘDZIN", type="primary", use_container_width
         full_opt_report = f"Podłoże pod planowaną okładzinę ({flooring_type}) stanowi {substrate}{age_txt}.{heat_txt}{curing_txt}{dil_txt}{klaw_txt}{pek_txt}{holes_txt}{level_txt} {vent_txt}"
         st.write(f"**a) oględziny optyczne:** {full_opt_report}")
         
-        # WYNIKI WYTRZYMAŁOŚCI
         st.markdown("**b) badanie wytrzymałości:**")
         st.write(f"Wynik badania młotkiem: {test_hammer}")
         st.write(f"Wynik badania szczotką: {test_brush}")
@@ -162,9 +161,9 @@ if st.button("GENERUJ PROTOKÓŁ OGLĘDZIN", type="primary", use_container_width
 
         st.markdown("#### **II. Zalecenia techniczne**")
         
-        # LOGIKA ROZRÓŻNIENIA SYTUACJI WYGRZEWANIA
         curing_not_done = (heating_exists == "TAK" and heating_curing_done == "NIE")
         is_moisture_neg = (moisture > limit)
+        norm_val = f"({limit}% CM)" # Wartość normy w nawiasie
         
         st.write("**a) przygotowanie podłoża:**")
         st.write("* **Szlif podłoża w celu uzyskania porowatej i chłonnej powierzchni!**")
@@ -172,21 +171,20 @@ if st.button("GENERUJ PROTOKÓŁ OGLĘDZIN", type="primary", use_container_width
         
         if curing_not_done:
             if is_moisture_neg:
-                st.write(f"* **Konieczność przeprowadzenia pełnego procesu wygrzewania podłoża w celu uzyskania normatywnego poziomu wilgoci.**")
+                st.write(f"* **Konieczność przeprowadzenia pełnego procesu wygrzewania podłoża w celu uzyskania normatywnego poziomu wilgoci {norm_val}.**")
             else:
                 st.write(f"* **Konieczność przeprowadzenia pełnego procesu wygrzewania podłoża zgodnie z protokołem.**")
         elif is_moisture_neg:
-            st.write(f"* **Zalecamy doprowadzenie do normatywnego poziomu wilgoci ({limit}% CM) poprzez {decision_after_cure}.**")
+            st.write(f"* **Zalecamy doprowadzenie do normatywnego poziomu wilgoci {norm_val} poprzez {decision_after_cure}.**")
 
         st.write("**b) naprawa i wzmocnienie podłoża:**")
-        # NOWA REGUŁA ROZRÓŻNIAJĄCA POCZĄTEK SEKCJI B
         if curing_not_done:
             if is_moisture_neg:
-                st.write("**Po doprowadzeniu do normatywnego poziomu wilgoci jastrychu poprzez przeprowadzenie procesu wygrzewania zalecamy:**")
+                st.write(f"**Po doprowadzeniu do normatywnego poziomu wilgoci {norm_val} jastrychu poprzez przeprowadzenie procesu wygrzewania zalecamy:**")
             else:
                 st.write("**Po przeprowadzeniu pełnego procesu wygrzewania zalecamy:**")
         elif needs_drying_action:
-            st.write("**Po doprowadzeniu do normatywnego poziomu wilgoci zalecamy:**")
+            st.write(f"**Po doprowadzeniu do normatywnego poziomu wilgoci {norm_val} zalecamy:**")
         
         if (klaw_meters + pek_meters) > 0: st.write("- Zespolić pęknięcia i dylatacje pozorne żywicą **WAKOL PS 205**.")
         if holes == "TAK": st.write(f"- Uzupełnić ubytki zaprawą **WAKOL Z 610**{hole_details}.")
