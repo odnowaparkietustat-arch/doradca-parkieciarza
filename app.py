@@ -55,58 +55,90 @@ st.write("4. Czy podłoże wymaga wyrównania (masy)?")
 needs_levelling = st.radio("Wymaga wyrównania:", ["TAK", "NIE"], index=1, horizontal=True)
 leveling_thickness = st.number_input("Planowana grubość masy (mm):", min_value=1, value=None) if needs_levelling == "TAK" else 0
 
-# --- WYMAGANE PYTANIA WAKOL ---
+# Sekcja wywiadu (stałe pytania WAKOL)
 st.write("5. Czy dylatacje obwodowe zachowane prawidłowo?")
 dilatations_obw_ok = st.radio("Dylatacje obwodowe:", ["TAK", "NIE"], index=0, horizontal=True)
 st.write("6. Czy występują klawiszujące dylatacje pozorne?")
 cracks_klaw = st.radio("Klawiszowanie pozorne:", ["TAK", "NIE"], index=1, horizontal=True)
+klaw_meters = st.number_input("Ilość mb klawiszujących:", min_value=0.1, step=0.1, value=None) if cracks_klaw == "TAK" else 0.0
 st.write("7. Czy występują pęknięcia podłoża wymagające zespolenia?")
 cracks_pek = st.radio("Pęknięcia do zespolenia:", ["TAK", "NIE"], index=1, horizontal=True)
+pek_meters = st.number_input("Ilość mb pęknięć do zespolenia:", min_value=0.1, step=0.1, value=None) if cracks_pek == "TAK" else 0.0
 st.write("8. Czy są ubytki lub zdegradowane miejsca wymagające wypełnienia?")
 holes = st.radio("Ubytki:", ["TAK", "NIE"], index=1, horizontal=True)
+hole_details = ""
+if holes == "TAK":
+    col_h1, col_h2, col_h3 = st.columns(3)
+    with col_h1: h_depth = st.number_input("Głębokość (cm)", min_value=0.1, value=None)
+    with col_h2: h_width = st.number_input("Szerokość (cm)", min_value=0.1, value=None)
+    with col_h3: h_length = st.number_input("Długość (cm)", min_value=0.1, value=None)
+    if h_depth and h_width and h_length: hole_details = f" o wymiarach ok. {h_length}x{h_width} cm i głębokości {h_depth} cm"
 
-moisture = st.number_input("9. Poziom wilgoci podłoża (CM %)", format="%.1f", value=None)
+st.write("9. Rodzaj wentylacji")
+ventilation_type = st.radio("Wentylacja:", ["Grawitacyjna", "Mechaniczna"], horizontal=True)
 
-# --- STAŁE TECHNOLOGICZNE (1:1) ---
+col_w1, col_w2 = st.columns(2)
+with col_w1: temp_air = st.number_input("10. Temperatura powietrza (°C)", step=0.5, value=None)
+with col_w2: hum_air = st.number_input("11. Wilgotność powietrza (%)", step=1.0, value=None)
+moisture = st.number_input("12. Poziom wilgoci podłoża (CM %)", format="%.1f", value=None)
+
+# --- TESTY MECHANICZNE I WYTRZYMAŁOŚĆ ---
+st.write("### Testy mechaniczne i Wytrzymałość")
+col_t1, col_t2, col_t3 = st.columns(3)
+with col_t1: test_hammer = st.selectbox("Młotek", ["negatywny", "dostateczny", "pozytywny"], index=2)
+with col_t2: test_ripper = st.selectbox("Rysik", ["negatywny", "dostateczny", "pozytywny"], index=2)
+with col_t3: test_brush = st.selectbox("Szczotka", ["negatywny", "pozytywny"], index=1)
+
+st.write("**Badanie PressoMess**")
+presso_results = []
+for i in range(6): 
+    presso_results.append(st.number_input(f"Próba {i+1} (N/mm²)", min_value=0.0, step=0.1, key=f"p_{i}", value=None))
+strength_labels = {1: "bardzo słaby", 2: "słaby", 3: "umiarkowanie słaby", 4: "umiarkowanie mocny", 5: "mocny"}
+strength_val = st.select_slider("Ocena ogólna wytrzymałości podłoża:", options=[1, 2, 3, 4, 5], value=3, format_func=lambda x: strength_labels[x])
+
+# --- LOGIKA NORM I BARIER ---
+limit = 1.5 if substrate == "jastrych cementowy" and heating_exists == "TAK" else 1.8 if substrate == "jastrych cementowy" else 0.3 if substrate == "jastrych anhydrytowy" and heating_exists == "TAK" else 0.5 if substrate == "jastrych anhydrytowy" else 1.5
+barrier_max = 2.5 if heating_exists == "TAK" else 3.5
+
+decision_after_cure = None
+needs_drying_action = False
+if moisture is not None and moisture > limit:
+    needs_drying_action = True
+    opt_dry = "przeprowadzenie procesu wygrzewania" if heating_exists == "TAK" else "dalsze osuszanie"
+    if substrate == "jastrych anhydrytowy" or (heating_exists == "TAK" and heating_curing_done == "NIE"):
+        decision_after_cure = opt_dry
+    else:
+        if moisture <= barrier_max:
+            decision_after_cure = st.radio("Postępowanie:", ["Wykonanie bariery przeciwwilgociowej", opt_dry], horizontal=True)
+            needs_drying_action = (decision_after_cure != "Wykonanie bariery przeciwwilgociowej")
+        else:
+            decision_after_cure = opt_dry
+
+# --- STAŁE TECHNOLOGICZNE (OPISY PRODUKTÓW 1:1) ---
+FULL_PU235_1W = "* **Zalecamy wykonanie gruntowania wzmacniającego poprzez zagruntowanie powierzchni jastrychu gruntówką poliuretanową WAKOL PU 235. Aplikować wałkiem. Podczas aplikacji nie zostawiać kałuż tj. Zbierać nadmiar nie wchłoniętej gruntówki. Zużycie ok. 150 g/m². Czas schnięcia – jedna godzina.**"
+FULL_PU235_BARRIER = "* **Zalecamy wykonanie bariery przeciwwilgociowej poprzez dwukrotne zagruntowanie gruntówką wzmacniającą WAKOL PU 235. Podczas aplikacji nie zostawiać kałuż tj. Zbierać nadmiar niewchłoniętej gruntówki. 1 - warstwa nałożona wałkiem ok. 150 g/m². Czas schnięcia – 3-6 godzin. 2 warstwa zużycie ok. 100 g/m². Czas schnięcia – 3-6 godzin. Czas klejenia 72 godziny od zagruntowania.**"
+FULL_PU280_1W = "* **Zalecamy wykonanie gruntowania wzmacniającego poprzez zagruntowanie powierzchni jastrychu gruntówką poliuretanową WAKOL PU 280. Aplikować wałkiem. Podczas aplikacji nie zostawiać kałuż tj. Zbierać nadmiar nie wchłoniętej gruntówki. Zużycie ok. 150 g/m². Czas schnięcia – jedna godzina.**"
+FULL_PU280_BARRIER = "* **Z uwagi na podwyższoną wilgotność zalecamy stworzenie bariery przeciwwilgociowej poprzez zagruntowanie powierzchni jastrychu gruntówką poliuretanową WAKOL PU 280. Aplikować wałkiem. Podczas aplikacji nie zostawiać kałuż tj. Zbierać nadmiar nie wchłoniętej gruntówki. 1 warstwa nałożona wałkiem ok. 100-150 g/m². Czas schnięcia – jedna godzina. 2 warstwa ok. 100 g/m² - czas schnięcia – jedna godzina. Czas do klejenia: 72 godziny od zagruntowania.**"
 FULL_D3004 = "* **Zagruntować podłoże koncentratem gruntówki dyspersyjnej WAKOL D 3004. Proporcje mieszania: 1 część WAKOL D 3004 + 2 części wody; Czas schnięcia: na jastrychach cementowych i betonie po optycznym wyschnięciu ok. 30min. Sposób nanoszenia: wałek do gruntowania microfazer. Zużycie: ok. 50 g/m² koncentratu.**"
+FULL_Z625 = "* **Wylać masę wyrównawczą WAKOL Z 625 - wymieszać ją w czystym naczyniu z zimną wodą w proporcji 6,00 – 6,25 litrów wody na 25 kg masy. Mieszać unikając tworzenia się grudek. Prędkość obrotowa mieszadła może wynosić max. 600 obrotów na minutę. Wymieszaną masę nanosić w żądanej grubości na podłoże przy pomocy szpachli, łaty lub rakli. Przed pracą należy zwrócić uwagę na obecność wypełnień fug przy ścianach. Zużycie ok. 1,5 kg/m²/ mm. Możliwość chodzenia po 2 godzinach. Możliwość klejenia podłóg drewnianych przy warstwie do 5 mm – po 6 godzinach, przy warstwie do 10 mm – po 12 godzinach, przy warstwie 30 mm – po 24 godzinach.**"
 FULL_Z675 = "* **Wylać masę wyrównawczą WAKOL Z 675 - wymieszać ją w czystym naczyniu z zimną wodą w proporcji 6,0 – 6,5 litrów wody na 25 kg masy. Mieszać unikając tworzenia się grudek. Prędkość obrotowa mieszadła może wynosić max. 600 obrotów na minutę. Wymieszaną masę nanosić w żądanej grubości na podłoże przy pomocy szpachli, łaty lub rakli. Przed pracą należy zwrócić uwagę na obecność wypełnień fug przy ścianach. Zużycie ok. 1,5 kg/m²/ mm. Możliwość chodzenia po 2-3 godzinach. Możliwość klejenia podłóg po ok. 24 godzinach przy grubości warstwy do 3 mm, przy większych grubościach czas schnięcia ulega wydłużeniu.**"
 
-# --- LOGIKA GENEROWANIA ---
-if st.button("GENERUJ PROTOKÓŁ", type="primary", use_container_width=True):
-    if moisture is None:
-        st.error("Podaj wilgotność!")
+# --- GENEROWANIE PROTOKOŁU ---
+if st.button("GENERUJ PROTOKÓŁ OGLĘDZIN", type="primary", use_container_width=True):
+    if moisture is None: st.error("Proszę podać wilgotność podłoża!")
     else:
-        st.divider()
-        insert_header()
-        
-        limit = 1.5 if heating_exists == "TAK" else 1.8 # Uproszczony limit dla przykładu
-        moisture_status = "POZYTYWNY" if moisture <= limit else "NEGATYWNY"
-        norm_val = f"({limit}% CM)"
-        
-        curing_not_done = (heating_exists == "TAK" and heating_curing_done == "NIE")
-        
+        st.divider(); insert_header()
         st.markdown("#### **I. Oględziny i badania**")
-        st.write(f"Badanie wilgotności CM: **{moisture} %** — **Wynik: {moisture_status}**")
         
-        st.markdown("#### **II. Zalecenia techniczne**")
+        # PEŁNY OPIS OPTYCZNY (BEZ SKRÓTÓW)
+        age_txt = f" w wieku {substrate_age_val} miesięcy" if substrate_age_val else ""
+        heat_txt = f" Została zainstalowana {heating_info}." if heating_exists == "TAK" else " Brak instalacji ogrzewania podłogowego."
+        curing_txt = " Został przeprowadzony proces wygrzewania zgodnie z protokołem." if heating_curing_done == "TAK" else " Nie został przeprowadzony proces wygrzewania podłoża." if heating_exists == "TAK" else ""
+        dil_txt = " Dylatacje obwodowe zostały zachowane prawidłowo." if dilatations_obw_ok == "TAK" else " Dylatacje obwodowe nie zostały zachowane prawidłowo."
+        klaw_txt = f" Stwierdzono występowanie klawiszujących dylatacji pozornych w ilości {klaw_meters} metrów bieżących." if cracks_klaw == "TAK" else " Nie stwierdzono występowania klawiszujących dylatacji pozornych."
+        pek_txt = f" Stwierdzono występowanie pęknięć podłoża wymagających zespolenia w ilości {pek_meters} metrów bieżących." if cracks_pek == "TAK" else " Nie stwierdzono występowania pęknięć podłoża wymagających zespolenia."
+        holes_txt = f" Stwierdzono ubytki lub zdegradowane miejsca wymagające wypełnienia{hole_details}." if holes == "TAK" else " Nie stwierdzono ubytków lub zdegradowanych miejsc wymagających wypełnienia."
+        level_txt = f" Podłoże wymaga wyrównania masą wyrównawczą o planowanej grubości {leveling_thickness} milimetrów." if needs_levelling == "TAK" else " Podłoże nie wymaga wyrównania masą wyrównawczą."
+        vent_txt = f" Rodzaj zastosowanej wentylacji: wentylacja {ventilation_type.lower()}."
         
-        st.write("**a) Przygotowanie podłoża:**")
-        if curing_not_done:
-            if moisture_status == "NEGATYWNY":
-                st.write(f"* **Konieczność przeprowadzenia pełnego procesu wygrzewania podłoża w celu uzyskania normatywnego poziomu wilgoci {norm_val}.**")
-            else:
-                st.write(f"* **Konieczność przeprowadzenia pełnego procesu wygrzewania podłoża zgodnie z protokołem.**")
-        
-        st.write("**b) Naprawa i wzmocnienie podłoża:**")
-        if curing_not_done:
-            if moisture_status == "NEGATYWNY":
-                st.write(f"**Po doprowadzeniu do normatywnego poziomu wilgoci {norm_val} jastrychu poprzez przeprowadzenie procesu wygrzewania zalecamy:**")
-            else:
-                st.write("**Po przeprowadzeniu pełnego procesu wygrzewania zalecamy:**")
-        
-        st.write(FULL_D3004)
-        if needs_levelling == "TAK":
-            st.write(FULL_Z675)
-
-        st.divider()
-        st.markdown(f"<b>Z poważaniem, Loba-Wakol Polska Sp. z o.o. | {autor}</b>", unsafe_allow_html=True)
+        full_opt_report = f"Podłoże pod planowaną okładzinę ({flooring_type}) stanowi {substrate}{age_txt}.{heat_txt}{curing_txt}{dil_txt}{kl
