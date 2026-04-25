@@ -38,7 +38,7 @@ with st.container():
 
 st.divider()
 
-# --- WYWIAD TECHNICZNY (BEZ ZMIAN TREŚCI PYTAŃ) ---
+# --- WYWIAD TECHNICZNY (STAŁE PYTANIA ZGODNIE Z SI) ---
 st.header("I. Wywiad i dane podstawowe")
 flooring_type = st.selectbox("Rodzaj planowanej okładziny", ["deska warstwowa (drewno, laminat itp.)", "deska lita", "wykładzina dywanowa", "pcv w rolce", "lvt cienkie", "lvt grube z twardym rdzeniem"])
 substrate = st.selectbox("Rodzaj podłoża", ["jastrych cementowy", "jastrych anhydrytowy", "płyta fundamentowa", "podłoże drewniane", "płytki ceramiczne", "masa samorozlewna"])
@@ -117,7 +117,7 @@ if moisture is not None and moisture > limit:
         else: 
             decision_after_cure = st.radio("Postępowanie:", ["konieczność wykonania bariery przeciwwilgociowej", opt_dry], horizontal=True)
 
-# --- STAŁE TECHNOLOGICZNE WAKOL (BEZWZGLĘDNY ZAKAZ SKRACANIA) ---
+# --- STAŁE TECHNOLOGICZNE WAKOL (ZAKAZ SKRACANIA) ---
 FULL_PREP = "* **Szlif podłoża w celu uzyskania porowatej i chłonnej powierzchni!**\n* **Dokładne odkurzenie powierzchni odkurzaczem przemysłowym.**"
 FULL_PS275 = "* **Zalecamy aplikację gruntówki wzmacniającej Wakol PS 275 w dwóch warstwach – grubym wałkiem sznurkowym, zużycie w sumie ok. 700 g/m2. Każda z warstw po 350g/m2, aplikowane po sobie w odstępie jednej godziny. Aplikując gruntówkę Wakol PS 275 należy zwrócić uwagę, aby dobrze wchłaniała się w podłoże i unikać powstawania kałuż na powierzchni jastrychu. Po nałożeniu drugiej warstwy gruntówki w razie potrzeby wykonać posypkę z piasku kwarcowego. Po 7 dniach schnięcia powierzchnię należy przeszlifować papierem o gradacji 24 – 40 usuwając przyklejony do powierzchni piasek kwarcowy i dokładnie odkurzyć.**"
 FULL_PU280_BARRIER = "* **Zalecamy wykonanie bariery przeciwwilgociowej poprzez zagruntowanie powierzchni jastrychu gruntówką poliuretanową WAKOL PU 280. Aplikować wałkiem. Podczas aplikacji nie zostawiać kałuż tj. Zbierać nadmiar nie wchłoniętej gruntówki. 1 warstwa nałożona wałkiem ok. 100-150 g/m². Czas schnięcia – jedna godzina. 2 warstwa ok. 100 g/m² - czas schnięcia – jedna godzina. Czas do klejenia: 72 godziny od zagruntowania.**"
@@ -170,7 +170,7 @@ if st.button("GENERUJ PROTOKÓŁ OGLĘDZIN", type="primary", use_container_width
 
         st.write("**b) Naprawa i wzmocnienie podłoża:**")
         
-        # LOGIKA: Jeśli jest formuła "Po doprowadzeniu...", podajemy zalecenia bez ostrzeżeń o blokadzie.
+        # LOGIKA NOWEJ FORMUŁY DLA OGRZEWANIA BEZ WYGRZEWANIA
         if heating_exists == "TAK" and heating_curing_done == "NIE":
             after_dry_prefix = f"**Po doprowadzeniu normatywnego poziomu wilgoci tj. {limit}% CM poprzez wykonanie procesu wygrzewania Zalecamy:**"
         else:
@@ -178,11 +178,12 @@ if st.button("GENERUJ PROTOKÓŁ OGLĘDZIN", type="primary", use_container_width
         
         if after_dry_prefix: st.write(after_dry_prefix)
 
+        # SEKCJA WYBORU PRODUKTÓW (Teraz wyświetlana również przy wygrzewaniu)
         if decision_after_cure == "konieczność wykonania bariery przeciwwilgociowej":
             st.write(FULL_PU280_BARRIER)
             if needs_levelling == "TAK": st.write(FULL_D3045)
         else:
-            # W scenariuszu osuszania/wygrzewania podajemy zalecenia tak, jakby podłoże było już gotowe
+            # Ta sekcja teraz wyświetli się dla: Suchego podłoża, Osuszania oraz Wygrzewania
             if strength_val == 1:
                 st.write(FULL_PS275)
                 if needs_levelling == "TAK": 
@@ -195,7 +196,6 @@ if st.button("GENERUJ PROTOKÓŁ OGLĘDZIN", type="primary", use_container_width
                 st.write(FULL_D3040)
 
         if needs_levelling == "TAK":
-            # Wyświetlamy masy bez blokad, ponieważ instrukcja dotyczy stanu "po osuszeniu"
             if "lita" in flooring_type: st.write("* **Wylać masę wyrównawczą WAKOL Z 625 - wymieszać ją w czystym naczyniu z zimną wodą w proporcji 6,00 – 6,25 litrów wody na 25 kg masy. Mieszać unikając tworzenia się grudek. Prędkość obrotowa mieszadła może wynosić max. 600 obrotów na minutę. Wymieszaną masę nanosić w żądanej grubości na podłoże przy pomocy szpachli, łaty lub rakli. Przed pracą należy zwrócić uwagę na obecność wypełnień fug przy ścianach. Zużycie ok. 1,5 kg/m²/ mm. Możliwość chodzenia po 2 godzinach. Możliwość klejenia podłóg drewnianych przy warstwie do 5 mm – po 6 godzinach, przy warstwie do 10 mm – po 12 godzinach, przy warstwie 30 mm – po 24 godzinach.**")
             elif "warstwowa" in flooring_type: st.write("* **Następnie na podłoże wylać masę wyrównawczą WAKOL Z 635 - Wylewając masę wyrównawczą WAKOL Z 635 wymieszać ją w czystym naczyniu z zimną wodą w proporcji 6,25 litrów wody na 25 kg masy. Mieszać unikając tworzenia się grudek. Prędkość obrotowa mieszadła może wynosić max. 600 obrotów na minutę. Wymieszaną masę nanosić w żądanej grubości na podłoże przy pomocy szpachli, łaty lub rakli. Przed pracą należy zwrócić uwagę na obecność wypełnień fug przy ścianach. Zużycie ok. 1,5 kg/m²/ mm. Możliwość chodzenia po 2,5 godzinach. Możliwość klejenia podłóg drewnianych przy warstwie do 5 mm – po 24 godzinach, przy warstwie do 10 mm – po 72 godzinach.**")
             else: st.write("* **Wylanie masy wyrównawczej Wakol Z 675 w jednej warstwie o grubości 7mm. W proporcji 25kg masy + 6,0 litrów wody. Zużycie 1,5kg/m2 przy 1mm grubości. Wymieszać w czystym pojemniku z zimną wodą w unikając tworzenia się grudek. Prędkość obrotowa mieszadła może wynosić maksymalnie 600 obrotów na minutę. Masę pozostawić do odparowania na ok. 2 - 3 minuty a następnie ponownie przemieszać. Wymieszaną masę nanosić w żądanej grubości na podłoże przy pomocy szpachli, łaty lub rakli. Przed pracą należy zwrócić uwagę na obecność wypełnień fug przy ścianach. Schnącą masę należy chronić przed działaniem promieni słonecznych i przeciągów. Warstwa do 2 mm - możliwość klejenia i układania po 24 godzinach, do 5 mm - po 48 godzinach, do 10 mm - po 72 godzinach.**")
