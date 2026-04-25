@@ -75,14 +75,9 @@ if holes == "TAK":
     if h_depth and h_width and h_length: hole_details = f" o wymiarach ok. {h_length}x{h_width} cm i głębokości {h_depth} cm"
 
 col_w1, col_w2 = st.columns(2)
-with col_w1: temp_air = st.number_input("Temperatura powietrza (°C)", step=0.5, value=None)
-with col_w2: hum_air = st.number_input("Wilgotność powietrza (%)", step=1.0, value=None)
-moisture = st.number_input("Poziom wilgoci podłoża (CM %)", format="%.1f", value=None)
-
-# Wybór kleju dla deski warstwowej
-selected_glue_warstwowa = None
-if flooring_type == "deska warstwowa (drewno, laminat itp.)":
-    selected_glue_warstwowa = st.radio("Wybierz klej do deski warstwowej:", ["WAKOL MS 230", "WAKOL PU 225"], horizontal=True)
+with col_w1: temp_air = st.number_input("10. Temperatura powietrza (°C)", step=0.5, value=None)
+with col_w2: hum_air = st.number_input("11. Wilgotność powietrza (%)", step=1.0, value=None)
+moisture = st.number_input("12. Poziom wilgoci podłoża (CM %)", format="%.1f", value=None)
 
 # --- TESTY MECHANICZNE ---
 st.write("### Testy mechaniczne i Wytrzymałość")
@@ -167,15 +162,12 @@ if st.button("GENERUJ PROTOKÓŁ OGLĘDZIN", type="primary", use_container_width
             else:
                 st.write("* **Wylanie masy wyrównawczej Wakol Z 675 w jednej warstwie o grubości 7mm. W proporcji 25kg masy + 6,0 litrów wody. Zużycie 1,5kg/m2 przy 1mm grubości. Wymieszać w czystym pojemniku z zimną wodą w unikając tworzenia się grudek. Prędkość obrotowa mieszadła może wynosić maksymalnie 600 obrotów na minutę. Masę pozostawić do odparowania na ok. 2 - 3 minuty a następnie ponownie przemieszać. Wymieszaną masę nanosić w żądanej grubości na podłoże przy pomocy szpachli, łaty lub rakli. Przed pracą należy zwrócić uwagę na obecność wypełnień fug przy ścianach. Schnącą masę należy chronić przed działaniem promieni słonecznych i przeciągów. Warstwa do 2 mm - możliwość klejenia i układania po 24 godzinach, do 5 mm - po 48 godzinach, do 10 mm - po 72 godzinach.**")
 
-        # --- SEKCJA KLEJENIA (NAPRAWIONE FORMATOWANIE) ---
+        # --- SEKCJA KLEJENIA (NAPRAWIONE FORMATOWANIE I ALTERNATYWA) ---
         st.write("**c) klejenie okładziny:**")
         if flooring_type == "deska lita":
             st.write("Do montażu podłogi litej należy użyć twardo-elastycznego kleju polimerowego WAKOL MS 260. Klej nanosić odpowiednią szpachlą ząbkowaną B13 lub B15. Podczas klejenia należy zwracać uwagę na dokładne pokrycie spodu elementów klejem. Zużycie zależne od spodu deski i szpachli ok. 1100 - 1300 g/m2. Klej charakteryzuje się bardzo wysoką siłą wiązania początkowego.")
         elif flooring_type == "deska warstwowa (drewno, laminat itp.)":
-            if selected_glue_warstwowa == "WAKOL MS 230":
-                st.write("· Klejenie podłogi drewnianej należy przeprowadzić przy użyciu kleju do parkietu WAKOL MS 230 (szpachla B11, zużycie: 1250 g/m²).")
-            else:
-                st.write("· Klejenie podłogi drewnianej należy przeprowadzić przy użyciu kleju do parkietu WAKOL PU 225 (szpachla B11, zużycie: 1250 g/m²).")
+            st.write("Klejenie podłogi drewnianej należy przeprowadzić przy użyciu kleju do parkietu **WAKOL MS 230** (szpachla B11, zużycie: 1250 g/m²) bądź kleju do parkietu **WAKOL PU 225** (szpachla B11, zużycie: 1250 g/m²).")
 
         st.divider()
         st.markdown("<b>Z poważaniem, Loba-Wakol Polska Sp. z o.o. | Przemysław Tyszko</b>", unsafe_allow_html=True)
