@@ -24,7 +24,7 @@ def insert_header():
 
 st.title("📄 Generator Protokołu Oględzin")
 
-# --- DANE ---
+# --- DANE IDENTYFIKACYJNE ---
 with st.container():
     col1, col2 = st.columns(2)
     with col1:
@@ -38,7 +38,7 @@ with st.container():
 
 st.divider()
 
-# --- WYWIAD ---
+# --- WYWIAD TECHNICZNY ---
 flooring_type = st.selectbox("1. Rodzaj okładziny", ["deska warstwowa (drewno, laminat itp.)", "deska lita", "wykładzina dywanowa", "pcv w rolce", "lvt cienkie", "lvt grube z twardym rdzeniem"])
 substrate = st.selectbox("2. Rodzaj podłoża", ["jastrych cementowy", "jastrych anhydrytowy", "płyta fundamentowa", "podłoże drewniane", "płytki ceramiczne", "masa samorozlewna"])
 substrate_age_val = st.number_input("Wiek podłoża (miesiące):", min_value=0.5, step=0.5, format="%.1f", value=None)
@@ -63,11 +63,12 @@ pek_meters = st.number_input("Ilość mb pęknięć:", min_value=0.1, step=0.1, 
 holes = st.radio("8. Czy są ubytki?", ["TAK", "NIE"], index=1, horizontal=True)
 hole_details = st.text_input("Wymiary ubytków:") if holes == "TAK" else ""
 
+# --- POMIARY KLIMATYCZNE (Wilgotność podłoża priorytetowa) ---
 st.write("### 9. Warunki klimatyczne i pomiary")
 col_cl1, col_cl2, col_cl3 = st.columns(3)
-with col_cl1: temp_air = st.number_input("Temperatura powietrza (°C)", step=0.5, value=None)
+with col_cl1: moisture = st.number_input("Poziom wilgoci podłoża (CM %)", format="%.1f", value=None)
 with col_cl2: hum_air = st.number_input("Wilgotność powietrza (%)", step=1.0, value=None)
-with col_cl3: moisture = st.number_input("Poziom wilgoci podłoża (CM %)", format="%.1f", value=None)
+with col_cl3: temp_air = st.number_input("Temperatura powietrza (°C)", step=0.5, value=None)
 
 # --- WYTRZYMAŁOŚĆ ---
 st.write("### 10. Wyniki badania metodą PressoMess")
@@ -86,20 +87,26 @@ barrier_max = 2.5 if heating_exists == "TAK" else 3.5
 
 decision_after_cure = None
 if moisture is not None and moisture > limit:
-    if heating_exists == "TAK": opt_dry = "konieczność wykonania kolejnego procesu wygrzewania" if heating_curing_done == "TAK" else "konieczność przeprowadzenia procesu wygrzewania"
-    else: opt_dry = "dalsze osuszanie"
+    if heating_exists == "TAK":
+        opt_dry = "konieczność wykonania kolejnego procesu wygrzewania" if heating_curing_done == "TAK" else "konieczność przeprowadzenia procesu wygrzewania"
+    else:
+        opt_dry = "dalsze osuszanie"
     
-    if strength_val == 1 or moisture > barrier_max: decision_after_cure = opt_dry
-    else: decision_after_cure = st.radio("Postępowanie:", ["konieczność wykonania bariery przeciwwilgociowej", opt_dry], horizontal=True)
+    if strength_val == 1 or moisture > barrier_max:
+        decision_after_cure = opt_dry
+    else:
+        decision_after_cure = st.radio("Postępowanie:", ["konieczność wykonania bariery przeciwwilgociowej", opt_dry], horizontal=True)
 
-# --- STAŁE TEKSTOWE ---
-DESC_PU280_BARRIER = "* **Zalecamy wykonanie bariery przeciwwilgociowej poprzez zagruntowanie powierzchni jastrychu gruntówką poliuretanową WAKOL PU 280. Aplikować wałkiem. Podczas aplikacji nie zostawiać kałuż tj. Zbierać nadmiar nie wchłoniętej gruntówki. 1 warstwa nałożona wałkiem ok. 100-150 g/m². Czas schnięcia – jedna godzina. 2 warstwa ok. 100 g/m² - czas schnięcia – jedna godzina. Czas do klejenia: 72 godziny od zagruntowania.**"
-DESC_PU280_REINFORCE = "* **Zalecamy wykonanie gruntowania wzmacniającego poprzez zagruntowanie powierzchni jastrychu gruntówką poliuretanową WAKOL PU 280. Aplikować wałkiem. Podczas aplikacji nie zostawiać kałuż tj. Zbierać nadmiar nie wchłoniętej gruntówki. Zużycie ok. 150 g/m². Czas schnięcia – jedna godzina.**"
-DESC_D3045 = "* **Następnie należy zaaplikować specjalistyczny mostek sczepny za pomocą produktu WAKOL D 3045. Produkt należy dokładnie wymieszać przed użyciem. Aplikować równomiernie za pomocą wałka. Zużycie wynosi ok. 150 g/m². Należy zachować czas schnięcia wynoszący minimum 1 godzinę przed przystąpieniem do dalszych prac.**"
+# --- STAŁE TECHNOLOGICZNE WAKOL (FORMAT 1:1) ---
+FULL_PS275 = "* **Zalecamy aplikację gruntówki wzmacniającej Wakol PS 275 w dwóch warstwach – grubym wałkiem sznurkowym, zużycie w sumie ok. 700 g/m2. Każda z warstw po 350g/m2, aplikowane po sobie w odstępie jednej godziny. Aplikując gruntówkę Wakol PS 275 należy zwrócić uwagę, aby dobrze wchłaniała się w podłoże i unikać powstawania kałuż na powierzchni jastrychu. Po nałożeniu drugiej warstwy gruntówki w razie potrzeby wykonać posypkę z piasku kwarcowego. Po 7 dniach schnięcia powierzchnię należy przeszlifować papierem o gradacji 24 – 40 usuwając przyklejony do powierzchni piasek kwarcowy i dokładnie odkurzyć.**"
+FULL_PU280_BARRIER = "* **Zalecamy wykonanie bariery przeciwwilgociowej poprzez zagruntowanie powierzchni jastrychu gruntówką poliuretanową WAKOL PU 280. Aplikować wałkiem. Podczas aplikacji nie zostawiać kałuż tj. Zbierać nadmiar nie wchłoniętej gruntówki. 1 warstwa nałożona wałkiem ok. 100-150 g/m². Czas schnięcia – jedna godzina. 2 warstwa ok. 100 g/m² - czas schnięcia – jedna godzina. Czas do klejenia: 72 godziny od zagruntowania.**"
+FULL_PU280_REINFORCE = "* **Zalecamy wykonanie gruntowania wzmacniającego poprzez zagruntowanie powierzchni jastrychu gruntówką poliuretanową WAKOL PU 280. Aplikować wałkiem. Podczas aplikacji nie zostawiać kałuż tj. Zbierać nadmiar nie wchłoniętej gruntówki. Zużycie ok. 150 g/m². Czas schnięcia – jedna godzina.**"
+FULL_D3045 = "* **Następnie należy zaaplikować specjalistyczny mostek sczepny za pomocą produktu WAKOL D 3045. Produkt należy dokładnie wymieszać przed użyciem. Aplikować równomiernie za pomocą wałka. Zużycie wynosi ok. 150 g/m². Należy zachować czas schnięcia wynoszący minimum 1 godzinę przed przystąpieniem do dalszych prac.**"
+FULL_D3040 = "* **Zagruntować podłoże koncentratem gruntówki dyspersyjnej WAKOL D 3040. Proporcje mieszania: 1 część WAKOL D 3040 + 2 części wody; Czas schnięcia: na jastrychach cementowych i betonie po optycznym wyschnięciu ok. 30min. Sposób nanoszenia: wałek do gruntowania microfazer. Zużycie: ok. 50 g/m² koncentratu.**"
 
-# --- GENERATOR ---
+# --- GENERATOR PROTOKOŁU ---
 if st.button("GENERUJ PROTOKÓŁ OGLĘDZIN", type="primary", use_container_width=True):
-    if moisture is None: st.error("Podaj wilgotność!")
+    if moisture is None: st.error("Podaj wilgotność podłoża!")
     else:
         st.divider(); insert_header()
         st.write(f"**Data badania:** {data_badania.strftime('%d.%m.%Y')} | **Autor:** {autor}")
@@ -112,53 +119,63 @@ if st.button("GENERUJ PROTOKÓŁ OGLĘDZIN", type="primary", use_container_width
         pek_txt = f" Stwierdzono pęknięcia podłoża ({pek_meters} mb)." if cracks_pek == "TAK" else " Brak pęknięć podłoża."
         st.write(f"**a) oględziny optyczne:** Podłoże stanowi {substrate}. {obw_txt} {klaw_txt} {pek_txt} {('Ubytki: ' + hole_details) if holes == 'TAK' else ''}")
         
-        st.write(f"**b) warunki klimatyczne:** Temperatura powietrza: **{temp_air if temp_air else '--'}°C**, Wilgotność powietrza: **{hum_air if hum_air else '--'}%**.")
+        st.write(f"**b) pomiary i warunki klimatyczne:**")
+        st.write(f"* Poziom wilgoci podłoża: **{moisture} % CM** (Norma: {limit} % CM)")
+        st.write(f"* Temperatura powietrza: **{temp_air if temp_air else '--'}°C**")
+        st.write(f"* Wilgotność powietrza: **{hum_air if hum_air else '--'}%**")
         
         st.write(f"**c) wyniki badania metodą PressoMess:**")
         valid_p = [v for v in presso_results if v is not None and v > 0]
-        if valid_p:
-            st.write(f"* Pomiary: {', '.join([str(v) for v in valid_p])} N/mm²")
-        st.write(f"* Ocena ogólna wytrzymałości: **{strength_labels[strength_val]}**")
-        
-        st.write(f"**d) badanie wilgotności:** Wynik **{moisture} % CM** (Norma: {limit} % CM)")
+        if valid_p: st.write(f"* Pomiary: {', '.join([str(v) for v in valid_p])} N/mm²")
+        st.write(f"* Ocena ogólna wytrzymałości podłoża: **{strength_labels[strength_val]}**")
 
         st.markdown("#### **II. Zalecenia techniczne**")
-        st.write("**a) przygotowanie podłoża:**\n* **Szlif i odkurzenie.**")
+        st.write("**a) przygotowanie podłoża:**")
+        st.write("* **Szlif podłoża w celu uzyskania porowatej i chłonnej powierzchni!**")
+        st.write("* **Dokładne odkurzenie**")
         
         if decision_after_cure and ("wygrzewania" in decision_after_cure or "osuszanie" in decision_after_cure):
             st.write(f"* **Stwierdzono {decision_after_cure} celem doprowadzenia jastrychu do normy tj. {limit}% CM.**")
 
         st.write("**b) naprawa, gruntowanie i wyrównanie:**")
-        after_dry = f"**Po doprowadzeniu do normatywnego poziomu wilgoci jastrychu tj. {limit}% CM zalecamy:**" if decision_after_cure and ("wygrzewania" in decision_after_cure or "osuszanie" in decision_after_cure) else ""
-        if after_dry: st.write(f"* {after_dry}")
+        after_dry_prefix = f"**Po doprowadzeniu do normatywnego poziomu wilgoci jastrychu tj. {limit}% CM zalecamy:**" if decision_after_cure and ("wygrzewania" in decision_after_cure or "osuszanie" in decision_after_cure) else ""
+        if after_dry_prefix: st.write(f"* {after_dry_prefix}")
 
-        if (klaw_meters + pek_meters) > 0: st.write(f"  - Zespolić pęknięcia i dylatacje pozorne żywicą **WAKOL PS 205**.")
+        if (klaw_meters + pek_meters) > 0: st.write(f"* **Zespolić pęknięcia i dylatacje pozorne żywicą WAKOL PS 205.**")
 
+        # LOGIKA GRUNTOWANIA
         if decision_after_cure == "konieczność wykonania bariery przeciwwilgociowej":
-            st.write(DESC_PU280_BARRIER)
-            if needs_levelling == "TAK": st.write(DESC_D3045)
+            st.write(FULL_PU280_BARRIER)
+            if needs_levelling == "TAK": st.write(FULL_D3045)
         else:
+            p = after_dry_prefix + " " if after_dry_prefix else ""
             if strength_val == 1:
-                st.write("* Zalecamy **Wakol PS 275** (2x350g/m2, 1h odstępu, 7 dni schnięcia, szlif).")
-                if needs_levelling == "TAK": 
-                    st.write(DESC_PU280_REINFORCE)
-                    st.write(DESC_D3045)
+                st.write(FULL_PS275)
+                if needs_levelling == "TAK":
+                    st.write(FULL_PU280_REINFORCE)
+                    st.write(FULL_D3045)
             elif strength_val == 2:
-                st.write(DESC_PU280_REINFORCE)
-                if needs_levelling == "TAK": st.write(DESC_D3045)
+                st.write(FULL_PU280_REINFORCE)
+                if needs_levelling == "TAK": st.write(FULL_D3045)
             elif strength_val >= 3 and needs_levelling == "TAK":
-                st.write("* **Zagruntować WAKOL D 3040 (1:2 z wodą, 50g/m2, 30 min).**")
+                st.write(FULL_D3040)
 
+        # LOGIKA MASY WYRÓWNAWCZEJ (PEŁNE OPISY)
         if needs_levelling == "TAK":
-            if "lita" in flooring_type: st.write("* **Wylać masę WAKOL Z 625 (proporcja 6,0-6,25l wody, zużycie 1,5kg/m2/mm).**")
-            elif "warstwowa" in flooring_type: st.write("* **Wylać masę WAKOL Z 635 (proporcja 6,25l wody, zużycie 1,5kg/m2/mm).**")
-            else: st.write("* **Wylać masę WAKOL Z 675 (proporcja 6,0l wody, zużycie 1,5kg/m2/mm).**")
+            if "lita" in flooring_type:
+                st.write("* **Wylać masę wyrównawczą WAKOL Z 625 - wymieszać ją w czystym naczyniu z zimną wodą w proporcji 6,00 – 6,25 litrów wody na 25 kg masy. Mieszać unikając tworzenia się grudek. Prędkość obrotowa mieszadła może wynosić max. 600 obrotów na minutę. Wymieszaną masę nanosić w żądanej grubości na podłoże przy pomocy szpachli, łaty lub rakli. Przed pracą należy zwrócić uwagę na obecność wypełnień fug przy ścianach. Zużycie ok. 1,5 kg/m²/ mm. Możliwość chodzenia po 2 godzinach. Możliwość klejenia podłóg drewnianych przy warstwie do 5 mm – po 6 godzinach, przy warstwie do 10 mm – po 12 godzinach, przy warstwie 30 mm – po 24 godzinach.**")
+            elif "warstwowa" in flooring_type:
+                st.write("* **Następnie na podłoże wylać masę wyrównawczą WAKOL Z 635 - Wylewając masę wyrównawczą WAKOL Z 635 wymieszać ją w czystym naczyniu z zimną wodą w proporcji 6,25 litrów wody na 25 kg masy. Mieszać unikając tworzenia się grudek. Prędkość obrotowa mieszadła może wynosić max. 600 obrotów na minutę. Wymieszaną masę nanosić w żądanej grubości na podłoże przy pomocy szpachli, łaty lub rakli. Przed pracą należy zwrócić uwagę na obecność wypełnień fug przy ścianach. Zużycie ok. 1,5 kg/m²/ mm. Możliwość chodzenia po 2,5 godzinach. Możliwość klejenia podłóg drewnianych przy warstwie do 5 mm – po 24 godzinach, przy warstwie do 10 mm – po 72 godzinach.**")
+            else:
+                st.write("* **Wylanie masy wyrównawczej Wakol Z 675 w jednej warstwie o grubości 7mm. W proporcji 25kg masy + 6,0 litrów wody. Zużycie 1,5kg/m2 przy 1mm grubości. Wymieszać w czystym pojemniku z zimną wodą w unikając tworzenia się grudek. Prędkość obrotowa mieszadła może wynosić maksymalnie 600 obrotów na minutę. Masę pozostawić do odparowania na ok. 2 - 3 minuty a następnie ponownie przemieszać. Wymieszaną masę nanosić w żądanej grubości na podłoże przy pomocy szpachli, łaty lub rakli. Przed pracą należy zwrócić uwagę na obecność wypełnień fug przy ścianach. Schnącą masę należy chronić przed działaniem promieni słonecznych i przeciągów. Warstwa do 2 mm - możliwość klejenia i układania po 24 godzinach, do 5 mm - po 48 godzinach, do 10 mm - po 72 godzinach.**")
 
         st.divider()
         st.markdown(f"""
-        <div style="font-size: 13px; line-height: 1.5; color: #000;">
+        <div style="font-size: 13px; line-height: 1.5; color: #000; border-top: 1px solid #ccc; padding-top: 10px;">
             <b>Prosimy o zapoznanie się z kartami technicznymi zalecanych produktów WAKOL.</b><br>
-            W przypadku pytań proszę o kontakt: 603 214 218<br><br>
-            <b>Z poważaniem, Loba-Wakol Polska Sp. z o.o. | Przemysław Tyszko</b>
+            W przypadku jakichkolwiek pytań lub wątpliwości proszę o kontakt pod numer telefonu: 603 214 218<br><br>
+            <b>Z poważaniem,</b><br>
+            <b>Loba-Wakol Polska Sp. z o.o.</b><br>
+            <b>Przemysław Tyszko</b>
         </div>
         """, unsafe_allow_html=True)
