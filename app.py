@@ -96,11 +96,6 @@ with col_w2: hum_air = st.number_input("11. Wilgotność powietrza (%)", step=1.
 moisture = st.number_input("12. Poziom wilgoci podłoża (CM %)", format="%.1f", value=None, placeholder="Wpisz wynik CM...")
 
 # --- TESTY MECHANICZNE ---
-st.write("### Testy mechaniczne i Wytrzymałość")
-col_t1, col_t2, col_t3 = st.columns(3)
-with col_t1: test_hammer = st.selectbox("Młotek", ["negatywny", "dostateczny", "pozytywny"], index=2)
-with col_t2: test_ripper = st.selectbox("Rysik", ["negatywny", "dostateczny", "pozytywny"], index=2)
-with col_t3: test_brush = st.selectbox("Szczotka", ["negatywny", "pozytywny"], index=1)
 presso_results = []
 for i in range(6): presso_results.append(st.number_input(f"Próba {i+1} (N/mm²)", min_value=0.0, step=0.1, key=f"p_{i}", value=None))
 strength_labels = {1: "bardzo słaby", 2: "słaby", 3: "umiarkowanie słaby", 4: "umiarkowanie mocny", 5: "mocny"}
@@ -112,12 +107,9 @@ elif substrate == "jastrych anhydrytowy": limit = 0.3 if heating_exists == "TAK"
 else: limit = 1.5
 barrier_max = 2.5 if heating_exists == "TAK" else 3.5
 decision_after_cure = None
-
 if moisture is not None and moisture > limit:
-    if heating_exists == "TAK":
-        opt_dry = "przeprowadzenie kolejnego procesu wygrzewania" if heating_curing_done == "TAK" else "przeprowadzenie procesu wygrzewania"
+    if heating_exists == "TAK": opt_dry = "przeprowadzenie kolejnego procesu wygrzewania" if heating_curing_done == "TAK" else "przeprowadzenie procesu wygrzewania"
     else: opt_dry = "dalsze osuszanie"
-    
     if strength_val == 1: decision_after_cure = opt_dry
     elif moisture <= barrier_max: decision_after_cure = st.radio("Postępowanie:", ["Wykonanie bariery przeciwwilgociowej", opt_dry], horizontal=True)
     else: decision_after_cure = opt_dry
@@ -150,20 +142,19 @@ if st.button("GENERUJ PROTOKÓŁ OGLĘDZIN", type="primary", use_container_width
         st.write("**a) przygotowanie podłoża:**")
         st.write("* **Szlif podłoża w celu uzyskania porowatej i chłonnej powierzchni!**")
         st.write("* **Dokładne odkurzenie**")
-        
         if decision_after_cure in ["dalsze osuszanie", "przeprowadzenie procesu wygrzewania", "przeprowadzenie kolejnego procesu wygrzewania"]:
             st.write(f"* **Zalecamy doprowadzenie do normatywnego poziomu wilgoci jastrychu ({limit}% CM) poprzez {decision_after_cure}.**")
 
         st.write("**b) naprawa, gruntowanie i wyrównanie podłoża:**")
         moisture_prefix = f"**Po doprowadzeniu do normatywnego poziomu wilgoci jastrychu tj. {limit}% CM zalecamy:**" if decision_after_cure in ["dalsze osuszanie", "przeprowadzenie procesu wygrzewania", "przeprowadzenie kolejnego procesu wygrzewania"] else ""
 
-        # 1. Zespalanie pęknięć
+        # 1. Zespalanie
         if (klaw_meters + pek_meters) > 0 or holes == "TAK":
             if moisture_prefix: st.write(f"* {moisture_prefix}")
             if (klaw_meters + pek_meters) > 0: st.write(f"  - Zespolić pęknięcia i dylatacje pozorne żywicą **WAKOL PS 205**.")
             if holes == "TAK": st.write(f"  - Uzupełnić ubytki i zdegradowane fragmenty zaprawą szybkosprawną **WAKOL Z 610**.")
 
-        # 2. GRUNTOWANIE (ZAWSZE PRZED MASĄ LUB BARIERĄ)
+        # 2. GRUNTOWANIE (PEŁNE OPISY)
         if decision_after_cure == "Wykonanie bariery przeciwwilgociowej":
             if strength_val == 2:
                 st.write("* **Zalecamy wykonanie bariery przeciwwilgociowej poprzez dwukrotne zagruntowanie gruntówką wzmacniającą WAKOL PU 235. Podczas aplikacji nie zostawiać kałuż tj. Zbierać nadmiar niewchłoniętej gruntówki.**")
@@ -175,27 +166,24 @@ if st.button("GENERUJ PROTOKÓŁ OGLĘDZIN", type="primary", use_container_width
                 st.write("**1 warstwa nałożona wałkiem ok. 100-150 g/m². Czas schnięcia – jedna godzina.**")
                 st.write("**2 warstwa ok. 100 g/m² - czas schnięcia – jedna godzina.**")
                 st.write("**Czas do klejenia: 72 godziny od zagruntowania.**")
-            if needs_levelling == "TAK":
-                st.write(f"* **Następnie należy zaaplikować mostek sczepny za pomocą produktu WAKOL D 3045. Aplikacja wałkiem. Zużycie - 150 gr. Czas schnięcia - 1 godzina.**")
+            if needs_levelling == "TAK": st.write(f"* **Następnie należy zaaplikować mostek sczepny za pomocą produktu WAKOL D 3045. Aplikacja wałkiem. Zużycie - 150 gr. Czas schnięcia - 1 godzina.**")
         
         else:
-            # Gruntowanie pod masę (Gdy podłoże jest suche lub po osuszeniu)
             p = moisture_prefix + " " if moisture_prefix else ""
             if strength_val == 1:
                 st.write(f"* {p}Zalecamy aplikację gruntówki wzmacniającej **Wakol PS 275** w dwóch warstwach – grubym wałkiem sznurkowym, zużycie w sumie ok. 700 g/m2. Każda z warstw po 350g/m2, aplikowane po sobie w odstępie jednej godziny. Aplikując gruntówkę **Wakol PS 275** należy zwrócić uwagę, aby dobrze wchłaniała się w podłoże i unikać powstawania kałuż na powierzchni jastrychu. Po nałożeniu drugiej warstwy gruntówki w razie potrzeby wykonać posypkę z piasku kwarcowego. Po 7 dniach schnięcia powierzchnię należy przeszlifować papierem o gradacji 24 – 40 usuwając przyklejony do powierzchni piasek kwarcowy i dokładnie odkurzyć.")
                 if needs_levelling == "TAK":
-                    st.write(f"* **Następnie zalecamy zagruntowanie całej powierzchni podłoża gruntówką wzmacniającą WAKOL PU 280. Aplikować wałkiem. Zużycie ok. 150 g/m². Czas schnięcia 1 godzina.**")
+                    st.write(f"* **Następnie zalecamy zagruntowanie całej powierzchni podłoża gruntówką wzmacniającą WAKOL PU 280. Aplikować wałkiem. Podczas aplikacji nie zostawiać kałuż tj. Zbierać nadmiar nie wchłoniętej gruntówki. Zużycie ok. 150 g/m². Czas schnięcia 1 godzina.**")
                     st.write(f"* **Następnie należy zaaplikować mostek sczepny za pomocą produktu WAKOL D 3045. Aplikacja wałkiem. Zużycie - 150 gr. Czas schnięcia - 1 godzina.**")
             elif strength_val == 2:
-                st.write(f"* {p}Zalecamy gruntowanie wzmacniające **WAKOL PU 280** (zużycie 150g/m2, 1h).")
-                if needs_levelling == "TAK":
-                    st.write(f"* **Następnie należy zaaplikować mostek sczepny za pomocą produktu WAKOL D 3045. Aplikacja wałkiem. Zużycie - 150 gr. Czas schnięcia - 1 godzina.**")
+                st.write(f"* {p}**Zalecamy stworzenie gruntowania wzmacniającego poprzez zagruntowanie powierzchni jastrychu gruntówką poliuretanową WAKOL PU 280. Aplikować wałkiem. Podczas aplikacji nie zostawiać kałuż tj. Zbierać nadmiar nie wchłoniętej gruntówki. Zużycie ok. 150 g/m². Czas schnięcia – jedna godzina.**")
+                if needs_levelling == "TAK": st.write(f"* **Następnie zaaplikować mostek sczepny za pomocą produktu WAKOL D 3045 (150g/m2, 1h).**")
             elif strength_val >= 3 and needs_levelling == "TAK":
                 st.write(f"* {p}**Zagruntować podłoże koncentratem gruntówki dyspersyjnej WAKOL D 3040. Proporcje mieszania: 1 część WAKOL D 3040 + 2 części wody; Czas schnięcia: na jastrychach cementowych i betonie po optycznym wyschnięciu ok. 30min. Sposób nanoszenia: wałek do gruntowania microfazer. Zużycie: ok. 50 g/m² koncentratu.**")
             elif strength_val >= 4 and needs_levelling == "NIE":
                 st.write(f"* {p}Zalecamy zagruntowanie gruntówką dyspersyjną **WAKOL D 3055** (150g/m2, 30 min).")
 
-        # 3. WYLEWANIE MASY (ZAWSZE PO GRUNTOWANIU)
+        # 3. MASY
         if needs_levelling == "TAK":
             if flooring_type == "deska lita":
                 st.write(f"* **Wylać masę wyrównawczą WAKOL Z 625 - wymieszać ją w czystym naczyniu z zimną wodą w proporcji 6,00 – 6,25 litrów wody na 25 kg masy. Mieszać unikając tworzenia się grudek. Prędkość obrotowa mieszadła może wynosić max. 600 obrotów na minutę. Wymieszaną masę nanosić w żądanej grubości na podłoże przy pomocy szpachli, łaty lub rakli. Przed pracą należy zwrócić uwagę na obecność wypełnień fug przy ścianach. Zużycie ok. 1,5 kg/m²/ mm. Możliwość chodzenia po 2 godzinach. Możliwość klejenia podłóg drewnianych przy warstwie do 5 mm – po 6 godzinach, przy warstwie do 10 mm – po 12 godzinach, przy warstwie 30 mm – po 24 godzinach.**")
