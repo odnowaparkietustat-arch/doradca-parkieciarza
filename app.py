@@ -63,28 +63,28 @@ st.write("4. Czy podłoże wymaga wyrównania (masy)?")
 needs_levelling = st.radio("Wymaga wyrównania:", ["TAK", "NIE"], index=lev_idx, horizontal=True)
 leveling_thickness = st.number_input("Planowana grubość masy (mm):", min_value=0.0, value=thick_val)
 
-# Parametry jastrychu (Bezwzględne pytania WAKOL)
+# Parametry jastrychu (Pytania WAKOL)
 st.subheader("Parametry jastrychu")
 col_wak1, col_wak2 = st.columns(2)
 with col_wak1:
-    dilatations_obw_ok = st.radio("1. Czy dylatacje obwodowe zachowane prawidłowo? (Opcje: TAK/NIE)", ["TAK", "NIE"], index=0)
-    cracks_klaw = st.radio("2. Czy występują klawiszujące dylatacje pozorne? (Opcje: TAK/NIE)", ["TAK", "NIE"], index=1)
+    dilatations_obw_ok = st.radio("1. Czy dylatacje obwodowe zachowane prawidłowo?", ["TAK", "NIE"], index=0)
+    cracks_klaw = st.radio("2. Czy występują klawiszujące dylatacje pozorne?", ["TAK", "NIE"], index=1)
     klaw_meters = st.number_input("Ilość mb klawiszujących:", min_value=0.0, step=0.1) if cracks_klaw == "TAK" else 0.0
 with col_wak2:
-    cracks_pek = st.radio("3. Czy występują pęknięcia podłoża wymagające zespolenia? (Opcje: TAK/NIE)", ["TAK", "NIE"], index=1)
+    cracks_pek = st.radio("3. Czy występują pęknięcia podłoża wymagające zespolenia?", ["TAK", "NIE"], index=1)
     pek_meters = st.number_input("Ilość mb pęknięć do zespolenia:", min_value=0.0, step=0.1) if cracks_pek == "TAK" else 0.0
-    holes = st.radio("4. Czy są ubytki lub zdegradowane miejsca wymagające wypełnienia? (Opcje: TAK/NIE)", ["TAK", "NIE"], index=1)
+    holes = st.radio("4. Czy są ubytki lub zdegradowane miejsca wymagające wypełnienia?", ["TAK", "NIE"], index=1)
     hole_details_input = ""
     if holes == "TAK":
         hole_details_input = st.text_input("Opisz ubytki:", "ubytki o głębokości ok. 1-2 cm")
 
-st.write("Rodzaj wentylacji")
+st.write("9. Rodzaj wentylacji")
 ventilation_type = st.radio("Wentylacja:", ["Grawitacyjna", "Mechaniczna"], horizontal=True)
 
 col_w1, col_w2 = st.columns(2)
-with col_w1: temp_air = st.number_input("Temperatura powietrza (°C)", step=0.5, value=None)
-with col_w2: hum_air = st.number_input("Wilgotność powietrza (%)", step=1.0, value=None)
-moisture = st.number_input("Poziom wilgoci podłoża (CM %)", format="%.1f", value=None)
+with col_w1: temp_air = st.number_input("10. Temperatura powietrza (°C)", step=0.5, value=None)
+with col_w2: hum_air = st.number_input("11. Wilgotność powietrza (%)", step=1.0, value=None)
+moisture = st.number_input("12. Poziom wilgoci podłoża (CM %)", format="%.1f", value=None)
 
 # --- II. TESTY MECHANICZNE ---
 st.header("II. Testy mechaniczne i Wytrzymałość")
@@ -104,16 +104,12 @@ if moisture is not None and moisture > limit:
     if not (substrate == "jastrych anhydrytowy" or (heating_exists == "TAK" and heating_curing_done == "NIE")):
         decision_after_cure = st.radio("Postępowanie z wilgocią:", ["Wykonanie bariery przeciwwilgociowej", opt_dry], horizontal=True)
 
-# --- STAŁE TECHNOLOGICZNE (OPISY 1:1) ---
+# STAŁE TECHNOLOGICZNE WAKOL (Pełne opisy)
 FULL_D3004 = "* **Zagruntować podłoże koncentratem gruntówki dyspersyjnej WAKOL D 3004. Proporcje mieszania: 1 część WAKOL D 3004 + 2 części wody; Czas schnięcia: na jastrychach cementowych i betonie po optycznym wyschnięciu ok. 30min. Sposób nanoszenia: wałek do gruntowania microfazer. Zużycie: ok. 50 g/m² koncentratu.**"
 FULL_PU280_1W = "* **Zalecamy wykonanie gruntowania wzmacniającego poprzez zagruntowanie powierzchni jastrychu gruntówką poliuretanową WAKOL PU 280. Aplikować wałkiem. Podczas aplikacji nie zostawiać kałuż tj. Zbierać nadmiar nie wchłoniętej gruntówki. Zużycie ok. 150 g/m². Czas schnięcia – jedna godzina.**"
-
-# MASZ SAMOPOZIOMUJĄCE (REGUŁA DOBORU)
 FULL_Z675 = "* **Wylać masę wyrównawczą WAKOL Z 675 - wymieszać ją w czystym naczyniu z zimną wodą w proporcji 6,0 – 6,5 litrów wody na 25 kg masy. Mieszać unikając tworzenia się grudek. Prędkość obrotowa mieszadła może wynosić max. 600 obrotów na minutę. Wymieszaną masę nanosić w żądanej grubości na podłoże przy pomocy szpachli, łaty lub rakli. Przed pracą należy zwrócić uwagę na obecność wypełnień fug przy ścianach. Zużycie ok. 1,5 kg/m²/ mm. Możliwość chodzenia po 2-3 godzinach. Możliwość klejenia podłóg po ok. 24 godzinach przy grubości warstwy do 3 mm, przy większych grubościach czas schnięcia ulega wydłużeniu.**"
-FULL_Z635 = "* **Wylać masę wyrównawczą WAKOL Z 635 - wymieszać ją w czystym naczyniu z zimną wodą w proporcji 6,25 – 6,75 litrów wody na 25 kg masy. Mieszać unikając tworzenia się grudek. Prędkość obrotowa mieszadła może wynosić max. 600 obrotów na minutę. Wymieszaną masę nanosić w żądanej grubości na podłoże przy pomocy szpachli, łaty lub rakli. Zużycie ok. 1,5 kg/m²/ mm. Możliwość chodzenia po ok. 2 godzinach. Możliwość klejenia parkietu po ok. 12 godzinach przy grubości warstwy do 5 mm.**"
-FULL_Z625 = "* **Wylać masę wyrównawczą WAKOL Z 625 - wymieszać ją w czystym naczyniu z zimną wodą w proporcji 6,00 – 6,25 litrów wody na 25 kg masy. Mieszać unikając tworzenia się grudek. Prędkość obrotowa mieszadła może wynosić max. 600 obrotów na minutę. Wymieszaną masę nanosić w żądanej grubości na podłoże przy pomocy szpachli, łaty lub rakli. Przed pracą należy zwrócić uwagę na obecność wypełnień fug przy ścianach. Zużycie ok. 1,5 kg/m²/ mm. Możliwość chodzenia po 2 godzinach. Możliwość klejenia podłóg drewnianych przy warstwie do 5 mm – po 6 godzinach, przy warstwie do 10 mm – po 12 godzinach, przy warstwie 30 mm – po 24 godzinach.**"
 
-# KLEJE
+# PEŁNE OPISY KLEJÓW (REGUŁA)
 FULL_MS230 = "* **Klejenie podłogi drewnianej należy przeprowadzić przy użyciu kleju do parkietu WAKOL MS 230, twardo-elastycznego. Klej nanosić odpowiednią szpachlą zębatą (np. B13). Zużycie ok. 1350 g/m².**"
 FULL_PU225 = "* **Klejenie podłogi drewnianej należy przeprowadzić przy użyciu 2-składnikowego kleju poliuretanowego WAKOL PU 225. Składniki A i B dokładnie wymieszać mieszadłem elektrycznym. Klej nanosić szpachlą zębatą (np. B11). Zużycie ok. 1250 g/m².**"
 
@@ -124,14 +120,14 @@ if st.button("GENERUJ PROTOKÓŁ OGLĘDZIN", type="primary", use_container_width
         st.divider(); insert_header()
         st.markdown("#### **I. Oględziny i badania**")
         
-        # PEŁNY OPIS OPTYCZNY
+        # PEŁNY OPIS OPTYCZNY (Zgodnie z regułą pełnego raportowania)
         age_info = f" w wieku {substrate_age_val} miesięcy" if substrate_age_val else ""
         heat_info_full = f" Została zainstalowana {heating_info}." if heating_exists == "TAK" else " Brak instalacji ogrzewania podłogowego."
         curing_info_full = " Został przeprowadzony proces wygrzewania zgodnie z protokołem." if heating_curing_done == "TAK" else " Nie został przeprowadzony proces wygrzewania podłoża." if heating_exists == "TAK" else ""
-        dil_info = " Czy dylatacje obwodowe zachowane prawidłowo? TAK." if dilatations_obw_ok == "TAK" else " Czy dylatacje obwodowe zachowane prawidłowo? NIE."
-        klaw_info = f" Czy występują klawiszujące dylatacje pozorne? TAK, w ilości {klaw_meters} mb." if cracks_klaw == "TAK" else " Czy występują klawiszujące dylatacje pozorne? NIE."
-        pek_info = f" Czy występują pęknięcia podłoża wymagające zespolenia? TAK, w ilości {pek_meters} mb." if cracks_pek == "TAK" else " Czy występują pęknięcia podłoża wymagające zespolenia? NIE."
-        holes_info = f" Czy są ubytki lub zdegradowane miejsca wymagające wypełnienia? TAK ({hole_details_input})." if holes == "TAK" else " Czy są ubytki lub zdegradowane miejsca wymagające wypełnienia? NIE."
+        dil_info = " Dylatacje obwodowe zostały zachowane prawidłowo." if dilatations_obw_ok == "TAK" else " Dylatacje obwodowe nie zostały zachowane prawidłowo."
+        klaw_info = f" Stwierdzono występowanie klawiszujących dylatacji pozornych w ilości {klaw_meters} mb." if cracks_klaw == "TAK" else " Nie stwierdzono klawiszujących dylatacji."
+        pek_info = f" Stwierdzono pęknięcia podłoża wymagające zespolenia w ilości {pek_meters} mb." if cracks_pek == "TAK" else " Nie stwierdzono pęknięć do zespolenia."
+        holes_info = f" Stwierdzono ubytki ({hole_details_input})." if holes == "TAK" else " Nie stwierdzono ubytków."
         lev_info = f" Podłoże wymaga wyrównania masą o grubości {leveling_thickness} mm." if needs_levelling == "TAK" else " Podłoże nie wymaga wyrównania."
         
         full_report = f"Podłoże pod okładzinę ({flooring_type}) stanowi {substrate}{age_info}.{heat_info_full}{curing_info_full} {dil_info} {klaw_info} {pek_info} {holes_info} {lev_info} Wentylacja: {ventilation_type}."
@@ -161,31 +157,24 @@ if st.button("GENERUJ PROTOKÓŁ OGLĘDZIN", type="primary", use_container_width
         if holes == "TAK": st.write("- Uzupełnić ubytki zaprawą **WAKOL Z 610**.")
         if (klaw_meters + pek_meters) > 0: st.write("- Zespolić pęknięcia żywicą **WAKOL PS 205**.")
 
-        # LOGIKA DOBORU GRUNTU I MASY (NOWA REGUŁA)
-        if needs_levelling == "TAK":
-            # Gruntowanie
-            if is_lvt_thin and strength_val <= 2:
+        # Gruntowanie pod LVT
+        if is_lvt_thin:
+            if strength_val <= 2:
                 st.write(FULL_PU280_1W)
                 st.write("* **Zastosować mostek sczepny WAKOL D 3045 (150 g/m²).**")
-            else:
-                st.write(FULL_D3004)
-            
-            # Masa w zależności od okładziny
-            if flooring_type in ["wykładzina dywanowa", "pcv w rolce", "lvt cienkie", "lvt grube z twardym rdzeniem"]:
-                st.write(FULL_Z675)
-            elif flooring_type == "deska warstwowa (drewno, laminat itp.)":
-                st.write(FULL_Z635)
-            elif flooring_type == "deska lita":
-                st.write(FULL_Z625)
+            else: st.write(FULL_D3004)
+            st.write(FULL_Z675)
         else:
             st.write(FULL_D3004)
+            if needs_levelling == "TAK": st.write(FULL_Z675)
 
         st.write("**c) klejenie okładziny:**")
-        if flooring_type == "lvt cienkie":
+        if is_lvt_thin:
             st.write("Klejenie podłogi winylowej: **WAKOL D 3318** (szpachla A2, 350 g/m²). Odparowanie 5-10 min, układanie 10 min.")
         elif substrate == "płyta fundamentowa" or flooring_type == "deska lita":
             st.write("Klejenie przy użyciu kleju **WAKOL MS 260**.")
         elif flooring_type == "deska warstwowa (drewno, laminat itp.)":
+            # REGUŁA PEŁNYCH OPISÓW DLA MS 230 i PU 225
             if substrate == "jastrych anhydrytowy" and strength_val == 1:
                 st.write(FULL_MS230)
             else:
