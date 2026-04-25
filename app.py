@@ -56,15 +56,15 @@ st.write("4. Czy podłoże wymaga wyrównania (masy)?")
 needs_levelling = st.radio("Wymaga wyrównania:", ["TAK", "NIE"], index=1, horizontal=True, label_visibility="collapsed")
 leveling_thickness = st.number_input("Planowana grubość masy (mm):", min_value=1, value=None) if needs_levelling == "TAK" else 0
 
-st.write("5. Czy dylatacje obwodowe zachowane prawidłowo? (TAK/NIE)")
+st.write("5. Czy dylatacje obwodowe zachowane prawidłowo?")
 dilatations_obw_ok = st.radio("Dylatacje obwodowe:", ["TAK", "NIE"], index=0, horizontal=True, label_visibility="collapsed")
-st.write("6. Czy występują klawiszujące dylatacje pozorne? (TAK/NIE)")
+st.write("6. Czy występują klawiszujące dylatacje pozorne?")
 cracks_klaw = st.radio("Klawiszowanie pozorne:", ["TAK", "NIE"], index=1, horizontal=True, label_visibility="collapsed")
 klaw_meters = st.number_input("Ilość mb klawiszujących:", min_value=0.1, step=0.1, value=None) if cracks_klaw == "TAK" else 0.0
-st.write("7. Czy występują pęknięcia podłoża wymagające zespolenia? (TAK/NIE)")
+st.write("7. Czy występują pęknięcia podłoża wymagające zespolenia?")
 cracks_pek = st.radio("Pęknięcia do zespolenia:", ["TAK", "NIE"], index=1, horizontal=True, label_visibility="collapsed")
 pek_meters = st.number_input("Ilość mb pęknięć do zespolenia:", min_value=0.1, step=0.1, value=None) if cracks_pek == "TAK" else 0.0
-st.write("8. Czy są ubytki lub zdegradowane miejsca wymagające wypełnienia? (TAK/NIE)")
+st.write("8. Czy są ubytki lub zdegradowane miejsca wymagające wypełnienia?")
 holes = st.radio("Ubytki:", ["TAK", "NIE"], index=1, horizontal=True, label_visibility="collapsed")
 hole_details = ""
 if holes == "TAK":
@@ -74,18 +74,15 @@ if holes == "TAK":
     with col_h3: h_length = st.number_input("Długość (cm)", min_value=0.1, value=None)
     if h_depth and h_width and h_length: hole_details = f" o wymiarach ok. {h_length}x{h_width} cm i głębokości {h_depth} cm"
 
-st.write("9. Rodzaj wentylacji")
-ventilation_type = st.radio("Wentylacja:", ["Grawitacyjna", "Mechaniczna"], horizontal=True, label_visibility="collapsed")
-
 col_w1, col_w2 = st.columns(2)
-with col_w1: temp_air = st.number_input("10. Temperatura powietrza (°C)", step=0.5, value=None)
-with col_w2: hum_air = st.number_input("11. Wilgotność powietrza (%)", step=1.0, value=None)
-moisture = st.number_input("12. Poziom wilgoci podłoża (CM %)", format="%.1f", value=None)
+with col_w1: temp_air = st.number_input("Temperatura powietrza (°C)", step=0.5, value=None)
+with col_w2: hum_air = st.number_input("Wilgotność powietrza (%)", step=1.0, value=None)
+moisture = st.number_input("Poziom wilgoci podłoża (CM %)", format="%.1f", value=None)
 
 # Wybór kleju dla deski warstwowej
 selected_glue_warstwowa = None
 if flooring_type == "deska warstwowa (drewno, laminat itp.)":
-    selected_glue_warstwowa = st.selectbox("Wybierz klej dla deski warstwowej:", ["WAKOL MS 230", "WAKOL PU 225"])
+    selected_glue_warstwowa = st.radio("Wybierz klej do deski warstwowej:", ["WAKOL MS 230", "WAKOL PU 225"], horizontal=True)
 
 # --- TESTY MECHANICZNE ---
 st.write("### Testy mechaniczne i Wytrzymałość")
@@ -123,7 +120,7 @@ if st.button("GENERUJ PROTOKÓŁ OGLĘDZIN", type="primary", use_container_width
         pek_txt = f"Stwierdzono pęknięcia podłoża ({pek_meters} mb)." if cracks_pek == "TAK" else "Brak pęknięć podłoża."
         holes_txt = f"Ubytki/zdegradowane miejsca: {hole_details}." if holes == "TAK" else "Brak istotnych ubytków."
         
-        full_opt = f"Podłoże pod planowaną okładzinę ({flooring_type}) stanowi {substrate} {f'w wieku {substrate_age_val} mies.' if substrate_age_val else ''}, {heat_txt}. {dil_txt} {klaw_txt} {pek_txt} {holes_txt} {f'Wymaga wyrównania (ok. {leveling_thickness} mm).' if needs_levelling == 'TAK' else ''} Wentylacja: **{ventilation_type}**."
+        full_opt = f"Podłoże pod planowaną okładzinę ({flooring_type}) stanowi {substrate} {f'w wieku {substrate_age_val} mies.' if substrate_age_val else ''}, {heat_txt}. {dil_txt} {klaw_txt} {pek_txt} {holes_txt} {f'Wymaga wyrównania (ok. {leveling_thickness} mm).' if needs_levelling == 'TAK' else ''}"
         st.write(f"**a) oględziny optyczne:** {full_opt}")
         
         st.write(f"**b) badanie wytrzymałości:**")
@@ -147,7 +144,6 @@ if st.button("GENERUJ PROTOKÓŁ OGLĘDZIN", type="primary", use_container_width
         if (klaw_meters + pek_meters) > 0: st.write("- Zespolić pęknięcia i dylatacje pozorne żywicą **WAKOL PS 205**.")
         if holes == "TAK": st.write(f"- Uzupełnić ubytki i zdegradowane fragmenty zaprawą szybkosprawną **WAKOL Z 610**{hole_details}.")
 
-        # GRUNTOWANIE I BARIERY (PEŁNE BRZMIENIE)
         if decision_after_cure == "Wykonanie bariery przeciwwilgociowej":
             if strength_val <= 2:
                 st.write("* **Zalecamy wykonanie bariery przeciwwilgociowej poprzez dwukrotne zagruntowanie gruntówką wzmacniającą WAKOL PU 235. Podczas aplikacji nie zostawiać kałuż tj. Zbierać nadmiar niewchłoniętej gruntówki. 1 - warstwa nałożona wałkiem ok. 150 g/m². Czas schnięcia – 3-6 godzin. 2 warstwa zużycie ok. 100 g/m². Czas schnięcia – 3-6 godzin. Czas klejenia 72 godziny od zagruntowania.**")
@@ -171,15 +167,15 @@ if st.button("GENERUJ PROTOKÓŁ OGLĘDZIN", type="primary", use_container_width
             else:
                 st.write("* **Wylanie masy wyrównawczej Wakol Z 675 w jednej warstwie o grubości 7mm. W proporcji 25kg masy + 6,0 litrów wody. Zużycie 1,5kg/m2 przy 1mm grubości. Wymieszać w czystym pojemniku z zimną wodą w unikając tworzenia się grudek. Prędkość obrotowa mieszadła może wynosić maksymalnie 600 obrotów na minutę. Masę pozostawić do odparowania na ok. 2 - 3 minuty a następnie ponownie przemieszać. Wymieszaną masę nanosić w żądanej grubości na podłoże przy pomocy szpachli, łaty lub rakli. Przed pracą należy zwrócić uwagę na obecność wypełnień fug przy ścianach. Schnącą masę należy chronić przed działaniem promieni słonecznych i przeciągów. Warstwa do 2 mm - możliwość klejenia i układania po 24 godzinach, do 5 mm - po 48 godzinach, do 10 mm - po 72 godzinach.**")
 
-        # KLEJENIE OKŁADZINY (NOWE STAŁE)
+        # --- SEKCJA KLEJENIA (NAPRAWIONE FORMATOWANIE) ---
         st.write("**c) klejenie okładziny:**")
         if flooring_type == "deska lita":
-            st.write("> **Do montażu podłogi litej należy użyć twardo-elastycznego kleju polimerowego WAKOL MS 260. Klej nanosić odpowiednią szpachlą ząbkowaną B13 lub B15. Podczas klejenia należy zwracać uwagę na dokładne pokrycie spodu elementów klejem. Zużycie zależne od spodu deski i szpachli ok. 1100 - 1300 g/m2. Klej charakteryzuje się bardzo wysoką siłą wiązania początkowego.**")
+            st.write("Do montażu podłogi litej należy użyć twardo-elastycznego kleju polimerowego WAKOL MS 260. Klej nanosić odpowiednią szpachlą ząbkowaną B13 lub B15. Podczas klejenia należy zwracać uwagę na dokładne pokrycie spodu elementów klejem. Zużycie zależne od spodu deski i szpachli ok. 1100 - 1300 g/m2. Klej charakteryzuje się bardzo wysoką siłą wiązania początkowego.")
         elif flooring_type == "deska warstwowa (drewno, laminat itp.)":
             if selected_glue_warstwowa == "WAKOL MS 230":
-                st.write("> **· Klejenie podłogi drewnianej należy przeprowadzić przy użyciu kleju do parkietu WAKOL MS 230 (szpachla B11, zużycie: 1250 g/m²).**")
+                st.write("· Klejenie podłogi drewnianej należy przeprowadzić przy użyciu kleju do parkietu WAKOL MS 230 (szpachla B11, zużycie: 1250 g/m²).")
             else:
-                st.write("> **· Klejenie podłogi drewnianej należy przeprowadzić przy użyciu kleju do parkietu WAKOL PU 225 (szpachla B11, zużycie: 1250 g/m²).**")
+                st.write("· Klejenie podłogi drewnianej należy przeprowadzić przy użyciu kleju do parkietu WAKOL PU 225 (szpachla B11, zużycie: 1250 g/m²).")
 
         st.divider()
         st.markdown("<b>Z poważaniem, Loba-Wakol Polska Sp. z o.o. | Przemysław Tyszko</b>", unsafe_allow_html=True)
