@@ -47,7 +47,7 @@ heating_exists = st.radio("3. Czy jest instalacja ogrzewania podłogowego?", ["T
 heating_info = ""; heating_curing_done = None
 if heating_exists == "TAK":
     h_type = st.selectbox("Typ ogrzewania:", ["wodne klasyczne", "bruzdowane", "w suchej zabudowie", "elektryczne (powierzchniowe)", "elektryczne (głębokie)", "płyta fundamentowa grzewcza"])
-    heating_curing_done = st.radio("Czy przeprowadzono wygrzewanie?", ["TAK", "NIE"], index=1, horizontal=True)
+    heating_curing_done = st.radio("Czy przeprowadzono wygrzewanie zgodnie z protokołem?", ["TAK", "NIE"], index=1, horizontal=True)
     mapping = {"wodne klasyczne": "instalacja ogrzewania podłogowego wodna, klasyczna", "bruzdowane": "instalacja ogrzewania podłogowego wodna, bruzdowana", "w suchej zabudowie": "instalacja ogrzewania podłogowego wodna, w suchej zabudowie", "elektryczne (powierzchniowe)": "instalacja ogrzewania podłogowego elektryczna, powierzchniowa", "elektryczne (głębokie)": "instalacja ogrzewania podłogowego elektryczna, umieszczona głęboko w podłożu", "płyta fundamentowa grzewcza": "ogrzewanie realizowane poprzez płytę fundamentową grzewczą"}
     heating_info = mapping.get(h_type, h_type)
 
@@ -61,16 +61,24 @@ cracks_pek = st.radio("7. Czy występują pęknięcia podłoża?", ["TAK", "NIE"
 pek_meters = st.number_input("Ilość mb pęknięć:", min_value=0.1, step=0.1, value=None) if cracks_pek == "TAK" else 0.0
 
 holes = st.radio("8. Czy są ubytki?", ["TAK", "NIE"], index=1, horizontal=True)
-hole_details = st.text_input("Wymiary ubytków (opcjonalnie):") if holes == "TAK" else ""
+hole_details = st.text_input("Wymiary ubytków:") if holes == "TAK" else ""
 
-ventilation_type = st.radio("9. Wentylacja:", ["Grawitacyjna", "Mechaniczna"], horizontal=True)
-moisture = st.number_input("12. Poziom wilgoci podłoża (CM %)", format="%.1f", value=None)
+st.write("### 9. Warunki klimatyczne i pomiary")
+col_cl1, col_cl2, col_cl3 = st.columns(3)
+with col_cl1: temp_air = st.number_input("Temperatura powietrza (°C)", step=0.5, value=None)
+with col_cl2: hum_air = st.number_input("Wilgotność powietrza (%)", step=1.0, value=None)
+with col_cl3: moisture = st.number_input("Poziom wilgoci podłoża (CM %)", format="%.1f", value=None)
 
 # --- WYTRZYMAŁOŚĆ ---
+st.write("### 10. Wyniki badania metodą PressoMess")
 presso_results = []
-for i in range(6): presso_results.append(st.number_input(f"Próba {i+1} (N/mm²)", min_value=0.0, step=0.1, value=None))
+col_p1, col_p2, col_p3 = st.columns(3)
+for i in range(6):
+    with [col_p1, col_p2, col_p3][i % 3]:
+        presso_results.append(st.number_input(f"Próba {i+1} (N/mm²)", min_value=0.0, step=0.1, value=None))
+
 strength_labels = {1: "bardzo słaby", 2: "słaby", 3: "umiarkowanie słaby", 4: "umiarkowanie mocny", 5: "mocny"}
-strength_val = st.select_slider("Ocena ogólna wytrzymałości:", options=[1, 2, 3, 4, 5], value=3, format_func=lambda x: strength_labels[x])
+strength_val = st.select_slider("Ocena ogólna wytrzymałości podłoża:", options=[1, 2, 3, 4, 5], value=3, format_func=lambda x: strength_labels[x])
 
 # --- LOGIKA DECYZJI ---
 limit = 1.5 if (substrate == "jastrych cementowy" and heating_exists == "TAK") else 1.8 if substrate == "jastrych cementowy" else 0.3 if (substrate == "jastrych anhydrytowy" and heating_exists == "TAK") else 0.5
@@ -85,12 +93,8 @@ if moisture is not None and moisture > limit:
     else: decision_after_cure = st.radio("Postępowanie:", ["konieczność wykonania bariery przeciwwilgociowej", opt_dry], horizontal=True)
 
 # --- STAŁE TEKSTOWE ---
-# 1. PU 280 jako bariera (TYLKO dla wilgotnego podłoża)
 DESC_PU280_BARRIER = "* **Zalecamy wykonanie bariery przeciwwilgociowej poprzez zagruntowanie powierzchni jastrychu gruntówką poliuretanową WAKOL PU 280. Aplikować wałkiem. Podczas aplikacji nie zostawiać kałuż tj. Zbierać nadmiar nie wchłoniętej gruntówki. 1 warstwa nałożona wałkiem ok. 100-150 g/m². Czas schnięcia – jedna godzina. 2 warstwa ok. 100 g/m² - czas schnięcia – jedna godzina. Czas do klejenia: 72 godziny od zagruntowania.**"
-
-# 2. PU 280 jako wzmocnienie (Dla podłoża suchego/osuszonego)
 DESC_PU280_REINFORCE = "* **Zalecamy wykonanie gruntowania wzmacniającego poprzez zagruntowanie powierzchni jastrychu gruntówką poliuretanową WAKOL PU 280. Aplikować wałkiem. Podczas aplikacji nie zostawiać kałuż tj. Zbierać nadmiar nie wchłoniętej gruntówki. Zużycie ok. 150 g/m². Czas schnięcia – jedna godzina.**"
-
 DESC_D3045 = "* **Następnie należy zaaplikować specjalistyczny mostek sczepny za pomocą produktu WAKOL D 3045. Produkt należy dokładnie wymieszać przed użyciem. Aplikować równomiernie za pomocą wałka. Zużycie wynosi ok. 150 g/m². Należy zachować czas schnięcia wynoszący minimum 1 godzinę przed przystąpieniem do dalszych prac.**"
 
 # --- GENERATOR ---
@@ -98,12 +102,25 @@ if st.button("GENERUJ PROTOKÓŁ OGLĘDZIN", type="primary", use_container_width
     if moisture is None: st.error("Podaj wilgotność!")
     else:
         st.divider(); insert_header()
-        st.write(f"**Data:** {data_badania.strftime('%d.%m.%Y')} | **Inwestycja:** {inwestycja}, {adres}")
+        st.write(f"**Data badania:** {data_badania.strftime('%d.%m.%Y')} | **Autor:** {autor}")
+        st.write(f"**Inwestycja:** {inwestycja}, {adres}, {miejscowosc}")
+        st.write(f"**Szanowni Państwo:** {klient}")
+        
         st.markdown("#### **I. Oględziny i badania**")
         obw_txt = " Dylatacje obwodowe zachowane prawidłowo." if dilatations_obw_ok == "TAK" else " Dylatacje obwodowe niezachowane prawidłowo."
         klaw_txt = f" Stwierdzono klawiszujące dylatacje pozorne ({klaw_meters} mb)." if cracks_klaw == "TAK" else " Dylatacje pozorne nie klawiszują."
-        st.write(f"**a) oględziny optyczne:** Podłoże: {substrate}. {obw_txt} {klaw_txt} Wentylacja: {ventilation_type}.")
-        st.write(f"**c) badanie wilgotności:** Wynik **{moisture} % CM** (Norma: {limit} % CM)")
+        pek_txt = f" Stwierdzono pęknięcia podłoża ({pek_meters} mb)." if cracks_pek == "TAK" else " Brak pęknięć podłoża."
+        st.write(f"**a) oględziny optyczne:** Podłoże stanowi {substrate}. {obw_txt} {klaw_txt} {pek_txt} {('Ubytki: ' + hole_details) if holes == 'TAK' else ''}")
+        
+        st.write(f"**b) warunki klimatyczne:** Temperatura powietrza: **{temp_air if temp_air else '--'}°C**, Wilgotność powietrza: **{hum_air if hum_air else '--'}%**.")
+        
+        st.write(f"**c) wyniki badania metodą PressoMess:**")
+        valid_p = [v for v in presso_results if v is not None and v > 0]
+        if valid_p:
+            st.write(f"* Pomiary: {', '.join([str(v) for v in valid_p])} N/mm²")
+        st.write(f"* Ocena ogólna wytrzymałości: **{strength_labels[strength_val]}**")
+        
+        st.write(f"**d) badanie wilgotności:** Wynik **{moisture} % CM** (Norma: {limit} % CM)")
 
         st.markdown("#### **II. Zalecenia techniczne**")
         st.write("**a) przygotowanie podłoża:**\n* **Szlif i odkurzenie.**")
@@ -115,14 +132,14 @@ if st.button("GENERUJ PROTOKÓŁ OGLĘDZIN", type="primary", use_container_width
         after_dry = f"**Po doprowadzeniu do normatywnego poziomu wilgoci jastrychu tj. {limit}% CM zalecamy:**" if decision_after_cure and ("wygrzewania" in decision_after_cure or "osuszanie" in decision_after_cure) else ""
         if after_dry: st.write(f"* {after_dry}")
 
-        # LOGIKA GRUNTOWANIA
+        if (klaw_meters + pek_meters) > 0: st.write(f"  - Zespolić pęknięcia i dylatacje pozorne żywicą **WAKOL PS 205**.")
+
         if decision_after_cure == "konieczność wykonania bariery przeciwwilgociowej":
             st.write(DESC_PU280_BARRIER)
             if needs_levelling == "TAK": st.write(DESC_D3045)
         else:
-            # Podłoże już suche / po osuszeniu
             if strength_val == 1:
-                st.write("* Zalecamy **Wakol PS 275** (2x350g/m2, 7 dni schnięcia, szlif).")
+                st.write("* Zalecamy **Wakol PS 275** (2x350g/m2, 1h odstępu, 7 dni schnięcia, szlif).")
                 if needs_levelling == "TAK": 
                     st.write(DESC_PU280_REINFORCE)
                     st.write(DESC_D3045)
@@ -132,11 +149,16 @@ if st.button("GENERUJ PROTOKÓŁ OGLĘDZIN", type="primary", use_container_width
             elif strength_val >= 3 and needs_levelling == "TAK":
                 st.write("* **Zagruntować WAKOL D 3040 (1:2 z wodą, 50g/m2, 30 min).**")
 
-        # MASAL
         if needs_levelling == "TAK":
-            if "lita" in flooring_type: st.write("* **Masa WAKOL Z 625 (proporcja 6,0-6,25l wody, zużycie 1,5kg/m2/mm).**")
-            elif "warstwowa" in flooring_type: st.write("* **Masa WAKOL Z 635 (proporcja 6,25l wody, zużycie 1,5kg/m2/mm).**")
-            else: st.write("* **Masa WAKOL Z 675 (proporcja 6,0l wody, zużycie 1,5kg/m2/mm).**")
+            if "lita" in flooring_type: st.write("* **Wylać masę WAKOL Z 625 (proporcja 6,0-6,25l wody, zużycie 1,5kg/m2/mm).**")
+            elif "warstwowa" in flooring_type: st.write("* **Wylać masę WAKOL Z 635 (proporcja 6,25l wody, zużycie 1,5kg/m2/mm).**")
+            else: st.write("* **Wylać masę WAKOL Z 675 (proporcja 6,0l wody, zużycie 1,5kg/m2/mm).**")
 
         st.divider()
-        st.markdown("<b>Z poważaniem, Loba-Wakol Polska Sp. z o.o. Przemysław Tyszko</b>", unsafe_allow_html=True)
+        st.markdown(f"""
+        <div style="font-size: 13px; line-height: 1.5; color: #000;">
+            <b>Prosimy o zapoznanie się z kartami technicznymi zalecanych produktów WAKOL.</b><br>
+            W przypadku pytań proszę o kontakt: 603 214 218<br><br>
+            <b>Z poważaniem, Loba-Wakol Polska Sp. z o.o. | Przemysław Tyszko</b>
+        </div>
+        """, unsafe_allow_html=True)
