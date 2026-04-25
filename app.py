@@ -132,7 +132,7 @@ if st.button("GENERUJ PROTOKÓŁ OGLĘDZIN", type="primary", use_container_width
         st.write(f"**Inwestycja:** {inwestycja}, {adres}, {miejscowosc}")
         st.markdown("#### **I. Oględziny i badania**")
         
-        # PEŁNY OPIS OPTYCZNY (BEZ SKRÓTÓW)
+        # PEŁNY OPIS OPTYCZNY
         age_txt = f" w wieku {substrate_age_val} miesięcy" if substrate_age_val else ""
         heat_txt = f" Została zainstalowana {heating_info}." if heating_exists == "TAK" else " Brak instalacji ogrzewania podłogowego."
         curing_txt = " Został przeprowadzony proces wygrzewania zgodnie z protokołem." if heating_curing_done == "TAK" else " Nie został przeprowadzony proces wygrzewania podłoża." if heating_exists == "TAK" else ""
@@ -146,6 +146,7 @@ if st.button("GENERUJ PROTOKÓŁ OGLĘDZIN", type="primary", use_container_width
         full_opt_report = f"Podłoże pod planowaną okładzinę ({flooring_type}) stanowi {substrate}{age_txt}.{heat_txt}{curing_txt}{dil_txt}{klaw_txt}{pek_txt}{holes_txt}{level_txt} {vent_txt}"
         st.write(f"**a) oględziny optyczne:** {full_opt_report}")
         
+        # WYNIKI WYTRZYMAŁOŚCI
         st.markdown("**b) badanie wytrzymałości:**")
         st.write(f"Wynik badania młotkiem: {test_hammer}")
         st.write(f"Wynik badania szczotką: {test_brush}")
@@ -185,11 +186,13 @@ if st.button("GENERUJ PROTOKÓŁ OGLĘDZIN", type="primary", use_container_width
             else: st.write(FULL_PU280_BARRIER)
         
         elif not decision_after_cure or "Wykonanie" not in str(decision_after_cure):
+            # LOGIKA GRUNTOWANIA ZALEŻNA OD KONIECZNOŚCI WYRÓWNANIA
             if needs_levelling == "TAK":
                 if strength_val == 1:
+                    # NOWA REGUŁA: Anhydryt Bardzo Słaby (1) + MASA stosuje PU 235
                     if substrate == "jastrych anhydrytowy": st.write(FULL_PU235_1W)
                     else: st.write(FULL_PS275)
-                    st.write(FULL_PU280_1W)
+                    # W przypadku masy zawsze D3045 poniżej gruntowania poliuretanowego
                 elif strength_val == 2: st.write(FULL_PU280_1W)
                 elif strength_val in [3, 4, 5]: st.write(FULL_D3040)
             else:
@@ -207,7 +210,6 @@ if st.button("GENERUJ PROTOKÓŁ OGLĘDZIN", type="primary", use_container_width
             else: st.write("* **Wylanie masy wyrównawczej Wakol Z 675 [Pełny opis...]**")
 
         st.write("**c) klejenie okładziny:**")
-        # NOWA REGUŁA: Formuła Master dla MS 260
         if flooring_type == "deska lita":
             st.write("Klejenie podłogi drewnianej należy przeprowadzić przy użyciu kleju polimerowego twardo-elastycznego WAKOL MS 260. (szpachla B13, zużycie: 1350 g/m²).")
         elif flooring_type == "deska warstwowa (drewno, laminat itp.)":
