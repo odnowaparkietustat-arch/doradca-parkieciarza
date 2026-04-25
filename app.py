@@ -55,7 +55,6 @@ st.write("4. Czy podłoże wymaga wyrównania (masy)?")
 needs_levelling = st.radio("Wymaga wyrównania:", ["TAK", "NIE"], index=1, horizontal=True)
 leveling_thickness = st.number_input("Planowana grubość masy (mm):", min_value=1, value=None) if needs_levelling == "TAK" else 0
 
-# Sekcja wywiadu (stałe pytania)
 st.write("5. Czy dylatacje obwodowe zachowane prawidłowo?")
 dilatations_obw_ok = st.radio("Dylatacje obwodowe:", ["TAK", "NIE"], index=0, horizontal=True)
 st.write("6. Czy występują klawiszujące dylatacje pozorne?")
@@ -103,16 +102,17 @@ barrier_max = 2.5 if heating_exists == "TAK" else 3.5
 decision_after_cure = None
 needs_drying_action = False
 if moisture is not None and moisture > limit:
-    needs_drying_action = True
     opt_dry = "przeprowadzenie procesu wygrzewania" if heating_exists == "TAK" else "dalsze osuszanie"
     if substrate == "jastrych anhydrytowy" or (heating_exists == "TAK" and heating_curing_done == "NIE"):
         decision_after_cure = opt_dry
+        needs_drying_action = True
     else:
         if moisture <= barrier_max:
             decision_after_cure = st.radio("Postępowanie:", ["Wykonanie bariery przeciwwilgociowej", opt_dry], horizontal=True)
             needs_drying_action = (decision_after_cure != "Wykonanie bariery przeciwwilgociowej")
         else:
             decision_after_cure = opt_dry
+            needs_drying_action = True
 
 # --- STAŁE TECHNOLOGICZNE ---
 FULL_PS275 = "* **Zalecamy aplikację gruntówki wzmacniającej Wakol PS 275 w dwóch warstwach – grubym wałkiem sznurkowym, zużycie w sumie ok. 700 g/m2. Każda z warstw po 350g/m2, aplikowane po sobie w odstępie jednej godziny. Aplikując gruntówkę Wakol PS 275 należy zwrócić uwagę, aby dobrze wchłaniała się w podłoże i unikać powstawania kałuż na powierzchni jastrychu. Po nałożeniu drugiej warstwy gruntówki w razie potrzeby wykonać posypkę z piasku kwarcowego. Po 7 dniach schnięcia powierzchnię należy przeszlifować papierem o gradacji 24 – 40 usuwając przyklejony do powierzchni piasek kwarcowy i dokładnie odkurzyć.**"
@@ -146,6 +146,7 @@ if st.button("GENERUJ PROTOKÓŁ OGLĘDZIN", type="primary", use_container_width
         full_opt_report = f"Podłoże pod planowaną okładzinę ({flooring_type}) stanowi {substrate}{age_txt}.{heat_txt}{curing_txt}{dil_txt}{klaw_txt}{pek_txt}{holes_txt}{level_txt} {vent_txt}"
         st.write(f"**a) oględziny optyczne:** {full_opt_report}")
         
+        # WYNIKI WYTRZYMAŁOŚCI
         st.markdown("**b) badanie wytrzymałości:**")
         st.write(f"Wynik badania młotkiem: {test_hammer}")
         st.write(f"Wynik badania szczotką: {test_brush}")
@@ -165,22 +166,21 @@ if st.button("GENERUJ PROTOKÓŁ OGLĘDZIN", type="primary", use_container_width
 
         st.markdown("#### **II. Zalecenia techniczne**")
         
-        # LOGIKA NOWEJ REGUŁY:
-        heating_curing_needed = (heating_exists == "TAK" and heating_curing_done == "NIE")
+        # --- NOWA NADRZĘDNA REGUŁA WYGRZEWANIA ---
+        curing_not_done = (heating_exists == "TAK" and heating_curing_done == "NIE")
         
         st.write("**a) przygotowanie podłoża:**")
         st.write("* **Szlif podłoża w celu uzyskania porowatej i chłonnej powierzchni!**")
         st.write("* **Dokładne odkurzenie powierzchni odkurzaczem przemysłowym.**")
         
-        if moisture > limit:
-            if heating_curing_needed:
-                st.write(f"* **Konieczność doprowadzenia do normatywnego poziomu wilgoci w jastrychu poprzez przeprowadzenie procesu wygrzewania.**")
-            else:
-                st.write(f"* **Zalecamy doprowadzenie do normatywnego poziomu wilgoci ({limit}% CM) poprzez {decision_after_cure}.**")
+        if curing_not_done:
+            st.write(f"* **Konieczność przeprowadzenia pełnego procesu wygrzewania podłoża zgodnie z protokołem.**")
+        elif moisture > limit:
+            st.write(f"* **Zalecamy doprowadzenie do normatywnego poziomu wilgoci ({limit}% CM) poprzez {decision_after_cure}.**")
 
         st.write("**b) naprawa i wzmocnienie podłoża:**")
-        if moisture > limit and heating_curing_needed:
-            st.write("**Po doprowadzeniu do normatywnego poziomu wilgoci w jastrychu zalecamy:**")
+        if curing_not_done:
+            st.write("**Po przeprowadzeniu pełnego procesu wygrzewania i: Zalecamy:**")
         elif needs_drying_action:
             st.write("**Po doprowadzeniu do normatywnego poziomu wilgoci zalecamy:**")
         
