@@ -46,7 +46,7 @@ with st.container():
 st.divider()
 
 # --- WYWIAD TECHNICZNY ---
-flooring_options = ["deska warstwowa (drewno, laminat itp.)", "deska lita", "wykładzina dywanowa", "pcv w rolce", "lvt cienkie", "lvt grube z twardym rozdzieniem"]
+flooring_options = ["deska warstwowa (drewno, laminat itp.)", "deska lita", "wykładzina dywanowa", "pcv w rolce", "lvt cienkie", "lvt grube z twardym rdzeniem"]
 flooring_type = st.selectbox("1. Rodzaj okładziny", flooring_options)
 substrate = st.selectbox("2. Rodzaj podłoża", ["jastrych cementowy", "jastrych anhydrytowy", "płyta fundamentowa", "podłoże drewniane (parkiet, deska, OSB)", "płytki ceramiczne", "masa samorozlewna"])
 substrate_age_val = st.number_input("Wiek podłoża (podaj ilość miesięcy):", min_value=0.5, step=0.5, format="%.1f", value=None, placeholder="Wpisz ilość miesięcy...")
@@ -101,24 +101,31 @@ for i in range(6): presso_results.append(st.number_input(f"Próba {i+1} (N/mm²)
 strength_labels = {1: "bardzo słaby", 2: "słaby", 3: "umiarkowanie słaby", 4: "umiarkowanie mocny", 5: "mocny"}
 strength_val = st.select_slider("Ocena ogólna wytrzymałości:", options=[1, 2, 3, 4, 5], value=3, format_func=lambda x: strength_labels[x])
 
-# --- LOGIKA NORM ---
+# --- LOGIKA NORM I TERMINOLOGII ---
 if substrate == "jastrych cementowy": limit = 1.5 if heating_exists == "TAK" else 1.8
 elif substrate == "jastrych anhydrytowy": limit = 0.3 if heating_exists == "TAK" else 0.5
 else: limit = 1.5
 barrier_max = 2.5 if heating_exists == "TAK" else 3.5
+
 decision_after_cure = None
 if moisture is not None and moisture > limit:
-    if heating_exists == "TAK": opt_dry = "przeprowadzenie kolejnego procesu wygrzewania" if heating_curing_done == "TAK" else "przeprowadzenie procesu wygrzewania"
-    else: opt_dry = "dalsze osuszanie"
-    if strength_val == 1: decision_after_cure = opt_dry
-    elif moisture <= barrier_max: decision_after_cure = st.radio("Postępowanie:", ["Wykonanie bariery przeciwwilgociowej", opt_dry], horizontal=True)
-    else: decision_after_cure = opt_dry
+    if heating_exists == "TAK":
+        opt_dry = "konieczność wykonania kolejnego procesu wygrzewania" if heating_curing_done == "TAK" else "konieczność przeprowadzenia procesu wygrzewania"
+    else:
+        opt_dry = "dalsze osuszanie"
+        
+    if strength_val == 1:
+        decision_after_cure = opt_dry
+    elif moisture <= barrier_max:
+        decision_after_cure = st.radio("Postępowanie:", ["konieczność wykonania bariery przeciwwilgociowej", opt_dry], horizontal=True)
+    else:
+        decision_after_cure = opt_dry
 
-# --- BLOKI TEKSTOWE (STAŁE TECHNOLOGICZNE) ---
+# --- STAŁE TECHNOLOGICZNE ---
 FULL_PU280 = "* **Zalecamy stworzenie bariery przeciwwilgociowej lub gruntowania wzmacniającego poprzez zagruntowanie powierzchni jastrychu gruntówką poliuretanową WAKOL PU 280. Aplikować wałkiem. Podczas aplikacji nie zostawiać kałuż tj. Zbierać nadmiar nie wchłoniętej gruntówki.**\n**1 warstwa nałożona wałkiem ok. 100-150 g/m². Czas schnięcia – jedna godzina.**\n**2 warstwa ok. 100 g/m² - czas schnięcia – jedna godzina.**\n**Czas do klejenia: 72 godziny od zagruntowania.**"
 FULL_D3045 = "* **Następnie należy zaaplikować specjalistyczny mostek sczepny za pomocą produktu WAKOL D 3045. Produkt należy dokładnie wymieszać przed użyciem. Aplikować równomiernie za pomocą wałka. Zużycie wynosi ok. 150 g/m². Należy zachować czas schnięcia wynoszący minimum 1 godzinę przed przystąpieniem do dalszych prac.**"
 
-# --- GENEROWANIE ---
+# --- GENEROWANIE PROTOKOŁU ---
 if st.button("GENERUJ PROTOKÓŁ OGLĘDZIN", type="primary", use_container_width=True):
     if moisture is None: st.error("Proszę podać wilgotność podłoża!")
     else:
@@ -128,7 +135,7 @@ if st.button("GENERUJ PROTOKÓŁ OGLĘDZIN", type="primary", use_container_width
         st.write(f"**Szanowni Państwo:** {klient}")
         st.markdown("#### **I. Oględziny i badania**")
         
-        # Opis optyczny
+        # Opis optyczny (Z dużej litery dla dylatacji)
         age_txt = f" (wiek: {substrate_age_val} mies.)" if substrate_age_val else ""
         heat_txt = f" Stwierdzono {heating_info}." if heating_exists == "TAK" else " Brak instalacji ogrzewania podłogowego."
         curing_txt = " Przeprowadzono proces wygrzewania zgodnie z protokołem." if heating_curing_done == "TAK" else " Brak protokołu wygrzewania." if heating_exists == "TAK" else ""
@@ -146,11 +153,13 @@ if st.button("GENERUJ PROTOKÓŁ OGLĘDZIN", type="primary", use_container_width
         st.write("**a) przygotowanie podłoża:**")
         st.write("* **Szlif podłoża w celu uzyskania porowatej i chłonnej powierzchni!**")
         st.write("* **Dokładne odkurzenie**")
-        if decision_after_cure in ["dalsze osuszanie", "przeprowadzenie procesu wygrzewania", "przeprowadzenie kolejnego procesu wygrzewania"]:
-            st.write(f"* **Zalecamy doprowadzenie do normatywnego poziomu wilgoci jastrychu ({limit}% CM) poprzez {decision_after_cure}.**")
+        
+        # AKTUALIZACJA: Stylizowana informacja o konieczności
+        if decision_after_cure and ("konieczność" in decision_after_cure or "osuszanie" in decision_after_cure):
+            st.write(f"* **Stwierdzono {decision_after_cure} celem doprowadzenia jastrychu do normatywnego poziomu wilgoci tj. {limit}% CM.**")
 
         st.write("**b) naprawa, gruntowanie i wyrównanie podłoża:**")
-        moisture_prefix = f"**Po doprowadzeniu do normatywnego poziomu wilgoci jastrychu tj. {limit}% CM zalecamy:**" if decision_after_cure in ["dalsze osuszanie", "przeprowadzenie procesu wygrzewania", "przeprowadzenie kolejnego procesu wygrzewania"] else ""
+        moisture_prefix = f"**Po doprowadzeniu do normatywnego poziomu wilgoci jastrychu tj. {limit}% CM zalecamy:**" if decision_after_cure and ("wygrzewania" in decision_after_cure or "osuszanie" in decision_after_cure) else ""
 
         if (klaw_meters + pek_meters) > 0 or holes == "TAK":
             if moisture_prefix: st.write(f"* {moisture_prefix}")
@@ -158,9 +167,8 @@ if st.button("GENERUJ PROTOKÓŁ OGLĘDZIN", type="primary", use_container_width
             if holes == "TAK": st.write(f"  - Uzupełnić ubytki i zdegradowane fragmenty zaprawą szybkosprawną **WAKOL Z 610**.")
 
         # --- SEKWENCJA GRUNTOWANIA ---
-        if decision_after_cure == "Wykonanie bariery przeciwwilgociowej":
+        if decision_after_cure == "konieczność wykonania bariery przeciwwilgociowej":
             if strength_val == 2:
-                # KOREKTA: Dla słabego podłoża (2) używamy PU 280 (Bariera)
                 st.write(FULL_PU280)
             else:
                 st.write(FULL_PU280)
@@ -174,7 +182,6 @@ if st.button("GENERUJ PROTOKÓŁ OGLĘDZIN", type="primary", use_container_width
                     st.write(FULL_PU280)
                     st.write(FULL_D3045)
             elif strength_val == 2:
-                # KOREKTA: Dla słabego podłoża (2) używamy PU 280 (Gruntowanie wzmacniające pod masę)
                 st.write(f"* {p}{FULL_PU280}")
                 if needs_levelling == "TAK": st.write(FULL_D3045)
             elif strength_val >= 3 and needs_levelling == "TAK":
