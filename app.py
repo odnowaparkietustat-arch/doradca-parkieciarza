@@ -132,7 +132,7 @@ if st.button("GENERUJ PROTOKÓŁ OGLĘDZIN", type="primary", use_container_width
         st.write(f"**Inwestycja:** {inwestycja}, {adres}, {miejscowosc}")
         st.markdown("#### **I. Oględziny i badania**")
         
-        # PEŁNY OPIS OPTYCZNY
+        # PEŁNY OPIS OPTYCZNY (BEZ SKRÓTÓW)
         age_txt = f" w wieku {substrate_age_val} miesięcy" if substrate_age_val else ""
         heat_txt = f" Została zainstalowana {heating_info}." if heating_exists == "TAK" else " Brak instalacji ogrzewania podłogowego."
         curing_txt = " Został przeprowadzony proces wygrzewania zgodnie z protokołem." if heating_curing_done == "TAK" else " Nie został przeprowadzony proces wygrzewania podłoża." if heating_exists == "TAK" else ""
@@ -146,7 +146,6 @@ if st.button("GENERUJ PROTOKÓŁ OGLĘDZIN", type="primary", use_container_width
         full_opt_report = f"Podłoże pod planowaną okładzinę ({flooring_type}) stanowi {substrate}{age_txt}.{heat_txt}{curing_txt}{dil_txt}{klaw_txt}{pek_txt}{holes_txt}{level_txt} {vent_txt}"
         st.write(f"**a) oględziny optyczne:** {full_opt_report}")
         
-        # WYNIKI WYTRZYMAŁOŚCI
         st.markdown("**b) badanie wytrzymałości:**")
         st.write(f"Wynik badania młotkiem: {test_hammer}")
         st.write(f"Wynik badania szczotką: {test_brush}")
@@ -208,9 +207,9 @@ if st.button("GENERUJ PROTOKÓŁ OGLĘDZIN", type="primary", use_container_width
             else: st.write("* **Wylanie masy wyrównawczej Wakol Z 675 [Pełny opis...]**")
 
         st.write("**c) klejenie okładziny:**")
-        # NOWA REGUŁA: Formuła Master dla MS 260 oraz Anhydryt 1 (wyłącznie MS 230)
+        # NOWA REGUŁA: Formuła Master dla MS 260
         if flooring_type == "deska lita":
-            st.write("Klej polimerowy twardo-elastycznego WAKOL MS 260. (szpachla B13, zużycie: 1350 g/m²).")
+            st.write("Klejenie podłogi drewnianej należy przeprowadzić przy użyciu kleju polimerowego twardo-elastycznego WAKOL MS 260. (szpachla B13, zużycie: 1350 g/m²).")
         elif flooring_type == "deska warstwowa (drewno, laminat itp.)":
             if substrate == "jastrych anhydrytowy" and strength_val == 1:
                 st.write("Klejenie podłogi drewnianej należy przeprowadzić przy użyciu kleju do parkietu **WAKOL MS 230** (szpachla B13, zużycie: 1350 g/m²).")
