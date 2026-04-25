@@ -146,10 +146,19 @@ if st.button("GENERUJ PROTOKÓŁ OGLĘDZIN", type="primary", use_container_width
         full_opt_report = f"Podłoże pod planowaną okładzinę ({flooring_type}) stanowi {substrate}{age_txt}.{heat_txt}{curing_txt}{dil_txt}{klaw_txt}{pek_txt}{holes_txt}{level_txt} {vent_txt}"
         st.write(f"**a) oględziny optyczne:** {full_opt_report}")
         
+        # WYNIKI WYTRZYMAŁOŚCI (W TYM PRESSOMESS JEDEN POD DRUGIM)
         st.markdown("**b) badanie wytrzymałości:**")
         st.write(f"Wynik badania młotkiem: {test_hammer}")
         st.write(f"Wynik badania szczotką: {test_brush}")
         st.write(f"Wynik badania rysikiem: {test_ripper}")
+        
+        # NOWA REGUŁA: Wypisywanie wyników PressoMess jeden pod drugim
+        valid_presso = [v for v in presso_results if v is not None and v > 0]
+        if valid_presso:
+            st.write("Wyniki badania PressoMess:")
+            for i, val in enumerate(valid_presso):
+                st.write(f"- Próba {i+1}: {val} N/mm²")
+        
         st.write(f"Ocena ogólna wytrzymałości podłoża: **{strength_labels[strength_val]}**")
         st.write(f"**c) badanie wilgotności:** Wynik badania wilgotności metodą CM: **{moisture} % CM** (Norma: {limit} % CM) - Wynik **{'POZYTYWNY' if moisture <= limit else 'NEGATYWNY'}**")
 
@@ -180,9 +189,7 @@ if st.button("GENERUJ PROTOKÓŁ OGLĘDZIN", type="primary", use_container_width
             else: st.write(FULL_PU280_BARRIER)
         
         elif not decision_after_cure or "Wykonanie" not in str(decision_after_cure):
-            # LOGIKA GRUNTOWANIA ZALEŻNA OD KONIECZNOŚCI WYRÓWNANIA
             if needs_levelling == "TAK":
-                # NOWA REGUŁA: Anhydryt Bardzo Słaby (1) stosuje PU 235 zamiast PS 275
                 if strength_val == 1:
                     if substrate == "jastrych anhydrytowy": st.write(FULL_PU235_1W)
                     else: st.write(FULL_PS275)
@@ -204,7 +211,6 @@ if st.button("GENERUJ PROTOKÓŁ OGLĘDZIN", type="primary", use_container_width
             else: st.write("* **Wylanie masy wyrównawczej Wakol Z 675 [Pełny opis...]**")
 
         st.write("**c) klejenie okładziny:**")
-        # NOWA REGUŁA: Anhydryt Bardzo Słaby (1) blokuje PU 225
         if flooring_type == "deska lita":
             st.write("Do montażu podłogi litej należy użyć twardo-elastycznego kleju polimerowego WAKOL MS 260. Klej nanosić odpowiednią szpachlą ząbkowaną B13 lub B15. Podczas klejenia należy zwracać uwagę na dokładne pokrycie spodu elementów klejem. Zużycie zależne od spodu deski i szpachli ok. 1100 - 1300 g/m2. Klej charakteryzuje się bardzo wysoką siłą wiązania początkowego.")
         elif flooring_type == "deska warstwowa (drewno, laminat itp.)":
