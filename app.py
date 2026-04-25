@@ -121,7 +121,6 @@ FULL_PU235_BARRIER = "* **Zalecamy wykonanie bariery przeciwwilgociowej poprzez 
 FULL_PU280_1W = "* **Zalecamy wykonanie gruntowania wzmacniającego poprzez zagruntowanie powierzchni jastrychu gruntówką poliuretanową WAKOL PU 280. Aplikować wałkiem. Podczas aplikacji nie zostawiać kałuż tj. Zbierać nadmiar nie wchłoniętej gruntówki. Zużycie ok. 150 g/m². Czas schnięcia – jedna godzina.**"
 FULL_PU280_BARRIER = "* **Z uwagi na podwyższoną wilgotność zalecamy stworzenie bariery przeciwwilgociowej poprzez zagruntowanie powierzchni jastrychu gruntówką poliuretanową WAKOL PU 280. Aplikować wałkiem. Podczas aplikacji nie zostawiać kałuż tj. Zbierać nadmiar nie wchłoniętej gruntówki. 1 warstwa nałożona wałkiem ok. 100-150 g/m². Czas schnięcia – jedna godzina. 2 warstwa ok. 100 g/m² - czas schnięcia – jedna godzina. Czas do klejenia: 72 godziny od zagruntowania.**"
 FULL_D3004 = "* **Zagruntować podłoże koncentratem gruntówki dyspersyjnej WAKOL D 3004. Proporcje mieszania: 1 część WAKOL D 3004 + 2 części wody; Czas schnięcia: na jastrychach cementowych i betonie po optycznym wyschnięciu ok. 30min. Sposób nanoszenia: wałek do gruntowania microfazer. Zużycie: ok. 50 g/m² koncentratu.**"
-FULL_D3055 = "* **Zalecamy zagruntowanie podłoża gruntówką dyspersyjną WAKOL D 3055. Sposób nanoszenia: wałek do gruntowania microfazer. Zużycie: ok. 150 g/m². Czas schnięcia: ok. 30 min.**"
 FULL_Z625 = "* **Wylać masę wyrównawczą WAKOL Z 625 - wymieszać ją w czystym naczyniu z zimną wodą w proporcji 6,00 – 6,25 litrów wody na 25 kg masy. Mieszać unikając tworzenia się grudek. Prędkość obrotowa mieszadła może wynosić max. 600 obrotów na minutę. Wymieszaną masę nanosić w żądanej grubości na podłoże przy pomocy szpachli, łaty lub rakli. Przed pracą należy zwrócić uwagę na obecność wypełnień fug przy ścianach. Zużycie ok. 1,5 kg/m²/ mm. Możliwość chodzenia po 2 godzinach. Możliwość klejenia podłóg drewnianych przy warstwie do 5 mm – po 6 godzinach, przy warstwie do 10 mm – po 12 godzinach, przy warstwie 30 mm – po 24 godzinach.**"
 
 # --- GENEROWANIE PROTOKOŁU ---
@@ -157,15 +156,17 @@ if st.button("GENERUJ PROTOKÓŁ OGLĘDZIN", type="primary", use_container_width
             for i, val in enumerate(valid_presso):
                 st.write(f"- Próba {i+1}: {val} N/mm²")
         st.write(f"Ocena ogólna wytrzymałości podłoża: **{strength_labels[strength_val]}**")
-        st.write(f"**c) badanie wilgotności:** Wynik badania wilgotności metodą CM: **{moisture} % CM** (Norma: {limit} % CM) - Wynik **{'POZYTYWNY' if moisture <= limit else 'NEGATYWNY'}**")
+        st.write(f"**c) badanie wilgotności:** Wynik badania wilgotności metodą CM: **{moisture} % CM** (Norma: {limit} % CM)")
 
         if substrate == "jastrych cementowy" and flooring_type in ["deska warstwowa (drewno, laminat itp.)", "deska lita"]:
             st.info("Aby bezpiecznie kleić podłogę drewnianą na jastrychu cementowym, jego wytrzymałość na ścinanie musi wynosić między 1,5 a 2,0 N/mm² a wilgotność nie może przekraczać 1,8% CM. (z ogrzewaniem podłogowym max. 1,5% CM).")
 
         st.markdown("#### **II. Zalecenia techniczne**")
         
+        needs_curing_msg = False
         if heating_exists == "TAK" and heating_curing_done == "NIE":
             st.write(f"* **Konieczność przeprowadzenia pełnego procesu wygrzewania podłoża zgodnie z protokołem.**")
+            needs_curing_msg = True
 
         st.write("**a) przygotowanie podłoża:**")
         st.write("* **Szlif podłoża w celu uzyskania porowatej i chłonnej powierzchni!**")
@@ -175,7 +176,9 @@ if st.button("GENERUJ PROTOKÓŁ OGLĘDZIN", type="primary", use_container_width
             st.write(f"* **Zalecamy doprowadzenie do normatywnego poziomu wilgoci ({limit}% CM) poprzez {decision_after_cure}.**")
 
         st.write("**b) naprawa i wzmocnienie podłoża:**")
-        if needs_drying_action:
+        if needs_curing_msg:
+            st.write("**Po przeprowadzeniu pełnego procesu wygrzewania Zalecamy:**")
+        elif needs_drying_action:
             st.write("**Po doprowadzeniu do normatywnego poziomu wilgoci zalecamy:**")
         
         if (klaw_meters + pek_meters) > 0: st.write("- Zespolić pęknięcia i dylatacje pozorne żywicą **WAKOL PS 205**.")
@@ -188,7 +191,6 @@ if st.button("GENERUJ PROTOKÓŁ OGLĘDZIN", type="primary", use_container_width
         
         elif not decision_after_cure or "Wykonanie" not in str(decision_after_cure):
             if needs_levelling == "TAK":
-                # NOWA REGUŁA: Ograniczenie D 3004 na Anhydrycie do 5 mm masy
                 if strength_val in [3, 4, 5]:
                     if substrate == "jastrych anhydrytowy" and leveling_thickness and leveling_thickness > 5:
                         st.write(FULL_PU280_1W)
@@ -208,19 +210,21 @@ if st.button("GENERUJ PROTOKÓŁ OGLĘDZIN", type="primary", use_container_width
                     else: st.write(FULL_PS275)
                 elif strength_val == 2: st.write(FULL_PU235_1W)
                 elif strength_val in [3, 4]: st.write(FULL_PU280_1W)
-                elif strength_val == 5: st.write(FULL_D3055)
+                elif strength_val == 5: st.write("* **Zalecamy zagruntowanie podłoża gruntówką dyspersyjną WAKOL D 3055. Sposób nanoszenia: wałek do gruntowania microfazer. Zużycie: ok. 150 g/m². Czas schnięcia: ok. 30 min.**")
 
         if needs_levelling == "TAK":
             if not used_d3004:
                 st.write("* **Następnie należy zaaplikować specjalistyczny mostek sczepny za pomocą produktu WAKOL D 3045. Aplikować równomiernie za pomocą wałka. Zużycie wynosi ok. 150 g/m². Czas schnięcia 1 godzina.**")
-            
             if flooring_type == "deska lita": st.write(FULL_Z625)
             elif flooring_type == "deska warstwowa (drewno, laminat itp.)": st.write("* **Następnie na podłoże wylać masę wyrównawczą WAKOL Z 635 [Pełny opis...]**")
             else: st.write("* **Wylanie masy wyrównawczej Wakol Z 675 [Pełny opis...]**")
 
         st.write("**c) klejenie okładziny:**")
-        if flooring_type == "deska lita":
-            st.write("Klejenie podłogi drewnianej należy przeprowadzić przy użyciu kleju polimerowego twardo-elastycznego WAKOL MS 260. (szpachla B13, zużycie: 1350 g/m²).")
+        # REGUŁA DLA PŁYTY FUNDAMENTOWEJ ORAZ DEDYKOWANA FORMA MS 260
+        ms260_desc = "Klejenie podłogi drewnianej należy przeprowadzić przy użyciu kleju polimerowego twardo-elastycznego WAKOL MS 260. (szpachla B13, zużycie: 1350 g/m²)."
+        
+        if substrate == "płyta fundamentowa" or flooring_type == "deska lita":
+            st.write(ms260_desc)
         elif flooring_type == "deska warstwowa (drewno, laminat itp.)":
             if substrate == "jastrych anhydrytowy" and strength_val == 1:
                 st.write("Klejenie podłogi drewnianej należy przeprowadzić przy użyciu kleju do parkietu **WAKOL MS 230** (szpachla B13, zużycie: 1350 g/m²).")
