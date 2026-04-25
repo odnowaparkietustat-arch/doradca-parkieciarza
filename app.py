@@ -102,17 +102,16 @@ barrier_max = 2.5 if heating_exists == "TAK" else 3.5
 decision_after_cure = None
 needs_drying_action = False
 if moisture is not None and moisture > limit:
+    needs_drying_action = True
     opt_dry = "przeprowadzenie procesu wygrzewania" if heating_exists == "TAK" else "dalsze osuszanie"
     if substrate == "jastrych anhydrytowy" or (heating_exists == "TAK" and heating_curing_done == "NIE"):
         decision_after_cure = opt_dry
-        needs_drying_action = True
     else:
         if moisture <= barrier_max:
             decision_after_cure = st.radio("Postępowanie:", ["Wykonanie bariery przeciwwilgociowej", opt_dry], horizontal=True)
             needs_drying_action = (decision_after_cure != "Wykonanie bariery przeciwwilgociowej")
         else:
             decision_after_cure = opt_dry
-            needs_drying_action = True
 
 # --- STAŁE TECHNOLOGICZNE ---
 FULL_PS275 = "* **Zalecamy aplikację gruntówki wzmacniającej Wakol PS 275 w dwóch warstwach – grubym wałkiem sznurkowym, zużycie w sumie ok. 700 g/m2. Każda z warstw po 350g/m2, aplikowane po sobie w odstępie jednej godziny. Aplikując gruntówkę Wakol PS 275 należy zwrócić uwagę, aby dobrze wchłaniała się w podłoże i unikać powstawania kałuż na powierzchni jastrychu. Po nałożeniu drugiej warstwy gruntówki w razie potrzeby wykonać posypkę z piasku kwarcowego. Po 7 dniach schnięcia powierzchnię należy przeszlifować papierem o gradacji 24 – 40 usuwając przyklejony do powierzchni piasek kwarcowy i dokładnie odkurzyć.**"
@@ -166,7 +165,6 @@ if st.button("GENERUJ PROTOKÓŁ OGLĘDZIN", type="primary", use_container_width
 
         st.markdown("#### **II. Zalecenia techniczne**")
         
-        # --- NOWA NADRZĘDNA REGUŁA WYGRZEWANIA ---
         curing_not_done = (heating_exists == "TAK" and heating_curing_done == "NIE")
         
         st.write("**a) przygotowanie podłoża:**")
@@ -179,8 +177,9 @@ if st.button("GENERUJ PROTOKÓŁ OGLĘDZIN", type="primary", use_container_width
             st.write(f"* **Zalecamy doprowadzenie do normatywnego poziomu wilgoci ({limit}% CM) poprzez {decision_after_cure}.**")
 
         st.write("**b) naprawa i wzmocnienie podłoża:**")
+        # NOWA REGUŁA: Fraza "Po przeprowadzeniu pełnego procesu wygrzewania zalecamy:"
         if curing_not_done:
-            st.write("**Po przeprowadzeniu pełnego procesu wygrzewania i: Zalecamy:**")
+            st.write("**Po przeprowadzeniu pełnego procesu wygrzewania zalecamy:**")
         elif needs_drying_action:
             st.write("**Po doprowadzeniu do normatywnego poziomu wilgoci zalecamy:**")
         
