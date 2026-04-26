@@ -7,16 +7,16 @@ from datetime import date
 st.set_page_config(page_title="Ekspert Parkieciarski WAKOL", layout="wide")
 
 # --- STAŁE TECHNOLOGICZNE (OPISY PRODUKTÓW) ---
-FULL_PS275 = "* **Zalecamy aplikację gruntówki wzmacniającej Wakol PS 275 w dwóch warstwach – grubym wałkiem sznurkowym, zużycie w sumie ok. 700 g/m2. Każda z warstw po 350g/m2, aplikowane po sobie w odstępie jednej godziny. Aplikując gruntówkę Wakol PS 275 należy zwrócić uwagę, aby dobrze wchłaniała się w podłoże i unikać powstawania kałuż na powierzchni jastrychu. Po nałożeniu drugiej warstwy gruntówki w razie potrzeby wykonać posypkę z piasku kwarcowego. Po 7 dniach schnięcia powierzchnię należy przeszlifować papierem o gradacji 24 – 40 usuwając przyklejony do powierzchni piasek kwarcowy i dokładnie odkurzyć.**"
-FULL_PU235_1W = "* **Zalecamy wykonanie gruntowania wzmacniającego poprzez zagruntowanie powierzchni jastrychu gruntówką poliuretanową WAKOL PU 235. Aplikować wałkiem. Podczas aplikacji nie zostawiać kałuż tj. Zbierać nadmiar nie wchłoniętej gruntówki. Zużycie ok. 150 g/m². Czas schnięcia – jedna godzina.**"
-FULL_PU235_BARRIER = "* **Zalecamy wykonanie bariery przeciwwilgociowej poprzez dwukrotne zagruntowanie gruntówką wzmacniającą WAKOL PU 235. Podczas aplikacji nie zostawiać kałuż tj. Zbierać nadmiar niewchłoniętej gruntówki. 1 - warstwa nałożona wałkiem ok. 150 g/m². Czas schnięcia – 3-6 godzin. 2 warstwa zużycie ok. 100 g/m². Czas schnięcia – 3-6 godzin. Czas klejenia 72 godziny od zagruntowania.**"
-FULL_PU280_1W = "* **Zalecamy wykonanie gruntowania wzmacniającego poprzez zagruntowanie powierzchni jastrychu gruntówką poliuretanową WAKOL PU 280. Aplikować wałkiem. Podczas aplikacji nie zostawiać kałuż tj. Zbierać nadmiar nie wchłoniętej gruntówki. Zużycie ok. 150 g/m². Czas schnięcia – jedna godzina.**"
-FULL_PU280_BARRIER = "* **Z uwagi na podwyższoną wilgotność zalecamy stworzenie bariery przeciwwilgociowej poprzez zagruntowanie powierzchni jastrychu gruntówką poliuretanową WAKOL PU 280. Aplikować wałkiem. Podczas aplikacji nie zostawiać kałuż tj. Zbierać nadmiar nie wchłoniętej gruntówki. 1 warstwa nałożona wałkiem ok. 100-150 g/m². Czas schnięcia – jedna godzina. 2 warstwa ok. 100 g/m² - czas schnięcia – jedna godzina. Czas do klejenia: 72 godziny od zagruntowania.**"
-FULL_D3004 = "* **Zagruntować podłoże koncentratem gruntówki dyspersyjnej WAKOL D 3004. Proporcje mieszania: 1 część WAKOL D 3004 + 2 części wody; Czas schnięcia: na jastrychach cementowych i betonie po optycznym wyschnięciu ok. 30min. Sposób nanoszenia: wałek do gruntowania microfazer. Zużycie: ok. 50 g/m² koncentratu.**"
-FULL_Z625 = "* **Wylać masę wyrównawczą WAKOL Z 625 - wymieszać ją w czystym naczyniu z zimną wodą w proporcji 6,00 – 6,25 litrów wody na 25 kg masy. Mieszać unikając tworzenia się grudek. Prędkość obrotowa mieszadła może wynosić max. 600 obrotów na minutę. Wymieszaną masę nanosić w żądanej grubości na podłoże przy pomocy szpachli, łaty lub rakli. Przed pracą należy zwrócić uwagę na obecność wypełnień fug przy ścianach. Zużycie ok. 1,5 kg/m²/ mm. Możliwość chodzenia po 2 godzinach. Możliwość klejenia podłóg drewnianych przy warstwie do 5 mm – po 6 godzinach, przy warstwie do 10 mm – po 12 godzinach, przy warstwie 30 mm – po 24 godzinach.**"
-FULL_Z675 = "* **Wylać masę wyrównawczą WAKOL Z 675 - wymieszać ją w czystym naczyniu z zimną wodą w proporcji 6,0 – 6,5 litrów wody na 25 kg masy. Mieszać unikając tworzenia się grudek. Prędkość obrotowa mieszadła może wynosić max. 600 obrotów na minutę. Wymieszaną masę nanosić w żądanej grubości na podłoże przy pomocy szpachli, łaty lub rakli. Przed pracą należy zwrócić uwagę na obecność wypełnień fug przy ścianach. Zużycie ok. 1,5 kg/m²/ mm. Możliwość chodzenia po 2-3 godzinach. Możliwość klejenia podłóg po ok. 24 godzinach przy grubości warstwy do 3 mm, przy większych grubościach czas schnięcia ulega wydłużeniu.**"
-FULL_Z635 = "* **Następnie na podłoże wylać masę wyrównawczą WAKOL Z 635 - Wylewając masę wyrównawczą WAKOL Z 635 wymieszać ją w czystym naczyniu z zimną wodą w proporcji 6,25 litrów wody na 25 kg masy. Mieszać unikając tworzenia się grudek. Prędkość obrotowa mieszadła może wynosić max. 600 obrotów na minutę. Wymieszaną masę nanosić w żądanej grubości na podłoże przy pomocy szpachli, łaty lub rakli. Przed pracą należy zwrócić uwagę na obecność wypełnień fug przy ścianach. Zużycie ok. 1,5 kg/m²/ mm. Możliwość chodzenia po 2,5 godzinach. Możliwość klejenia podłóg drewnianych przy warstwie do 5 mm – po 24 godzinach, przy warstwie do 10 mm – po 72 godzinach.**"
-FULL_D3055 = "* **Zalecamy zagruntowanie całej powierzchni jastrychu gruntówką dyspersyjną WAKOL D 3055 - aplikacja wałkiem ok.150 g/m2. Czas schnięcia ok 30 min.**"
+FULL_PS275 = "* Zalecamy aplikację gruntówki wzmacniającej **WAKOL PS 275** w dwóch warstwach – grubym wałkiem sznurkowym, zużycie w sumie **ok. 700 g/m²**. Każda z warstw po **350 g/m²**, aplikowane po sobie w odstępie jednej godziny. Aplikując gruntówkę **WAKOL PS 275** należy zwrócić uwagę, aby dobrze wchłaniała się w podłoże i unikać powstawania kałuż na powierzchni jastrychu. Po nałożeniu drugiej warstwy gruntówki w razie potrzeby wykonać posypkę z piasku kwarcowego. **Po 7 dniach schnięcia** powierzchnię należy **przeszlifować papierem o gradacji 24 – 40** usuwając przyklejony do powierzchni piasek kwarcowy i dokładnie odkurzyć."
+FULL_PU235_1W = "* Zalecamy wykonanie gruntowania wzmacniającego poprzez zagruntowanie powierzchni jastrychu gruntówką poliuretanową **WAKOL PU 235**. Aplikować wałkiem. Podczas aplikacji nie zostawiać kałuż tj. zbierać nadmiar niewchłoniętej gruntówki. Zużycie **ok. 150 g/m²**. **Czas schnięcia – jedna godzina**."
+FULL_PU235_BARRIER = "* Zalecamy wykonanie bariery przeciwwilgociowej poprzez dwukrotne zagruntowanie gruntówką wzmacniającą **WAKOL PU 235**. Podczas aplikacji nie zostawiać kałuż tj. zbierać nadmiar niewchłoniętej gruntówki. 1. warstwa nałożona wałkiem **ok. 150 g/m²**. **Czas schnięcia – 3-6 godzin**. 2. warstwa zużycie **ok. 100 g/m²**. **Czas schnięcia – 3-6 godzin**. **Czas klejenia 72 godziny od zagruntowania**."
+FULL_PU280_1W = "* Zalecamy wykonanie gruntowania wzmacniającego poprzez zagruntowanie powierzchni jastrychu gruntówką poliuretanową **WAKOL PU 280**. Aplikować wałkiem. Podczas aplikacji nie zostawiać kałuż tj. zbierać nadmiar niewchłoniętej gruntówki. Zużycie **ok. 150 g/m²**. **Czas schnięcia – jedna godzina**."
+FULL_PU280_BARRIER = "* Z uwagi na podwyższoną wilgotność zalecamy stworzenie bariery przeciwwilgociowej poprzez zagruntowanie powierzchni jastrychu gruntówką poliuretanową **WAKOL PU 280**. Aplikować wałkiem. Podczas aplikacji nie zostawiać kałuż tj. zbierać nadmiar niewchłoniętej gruntówki. 1. warstwa nałożona wałkiem **ok. 100-150 g/m²**. **Czas schnięcia – jedna godzina**. 2. warstwa **ok. 100 g/m²** - **czas schnięcia – jedna godzina**. **Czas do klejenia: 72 godziny od zagruntowania**."
+FULL_D3004 = "* Zagruntować podłoże koncentratem gruntówki dyspersyjnej **WAKOL D 3004**. Proporcje mieszania: 1 część **WAKOL D 3004** + 2 części wody. **Czas schnięcia**: na jastrychach cementowych i betonie po optycznym wyschnięciu **ok. 30 min**. Sposób nanoszenia: wałek do gruntowania microfazer. Zużycie: **ok. 50 g/m²** koncentratu."
+FULL_Z625 = "* Wylać masę wyrównawczą **WAKOL Z 625** - wymieszać ją w czystym naczyniu z zimną wodą w proporcji 6,00 – 6,25 litrów wody na 25 kg masy. Mieszać unikając tworzenia się grudek. Prędkość obrotowa mieszadła może wynosić max. 600 obrotów na minutę. Wymieszaną masę nanosić w żądanej grubości na podłoże przy pomocy szpachli, łaty lub rakli. Przed pracą należy zwrócić uwagę na obecność wypełnień fug przy ścianach. Zużycie **ok. 1,5 kg/m²/mm**. **Możliwość chodzenia po 2 godzinach**. **Możliwość klejenia podłóg drewnianych przy warstwie do 5 mm – po 6 godzinach**, przy warstwie do 10 mm – po 12 godzinach, przy warstwie 30 mm – po 24 godzinach."
+FULL_Z675 = "* Wylać masę wyrównawczą **WAKOL Z 675** - wymieszać ją w czystym naczyniu z zimną wodą w proporcji 6,0 – 6,5 litrów wody na 25 kg masy. Mieszać unikając tworzenia się grudek. Prędkość obrotowa mieszadła może wynosić max. 600 obrotów na minutę. Wymieszaną masę nanosić w żądanej grubości na podłoże przy pomocy szpachli, łaty lub rakli. Przed pracą należy zwrócić uwagę na obecność wypełnień fug przy ścianach. Zużycie **ok. 1,5 kg/m²/mm**. **Możliwość chodzenia po 2-3 godzinach**. **Możliwość klejenia podłóg po ok. 24 godzinach przy grubości warstwy do 3 mm**, przy większych grubościach czas schnięcia ulega wydłużeniu."
+FULL_Z635 = "* Następnie na podłoże wylać masę wyrównawczą **WAKOL Z 635** - wymieszać ją w czystym naczyniu z zimną wodą w proporcji 6,25 litrów wody na 25 kg masy. Mieszać unikając tworzenia się grudek. Prędkość obrotowa mieszadła może wynosić max. 600 obrotów na minutę. Wymieszaną masę nanosić w żądanej grubości na podłoże przy pomocy szpachli, łaty lub rakli. Przed pracą należy zwrócić uwagę na obecność wypełnień fug przy ścianach. Zużycie **ok. 1,5 kg/m²/mm**. **Możliwość chodzenia po 2,5 godzinach**. **Możliwość klejenia podłóg drewnianych przy warstwie do 5 mm – po 24 godzinach**, przy warstwie do 10 mm – po 72 godzinach."
+FULL_D3055 = "* Zalecamy zagruntowanie całej powierzchni jastrychu gruntówką dyspersyjną **WAKOL D 3055** - aplikacja wałkiem **ok. 150 g/m²**. **Czas schnięcia ok. 30 min**."
 
 def insert_header():
     logo_wakol = "https://www.wakol.com/fileadmin/templates/images/wakol_logo.png"
@@ -54,8 +54,8 @@ def render_wspolne_dane_optyczne(dane):
     st.write(f"**a) oględziny optyczne:** {full_opt_report}")
     
     presso_valid = [str(p) for p in dane.get('presso_results', []) if p is not None]
-    presso_txt = f" Wyniki PressoMess: {', '.join(presso_valid)} N/mm²." if presso_valid else ""
-    st.write(f"**b) badanie wytrzymałości:** Wynik młotka: {dane['test_hammer']}, Rysik: {dane['test_ripper']}, Szczotka: {dane['test_brush']}.{presso_txt} Ocena ogólna: **{dane['strength_labels'][dane['strength_val']]}**")
+    presso_txt = f"\n- Wyniki PressoMess: {', '.join(presso_valid)} N/mm²" if presso_valid else ""
+    st.write(f"**b) badanie wytrzymałości:**\n- Młotek: {dane['test_hammer']}\n- Rysik: {dane['test_ripper']}\n- Szczotka: {dane['test_brush']}{presso_txt}\n- Ocena ogólna: **{dane['strength_labels'][dane['strength_val']]}**")
     
     moisture_status = "POZYTYWNY" if dane['moisture'] <= dane['limit'] else "NEGATYWNY"
     st.write(f"**c) badanie wilgotności:** Wynik badania wilgotności metodą CM: **{dane['moisture']} % CM** (Norma: {dane['limit']} % CM) — **Wynik: {moisture_status}**")
@@ -68,28 +68,28 @@ def render_wspolne_dane_optyczne(dane):
 
 def render_wspolne_zalecenia_podloze(dane):
     st.write("**a) przygotowanie podłoża:**")
-    st.write("* **Szlif podłoża w celu uzyskania porowatej i chłonnej powierzchni!**")
-    st.write("* **Dokładne odkurzenie powierzchni odkurzaczem przemysłowym.**")
+    st.write("* **Szlif podłoża** w celu uzyskania porowatej i chłonnej powierzchni!")
+    st.write("* Dokładne odkurzenie powierzchni odkurzaczem przemysłowym.")
     
     if dane['curing_not_done']:
         if dane['is_moisture_neg']:
-            st.write(f"* **Konieczność przeprowadzenia pełnego procesu wygrzewania podłoża w celu uzyskania normatywnego poziomu wilgoci {dane['norm_val_bracket']}.**")
+            st.write(f"* **Konieczność przeprowadzenia pełnego procesu wygrzewania podłoża** w celu uzyskania normatywnego poziomu wilgoci **{dane['norm_val_bracket']}**.")
         else:
-            st.write(f"* **Konieczność przeprowadzenia pełnego procesu wygrzewania podłoża zgodnie z protokołem.**")
+            st.write(f"* **Konieczność przeprowadzenia pełnego procesu wygrzewania podłoża** zgodnie z protokołem.")
     elif dane['is_moisture_neg']:
         if dane['decision_after_cure'] == "Wykonanie bariery przeciwwilgociowej":
-            st.write("* **Zalecamy wykonanie bariery przeciwwilgociowej.**")
+            st.write("* Zalecamy wykonanie bariery przeciwwilgociowej.")
         else:
-            st.write(f"* **Zalecamy doprowadzenie do normatywnego poziomu wilgoci {dane['norm_val_bracket']} poprzez {dane['decision_after_cure']}.**")
+            st.write(f"* Zalecamy doprowadzenie do normatywnego poziomu wilgoci **{dane['norm_val_bracket']}** poprzez {dane['decision_after_cure']}.")
 
     st.write("**b) naprawa i wzmocnienie podłoża:**")
     if dane['curing_not_done']:
         if dane['is_moisture_neg']:
-            st.write(f"**Po doprowadzeniu do normatywnego poziomu wilgoci {dane['norm_val_bracket']} jastrychu poprzez przeprowadzenie procesu wygrzewania zalecamy:**")
+            st.write(f"Po doprowadzeniu do normatywnego poziomu wilgoci **{dane['norm_val_bracket']}** jastrychu poprzez **przeprowadzenie procesu wygrzewania** zalecamy:")
         else:
-            st.write("**Po przeprowadzeniu pełnego procesu wygrzewania zalecamy:**")
+            st.write("Po **przeprowadzeniu pełnego procesu wygrzewania** zalecamy:")
     elif dane['needs_drying_action']:
-        st.write(f"**Po doprowadzeniu do normatywnego poziomu wilgoci {dane['norm_val_bracket']} zalecamy:**")
+        st.write(f"Po doprowadzeniu do normatywnego poziomu wilgoci **{dane['norm_val_bracket']}** zalecamy:")
     
     if (dane['klaw_meters'] + dane['pek_meters']) > 0: st.write("- Zespolić pęknięcia i dylatacje pozorne żywicą **WAKOL PS 205**.")
     if dane['holes'] == "TAK": st.write(f"- Uzupełnić ubytki zaprawą **WAKOL Z 610**{dane['hole_details']}.")
@@ -189,7 +189,7 @@ def generate_report_deska_warstwowa(dane):
 
     if dane['needs_levelling'] == "TAK":
         if not used_d3004:
-            st.write("* **Następnie należy zaaplikować specjalistyczny mostek sczepny za pomocą produktu WAKOL D 3045. Aplikować równomiernie za pomocą wałka. Zużycie wynosi ok. 150 g/m². Czas schnięcia 1 godzina.**")
+            st.write("* Następnie należy zaaplikować specjalistyczny mostek sczepny za pomocą produktu **WAKOL D 3045**. Aplikować równomiernie za pomocą wałka. Zużycie wynosi **ok. 150 g/m²**. **Czas schnięcia 1 godzina**.")
         st.write(FULL_Z635)
 
     st.write("**c) klejenie okładziny:**")
@@ -207,7 +207,7 @@ def generate_report_deska_lita(dane):
 
     if dane['needs_levelling'] == "TAK":
         if not used_d3004:
-            st.write("* **Następnie należy zaaplikować specjalistyczny mostek sczepny za pomocą produktu WAKOL D 3045. Aplikować równomiernie za pomocą wałka. Zużycie wynosi ok. 150 g/m². Czas schnięcia 1 godzina.**")
+            st.write("* Następnie należy zaaplikować specjalistyczny mostek sczepny za pomocą produktu **WAKOL D 3045**. Aplikować równomiernie za pomocą wałka. Zużycie wynosi **ok. 150 g/m²**. **Czas schnięcia 1 godzina**.")
         st.write(FULL_Z625)
 
     st.write("**c) klejenie okładziny:**")
@@ -232,7 +232,7 @@ def generate_report_lvt_cienkie(dane):
 
     if dane['needs_levelling'] == "TAK":
         if not used_d3004:
-            st.write("* **Następnie należy zaaplikować specjalistyczny mostek sczepny za pomocą produktu WAKOL D 3045. Aplikować równomiernie za pomocą wałka. Zużycie wynosi ok. 150 g/m². Czas schnięcia 1 godzina.**")
+            st.write("* Następnie należy zaaplikować specjalistyczny mostek sczepny za pomocą produktu **WAKOL D 3045**. Aplikować równomiernie za pomocą wałka. Zużycie wynosi **ok. 150 g/m²**. **Czas schnięcia 1 godzina**.")
         st.write(FULL_Z675)
 
     st.write("**c) klejenie okładziny:**")
@@ -247,7 +247,7 @@ def generate_report_lvt_grube(dane):
 
     if dane['needs_levelling'] == "TAK":
         if not used_d3004:
-            st.write("* **Następnie należy zaaplikować specjalistyczny mostek sczepny za pomocą produktu WAKOL D 3045. Aplikować równomiernie za pomocą wałka. Zużycie wynosi ok. 150 g/m². Czas schnięcia 1 godzina.**")
+            st.write("* Następnie należy zaaplikować specjalistyczny mostek sczepny za pomocą produktu **WAKOL D 3045**. Aplikować równomiernie za pomocą wałka. Zużycie wynosi **ok. 150 g/m²**. **Czas schnięcia 1 godzina**.")
         # Domyślnie używamy tu Z 675 tak jak w cienkim, ale możemy to zmienić
         st.write(FULL_Z675)
 
@@ -273,7 +273,7 @@ def generate_report_pcv_w_rolce(dane):
 
     if dane['needs_levelling'] == "TAK":
         if not used_d3004:
-            st.write("* **Następnie należy zaaplikować specjalistyczny mostek sczepny za pomocą produktu WAKOL D 3045. Aplikować równomiernie za pomocą wałka. Zużycie wynosi ok. 150 g/m². Czas schnięcia 1 godzina.**")
+            st.write("* Następnie należy zaaplikować specjalistyczny mostek sczepny za pomocą produktu **WAKOL D 3045**. Aplikować równomiernie za pomocą wałka. Zużycie wynosi **ok. 150 g/m²**. **Czas schnięcia 1 godzina**.")
         st.write(FULL_Z675)
 
     st.write("**c) klejenie okładziny PCV:**")
