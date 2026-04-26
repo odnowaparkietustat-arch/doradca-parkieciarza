@@ -69,7 +69,10 @@ def render_wspolne_zalecenia_podloze(dane):
         else:
             st.write(f"* **Konieczność przeprowadzenia pełnego procesu wygrzewania podłoża zgodnie z protokołem.**")
     elif dane['is_moisture_neg']:
-        st.write(f"* **Zalecamy doprowadzenie do normatywnego poziomu wilgoci {dane['norm_val_bracket']} poprzez {dane['decision_after_cure']}.**")
+        if dane['decision_after_cure'] == "Wykonanie bariery przeciwwilgociowej":
+            st.write("* **Zalecamy wykonanie bariery przeciwwilgociowej.**")
+        else:
+            st.write(f"* **Zalecamy doprowadzenie do normatywnego poziomu wilgoci {dane['norm_val_bracket']} poprzez {dane['decision_after_cure']}.**")
 
     st.write("**b) naprawa i wzmocnienie podłoża:**")
     if dane['curing_not_done']:
