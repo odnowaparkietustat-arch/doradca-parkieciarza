@@ -53,10 +53,18 @@ def render_wspolne_dane_optyczne(dane):
     full_opt_report = f"Podłoże pod planowaną okładzinę ({dane['flooring_type']}) stanowi {dane['substrate']}{age_txt}.{heat_txt}{curing_txt}{dil_txt}{klaw_txt}{pek_txt}{holes_txt}{level_txt} {vent_txt}"
     st.write(f"**a) oględziny optyczne:** {full_opt_report}")
     
-    st.write(f"**b) badanie wytrzymałości:** Wynik młotka: {dane['test_hammer']}, Rysik: {dane['test_ripper']}, Szczotka: {dane['test_brush']}. Ocena ogólna: **{dane['strength_labels'][dane['strength_val']]}**")
+    presso_valid = [str(p) for p in dane.get('presso_results', []) if p is not None]
+    presso_txt = f" Wyniki PressoMess: {', '.join(presso_valid)} N/mm²." if presso_valid else ""
+    st.write(f"**b) badanie wytrzymałości:** Wynik młotka: {dane['test_hammer']}, Rysik: {dane['test_ripper']}, Szczotka: {dane['test_brush']}.{presso_txt} Ocena ogólna: **{dane['strength_labels'][dane['strength_val']]}**")
     
     moisture_status = "POZYTYWNY" if dane['moisture'] <= dane['limit'] else "NEGATYWNY"
     st.write(f"**c) badanie wilgotności:** Wynik badania wilgotności metodą CM: **{dane['moisture']} % CM** (Norma: {dane['limit']} % CM) — **Wynik: {moisture_status}**")
+
+    klimat = []
+    if dane.get('temp_air') is not None: klimat.append(f"Temperatura powietrza: {dane['temp_air']} °C")
+    if dane.get('hum_air') is not None: klimat.append(f"Wilgotność powietrza: {dane['hum_air']} %")
+    if klimat:
+        st.write(f"**d) warunki klimatyczne:** {', '.join(klimat)}.")
 
 def render_wspolne_zalecenia_podloze(dane):
     st.write("**a) przygotowanie podłoża:**")
@@ -207,12 +215,18 @@ def generate_report_deska_lita(dane):
 
 # --- SEKCJA: LVT CIENKIE ---
 def generate_report_lvt_cienkie(dane):
-    if dane['needs_levelling'] == "NIE":
-        st.error("BŁĄD: Nie można przykleić LVT cienkiego bezpośrednio do jastrychu! Wymagane jest wylanie masy wyrównawczej. Wybierz 'TAK' w wywiadzie technicznym (pyt. 3).")
+    if dane['needs_levelling'] == "NIE" and dane['already_levelled'] == "NIE":
+        st.error("BŁĄD: Pod okładzinę LVT cienkie wymagane jest wyrównanie podłoża. Poinformuj klienta o konieczności wylania masy!")
         return
         
     render_wspolne_dane_optyczne(dane)
     st.markdown("#### **II. Zalecenia techniczne (LVT Cienkie)**")
+    
+    if dane['already_levelled'] == "TAK":
+        st.write("**a) klejenie okładziny:**")
+        st.write("Klejenie podłogi winylowej (LVT) należy przeprowadzić przy użyciu kleju WAKOL D 3318 (szpachla TKB A2, zużycie: 350 g/m²). · Czas wstępnego odparowania: ok. 5 - 10 minut. · Czas układania: ok. 10 minut")
+        return
+
     render_wspolne_zalecenia_podloze(dane)
     used_d3004 = render_wspolna_chemia(dane)
 
@@ -240,14 +254,20 @@ def generate_report_lvt_grube(dane):
     st.write("**c) klejenie okładziny:**")
     st.write("Klejenie podłogi LVT z twardym rdzeniem należy przeprowadzić przy użyciu kleju **WAKOL MS 230** (szpachla B13, zużycie: 1350 g/m²) bądź kleju **WAKOL PU 225** (szpachla B11, zużycie: 1250 g/m²).")
 
-# --- SEKCJA: INNE (FALLBACK) ---
-def generate_report_inne(dane):
-    if dane['needs_levelling'] == "NIE":
-        st.error(f"BŁĄD: Nie można przykleić okładziny '{dane['flooring_type']}' bezpośrednio do jastrychu! Wymagane jest wylanie masy wyrównawczej. Wybierz 'TAK' w wywiadzie technicznym (pyt. 3).")
+# --- SEKCJA: PCV W ROLCE ---
+def generate_report_pcv_w_rolce(dane):
+    if dane['needs_levelling'] == "NIE" and dane['already_levelled'] == "NIE":
+        st.error("BŁĄD: Pod okładzinę PCV w rolce wymagane jest wyrównanie podłoża. Poinformuj klienta o konieczności wylania masy!")
         return
         
     render_wspolne_dane_optyczne(dane)
-    st.markdown(f"#### **II. Zalecenia techniczne ({dane['flooring_type']})**")
+    st.markdown("#### **II. Zalecenia techniczne (PCV w rolce)**")
+    
+    if dane['already_levelled'] == "TAK":
+        st.write("**a) klejenie okładziny PCV:**")
+        st.write("Klejenie wykładziny PCV w rolce należy przeprowadzić przy użyciu kleju WAKOL D 3307 (szpachla TKB A2, zużycie: 300 – 330 g/m²). · Czas wstępnego odparowania: ok. 10 - 20 minut. · Czas układania: ok. 15 - 20 minut")
+        return
+
     render_wspolne_zalecenia_podloze(dane)
     used_d3004 = render_wspolna_chemia(dane)
 
@@ -256,8 +276,33 @@ def generate_report_inne(dane):
             st.write("* **Następnie należy zaaplikować specjalistyczny mostek sczepny za pomocą produktu WAKOL D 3045. Aplikować równomiernie za pomocą wałka. Zużycie wynosi ok. 150 g/m². Czas schnięcia 1 godzina.**")
         st.write(FULL_Z675)
 
-    st.write("**c) klejenie okładziny:**")
-    st.write("Do uzupełnienia zalecenia dotyczące klejenia dla tej okładziny.")
+    st.write("**c) klejenie okładziny PCV:**")
+    st.write("Klejenie wykładziny PCV w rolce należy przeprowadzić przy użyciu kleju WAKOL D 3307 (szpachla TKB A2, zużycie: 300 – 330 g/m²). · Czas wstępnego odparowania: ok. 10 - 20 minut. · Czas układania: ok. 15 - 20 minut")
+
+# --- SEKCJA: WYKŁADZINA DYWANOWA ---
+def generate_report_wykladzina_dywanowa(dane):
+    if dane['needs_levelling'] == "NIE" and dane['already_levelled'] == "NIE":
+        st.error("BŁĄD: Pod wykładzinę dywanową wymagane jest wyrównanie podłoża. Poinformuj klienta o konieczności wylania masy!")
+        return
+        
+    render_wspolne_dane_optyczne(dane)
+    st.markdown("#### **II. Zalecenia techniczne (Wykładzina dywanowa)**")
+    
+    if dane['already_levelled'] == "TAK":
+        st.write("**a) klejenie wykładziny tekstylnej:**")
+        st.write("Klejenie wykładziny tekstylnej należy przeprowadzić przy użyciu kleju WAKOL D 3308 (szpachla TKB B1 400-450 g/m²). · Czas wstępnego odparowania: ok. 5-10 minut. · Czas otwarty kleju ok. 10-15 minut")
+        return
+
+    render_wspolne_zalecenia_podloze(dane)
+    used_d3004 = render_wspolna_chemia(dane)
+
+    if dane['needs_levelling'] == "TAK":
+        if not used_d3004:
+            st.write("* **Następnie należy zaaplikować specjalistyczny mostek sczepny za pomocą produktu WAKOL D 3045. Aplikować równomiernie za pomocą wałka. Zużycie wynosi ok. 150 g/m². Czas schnięcia 1 godzina.**")
+        st.write(FULL_Z675)
+
+    st.write("**c) klejenie wykładziny tekstylnej:**")
+    st.write("Klejenie wykładziny tekstylnej należy przeprowadzić przy użyciu kleju WAKOL D 3308 (szpachla TKB B1 400-450 g/m²). · Czas wstępnego odparowania: ok. 5-10 minut. · Czas otwarty kleju ok. 10-15 minut")
 
 
 # ==========================================
@@ -296,7 +341,14 @@ if heating_exists == "TAK":
 
 st.write("3. Czy podłoże wymaga wyrównania (masy)?")
 needs_levelling = st.radio("Wymaga wyrównania:", ["TAK", "NIE"], index=1, horizontal=True)
-leveling_thickness = st.number_input("Planowana grubość masy (mm):", min_value=1, value=None) if needs_levelling == "TAK" else 0
+leveling_thickness = 0
+already_levelled = "NIE"
+
+if needs_levelling == "TAK":
+    leveling_thickness = st.number_input("Planowana grubość masy (mm):", min_value=1, value=None)
+elif flooring_type in ["wykładzina dywanowa", "pcv w rolce", "lvt cienkie"]:
+    st.warning("Pod wybraną okładzinę wymagane jest wyrównanie podłoża.")
+    already_levelled = st.radio("Czy podłoże zostało już wcześniej wyrównane?", ["TAK", "NIE"], index=1, horizontal=True)
 
 st.write("4. Czy dylatacje obwodowe zachowane prawidłowo?")
 dilatations_obw_ok = st.radio("Dylatacje obwodowe:", ["TAK", "NIE"], index=0, horizontal=True)
@@ -366,6 +418,7 @@ dane_protokolu = {
     "heating_curing_done": heating_curing_done,
     "needs_levelling": needs_levelling,
     "leveling_thickness": leveling_thickness,
+    "already_levelled": already_levelled,
     "dilatations_obw_ok": dilatations_obw_ok,
     "cracks_klaw": cracks_klaw,
     "klaw_meters": klaw_meters,
@@ -385,7 +438,10 @@ dane_protokolu = {
     "test_ripper": test_ripper,
     "test_brush": test_brush,
     "strength_labels": strength_labels,
-    "strength_val": strength_val
+    "strength_val": strength_val,
+    "temp_air": temp_air,
+    "hum_air": hum_air,
+    "presso_results": presso_results
 }
 
 # --- GENEROWANIE PROTOKOŁU W ZALEŻNOŚCI OD WYBRANEJ OKŁADZINY ---
@@ -403,11 +459,14 @@ if st.button(f"GENERUJ PROTOKÓŁ OGLĘDZIN DLA: {flooring_type.upper()}", type=
             generate_report_deska_lita(dane_protokolu)
         elif flooring_type == "lvt cienkie":
             generate_report_lvt_cienkie(dane_protokolu)
+        elif flooring_type == "pcv w rolce":
+            generate_report_pcv_w_rolce(dane_protokolu)
+        elif flooring_type == "wykładzina dywanowa":
+            generate_report_wykladzina_dywanowa(dane_protokolu)
         elif flooring_type == "lvt grube z twardym rdzeniem":
             generate_report_lvt_grube(dane_protokolu)
         else:
-            # Fallback dla pozostałych (wykładzina dywanowa, pcv w rolce, lvt grube)
-            generate_report_inne(dane_protokolu)
+            st.error("Nieobsługiwany typ okładziny.")
             
         st.divider()
         st.markdown(f"<b>Z poważaniem, Loba-Wakol Polska Sp. z o.o. | {autor}</b>", unsafe_allow_html=True)
