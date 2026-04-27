@@ -207,7 +207,17 @@ def render_chemia_deska_lita(dane, rep):
 # --- SEKCJA: DESKA WARSTWOWA ---
 def generate_report_deska_warstwowa(dane, rep):
     render_wspolne_dane_optyczne(dane, rep)
-    rep.markdown("#### **II. Zalecenia techniczne (Deska Warstwowa)**")
+    
+    nazwa_okladziny = "podłogę drewnianą" if dane['flooring_type'] == "deska warstwowa" else "podłogę laminowaną"
+    tytul_sekcji = "Deska Warstwowa" if dane['flooring_type'] == "deska warstwowa" else "Podłoga laminowana"
+    
+    if dane['substrate'] == "jastrych cementowy":
+        rep.write(f"**Aby bezpiecznie kleić {nazwa_okladziny} na jastrychu cementowym, jego wytrzymałość na ścinanie musi wynosić między 1,5 a 2,0 N/mm² a wilgotność nie może przekraczać 1,8% CM. (z ogrzewaniem podłogowym max. 1,5% CM).**")
+    elif dane['substrate'] == "jastrych anhydrytowy":
+        rep.write(f"**Aby bezpiecznie kleić {nazwa_okladziny} na jastrychu anhydrytowym zgodnie z wytycznymi ITB, jego wytrzymałość na ścinanie musi wynosić 2,0 N/mm² a wilgotność nie może przekraczać 0,5% CM. (z ogrzewaniem podłogowym max. 0,3% CM).**")
+    
+    rep.markdown(f"#### **II. Zalecenia techniczne ({tytul_sekcji})**")
+    
     render_wspolne_zalecenia_podloze(dane, rep)
     used_d3004 = render_chemia_deska_warstwowa(dane, rep)
 
@@ -218,13 +228,17 @@ def generate_report_deska_warstwowa(dane, rep):
 
     rep.write("**c) klejenie okładziny:**")
     if dane['substrate'] == "jastrych anhydrytowy" and dane['strength_val'] == 1:
-        rep.write("Klejenie podłogi drewnianej należy przeprowadzić przy użyciu kleju do parkietu **WAKOL MS 230** (szpachla B13, zużycie: 1350 g/m²).")
+        rep.write(f"Klejenie {nazwa_okladziny} należy przeprowadzić przy użyciu kleju do parkietu **WAKOL MS 230** (szpachla B13, zużycie: 1350 g/m²).")
     else:
-        rep.write("Klejenie podłogi drewnianej należy przeprowadzić przy użyciu kleju do parkietu **WAKOL MS 230** (szpachla B13, zużycie: 1350 g/m²) bądź kleju do parkietu **WAKOL PU 225** (szpachla B11, zużycie: 1250 g/m²).")
+        rep.write(f"Klejenie {nazwa_okladziny} należy przeprowadzić przy użyciu kleju do parkietu **WAKOL MS 230** (szpachla B13, zużycie: 1350 g/m²) bądź kleju do parkietu **WAKOL PU 225** (szpachla B11, zużycie: 1250 g/m²).")
 
 # --- SEKCJA: DESKA LITA ---
 def generate_report_deska_lita(dane, rep):
     render_wspolne_dane_optyczne(dane, rep)
+    if dane['substrate'] == "jastrych cementowy":
+        rep.write("**Aby bezpiecznie kleić podłogę drewnianą na jastrychu cementowym, jego wytrzymałość na ścinanie musi wynosić między 1,5 a 2,0 N/mm² a wilgotność nie może przekraczać 1,8% CM. (z ogrzewaniem podłogowym max. 1,5% CM).**")
+    elif dane['substrate'] == "jastrych anhydrytowy":
+        rep.write("**Aby bezpiecznie kleić podłogę drewnianą na jastrychu anhydrytowym zgodnie z wytycznymi ITB, jego wytrzymałość na ścinanie musi wynosić 2,0 N/mm² a wilgotność nie może przekraczać 0,5% CM. (z ogrzewaniem podłogowym max. 0,3% CM).**")
     rep.markdown("#### **II. Zalecenia techniczne (Deska Lita)**")
     render_wspolne_zalecenia_podloze(dane, rep)
     used_d3004 = render_chemia_deska_lita(dane, rep)
@@ -359,8 +373,71 @@ def _add_runs(p, text):
         if i % 2 != 0:
             run.bold = True
 
-def generate_pdf(md_text):
-    pdf = FPDF()
+class WakolPDF(FPDF):
+    def __init__(self, data_badania_str, autor_str):
+        super().__init__()
+        self.data_badania_str = data_badania_str
+        self.autor_str = autor_str
+
+    def header(self):
+        try:
+            self.set_font('Arial', 'B', 16)
+        except:
+            pass
+        self.cell(0, 10, 'Loba-Wakol Polska Sp. z o.o.', ln=True, align='R')
+        try:
+            self.set_font('Arial', '', 9)
+        except:
+            pass
+        self.cell(0, 4, "adres:    Sławęcińska 16, Macierzysz", ln=True, align='R')
+        self.cell(0, 4, "          05-850 Ożarów Mazowiecki", ln=True, align='R')
+        self.cell(0, 4, f"data:    {self.data_badania_str}", ln=True, align='R')
+        self.cell(0, 4, f"autor:    {self.autor_str}", ln=True, align='R')
+        self.cell(0, 4, "telefon:    +48 22 436 24 20", ln=True, align='R')
+        self.cell(0, 4, "telefax:    +48 22 436 24 21", ln=True, align='R')
+        self.cell(0, 4, "e-mail:    biuro@loba-wakol.pl", ln=True, align='R')
+        self.cell(0, 4, f"strona:    {self.page_no()} z {{nb}}", ln=True, align='R')
+        self.set_y(60)
+
+    def footer(self):
+        self.set_y(-25)
+        try:
+            self.set_font('Arial', '', 7)
+        except:
+            pass
+        col1_x = 10
+        col2_x = 65
+        col3_x = 110
+        
+        self.set_xy(col1_x, -25)
+        self.cell(40, 3, "Loba-Wakol Polska Sp. z o.o.", ln=True)
+        self.set_x(col1_x); self.cell(40, 3, "ul. Sławęcińska 16, Macierzysz", ln=True)
+        self.set_x(col1_x); self.cell(40, 3, "05-850 Ożarów Mazowiecki", ln=True)
+        self.set_x(col1_x); self.cell(40, 3, "tel.: +48 22 436 24 20", ln=True)
+        
+        self.set_xy(col2_x, -25)
+        self.cell(40, 3, "KRS: 0000163623", ln=True)
+        self.set_x(col2_x); self.cell(40, 3, "NIP: 118-13-89-053", ln=True)
+        self.set_x(col2_x); self.cell(40, 3, "REGON: 013285030", ln=True)
+        self.set_x(col2_x); self.cell(40, 3, "fax: +48 22 436 24 21", ln=True)
+        
+        self.set_xy(col3_x, -25)
+        self.cell(40, 3, "ZARZĄD:", ln=True)
+        self.set_x(col3_x); self.cell(40, 3, "Stephane Moulin", ln=True)
+        self.set_x(col3_x); self.cell(40, 3, "Andreas Taddäus Ziobro", ln=True)
+        self.set_x(col3_x); self.cell(40, 3, "biuro@loba-wakol.pl", ln=True)
+        
+        try:
+            import urllib.request
+            if not __import__('os').path.exists('wakol_logo.png'):
+                urllib.request.urlretrieve('https://www.wakol.com/fileadmin/templates/images/wakol_logo.png', 'wakol_logo.png')
+            self.image('wakol_logo.png', x=160, y=-25, w=35)
+        except:
+            pass
+
+def generate_pdf(md_text, data_badania_str, autor_str):
+    pdf = WakolPDF(data_badania_str, autor_str)
+    pdf.alias_nb_pages()
     import os
     try:
         if os.path.exists(r'C:\Windows\Fonts\arial.ttf'):
@@ -436,7 +513,7 @@ with st.container():
 
 st.divider()
 
-flooring_type = st.selectbox("Wybierz rodzaj okładziny (Sekcja):", ["deska warstwowa (drewno, laminat itp.)", "deska lita", "wykładzina dywanowa", "pcv w rolce", "lvt cienkie", "lvt grube z twardym rdzeniem"])
+flooring_type = st.selectbox("Wybierz rodzaj okładziny (Sekcja):", ["deska warstwowa", "podłoga laminowana", "deska lita", "wykładzina dywanowa", "pcv w rolce", "lvt cienkie", "lvt grube z twardym rdzeniem"])
 st.markdown(f"### Wywiad Techniczny dla: **{flooring_type.upper()}**")
 
 substrate = st.selectbox("1. Rodzaj podłoża", ["jastrych cementowy", "jastrych anhydrytowy", "płyta fundamentowa", "podłoże drewniane (parkiet, deska, OSB)", "płytki ceramiczne", "masa samorozlewna"])
@@ -568,12 +645,12 @@ if st.button(f"GENERUJ PROTOKÓŁ OGLĘDZIN DLA: {flooring_type.upper()}", type=
         rep = ReportBuilder()
         
         # Generowanie nagłówka do DOC/PDF
-        tytul = f"PROTOKÓŁ TECHNICZNY\n\nNazwa inwestycji / Obiekt: {inwestycja}\nAdres: {adres}, {miejscowosc}\nKlient: {klient}\nData badania: {data_badania.strftime('%d.%m.%Y')}\n\n"
+        tytul = f"Dotyczy: Protokół z oględzin inwestycji w obiekcie {inwestycja} ({adres}, {miejscowosc}).\n\nSzanowni Państwo,\n\nW dniu {data_badania.strftime('%d.%m.%Y')} dokonano wstępnych oględzin i pomiarów wytrzymałości podłoża oraz pomiaru wilgotności przed przyklejeniem okładziny.\n\n"
         rep.write(tytul)
         
         rep.markdown("#### **I. Oględziny i badania**")
         
-        if flooring_type == "deska warstwowa (drewno, laminat itp.)":
+        if flooring_type in ["deska warstwowa", "podłoga laminowana"]:
             generate_report_deska_warstwowa(dane_protokolu, rep)
         elif flooring_type == "deska lita":
             generate_report_deska_lita(dane_protokolu, rep)
@@ -588,7 +665,7 @@ if st.button(f"GENERUJ PROTOKÓŁ OGLĘDZIN DLA: {flooring_type.upper()}", type=
         else:
             rep.error("Nieobsługiwany typ okładziny.")
             
-        rep.write(f"\nZ poważaniem, Loba-Wakol Polska Sp. z o.o. | {autor}")
+        rep.write("\n**Prosimy o zapoznanie się z kartami technicznymi zalecanych produktów WAKOL.**\n\nPodstawą naszego zalecenia jest stosowanie i prawidłowa obróbka wszystkich wymienionych materiałów firmy WAKOL w podanej kolejności, przestrzegając reguł rzemiosła i obowiązujących norm oraz instrukcji.\n\nW przypadku jakichkolwiek pytań lub wątpliwości proszę o kontakt pod numer telefonu: 603 214 218\n\nZ poważaniem,\n\nLoba-Wakol Polska Sp. z o.o.\n" + autor)
         
         # Wyświetlenie na ekranie (cel użytkownika)
         st.markdown(rep.get_markdown())
@@ -608,7 +685,7 @@ if st.button(f"GENERUJ PROTOKÓŁ OGLĘDZIN DLA: {flooring_type.upper()}", type=
                     use_container_width=True
                 )
             with col_d2:
-                pdf_file = generate_pdf(rep.get_markdown())
+                pdf_file = generate_pdf(rep.get_markdown(), data_badania.strftime('%d.%m.%Y'), autor)
                 if pdf_file:
                     st.download_button(
                         label="📕 Pobierz jako plik PDF (.pdf)",
