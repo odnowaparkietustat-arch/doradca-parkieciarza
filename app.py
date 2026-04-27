@@ -1,10 +1,35 @@
 import streamlit as st
 from datetime import date
+import io
+
+try:
+    from docx import Document
+    import fpdf
+    from fpdf import FPDF
+    EXPORTS_READY = True
+except ImportError:
+    EXPORTS_READY = False
 
 # ==========================================
 # 1. KONFIGURACJA STRONY I WSPÓLNE FUNKCJE
 # ==========================================
 st.set_page_config(page_title="Ekspert Parkieciarski WAKOL", layout="wide")
+
+class ReportBuilder:
+    def __init__(self):
+        self.md_lines = []
+    
+    def write(self, text):
+        self.md_lines.append(str(text))
+        
+    def markdown(self, text):
+        self.md_lines.append(str(text))
+        
+    def error(self, text):
+        st.error(text)
+        
+    def get_markdown(self):
+        return "\n\n".join(self.md_lines)
 
 # --- STAŁE TECHNOLOGICZNE (OPISY PRODUKTÓW) ---
 FULL_PS275 = "* Zalecamy aplikację gruntówki wzmacniającej **WAKOL PS 275** w dwóch warstwach – grubym wałkiem sznurkowym, zużycie w sumie **ok. 700 g/m²**. Każda z warstw po **350 g/m²**, aplikowane po sobie w odstępie jednej godziny. Aplikując gruntówkę **WAKOL PS 275** należy zwrócić uwagę, aby dobrze wchłaniała się w podłoże i unikać powstawania kałuż na powierzchni jastrychu. Po nałożeniu drugiej warstwy gruntówki w razie potrzeby wykonać posypkę z piasku kwarcowego. **Po 7 dniach schnięcia** powierzchnię należy **przeszlifować papierem o gradacji 24 – 40** usuwając przyklejony do powierzchni piasek kwarcowy i dokładnie odkurzyć."
@@ -34,12 +59,11 @@ def insert_header():
     </div><br>
     """, unsafe_allow_html=True)
 
-
 # ==========================================
 # 2. LOGIKA DLA POSZCZEGÓLNYCH OKŁADZIN
 # ==========================================
 
-def render_wspolne_dane_optyczne(dane):
+def render_wspolne_dane_optyczne(dane, rep):
     age_txt = f" w wieku {dane['substrate_age_val']} miesięcy" if dane['substrate_age_val'] else ""
     heat_txt = f" Została zainstalowana {dane['heating_info']}." if dane['heating_exists'] == "TAK" else " Brak instalacji ogrzewania podłogowego."
     curing_txt = " Został przeprowadzony proces wygrzewania zgodnie z protokołem." if dane['heating_curing_done'] == "TAK" else " Nie został przeprowadzony proces wygrzewania podłoża." if dane['heating_exists'] == "TAK" else ""
@@ -51,259 +75,331 @@ def render_wspolne_dane_optyczne(dane):
     vent_txt = f" Rodzaj zastosowanej wentylacji: wentylacja {dane['ventilation_type'].lower()}."
     
     full_opt_report = f"Podłoże pod planowaną okładzinę ({dane['flooring_type']}) stanowi {dane['substrate']}{age_txt}.{heat_txt}{curing_txt}{dil_txt}{klaw_txt}{pek_txt}{holes_txt}{level_txt} {vent_txt}"
-    st.write(f"**a) oględziny optyczne:** {full_opt_report}")
+    rep.write(f"**a) oględziny optyczne:** {full_opt_report}")
     
     presso_valid = [str(p) for p in dane.get('presso_results', []) if p is not None]
     presso_txt = f"\n- Wyniki PressoMess: {', '.join(presso_valid)} N/mm²" if presso_valid else ""
-    st.write(f"**b) badanie wytrzymałości:**\n- Młotek: {dane['test_hammer']}\n- Rysik: {dane['test_ripper']}\n- Szczotka: {dane['test_brush']}{presso_txt}\n- Ocena ogólna: **{dane['strength_labels'][dane['strength_val']]}**")
+    rep.write(f"**b) badanie wytrzymałości:**\n- Młotek: {dane['test_hammer']}\n- Rysik: {dane['test_ripper']}\n- Szczotka: {dane['test_brush']}{presso_txt}\n- Ocena ogólna: **{dane['strength_labels'][dane['strength_val']]}**")
     
     moisture_status = "POZYTYWNY" if dane['moisture'] <= dane['limit'] else "NEGATYWNY"
-    st.write(f"**c) badanie wilgotności:** Wynik badania wilgotności metodą CM: **{dane['moisture']} % CM** (Norma: {dane['limit']} % CM) — **Wynik: {moisture_status}**")
+    rep.write(f"**c) badanie wilgotności:** Wynik badania wilgotności metodą CM: **{dane['moisture']} % CM** (Norma: {dane['limit']} % CM) — **Wynik: {moisture_status}**")
 
     klimat = []
     if dane.get('temp_air') is not None: klimat.append(f"Temperatura powietrza: {dane['temp_air']} °C")
     if dane.get('hum_air') is not None: klimat.append(f"Wilgotność powietrza: {dane['hum_air']} %")
     if klimat:
-        st.write(f"**d) warunki klimatyczne:** {', '.join(klimat)}.")
+        rep.write(f"**d) warunki klimatyczne:** {', '.join(klimat)}.")
 
-def render_wspolne_zalecenia_podloze(dane):
-    st.write("**a) przygotowanie podłoża:**")
-    st.write("* **Szlif podłoża** w celu uzyskania porowatej i chłonnej powierzchni!")
-    st.write("* Dokładne odkurzenie powierzchni odkurzaczem przemysłowym.")
+def render_wspolne_zalecenia_podloze(dane, rep):
+    rep.write("**a) przygotowanie podłoża:**")
+    rep.write("* **Szlif podłoża** w celu uzyskania porowatej i chłonnej powierzchni!")
+    rep.write("* Dokładne odkurzenie powierzchni odkurzaczem przemysłowym.")
     
     if dane['curing_not_done']:
         if dane['is_moisture_neg']:
-            st.write(f"* **Konieczność przeprowadzenia pełnego procesu wygrzewania podłoża** w celu uzyskania normatywnego poziomu wilgoci **{dane['norm_val_bracket']}**.")
+            rep.write(f"* **Konieczność przeprowadzenia pełnego procesu wygrzewania podłoża** w celu uzyskania normatywnego poziomu wilgoci **{dane['norm_val_bracket']}**.")
         else:
-            st.write(f"* **Konieczność przeprowadzenia pełnego procesu wygrzewania podłoża** zgodnie z protokołem.")
+            rep.write(f"* **Konieczność przeprowadzenia pełnego procesu wygrzewania podłoża** zgodnie z protokołem.")
     elif dane['is_moisture_neg']:
         if dane['decision_after_cure'] == "Wykonanie bariery przeciwwilgociowej":
-            st.write("* Zalecamy wykonanie **bariery przeciwwilgociowej**.")
+            rep.write("* Zalecamy wykonanie **bariery przeciwwilgociowej**.")
         else:
-            st.write(f"* Zalecamy doprowadzenie do normatywnego poziomu wilgoci **{dane['norm_val_bracket']}** poprzez {dane['decision_after_cure']}.")
+            rep.write(f"* Zalecamy doprowadzenie do normatywnego poziomu wilgoci **{dane['norm_val_bracket']}** poprzez {dane['decision_after_cure']}.")
 
-    st.write("**b) naprawa i wzmocnienie podłoża:**")
+    rep.write("**b) naprawa i wzmocnienie podłoża:**")
     if dane['curing_not_done']:
         if dane['is_moisture_neg']:
-            st.write(f"Po doprowadzeniu do normatywnego poziomu wilgoci **{dane['norm_val_bracket']}** jastrychu poprzez **przeprowadzenie procesu wygrzewania** zalecamy:")
+            rep.write(f"Po doprowadzeniu do normatywnego poziomu wilgoci **{dane['norm_val_bracket']}** jastrychu poprzez **przeprowadzenie procesu wygrzewania** zalecamy:")
         else:
-            st.write("Po **przeprowadzeniu pełnego procesu wygrzewania** zalecamy:")
+            rep.write("Po **przeprowadzeniu pełnego procesu wygrzewania** zalecamy:")
     elif dane['needs_drying_action']:
-        st.write(f"Po doprowadzeniu do normatywnego poziomu wilgoci **{dane['norm_val_bracket']}** zalecamy:")
+        rep.write(f"Po doprowadzeniu do normatywnego poziomu wilgoci **{dane['norm_val_bracket']}** zalecamy:")
     
-    if (dane['klaw_meters'] + dane['pek_meters']) > 0: st.write("- Zespolić pęknięcia i dylatacje pozorne żywicą **WAKOL PS 205**.")
-    if dane['holes'] == "TAK": st.write(f"- Uzupełnić ubytki zaprawą **WAKOL Z 610**{dane['hole_details']}.")
+    if (dane['klaw_meters'] + dane['pek_meters']) > 0: rep.write("- Zespolić pęknięcia i dylatacje pozorne żywicą **WAKOL PS 205**.")
+    if dane['holes'] == "TAK": rep.write(f"- Uzupełnić ubytki zaprawą **WAKOL Z 610**{dane['hole_details']}.")
 
-def render_wspolna_chemia(dane):
+def render_wspolna_chemia(dane, rep):
     used_d3004 = False
     if dane['decision_after_cure'] == "Wykonanie bariery przeciwwilgociowej":
-        if dane['strength_val'] <= 2: st.write(FULL_PU235_BARRIER)
-        else: st.write(FULL_PU280_BARRIER)
+        if dane['strength_val'] <= 2: rep.write(FULL_PU235_BARRIER)
+        else: rep.write(FULL_PU280_BARRIER)
     elif not dane['decision_after_cure'] or "Wykonanie" not in str(dane['decision_after_cure']):
         if dane['needs_levelling'] == "TAK":
             if dane['strength_val'] in [3, 4, 5]:
                 if dane['substrate'] == "jastrych anhydrytowy" and dane['leveling_thickness'] and dane['leveling_thickness'] > 5:
-                    st.write(FULL_PU280_1W)
+                    rep.write(FULL_PU280_1W)
                 else:
-                    st.write(FULL_D3004)
+                    rep.write(FULL_D3004)
                     used_d3004 = True
             else:
                 if dane['strength_val'] == 1:
-                    if dane['substrate'] == "jastrych anhydrytowy": st.write(FULL_PU235_1W)
+                    if dane['substrate'] == "jastrych anhydrytowy": rep.write(FULL_PU235_1W)
                     else:
-                        st.write(FULL_PS275)
-                        st.write(FULL_PU280_1W)
-                elif dane['strength_val'] == 2: st.write(FULL_PU280_1W)
+                        rep.write(FULL_PS275)
+                        rep.write(FULL_PU280_1W)
+                elif dane['strength_val'] == 2: rep.write(FULL_PU280_1W)
         else:
             if dane['strength_val'] == 1:
-                if dane['substrate'] == "jastrych anhydrytowy": st.write(FULL_PU235_1W)
-                else: st.write(FULL_PS275)
-            elif dane['strength_val'] == 2: st.write(FULL_PU235_1W)
-            elif dane['strength_val'] in [3, 4]: st.write(FULL_PU280_1W)
+                if dane['substrate'] == "jastrych anhydrytowy": rep.write(FULL_PU235_1W)
+                else: rep.write(FULL_PS275)
+            elif dane['strength_val'] == 2: rep.write(FULL_PU235_1W)
+            elif dane['strength_val'] in [3, 4]: rep.write(FULL_PU280_1W)
     return used_d3004
 
-def render_chemia_deska_warstwowa(dane):
+def render_chemia_deska_warstwowa(dane, rep):
     used_d3004 = False
     if dane['decision_after_cure'] == "Wykonanie bariery przeciwwilgociowej":
-        if dane['strength_val'] <= 2: st.write(FULL_PU235_BARRIER)
-        else: st.write(FULL_PU280_BARRIER)
+        if dane['strength_val'] <= 2: rep.write(FULL_PU235_BARRIER)
+        else: rep.write(FULL_PU280_BARRIER)
     elif not dane['decision_after_cure'] or "Wykonanie" not in str(dane['decision_after_cure']):
         if dane['needs_levelling'] == "TAK":
             if dane['strength_val'] in [3, 4, 5]:
                 if dane['substrate'] == "jastrych anhydrytowy" and dane['leveling_thickness'] and dane['leveling_thickness'] > 5:
-                    st.write(FULL_PU280_1W)
+                    rep.write(FULL_PU280_1W)
                 else:
-                    st.write(FULL_D3004)
+                    rep.write(FULL_D3004)
                     used_d3004 = True
             elif dane['strength_val'] == 2:
-                st.write(FULL_PU280_1W)
+                rep.write(FULL_PU280_1W)
             elif dane['strength_val'] == 1:
-                if dane['substrate'] == "jastrych anhydrytowy": st.write(FULL_PU235_1W)
+                if dane['substrate'] == "jastrych anhydrytowy": rep.write(FULL_PU235_1W)
                 else:
-                    st.write(FULL_PS275)
-                    st.write(FULL_PU280_1W)
+                    rep.write(FULL_PS275)
+                    rep.write(FULL_PU280_1W)
         else:
             if dane['strength_val'] == 1:
-                if dane['substrate'] == "jastrych anhydrytowy": st.write(FULL_PU235_1W)
-                else: st.write(FULL_PS275)
-            elif dane['strength_val'] == 2: st.write(FULL_PU235_1W)
-            elif dane['strength_val'] == 3: st.write(FULL_PU280_1W)
-            elif dane['strength_val'] in [4, 5]: st.write(FULL_D3055)
+                if dane['substrate'] == "jastrych anhydrytowy": rep.write(FULL_PU235_1W)
+                else: rep.write(FULL_PS275)
+            elif dane['strength_val'] == 2: rep.write(FULL_PU235_1W)
+            elif dane['strength_val'] == 3: rep.write(FULL_PU280_1W)
+            elif dane['strength_val'] in [4, 5]: rep.write(FULL_D3055)
     return used_d3004
 
-def render_chemia_deska_lita(dane):
+def render_chemia_deska_lita(dane, rep):
     used_d3004 = False
     if dane['decision_after_cure'] == "Wykonanie bariery przeciwwilgociowej":
-        if dane['strength_val'] <= 2: st.write(FULL_PU235_BARRIER)
-        else: st.write(FULL_PU280_BARRIER)
+        if dane['strength_val'] <= 2: rep.write(FULL_PU235_BARRIER)
+        else: rep.write(FULL_PU280_BARRIER)
     elif not dane['decision_after_cure'] or "Wykonanie" not in str(dane['decision_after_cure']):
         if dane['needs_levelling'] == "TAK":
             if dane['strength_val'] in [3, 4, 5]:
                 if dane['substrate'] == "jastrych anhydrytowy" and dane['leveling_thickness'] and dane['leveling_thickness'] > 5:
-                    st.write(FULL_PU280_1W)
+                    rep.write(FULL_PU280_1W)
                 else:
-                    st.write(FULL_D3004)
+                    rep.write(FULL_D3004)
                     used_d3004 = True
             else:
                 if dane['strength_val'] == 1:
-                    if dane['substrate'] == "jastrych anhydrytowy": st.write(FULL_PU235_1W)
+                    if dane['substrate'] == "jastrych anhydrytowy": rep.write(FULL_PU235_1W)
                     else:
-                        st.write(FULL_PS275)
-                        st.write(FULL_PU280_1W)
-                elif dane['strength_val'] == 2: st.write(FULL_PU280_1W)
+                        rep.write(FULL_PS275)
+                        rep.write(FULL_PU280_1W)
+                elif dane['strength_val'] == 2: rep.write(FULL_PU280_1W)
         else:
             if dane['strength_val'] == 1:
-                if dane['substrate'] == "jastrych anhydrytowy": st.write(FULL_PU235_1W)
-                else: st.write(FULL_PS275)
-            elif dane['strength_val'] == 2: st.write(FULL_PU235_1W)
-            elif dane['strength_val'] in [3, 4]: st.write(FULL_PU280_1W)
-            elif dane['strength_val'] == 5: st.write(FULL_D3055)
+                if dane['substrate'] == "jastrych anhydrytowy": rep.write(FULL_PU235_1W)
+                else: rep.write(FULL_PS275)
+            elif dane['strength_val'] == 2: rep.write(FULL_PU235_1W)
+            elif dane['strength_val'] in [3, 4]: rep.write(FULL_PU280_1W)
+            elif dane['strength_val'] == 5: rep.write(FULL_D3055)
     return used_d3004
 
 # --- SEKCJA: DESKA WARSTWOWA ---
-def generate_report_deska_warstwowa(dane):
-    render_wspolne_dane_optyczne(dane)
-    st.markdown("#### **II. Zalecenia techniczne (Deska Warstwowa)**")
-    render_wspolne_zalecenia_podloze(dane)
-    used_d3004 = render_chemia_deska_warstwowa(dane)
+def generate_report_deska_warstwowa(dane, rep):
+    render_wspolne_dane_optyczne(dane, rep)
+    rep.markdown("#### **II. Zalecenia techniczne (Deska Warstwowa)**")
+    render_wspolne_zalecenia_podloze(dane, rep)
+    used_d3004 = render_chemia_deska_warstwowa(dane, rep)
 
     if dane['needs_levelling'] == "TAK":
         if not used_d3004:
-            st.write("* Następnie należy zaaplikować specjalistyczny mostek sczepny za pomocą produktu **WAKOL D 3045**. Aplikować równomiernie za pomocą wałka. Zużycie wynosi **ok. 150 g/m²**. **Czas schnięcia 1 godzina**.")
-        st.write(FULL_Z635)
+            rep.write("* Następnie należy zaaplikować specjalistyczny mostek sczepny za pomocą produktu **WAKOL D 3045**. Aplikować równomiernie za pomocą wałka. Zużycie wynosi **ok. 150 g/m²**. **Czas schnięcia 1 godzina**.")
+        rep.write(FULL_Z635)
 
-    st.write("**c) klejenie okładziny:**")
+    rep.write("**c) klejenie okładziny:**")
     if dane['substrate'] == "jastrych anhydrytowy" and dane['strength_val'] == 1:
-        st.write("Klejenie podłogi drewnianej należy przeprowadzić przy użyciu kleju do parkietu **WAKOL MS 230** (szpachla B13, zużycie: 1350 g/m²).")
+        rep.write("Klejenie podłogi drewnianej należy przeprowadzić przy użyciu kleju do parkietu **WAKOL MS 230** (szpachla B13, zużycie: 1350 g/m²).")
     else:
-        st.write("Klejenie podłogi drewnianej należy przeprowadzić przy użyciu kleju do parkietu **WAKOL MS 230** (szpachla B13, zużycie: 1350 g/m²) bądź kleju do parkietu **WAKOL PU 225** (szpachla B11, zużycie: 1250 g/m²).")
+        rep.write("Klejenie podłogi drewnianej należy przeprowadzić przy użyciu kleju do parkietu **WAKOL MS 230** (szpachla B13, zużycie: 1350 g/m²) bądź kleju do parkietu **WAKOL PU 225** (szpachla B11, zużycie: 1250 g/m²).")
 
 # --- SEKCJA: DESKA LITA ---
-def generate_report_deska_lita(dane):
-    render_wspolne_dane_optyczne(dane)
-    st.markdown("#### **II. Zalecenia techniczne (Deska Lita)**")
-    render_wspolne_zalecenia_podloze(dane)
-    used_d3004 = render_chemia_deska_lita(dane)
+def generate_report_deska_lita(dane, rep):
+    render_wspolne_dane_optyczne(dane, rep)
+    rep.markdown("#### **II. Zalecenia techniczne (Deska Lita)**")
+    render_wspolne_zalecenia_podloze(dane, rep)
+    used_d3004 = render_chemia_deska_lita(dane, rep)
 
     if dane['needs_levelling'] == "TAK":
         if not used_d3004:
-            st.write("* Następnie należy zaaplikować specjalistyczny mostek sczepny za pomocą produktu **WAKOL D 3045**. Aplikować równomiernie za pomocą wałka. Zużycie wynosi **ok. 150 g/m²**. **Czas schnięcia 1 godzina**.")
-        st.write(FULL_Z625)
+            rep.write("* Następnie należy zaaplikować specjalistyczny mostek sczepny za pomocą produktu **WAKOL D 3045**. Aplikować równomiernie za pomocą wałka. Zużycie wynosi **ok. 150 g/m²**. **Czas schnięcia 1 godzina**.")
+        rep.write(FULL_Z625)
 
-    st.write("**c) klejenie okładziny:**")
-    st.write("Klejenie podłogi z deski litej należy przeprowadzić przy użyciu kleju polimerowego twardo-elastycznego WAKOL MS 260. (szpachla B13, zużycie: 1350 g/m²).")
+    rep.write("**c) klejenie okładziny:**")
+    rep.write("Klejenie podłogi z deski litej należy przeprowadzić przy użyciu kleju polimerowego twardo-elastycznego WAKOL MS 260. (szpachla B13, zużycie: 1350 g/m²).")
 
 # --- SEKCJA: LVT CIENKIE ---
-def generate_report_lvt_cienkie(dane):
+def generate_report_lvt_cienkie(dane, rep):
     if dane['needs_levelling'] == "NIE" and dane['already_levelled'] == "NIE":
-        st.error("BŁĄD: Pod okładzinę LVT cienkie wymagane jest wyrównanie podłoża. Poinformuj klienta o konieczności wylania masy!")
+        rep.error("BŁĄD: Pod okładzinę LVT cienkie wymagane jest wyrównanie podłoża. Poinformuj klienta o konieczności wylania masy!")
         return
         
-    render_wspolne_dane_optyczne(dane)
-    st.markdown("#### **II. Zalecenia techniczne (LVT Cienkie)**")
+    render_wspolne_dane_optyczne(dane, rep)
+    rep.markdown("#### **II. Zalecenia techniczne (LVT Cienkie)**")
     
     if dane['already_levelled'] == "TAK":
-        st.write("**a) klejenie okładziny:**")
-        st.write("Klejenie podłogi winylowej (LVT) należy przeprowadzić przy użyciu kleju WAKOL D 3318 (szpachla TKB A2, zużycie: 350 g/m²). · Czas wstępnego odparowania: ok. 5 - 10 minut. · Czas układania: ok. 10 minut")
+        rep.write("**a) klejenie okładziny:**")
+        rep.write("Klejenie podłogi winylowej (LVT) należy przeprowadzić przy użyciu kleju WAKOL D 3318 (szpachla TKB A2, zużycie: 350 g/m²). · Czas wstępnego odparowania: ok. 5 - 10 minut. · Czas układania: ok. 10 minut")
         return
 
-    render_wspolne_zalecenia_podloze(dane)
-    used_d3004 = render_wspolna_chemia(dane)
+    render_wspolne_zalecenia_podloze(dane, rep)
+    used_d3004 = render_wspolna_chemia(dane, rep)
 
     if dane['needs_levelling'] == "TAK":
         if not used_d3004:
-            st.write("* Następnie należy zaaplikować specjalistyczny mostek sczepny za pomocą produktu **WAKOL D 3045**. Aplikować równomiernie za pomocą wałka. Zużycie wynosi **ok. 150 g/m²**. **Czas schnięcia 1 godzina**.")
-        st.write(FULL_Z675)
+            rep.write("* Następnie należy zaaplikować specjalistyczny mostek sczepny za pomocą produktu **WAKOL D 3045**. Aplikować równomiernie za pomocą wałka. Zużycie wynosi **ok. 150 g/m²**. **Czas schnięcia 1 godzina**.")
+        rep.write(FULL_Z675)
 
-    st.write("**c) klejenie okładziny:**")
-    st.write("Klejenie podłogi winylowej (LVT) należy przeprowadzić przy użyciu kleju WAKOL D 3318 (szpachla TKB A2, zużycie: 350 g/m²). · Czas wstępnego odparowania: ok. 5 - 10 minut. · Czas układania: ok. 10 minut")
+    rep.write("**c) klejenie okładziny:**")
+    rep.write("Klejenie podłogi winylowej (LVT) należy przeprowadzić przy użyciu kleju WAKOL D 3318 (szpachla TKB A2, zużycie: 350 g/m²). · Czas wstępnego odparowania: ok. 5 - 10 minut. · Czas układania: ok. 10 minut")
 
 # --- SEKCJA: LVT GRUBE ---
-def generate_report_lvt_grube(dane):
-    render_wspolne_dane_optyczne(dane)
-    st.markdown("#### **II. Zalecenia techniczne (LVT Grube z twardym rdzeniem)**")
-    render_wspolne_zalecenia_podloze(dane)
-    used_d3004 = render_chemia_deska_warstwowa(dane)
+def generate_report_lvt_grube(dane, rep):
+    render_wspolne_dane_optyczne(dane, rep)
+    rep.markdown("#### **II. Zalecenia techniczne (LVT Grube z twardym rdzeniem)**")
+    render_wspolne_zalecenia_podloze(dane, rep)
+    used_d3004 = render_chemia_deska_warstwowa(dane, rep)
 
     if dane['needs_levelling'] == "TAK":
         if not used_d3004:
-            st.write("* Następnie należy zaaplikować specjalistyczny mostek sczepny za pomocą produktu **WAKOL D 3045**. Aplikować równomiernie za pomocą wałka. Zużycie wynosi **ok. 150 g/m²**. **Czas schnięcia 1 godzina**.")
-        # Domyślnie używamy tu Z 675 tak jak w cienkim, ale możemy to zmienić
-        st.write(FULL_Z675)
+            rep.write("* Następnie należy zaaplikować specjalistyczny mostek sczepny za pomocą produktu **WAKOL D 3045**. Aplikować równomiernie za pomocą wałka. Zużycie wynosi **ok. 150 g/m²**. **Czas schnięcia 1 godzina**.")
+        rep.write(FULL_Z675)
 
-    st.write("**c) klejenie okładziny:**")
-    st.write("Klejenie podłogi LVT z twardym rdzeniem należy przeprowadzić przy użyciu kleju **WAKOL MS 230** (szpachla B13, zużycie: 1350 g/m²) bądź kleju **WAKOL PU 225** (szpachla B11, zużycie: 1250 g/m²).")
+    rep.write("**c) klejenie okładziny:**")
+    rep.write("Klejenie podłogi LVT z twardym rdzeniem należy przeprowadzić przy użyciu kleju **WAKOL MS 230** (szpachla B13, zużycie: 1350 g/m²) bądź kleju **WAKOL PU 225** (szpachla B11, zużycie: 1250 g/m²).")
 
 # --- SEKCJA: PCV W ROLCE ---
-def generate_report_pcv_w_rolce(dane):
+def generate_report_pcv_w_rolce(dane, rep):
     if dane['needs_levelling'] == "NIE" and dane['already_levelled'] == "NIE":
-        st.error("BŁĄD: Pod okładzinę PCV w rolce wymagane jest wyrównanie podłoża. Poinformuj klienta o konieczności wylania masy!")
+        rep.error("BŁĄD: Pod okładzinę PCV w rolce wymagane jest wyrównanie podłoża. Poinformuj klienta o konieczności wylania masy!")
         return
         
-    render_wspolne_dane_optyczne(dane)
-    st.markdown("#### **II. Zalecenia techniczne (PCV w rolce)**")
+    render_wspolne_dane_optyczne(dane, rep)
+    rep.markdown("#### **II. Zalecenia techniczne (PCV w rolce)**")
     
     if dane['already_levelled'] == "TAK":
-        st.write("**a) klejenie okładziny PCV:**")
-        st.write("Klejenie wykładziny PCV w rolce należy przeprowadzić przy użyciu kleju WAKOL D 3307 (szpachla TKB A2, zużycie: 300 – 330 g/m²). · Czas wstępnego odparowania: ok. 10 - 20 minut. · Czas układania: ok. 15 - 20 minut")
+        rep.write("**a) klejenie okładziny PCV:**")
+        rep.write("Klejenie wykładziny PCV w rolce należy przeprowadzić przy użyciu kleju WAKOL D 3307 (szpachla TKB A2, zużycie: 300 – 330 g/m²). · Czas wstępnego odparowania: ok. 10 - 20 minut. · Czas układania: ok. 15 - 20 minut")
         return
 
-    render_wspolne_zalecenia_podloze(dane)
-    used_d3004 = render_wspolna_chemia(dane)
+    render_wspolne_zalecenia_podloze(dane, rep)
+    used_d3004 = render_wspolna_chemia(dane, rep)
 
     if dane['needs_levelling'] == "TAK":
         if not used_d3004:
-            st.write("* Następnie należy zaaplikować specjalistyczny mostek sczepny za pomocą produktu **WAKOL D 3045**. Aplikować równomiernie za pomocą wałka. Zużycie wynosi **ok. 150 g/m²**. **Czas schnięcia 1 godzina**.")
-        st.write(FULL_Z675)
+            rep.write("* Następnie należy zaaplikować specjalistyczny mostek sczepny za pomocą produktu **WAKOL D 3045**. Aplikować równomiernie za pomocą wałka. Zużycie wynosi **ok. 150 g/m²**. **Czas schnięcia 1 godzina**.")
+        rep.write(FULL_Z675)
 
-    st.write("**c) klejenie okładziny PCV:**")
-    st.write("Klejenie wykładziny PCV w rolce należy przeprowadzić przy użyciu kleju WAKOL D 3307 (szpachla TKB A2, zużycie: 300 – 330 g/m²). · Czas wstępnego odparowania: ok. 10 - 20 minut. · Czas układania: ok. 15 - 20 minut")
+    rep.write("**c) klejenie okładziny PCV:**")
+    rep.write("Klejenie wykładziny PCV w rolce należy przeprowadzić przy użyciu kleju WAKOL D 3307 (szpachla TKB A2, zużycie: 300 – 330 g/m²). · Czas wstępnego odparowania: ok. 10 - 20 minut. · Czas układania: ok. 15 - 20 minut")
 
 # --- SEKCJA: WYKŁADZINA DYWANOWA ---
-def generate_report_wykladzina_dywanowa(dane):
+def generate_report_wykladzina_dywanowa(dane, rep):
     if dane['needs_levelling'] == "NIE" and dane['already_levelled'] == "NIE":
-        st.error("BŁĄD: Pod wykładzinę dywanową wymagane jest wyrównanie podłoża. Poinformuj klienta o konieczności wylania masy!")
+        rep.error("BŁĄD: Pod wykładzinę dywanową wymagane jest wyrównanie podłoża. Poinformuj klienta o konieczności wylania masy!")
         return
         
-    render_wspolne_dane_optyczne(dane)
-    st.markdown("#### **II. Zalecenia techniczne (Wykładzina dywanowa)**")
+    render_wspolne_dane_optyczne(dane, rep)
+    rep.markdown("#### **II. Zalecenia techniczne (Wykładzina dywanowa)**")
     
     if dane['already_levelled'] == "TAK":
-        st.write("**a) klejenie wykładziny tekstylnej:**")
-        st.write("Klejenie wykładziny tekstylnej należy przeprowadzić przy użyciu kleju WAKOL D 3308 (szpachla TKB B1 400-450 g/m²). · Czas wstępnego odparowania: ok. 5-10 minut. · Czas otwarty kleju ok. 10-15 minut")
+        rep.write("**a) klejenie wykładziny tekstylnej:**")
+        rep.write("Klejenie wykładziny tekstylnej należy przeprowadzić przy użyciu kleju WAKOL D 3308 (szpachla TKB B1 400-450 g/m²). · Czas wstępnego odparowania: ok. 5-10 minut. · Czas otwarty kleju ok. 10-15 minut")
         return
 
-    render_wspolne_zalecenia_podloze(dane)
-    used_d3004 = render_wspolna_chemia(dane)
+    render_wspolne_zalecenia_podloze(dane, rep)
+    used_d3004 = render_wspolna_chemia(dane, rep)
 
     if dane['needs_levelling'] == "TAK":
         if not used_d3004:
-            st.write("* **Następnie należy zaaplikować specjalistyczny mostek sczepny za pomocą produktu WAKOL D 3045. Aplikować równomiernie za pomocą wałka. Zużycie wynosi ok. 150 g/m². Czas schnięcia 1 godzina.**")
-        st.write(FULL_Z675)
+            rep.write("* Następnie należy zaaplikować specjalistyczny mostek sczepny za pomocą produktu **WAKOL D 3045**. Aplikować równomiernie za pomocą wałka. Zużycie wynosi **ok. 150 g/m²**. **Czas schnięcia 1 godzina**.")
+        rep.write(FULL_Z675)
 
-    st.write("**c) klejenie wykładziny tekstylnej:**")
-    st.write("Klejenie wykładziny tekstylnej należy przeprowadzić przy użyciu kleju WAKOL D 3308 (szpachla TKB B1 400-450 g/m²). · Czas wstępnego odparowania: ok. 5-10 minut. · Czas otwarty kleju ok. 10-15 minut")
+    rep.write("**c) klejenie wykładziny tekstylnej:**")
+    rep.write("Klejenie wykładziny tekstylnej należy przeprowadzić przy użyciu kleju WAKOL D 3308 (szpachla TKB B1 400-450 g/m²). · Czas wstępnego odparowania: ok. 5-10 minut. · Czas otwarty kleju ok. 10-15 minut")
 
+# ==========================================
+# EXPORT DO DOCX I PDF
+# ==========================================
+def generate_docx(md_text):
+    doc = Document()
+    for line in md_text.split('\n\n'):
+        line = line.strip()
+        if not line: continue
+        if line.startswith('#### '):
+            p = doc.add_heading(level=2)
+            _add_runs(p, line.replace('#### ', ''))
+        elif line.startswith('### '):
+            p = doc.add_heading(level=1)
+            _add_runs(p, line.replace('### ', ''))
+        elif line.startswith('* ') or line.startswith('- '):
+            p = doc.add_paragraph(style='List Bullet')
+            _add_runs(p, line[2:])
+        else:
+            p = doc.add_paragraph()
+            _add_runs(p, line)
+            
+    bio = io.BytesIO()
+    doc.save(bio)
+    return bio.getvalue()
+
+def _add_runs(p, text):
+    parts = text.split('**')
+    for i, part in enumerate(parts):
+        run = p.add_run(part)
+        if i % 2 != 0:
+            run.bold = True
+
+def generate_pdf(md_text):
+    pdf = FPDF()
+    try:
+        # Próba załadowania polskiej czcionki Arial
+        pdf.add_font('Arial', '', r'C:\Windows\Fonts\arial.ttf', uni=True)
+        pdf.add_font('Arial', 'B', r'C:\Windows\Fonts\arialbd.ttf', uni=True)
+        pdf.set_font('Arial', size=11)
+    except:
+        pdf.set_font('helvetica', size=11)
+        
+    pdf.add_page()
+    for line in md_text.split('\n\n'):
+        line = line.strip()
+        if not line: continue
+        
+        # Proste parsowanie nagłówków
+        if line.startswith('#### '):
+            pdf.set_font(pdf.font_family, 'B', 14)
+            line = line.replace('#### ', '').replace('**', '')
+            pdf.multi_cell(0, 8, txt=line)
+            pdf.set_font(pdf.font_family, '', 11)
+        elif line.startswith('### '):
+            pdf.set_font(pdf.font_family, 'B', 16)
+            line = line.replace('### ', '').replace('**', '')
+            pdf.multi_cell(0, 10, txt=line)
+            pdf.set_font(pdf.font_family, '', 11)
+        else:
+            # Ręczna obsługa pogrubień dla FPDF
+            if '**' in line:
+                try:
+                    pdf.multi_cell(0, 6, txt=line, markdown=True)
+                except TypeError:
+                    pdf.multi_cell(0, 6, txt=line.replace('**', ''))
+            else:
+                pdf.multi_cell(0, 6, txt=line)
+        pdf.ln(2)
+        
+    output = pdf.output(dest='S')
+    if type(output) is str:
+        return output.encode('latin-1')
+    return bytes(output)
 
 # ==========================================
 # 3. INTERFEJS UŻYTKOWNIKA (FORMULARZ)
@@ -451,22 +547,58 @@ if st.button(f"GENERUJ PROTOKÓŁ OGLĘDZIN DLA: {flooring_type.upper()}", type=
     else:
         st.divider()
         insert_header()
-        st.markdown("#### **I. Oględziny i badania**")
+        
+        rep = ReportBuilder()
+        
+        # Generowanie nagłówka do DOC/PDF
+        tytul = f"PROTOKÓŁ TECHNICZNY\n\nNazwa inwestycji / Obiekt: {inwestycja}\nAdres: {adres}, {miejscowosc}\nKlient: {klient}\nData badania: {data_badania.strftime('%d.%m.%Y')}\n\n"
+        rep.write(tytul)
+        
+        rep.markdown("#### **I. Oględziny i badania**")
         
         if flooring_type == "deska warstwowa (drewno, laminat itp.)":
-            generate_report_deska_warstwowa(dane_protokolu)
+            generate_report_deska_warstwowa(dane_protokolu, rep)
         elif flooring_type == "deska lita":
-            generate_report_deska_lita(dane_protokolu)
+            generate_report_deska_lita(dane_protokolu, rep)
         elif flooring_type == "lvt cienkie":
-            generate_report_lvt_cienkie(dane_protokolu)
+            generate_report_lvt_cienkie(dane_protokolu, rep)
         elif flooring_type == "pcv w rolce":
-            generate_report_pcv_w_rolce(dane_protokolu)
+            generate_report_pcv_w_rolce(dane_protokolu, rep)
         elif flooring_type == "wykładzina dywanowa":
-            generate_report_wykladzina_dywanowa(dane_protokolu)
+            generate_report_wykladzina_dywanowa(dane_protokolu, rep)
         elif flooring_type == "lvt grube z twardym rdzeniem":
-            generate_report_lvt_grube(dane_protokolu)
+            generate_report_lvt_grube(dane_protokolu, rep)
         else:
-            st.error("Nieobsługiwany typ okładziny.")
+            rep.error("Nieobsługiwany typ okładziny.")
             
+        rep.write(f"\nZ poważaniem, Loba-Wakol Polska Sp. z o.o. | {autor}")
+        
+        # Wyświetlenie na ekranie (cel użytkownika)
+        st.markdown(rep.get_markdown())
+        
         st.divider()
-        st.markdown(f"<b>Z poważaniem, Loba-Wakol Polska Sp. z o.o. | {autor}</b>", unsafe_allow_html=True)
+        
+        # Przyciski pobierania
+        if EXPORTS_READY:
+            col_d1, col_d2 = st.columns(2)
+            with col_d1:
+                docx_file = generate_docx(rep.get_markdown())
+                st.download_button(
+                    label="📄 Pobierz jako plik Word (.docx)",
+                    data=docx_file,
+                    file_name=f"Protokol_{inwestycja.replace(' ', '_')}.docx",
+                    mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+                    use_container_width=True
+                )
+            with col_d2:
+                pdf_file = generate_pdf(rep.get_markdown())
+                if pdf_file:
+                    st.download_button(
+                        label="📕 Pobierz jako plik PDF (.pdf)",
+                        data=pdf_file,
+                        file_name=f"Protokol_{inwestycja.replace(' ', '_')}.pdf",
+                        mime="application/pdf",
+                        use_container_width=True
+                    )
+        else:
+            st.error("⚠️ Brak bibliotek do generowania Word/PDF. Otwórz terminal i wpisz komendę:\n`pip install python-docx fpdf2`")
