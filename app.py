@@ -378,28 +378,39 @@ class WakolPDF(FPDF):
         super().__init__()
         self.data_badania_str = data_badania_str
         self.autor_str = autor_str
+        self.is_last_page = False
 
     def header(self):
-        try:
-            self.set_font('Arial', 'B', 16)
-        except:
-            pass
-        self.cell(0, 10, 'Loba-Wakol Polska Sp. z o.o.', ln=True, align='R')
-        try:
-            self.set_font('Arial', '', 9)
-        except:
-            pass
-        self.cell(0, 4, "adres:    Sławęcińska 16, Macierzysz", ln=True, align='R')
-        self.cell(0, 4, "          05-850 Ożarów Mazowiecki", ln=True, align='R')
-        self.cell(0, 4, f"data:    {self.data_badania_str}", ln=True, align='R')
-        self.cell(0, 4, f"autor:    {self.autor_str}", ln=True, align='R')
-        self.cell(0, 4, "telefon:    +48 22 436 24 20", ln=True, align='R')
-        self.cell(0, 4, "telefax:    +48 22 436 24 21", ln=True, align='R')
-        self.cell(0, 4, "e-mail:    biuro@loba-wakol.pl", ln=True, align='R')
-        self.cell(0, 4, f"strona:    {self.page_no()} z {{nb}}", ln=True, align='R')
-        self.set_y(60)
+        if self.page_no() == 1:
+            try:
+                self.set_font('Arial', 'B', 16)
+            except:
+                pass
+            self.cell(0, 10, 'Loba-Wakol Polska Sp. z o.o.', ln=True, align='R')
+            try:
+                self.set_font('Arial', '', 9)
+            except:
+                pass
+            self.cell(0, 4, "adres:    Sławęcińska 16, Macierzysz", ln=True, align='R')
+            self.cell(0, 4, "          05-850 Ożarów Mazowiecki", ln=True, align='R')
+            self.cell(0, 4, f"data:    {self.data_badania_str}", ln=True, align='R')
+            self.cell(0, 4, f"autor:    {self.autor_str}", ln=True, align='R')
+            self.cell(0, 4, "telefon:    +48 22 436 24 20", ln=True, align='R')
+            self.cell(0, 4, "telefax:    +48 22 436 24 21", ln=True, align='R')
+            self.cell(0, 4, "e-mail:    biuro@loba-wakol.pl", ln=True, align='R')
+            self.cell(0, 4, f"strona:    {self.page_no()} z {{nb}}", ln=True, align='R')
+            self.set_y(60)
+        else:
+            try:
+                self.set_font('Arial', '', 9)
+            except:
+                pass
+            self.cell(0, 10, f"strona {self.page_no()} z {{nb}}", ln=True, align='L')
+            self.set_y(20)
 
     def footer(self):
+        if not getattr(self, 'is_last_page', False):
+            return
         self.set_y(-25)
         try:
             self.set_font('Arial', '', 7)
@@ -490,6 +501,7 @@ def generate_pdf(md_text, data_badania_str, autor_str):
                 pdf.multi_cell(0, 6, txt=line)
         pdf.ln(2)
         
+    pdf.is_last_page = True
     output = pdf.output(dest='S')
     if type(output) is str:
         return output.encode('latin-1')
@@ -645,7 +657,7 @@ if st.button(f"GENERUJ PROTOKÓŁ OGLĘDZIN DLA: {flooring_type.upper()}", type=
         rep = ReportBuilder()
         
         # Generowanie nagłówka do DOC/PDF
-        tytul = f"Dotyczy: Protokół z oględzin inwestycji w obiekcie {inwestycja} ({adres}, {miejscowosc}).\n\nSzanowni Państwo,\n\nW dniu {data_badania.strftime('%d.%m.%Y')} dokonano wstępnych oględzin i pomiarów wytrzymałości podłoża oraz pomiaru wilgotności przed przyklejeniem okładziny.\n\n"
+        tytul = f"Dotyczy: Protokół z oględzin inwestycji w obiekcie {inwestycja} ({adres}, {miejscowosc}).\n\nSzanowni Państwo,\n\nW dniu {data_badania.strftime('%d.%m.%Y')} dokonano wstępnych oględzin i pomiarów wytrzymałości podłoża ({substrate}) oraz pomiaru wilgotności przed przyklejeniem okładziny ({flooring_type}).\n\n"
         rep.write(tytul)
         
         rep.markdown("#### **I. Oględziny i badania**")
