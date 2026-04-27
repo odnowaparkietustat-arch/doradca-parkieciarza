@@ -361,23 +361,29 @@ def _add_runs(p, text):
 
 def generate_pdf(md_text):
     pdf = FPDF()
+    import os
     try:
-        import os
-        import urllib.request
-        font_url = 'https://github.com/matomo-org/travis-scripts/raw/master/fonts/DejaVuSans.ttf'
-        font_bold_url = 'https://github.com/matomo-org/travis-scripts/raw/master/fonts/DejaVuSans-Bold.ttf'
         if os.path.exists(r'C:\Windows\Fonts\arial.ttf'):
             pdf.add_font('Arial', '', r'C:\Windows\Fonts\arial.ttf')
             pdf.add_font('Arial', 'B', r'C:\Windows\Fonts\arialbd.ttf')
+        elif os.path.exists('/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf'):
+            pdf.add_font('Arial', '', '/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf')
+            pdf.add_font('Arial', 'B', '/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf')
         else:
-            if not os.path.exists('DejaVuSans.ttf'):
-                urllib.request.urlretrieve(font_url, 'DejaVuSans.ttf')
-            if not os.path.exists('DejaVuSans-Bold.ttf'):
-                urllib.request.urlretrieve(font_bold_url, 'DejaVuSans-Bold.ttf')
-            pdf.add_font('Arial', '', 'DejaVuSans.ttf')
-            pdf.add_font('Arial', 'B', 'DejaVuSans-Bold.ttf')
+            # Download a very reliable font source (Google Fonts - Roboto)
+            import urllib.request
+            url_reg = 'https://github.com/googlefonts/roboto/raw/main/src/hinted/Roboto-Regular.ttf'
+            url_bold = 'https://github.com/googlefonts/roboto/raw/main/src/hinted/Roboto-Bold.ttf'
+            if not os.path.exists('Roboto-Regular.ttf'):
+                urllib.request.urlretrieve(url_reg, 'Roboto-Regular.ttf')
+            if not os.path.exists('Roboto-Bold.ttf'):
+                urllib.request.urlretrieve(url_bold, 'Roboto-Bold.ttf')
+            pdf.add_font('Arial', '', 'Roboto-Regular.ttf')
+            pdf.add_font('Arial', 'B', 'Roboto-Bold.ttf')
         pdf.set_font('Arial', size=11)
     except Exception as e:
+        import streamlit as st
+        st.error(f"Błąd ładowania czcionki: {str(e)}")
         pdf.set_font('helvetica', size=11)
         
     pdf.add_page()
