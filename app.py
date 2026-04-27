@@ -515,11 +515,10 @@ st.title("📄 Generator Protokołu Oględzin")
 with st.container():
     col1, col2 = st.columns(2)
     with col1:
-        inwestycja = st.text_input("Nazwa inwestycji / Obiekt", "Budynek mieszkalny")
+        nazwa_klienta = st.text_input("Nazwa Klienta", "Jan Kowalski")
         miejscowosc = st.text_input("Miejscowość", "Huta Dłutowska")
         adres = st.text_input("Ulica i nr", "ul. Pabianicka 15")
     with col2:
-        klient = st.text_input("Szanowni Państwo (Klient)", "Szanowni Państwo")
         autor = st.text_input("Autor protokołu", "Przemysław Tyszko")
         data_badania = st.date_input("Data badania", date.today())
 
@@ -657,7 +656,7 @@ if st.button(f"GENERUJ PROTOKÓŁ OGLĘDZIN DLA: {flooring_type.upper()}", type=
         rep = ReportBuilder()
         
         # Generowanie nagłówka do DOC/PDF
-        tytul = f"Dotyczy: Protokół z oględzin inwestycji w obiekcie {inwestycja} ({adres}, {miejscowosc}).\n\nSzanowni Państwo,\n\nW dniu {data_badania.strftime('%d.%m.%Y')} dokonano wstępnych oględzin i pomiarów wytrzymałości podłoża ({substrate}) oraz pomiaru wilgotności przed przyklejeniem okładziny ({flooring_type}).\n\n"
+        tytul = f"Dotyczy: Protokół z oględzin inwestycji w obiekcie:\nAdres: {adres}, {miejscowosc}\nDla: {nazwa_klienta}\n\nSzanowni Państwo,\n\nW dniu {data_badania.strftime('%d.%m.%Y')} dokonano wstępnych oględzin i pomiarów wytrzymałości podłoża ({substrate}) oraz pomiaru wilgotności przed przyklejeniem okładziny ({flooring_type}).\n\n"
         rep.write(tytul)
         
         rep.markdown("#### **I. Oględziny i badania**")
@@ -687,12 +686,18 @@ if st.button(f"GENERUJ PROTOKÓŁ OGLĘDZIN DLA: {flooring_type.upper()}", type=
         # Przyciski pobierania
         if EXPORTS_READY:
             col_d1, col_d2 = st.columns(2)
+            
+            safe_adres = adres.replace(' ', '_').replace('/', '_').replace('.', '')
+            data_str = data_badania.strftime('%d-%m-%Y')
+            safe_klient = nazwa_klienta.replace(' ', '_').replace('/', '_')
+            base_filename = f"Protokol_Wakol_{safe_klient}_{safe_adres}_{data_str}"
+            
             with col_d1:
                 docx_file = generate_docx(rep.get_markdown())
                 st.download_button(
                     label="📄 Pobierz jako plik Word (.docx)",
                     data=docx_file,
-                    file_name=f"Protokol_{inwestycja.replace(' ', '_')}.docx",
+                    file_name=f"{base_filename}.docx",
                     mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
                     use_container_width=True
                 )
@@ -702,7 +707,7 @@ if st.button(f"GENERUJ PROTOKÓŁ OGLĘDZIN DLA: {flooring_type.upper()}", type=
                     st.download_button(
                         label="📕 Pobierz jako plik PDF (.pdf)",
                         data=pdf_file,
-                        file_name=f"Protokol_{inwestycja.replace(' ', '_')}.pdf",
+                        file_name=f"{base_filename}.pdf",
                         mime="application/pdf",
                         use_container_width=True
                     )
