@@ -591,14 +591,4 @@ if st.button(f"GENERUJ PROTOKÓŁ OGLĘDZIN DLA: {flooring_type.upper()}", type=
                     use_container_width=True
                 )
             with col_d2:
-                pdf_file = generate_pdf(rep.get_markdown())
-                if pdf_file:
-                    st.download_button(
-                        label="📕 Pobierz jako plik PDF (.pdf)",
-                        data=pdf_file,
-                        file_name=f"Protokol_{inwestycja.replace(' ', '_')}.pdf",
-                        mime="application/pdf",
-                        use_container_width=True
-                    )
-        else:
-            st.error("⚠️ Brak bibliotek do generowania Word/PDF. Otwórz terminal i wpisz komendę:\n`pip install python-docx fpdf2`")
+               Brak bibliotek do generowania Word/PDF. Otwórz terminal i wpisz komendę: pip install python-docx fpdf2
