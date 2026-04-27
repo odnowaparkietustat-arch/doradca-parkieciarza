@@ -362,11 +362,22 @@ def _add_runs(p, text):
 def generate_pdf(md_text):
     pdf = FPDF()
     try:
-        # Próba załadowania polskiej czcionki Arial
-        pdf.add_font('Arial', '', r'C:\Windows\Fonts\arial.ttf', uni=True)
-        pdf.add_font('Arial', 'B', r'C:\Windows\Fonts\arialbd.ttf', uni=True)
+        import os
+        import urllib.request
+        font_url = 'https://github.com/matomo-org/travis-scripts/raw/master/fonts/DejaVuSans.ttf'
+        font_bold_url = 'https://github.com/matomo-org/travis-scripts/raw/master/fonts/DejaVuSans-Bold.ttf'
+        if os.path.exists(r'C:\Windows\Fonts\arial.ttf'):
+            pdf.add_font('Arial', '', r'C:\Windows\Fonts\arial.ttf')
+            pdf.add_font('Arial', 'B', r'C:\Windows\Fonts\arialbd.ttf')
+        else:
+            if not os.path.exists('DejaVuSans.ttf'):
+                urllib.request.urlretrieve(font_url, 'DejaVuSans.ttf')
+            if not os.path.exists('DejaVuSans-Bold.ttf'):
+                urllib.request.urlretrieve(font_bold_url, 'DejaVuSans-Bold.ttf')
+            pdf.add_font('Arial', '', 'DejaVuSans.ttf')
+            pdf.add_font('Arial', 'B', 'DejaVuSans-Bold.ttf')
         pdf.set_font('Arial', size=11)
-    except:
+    except Exception as e:
         pdf.set_font('helvetica', size=11)
         
     pdf.add_page()
