@@ -94,9 +94,9 @@ def render_wspolne_zalecenia_podloze(dane, rep):
     rep.write("**a) przygotowanie podłoża:**")
     if dane['dilatations_obw_ok'] == "NIE":
         rep.write("* Odtworzenie dylatacji obwodowych.")
-    if dane['cracks_klaw'] == "TAK" and dane.get('klaw_meters', 0) > 0:
+    if dane['cracks_klaw'] == "TAK" and (dane.get('klaw_meters') or 0) > 0:
         rep.write("* Rozbruzdowanie klawiszujących dylatacji pozornych.")
-    if dane['cracks_pek'] == "TAK" and dane.get('pek_meters', 0) > 0:
+    if dane['cracks_pek'] == "TAK" and (dane.get('pek_meters') or 0) > 0:
         rep.write("* Rozbruzdowanie pęknięć wymagających zespolenia.")
     rep.write("* **Szlif podłoża** w celu uzyskania porowatej i chłonnej powierzchni!")
     rep.write("* Dokładne odkurzenie powierzchni odkurzaczem przemysłowym.")
@@ -121,7 +121,7 @@ def render_wspolne_zalecenia_podloze(dane, rep):
     elif dane['needs_drying_action']:
         rep.write(f"Po doprowadzeniu do normatywnego poziomu wilgoci **{dane['norm_val_bracket']}** zalecamy:")
     
-    if (dane['klaw_meters'] + dane['pek_meters']) > 0: rep.write("* Pęknięcia / Klawiszujące dylatacje - zespolić żywicą laną **WAKOL PS 205**. Wymieszaną żywicę wlewać w pęknięcia, nadmiar zgarnąć lub zatrzeć.")
+    if ((dane.get('klaw_meters') or 0) + (dane.get('pek_meters') or 0)) > 0: rep.write("* Pęknięcia / Klawiszujące dylatacje - zespolić żywicą laną **WAKOL PS 205**. Wymieszaną żywicę wlewać w pęknięcia, nadmiar zgarnąć lub zatrzeć.")
     if dane['holes'] == "TAK":
         if dane.get('holes_depth') and dane['holes_depth'] >= 1.0:
             rep.write("* Ubytki zaszpachlować masą **WAKOL Z 645** wymieszaną z piaskiem kwarcowym w proporcji 1:1  – czas schnięcia 1 godzina.")
