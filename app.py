@@ -68,13 +68,16 @@ def render_wspolne_dane_optyczne(dane, rep):
     heat_txt = f" Została zainstalowana {dane['heating_info']}." if dane['heating_exists'] == "TAK" else " Brak instalacji ogrzewania podłogowego."
     curing_txt = " Został przeprowadzony proces wygrzewania zgodnie z protokołem." if dane['heating_curing_done'] == "TAK" else " Nie został przeprowadzony proces wygrzewania podłoża." if dane['heating_exists'] == "TAK" else ""
     dil_txt = " Dylatacje obwodowe zachowane prawidłowo." if dane['dilatations_obw_ok'] == "TAK" else " Dylatacje obwodowe nie zachowane prawidłowo."
-    klaw_txt = f" Zaobserwowano {dane['klaw_meters']} metrów dylatacji pozornych wymagających zespolenia." if dane['cracks_klaw'] == "TAK" else " Nie zaobserwowano dylatacji pozornych wymagających zespolenia."
-    pek_txt = f" Zaobserwowano {dane['pek_meters']} metrów pęknięć wymagających zespolenia." if dane['cracks_pek'] == "TAK" else " Nie zaobserwowano pęknięć wymagających zespolenia."
+    klaw_m = dane.get('klaw_meters') or 0
+    pek_m = dane.get('pek_meters') or 0
+    klaw_txt = f" Zaobserwowano {klaw_m} metrów bieżących dylatacji pozornych wymagających zespolenia." if dane['cracks_klaw'] == "TAK" else " Nie zaobserwowano dylatacji pozornych wymagających zespolenia."
+    pek_txt = f" Zaobserwowano {pek_m} metrów bieżących pęknięć wymagających zespolenia." if dane['cracks_pek'] == "TAK" else " Nie zaobserwowano pęknięć wymagających zespolenia."
     holes_txt = f" Zaobserwowano fragmenty wymagające wypełnienia masą naprawczą{dane['hole_details']}." if dane['holes'] == "TAK" else " Nie stwierdzono ubytków lub zdegradowanych miejsc wymagających wypełnienia."
     level_txt = f" Podłoże wymaga wyrównania masą wyrównawczą o planowanej grubości {dane['leveling_thickness']} milimetrów." if dane['needs_levelling'] == "TAK" else " Podłoże nie wymaga wyrównania masą wyrównawczą."
     vent_txt = f" Rodzaj zastosowanej wentylacji: wentylacja {dane['ventilation_type'].lower()}."
     
-    full_opt_report = f"Podłoże pod planowaną okładzinę ({dane['flooring_type']}) stanowi {dane['substrate']}{age_txt}.{heat_txt}{curing_txt}{dil_txt}{klaw_txt}{pek_txt}{holes_txt}{level_txt} {vent_txt}"
+    area_txt = f" o powierzchni {dane['area_m2']} m²" if dane.get('area_m2') else ""
+    full_opt_report = f"Podłoże pod planowaną okładzinę ({dane['flooring_type']}) stanowi {dane['substrate']}{area_txt}{age_txt}.{heat_txt}{curing_txt}{dil_txt}{klaw_txt}{pek_txt}{holes_txt}{level_txt} {vent_txt}"
     rep.write(f"**a) oględziny optyczne:** {full_opt_report}")
     
     presso_valid = [str(p) for p in dane.get('presso_results', []) if p is not None]
@@ -90,13 +93,75 @@ def render_wspolne_dane_optyczne(dane, rep):
     if klimat:
         rep.write(f"**d) warunki klimatyczne:** {', '.join(klimat)}.")
 
+PRODUCTS = {
+    'PU 280 (1W)': {'name': 'WAKOL PU 280 (1 warstwa)', 'usage': 150, 'sizes': [11, 5], 'text': FULL_PU280_1W},
+    'PU 280 (Bariera)': {'name': 'WAKOL PU 280 (bariera)', 'usage': 250, 'sizes': [11, 5], 'text': FULL_PU280_BARRIER},
+    'PU 235 (1W)': {'name': 'WAKOL PU 235 (1 warstwa)', 'usage': 150, 'sizes': [11], 'text': FULL_PU235_1W},
+    'PU 235 (Bariera)': {'name': 'WAKOL PU 235 (bariera)', 'usage': 250, 'sizes': [11], 'text': FULL_PU235_BARRIER},
+    'PS 275': {'name': 'WAKOL PS 275', 'usage': 700, 'sizes': [11], 'text': FULL_PS275},
+    'D 3004': {'name': 'WAKOL D 3004', 'usage': 50, 'sizes': [10, 5], 'text': FULL_D3004},
+    'D 3055': {'name': 'WAKOL D 3055', 'usage': 150, 'sizes': [10, 5], 'text': FULL_D3055},
+    'PU 225': {'name': 'WAKOL PU 225 (klej)', 'usage': 1250, 'sizes': [10], 'text': ""},
+    'MS 230': {'name': 'WAKOL MS 230 (klej)', 'usage': 1350, 'sizes': [18], 'text': ""},
+    'MS 260': {'name': 'WAKOL MS 260 (klej)', 'usage': 1350, 'sizes': [18], 'text': ""}
+}
+
+def write_and_track(dane, rep, prod_key):
+    prod = PRODUCTS[prod_key]
+    if prod['text']:
+        rep.write(prod['text'])
+    if 'materials' not in dane:
+        dane['materials'] = []
+    area = dane.get('area_m2')
+    if not area: return
+    needed_kg = (area * prod['usage']) / 1000.0
+    sizes = sorted(prod['sizes'], reverse=True)
+    best_combo = None
+    best_waste = float('inf')
+    import math
+    max_large = int(math.ceil(needed_kg / sizes[0])) if sizes else 0
+    for i in range(max_large + 1):
+        rem = needed_kg - i * sizes[0]
+        if rem <= 0:
+            waste = -rem
+            if waste < best_waste:
+                best_waste = waste
+                best_combo = {sizes[0]: i}
+                if len(sizes) > 1: best_combo[sizes[1]] = 0
+        else:
+            if len(sizes) > 1:
+                j = int(math.ceil(rem / sizes[1]))
+                waste = (i * sizes[0] + j * sizes[1]) - needed_kg
+                if waste < best_waste:
+                    best_waste = waste
+                    best_combo = {sizes[0]: i, sizes[1]: j}
+    combo_str = []
+    if best_combo:
+        for size in sizes:
+            if best_combo.get(size, 0) > 0:
+                combo_str.append(f"{best_combo[size]}x {size} kg")
+    # check if material already added to prevent duplicates (e.g. glue when falling through if-else)
+    if not any(m['name'] == prod['name'] for m in dane['materials']):
+        dane['materials'].append({
+            'name': prod['name'],
+            'kg': round(needed_kg, 2),
+            'combo': " + ".join(combo_str) if combo_str else f"{math.ceil(needed_kg)} kg"
+        })
+
+def render_potrzebne_materialy(dane, rep):
+    if not dane.get('area_m2'): return
+    if not dane.get('materials'): return
+    rep.write("**Potrzebne materiały (szacunkowo na podstawie powierzchni):**")
+    for m in dane['materials']:
+        rep.write(f"- {m['name']}: **{m['kg']} kg** ({m['combo']})")
+
 def render_wspolne_zalecenia_podloze(dane, rep):
     rep.write("**a) przygotowanie podłoża:**")
     if dane['dilatations_obw_ok'] == "NIE":
         rep.write("* Odtworzenie dylatacji obwodowych.")
-    if dane['cracks_klaw'] == "TAK" and (dane.get('klaw_meters') or 0) > 0:
+    if dane['cracks_klaw'] == "TAK":
         rep.write("* Rozbruzdowanie klawiszujących dylatacji pozornych.")
-    if dane['cracks_pek'] == "TAK" and (dane.get('pek_meters') or 0) > 0:
+    if dane['cracks_pek'] == "TAK":
         rep.write("* Rozbruzdowanie pęknięć wymagających zespolenia.")
     rep.write("* **Szlif podłoża** w celu uzyskania porowatej i chłonnej powierzchni!")
     rep.write("* Dokładne odkurzenie powierzchni odkurzaczem przemysłowym.")
@@ -121,7 +186,7 @@ def render_wspolne_zalecenia_podloze(dane, rep):
     elif dane['needs_drying_action']:
         rep.write(f"Po doprowadzeniu do normatywnego poziomu wilgoci **{dane['norm_val_bracket']}** zalecamy:")
     
-    if ((dane.get('klaw_meters') or 0) + (dane.get('pek_meters') or 0)) > 0: rep.write("* Pęknięcia / Klawiszujące dylatacje - zespolić żywicą laną **WAKOL PS 205**. Wymieszaną żywicę wlewać w pęknięcia, nadmiar zgarnąć lub zatrzeć.")
+    if dane['cracks_klaw'] == "TAK" or dane['cracks_pek'] == "TAK": rep.write("* Pęknięcia / Klawiszujące dylatacje - zespolić żywicą laną **WAKOL PS 205**. Wymieszaną żywicę wlewać w pęknięcia, nadmiar zgarnąć lub zatrzeć.")
     if dane['holes'] == "TAK":
         if dane.get('holes_depth') and dane['holes_depth'] >= 1.0:
             rep.write("* Ubytki zaszpachlować masą **WAKOL Z 645** wymieszaną z piaskiem kwarcowym w proporcji 1:1  – czas schnięcia 1 godzina.")
@@ -131,87 +196,87 @@ def render_wspolne_zalecenia_podloze(dane, rep):
 def render_wspolna_chemia(dane, rep):
     used_d3004 = False
     if dane['decision_after_cure'] == "Wykonanie bariery przeciwwilgociowej":
-        if dane['strength_val'] <= 2: rep.write(FULL_PU235_BARRIER)
-        else: rep.write(FULL_PU280_BARRIER)
+        if dane['strength_val'] <= 2: write_and_track(dane, rep, 'PU 235 (Bariera)')
+        else: write_and_track(dane, rep, 'PU 280 (Bariera)')
     elif not dane['decision_after_cure'] or "Wykonanie" not in str(dane['decision_after_cure']):
         if dane['needs_levelling'] == "TAK":
             if dane['strength_val'] in [3, 4, 5]:
                 if dane['substrate'] == "jastrych anhydrytowy" and dane['leveling_thickness'] and dane['leveling_thickness'] > 5:
-                    rep.write(FULL_PU280_1W)
+                    write_and_track(dane, rep, 'PU 280 (1W)')
                 else:
-                    rep.write(FULL_D3004)
+                    write_and_track(dane, rep, 'D 3004')
                     used_d3004 = True
             else:
                 if dane['strength_val'] == 1:
-                    if dane['substrate'] == "jastrych anhydrytowy": rep.write(FULL_PU235_1W)
+                    if dane['substrate'] == "jastrych anhydrytowy": write_and_track(dane, rep, 'PU 235 (1W)')
                     else:
-                        rep.write(FULL_PS275)
-                        rep.write(FULL_PU280_1W)
-                elif dane['strength_val'] == 2: rep.write(FULL_PU280_1W)
+                        write_and_track(dane, rep, 'PS 275')
+                        write_and_track(dane, rep, 'PU 280 (1W)')
+                elif dane['strength_val'] == 2: write_and_track(dane, rep, 'PU 280 (1W)')
         else:
             if dane['strength_val'] == 1:
-                if dane['substrate'] == "jastrych anhydrytowy": rep.write(FULL_PU235_1W)
-                else: rep.write(FULL_PS275)
-            elif dane['strength_val'] == 2: rep.write(FULL_PU235_1W)
-            elif dane['strength_val'] in [3, 4]: rep.write(FULL_PU280_1W)
+                if dane['substrate'] == "jastrych anhydrytowy": write_and_track(dane, rep, 'PU 235 (1W)')
+                else: write_and_track(dane, rep, 'PS 275')
+            elif dane['strength_val'] == 2: write_and_track(dane, rep, 'PU 235 (1W)')
+            elif dane['strength_val'] in [3, 4]: write_and_track(dane, rep, 'PU 280 (1W)')
     return used_d3004
 
 def render_chemia_deska_warstwowa(dane, rep):
     used_d3004 = False
     if dane['decision_after_cure'] == "Wykonanie bariery przeciwwilgociowej":
-        if dane['strength_val'] <= 2: rep.write(FULL_PU235_BARRIER)
-        else: rep.write(FULL_PU280_BARRIER)
+        if dane['strength_val'] <= 2: write_and_track(dane, rep, 'PU 235 (Bariera)')
+        else: write_and_track(dane, rep, 'PU 280 (Bariera)')
     elif not dane['decision_after_cure'] or "Wykonanie" not in str(dane['decision_after_cure']):
         if dane['needs_levelling'] == "TAK":
             if dane['strength_val'] in [3, 4, 5]:
                 if dane['substrate'] == "jastrych anhydrytowy" and dane['leveling_thickness'] and dane['leveling_thickness'] > 5:
-                    rep.write(FULL_PU280_1W)
+                    write_and_track(dane, rep, 'PU 280 (1W)')
                 else:
-                    rep.write(FULL_D3004)
+                    write_and_track(dane, rep, 'D 3004')
                     used_d3004 = True
             elif dane['strength_val'] == 2:
-                rep.write(FULL_PU280_1W)
+                write_and_track(dane, rep, 'PU 280 (1W)')
             elif dane['strength_val'] == 1:
-                if dane['substrate'] == "jastrych anhydrytowy": rep.write(FULL_PU235_1W)
+                if dane['substrate'] == "jastrych anhydrytowy": write_and_track(dane, rep, 'PU 235 (1W)')
                 else:
-                    rep.write(FULL_PS275)
-                    rep.write(FULL_PU280_1W)
+                    write_and_track(dane, rep, 'PS 275')
+                    write_and_track(dane, rep, 'PU 280 (1W)')
         else:
             if dane['strength_val'] == 1:
-                if dane['substrate'] == "jastrych anhydrytowy": rep.write(FULL_PU235_1W)
-                else: rep.write(FULL_PS275)
-            elif dane['strength_val'] == 2: rep.write(FULL_PU235_1W)
-            elif dane['strength_val'] == 3: rep.write(FULL_PU280_1W)
-            elif dane['strength_val'] in [4, 5]: rep.write(FULL_D3055)
+                if dane['substrate'] == "jastrych anhydrytowy": write_and_track(dane, rep, 'PU 235 (1W)')
+                else: write_and_track(dane, rep, 'PS 275')
+            elif dane['strength_val'] == 2: write_and_track(dane, rep, 'PU 235 (1W)')
+            elif dane['strength_val'] == 3: write_and_track(dane, rep, 'PU 280 (1W)')
+            elif dane['strength_val'] in [4, 5]: write_and_track(dane, rep, 'D 3055')
     return used_d3004
 
 def render_chemia_deska_lita(dane, rep):
     used_d3004 = False
     if dane['decision_after_cure'] == "Wykonanie bariery przeciwwilgociowej":
-        if dane['strength_val'] <= 2: rep.write(FULL_PU235_BARRIER)
-        else: rep.write(FULL_PU280_BARRIER)
+        if dane['strength_val'] <= 2: write_and_track(dane, rep, 'PU 235 (Bariera)')
+        else: write_and_track(dane, rep, 'PU 280 (Bariera)')
     elif not dane['decision_after_cure'] or "Wykonanie" not in str(dane['decision_after_cure']):
         if dane['needs_levelling'] == "TAK":
             if dane['strength_val'] in [3, 4, 5]:
                 if dane['substrate'] == "jastrych anhydrytowy" and dane['leveling_thickness'] and dane['leveling_thickness'] > 5:
-                    rep.write(FULL_PU280_1W)
+                    write_and_track(dane, rep, 'PU 280 (1W)')
                 else:
-                    rep.write(FULL_D3004)
+                    write_and_track(dane, rep, 'D 3004')
                     used_d3004 = True
             else:
                 if dane['strength_val'] == 1:
-                    if dane['substrate'] == "jastrych anhydrytowy": rep.write(FULL_PU235_1W)
+                    if dane['substrate'] == "jastrych anhydrytowy": write_and_track(dane, rep, 'PU 235 (1W)')
                     else:
-                        rep.write(FULL_PS275)
-                        rep.write(FULL_PU280_1W)
-                elif dane['strength_val'] == 2: rep.write(FULL_PU280_1W)
+                        write_and_track(dane, rep, 'PS 275')
+                        write_and_track(dane, rep, 'PU 280 (1W)')
+                elif dane['strength_val'] == 2: write_and_track(dane, rep, 'PU 280 (1W)')
         else:
             if dane['strength_val'] == 1:
-                if dane['substrate'] == "jastrych anhydrytowy": rep.write(FULL_PU235_1W)
-                else: rep.write(FULL_PS275)
-            elif dane['strength_val'] == 2: rep.write(FULL_PU235_1W)
-            elif dane['strength_val'] in [3, 4]: rep.write(FULL_PU280_1W)
-            elif dane['strength_val'] == 5: rep.write(FULL_D3055)
+                if dane['substrate'] == "jastrych anhydrytowy": write_and_track(dane, rep, 'PU 235 (1W)')
+                else: write_and_track(dane, rep, 'PS 275')
+            elif dane['strength_val'] == 2: write_and_track(dane, rep, 'PU 235 (1W)')
+            elif dane['strength_val'] in [3, 4]: write_and_track(dane, rep, 'PU 280 (1W)')
+            elif dane['strength_val'] == 5: write_and_track(dane, rep, 'D 3055')
     return used_d3004
 
 # --- SEKCJA: DESKA WARSTWOWA ---
@@ -273,6 +338,7 @@ def generate_report_lvt_cienkie(dane, rep):
     if dane['already_levelled'] == "TAK":
         rep.write("**a) klejenie okładziny:**")
         rep.write("Klejenie podłogi winylowej (LVT) należy przeprowadzić przy użyciu kleju WAKOL D 3318 (szpachla TKB A2, zużycie: 350 g/m²). · Czas wstępnego odparowania: ok. 5 - 10 minut. · Czas układania: ok. 10 minut")
+        render_potrzebne_materialy(dane, rep)
         return
 
     render_wspolne_zalecenia_podloze(dane, rep)
@@ -285,6 +351,7 @@ def generate_report_lvt_cienkie(dane, rep):
 
     rep.write("**c) klejenie okładziny:**")
     rep.write("Klejenie podłogi winylowej (LVT) należy przeprowadzić przy użyciu kleju WAKOL D 3318 (szpachla TKB A2, zużycie: 350 g/m²). · Czas wstępnego odparowania: ok. 5 - 10 minut. · Czas układania: ok. 10 minut")
+    render_potrzebne_materialy(dane, rep)
 
 # --- SEKCJA: LVT GRUBE ---
 def generate_report_lvt_grube(dane, rep):
@@ -300,6 +367,9 @@ def generate_report_lvt_grube(dane, rep):
 
     rep.write("**c) klejenie okładziny:**")
     rep.write("Klejenie podłogi LVT z twardym rdzeniem należy przeprowadzić przy użyciu kleju **WAKOL MS 230** (szpachla B13, zużycie: 1350 g/m²) bądź kleju **WAKOL PU 225** (szpachla B11, zużycie: 1250 g/m²).")
+    write_and_track(dane, rep, 'MS 230')
+    write_and_track(dane, rep, 'PU 225')
+    render_potrzebne_materialy(dane, rep)
 
 # --- SEKCJA: PCV W ROLCE ---
 def generate_report_pcv_w_rolce(dane, rep):
@@ -313,6 +383,7 @@ def generate_report_pcv_w_rolce(dane, rep):
     if dane['already_levelled'] == "TAK":
         rep.write("**a) klejenie okładziny PCV:**")
         rep.write("Klejenie wykładziny PCV w rolce należy przeprowadzić przy użyciu kleju WAKOL D 3307 (szpachla TKB A2, zużycie: 300 – 330 g/m²). · Czas wstępnego odparowania: ok. 10 - 20 minut. · Czas układania: ok. 15 - 20 minut")
+        render_potrzebne_materialy(dane, rep)
         return
 
     render_wspolne_zalecenia_podloze(dane, rep)
@@ -325,6 +396,7 @@ def generate_report_pcv_w_rolce(dane, rep):
 
     rep.write("**c) klejenie okładziny PCV:**")
     rep.write("Klejenie wykładziny PCV w rolce należy przeprowadzić przy użyciu kleju WAKOL D 3307 (szpachla TKB A2, zużycie: 300 – 330 g/m²). · Czas wstępnego odparowania: ok. 10 - 20 minut. · Czas układania: ok. 15 - 20 minut")
+    render_potrzebne_materialy(dane, rep)
 
 # --- SEKCJA: WYKŁADZINA DYWANOWA ---
 def generate_report_wykladzina_dywanowa(dane, rep):
@@ -338,6 +410,7 @@ def generate_report_wykladzina_dywanowa(dane, rep):
     if dane['already_levelled'] == "TAK":
         rep.write("**a) klejenie wykładziny tekstylnej:**")
         rep.write("Klejenie wykładziny tekstylnej należy przeprowadzić przy użyciu kleju WAKOL D 3308 (szpachla TKB B1 400-450 g/m²). · Czas wstępnego odparowania: ok. 5-10 minut. · Czas otwarty kleju ok. 10-15 minut")
+        render_potrzebne_materialy(dane, rep)
         return
 
     render_wspolne_zalecenia_podloze(dane, rep)
@@ -350,6 +423,7 @@ def generate_report_wykladzina_dywanowa(dane, rep):
 
     rep.write("**c) klejenie wykładziny tekstylnej:**")
     rep.write("Klejenie wykładziny tekstylnej należy przeprowadzić przy użyciu kleju WAKOL D 3308 (szpachla TKB B1 400-450 g/m²). · Czas wstępnego odparowania: ok. 5-10 minut. · Czas otwarty kleju ok. 10-15 minut")
+    render_potrzebne_materialy(dane, rep)
 
 # ==========================================
 # EXPORT DO DOCX I PDF
@@ -547,6 +621,7 @@ flooring_type = st.selectbox("Wybierz rodzaj okładziny (Sekcja):", ["deska wars
 st.markdown(f"### Wywiad Techniczny dla: **{flooring_type.upper()}**")
 
 substrate = st.selectbox("1. Rodzaj podłoża", ["jastrych cementowy", "jastrych anhydrytowy", "płyta fundamentowa", "podłoże drewniane (parkiet, deska, OSB)", "płytki ceramiczne", "masa samorozlewna"])
+area_m2 = st.number_input("Powierzchnia inwestycji (m²):", min_value=1.0, step=1.0, format="%.1f", value=None)
 substrate_age_val = st.number_input("Wiek podłoża (podaj ilość miesięcy):", min_value=0.5, step=0.5, format="%.1f", value=None)
 
 st.write("2. Czy jest instalacja ogrzewania podłogowego?")
@@ -634,6 +709,7 @@ strength_val = st.select_slider("Ocena ogólna wytrzymałości podłoża:", opti
 dane_protokolu = {
     "flooring_type": flooring_type,
     "substrate": substrate,
+    "area_m2": area_m2,
     "substrate_age_val": substrate_age_val,
     "heating_exists": heating_exists,
     "heating_info": heating_info,
