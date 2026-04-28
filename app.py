@@ -67,10 +67,10 @@ def render_wspolne_dane_optyczne(dane, rep):
     age_txt = f" w wieku {dane['substrate_age_val']} miesięcy" if dane['substrate_age_val'] else ""
     heat_txt = f" Została zainstalowana {dane['heating_info']}." if dane['heating_exists'] == "TAK" else " Brak instalacji ogrzewania podłogowego."
     curing_txt = " Został przeprowadzony proces wygrzewania zgodnie z protokołem." if dane['heating_curing_done'] == "TAK" else " Nie został przeprowadzony proces wygrzewania podłoża." if dane['heating_exists'] == "TAK" else ""
-    dil_txt = " Dylatacje obwodowe zostały zachowane prawidłowo." if dane['dilatations_obw_ok'] == "TAK" else " Dylatacje obwodowe nie zostały zachowane prawidłowo."
-    klaw_txt = f" Stwierdzono występowanie klawiszujących dylatacji pozornych w ilości {dane['klaw_meters']} metrów bieżących." if dane['cracks_klaw'] == "TAK" else " Nie stwierdzono występowania klawiszujących dylatacji pozornych."
-    pek_txt = f" Stwierdzono występowanie pęknięć podłoża wymagających zespolenia w ilości {dane['pek_meters']} metrów bieżących." if dane['cracks_pek'] == "TAK" else " Nie stwierdzono występowania pęknięć podłoża wymagających zespolenia."
-    holes_txt = f" Stwierdzono ubytki lub zdegradowane miejsca wymagające wypełnienia{dane['hole_details']}." if dane['holes'] == "TAK" else " Nie stwierdzono ubytków lub zdegradowanych miejsc wymagających wypełnienia."
+    dil_txt = " Dylatacje obwodowe zachowane prawidłowo." if dane['dilatations_obw_ok'] == "TAK" else " Dylatacje obwodowe nie zachowane prawidłowo."
+    klaw_txt = f" Zaobserwowano {dane['klaw_meters']} metrów dylatacji pozornych wymagających zespolenia." if dane['cracks_klaw'] == "TAK" else " Nie zaobserwowano dylatacji pozornych wymagających zespolenia."
+    pek_txt = f" Zaobserwowano {dane['pek_meters']} metrów pęknięć wymagających zespolenia." if dane['cracks_pek'] == "TAK" else " Nie zaobserwowano pęknięć wymagających zespolenia."
+    holes_txt = f" Zaobserwowano fragmenty wymagające wypełnienia masą naprawczą{dane['hole_details']}." if dane['holes'] == "TAK" else " Nie stwierdzono ubytków lub zdegradowanych miejsc wymagających wypełnienia."
     level_txt = f" Podłoże wymaga wyrównania masą wyrównawczą o planowanej grubości {dane['leveling_thickness']} milimetrów." if dane['needs_levelling'] == "TAK" else " Podłoże nie wymaga wyrównania masą wyrównawczą."
     vent_txt = f" Rodzaj zastosowanej wentylacji: wentylacja {dane['ventilation_type'].lower()}."
     
@@ -92,6 +92,12 @@ def render_wspolne_dane_optyczne(dane, rep):
 
 def render_wspolne_zalecenia_podloze(dane, rep):
     rep.write("**a) przygotowanie podłoża:**")
+    if dane['dilatations_obw_ok'] == "NIE":
+        rep.write("* Odtworzenie dylatacji obwodowych.")
+    if dane['cracks_klaw'] == "TAK" and dane.get('klaw_meters', 0) > 0:
+        rep.write("* Rozbruzdowanie klawiszujących dylatacji pozornych.")
+    if dane['cracks_pek'] == "TAK" and dane.get('pek_meters', 0) > 0:
+        rep.write("* Rozbruzdowanie pęknięć wymagających zespolenia.")
     rep.write("* **Szlif podłoża** w celu uzyskania porowatej i chłonnej powierzchni!")
     rep.write("* Dokładne odkurzenie powierzchni odkurzaczem przemysłowym.")
     
@@ -115,8 +121,12 @@ def render_wspolne_zalecenia_podloze(dane, rep):
     elif dane['needs_drying_action']:
         rep.write(f"Po doprowadzeniu do normatywnego poziomu wilgoci **{dane['norm_val_bracket']}** zalecamy:")
     
-    if (dane['klaw_meters'] + dane['pek_meters']) > 0: rep.write("- Zespolić pęknięcia i dylatacje pozorne żywicą **WAKOL PS 205**.")
-    if dane['holes'] == "TAK": rep.write(f"- Uzupełnić ubytki zaprawą **WAKOL Z 610**{dane['hole_details']}.")
+    if (dane['klaw_meters'] + dane['pek_meters']) > 0: rep.write("* Pęknięcia / Klawiszujące dylatacje - zespolić żywicą laną **WAKOL PS 205**. Wymieszaną żywicę wlewać w pęknięcia, nadmiar zgarnąć lub zatrzeć.")
+    if dane['holes'] == "TAK":
+        if dane.get('holes_depth') and dane['holes_depth'] >= 1.0:
+            rep.write("* Ubytki zaszpachlować masą **WAKOL Z 645** wymieszaną z piaskiem kwarcowym w proporcji 1:1  – czas schnięcia 1 godzina.")
+        else:
+            rep.write("* Ubytki zaszpachlować masą szpachlową **WAKOL Z 645** z dodatkiem plastyfikatora **WAKOL D 3060** (7 litrów WAKOL D 3060 na 25 kg WAKOL Z 645). Czas schnięcia min. 3h. W razie potrzeby użyć siatki zbrojeniowej WAKOL AR 150.")
 
 def render_wspolna_chemia(dane, rep):
     used_d3004 = False
@@ -568,15 +578,17 @@ klaw_meters = st.number_input("Ilość mb klawiszujących:", min_value=0.1, step
 st.write("6. Czy występują pęknięcia podłoża wymagające zespolenia?")
 cracks_pek = st.radio("Pęknięcia do zespolenia:", ["TAK", "NIE"], index=1, horizontal=True)
 pek_meters = st.number_input("Ilość mb pęknięć do zespolenia:", min_value=0.1, step=0.1, value=None) if cracks_pek == "TAK" else 0.0
-st.write("7. Czy są ubytki lub zdegradowane miejsca wymagające wypełnienia?")
+st.write("7. Czy są ubytki bądź zdegradowane fragmenty wymagające wypełnienia masą naprawczą?")
 holes = st.radio("Ubytki:", ["TAK", "NIE"], index=1, horizontal=True)
 hole_details = ""
+holes_depth = None
 if holes == "TAK":
     col_h1, col_h2, col_h3 = st.columns(3)
-    with col_h1: h_depth = st.number_input("Głębokość (cm)", min_value=0.1, value=None)
+    with col_h1: h_depth = st.number_input("Grubość (cm)", min_value=0.1, value=None)
     with col_h2: h_width = st.number_input("Szerokość (cm)", min_value=0.1, value=None)
     with col_h3: h_length = st.number_input("Długość (cm)", min_value=0.1, value=None)
-    if h_depth and h_width and h_length: hole_details = f" o wymiarach ok. {h_length}x{h_width} cm i głębokości {h_depth} cm"
+    if h_depth and h_width and h_length: hole_details = f" o wymiarach ok. {h_length}x{h_width} cm i grubości {h_depth} cm"
+    holes_depth = h_depth
 
 st.write("8. Rodzaj wentylacji")
 ventilation_type = st.radio("Wentylacja:", ["Grawitacyjna", "Mechaniczna"], horizontal=True)
@@ -635,6 +647,7 @@ dane_protokolu = {
     "cracks_pek": cracks_pek,
     "pek_meters": pek_meters,
     "holes": holes,
+    "holes_depth": holes_depth if 'holes_depth' in locals() else None,
     "hole_details": hole_details,
     "ventilation_type": ventilation_type,
     "moisture": moisture,
