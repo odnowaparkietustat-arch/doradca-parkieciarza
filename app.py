@@ -304,8 +304,13 @@ def generate_report_deska_warstwowa(dane, rep):
     rep.write("**c) klejenie okładziny:**")
     if dane['substrate'] == "jastrych anhydrytowy" and dane['strength_val'] == 1:
         rep.write(f"Klejenie {nazwa_okladziny} należy przeprowadzić przy użyciu kleju do parkietu **WAKOL MS 230** (szpachla B13, zużycie: 1350 g/m²).")
+        write_and_track(dane, rep, 'MS 230')
     else:
         rep.write(f"Klejenie {nazwa_okladziny} należy przeprowadzić przy użyciu kleju do parkietu **WAKOL MS 230** (szpachla B13, zużycie: 1350 g/m²) bądź kleju do parkietu **WAKOL PU 225** (szpachla B11, zużycie: 1250 g/m²).")
+        write_and_track(dane, rep, 'MS 230')
+        write_and_track(dane, rep, 'PU 225')
+        
+    render_potrzebne_materialy(dane, rep)
 
 # --- SEKCJA: DESKA LITA ---
 def generate_report_deska_lita(dane, rep):
@@ -325,6 +330,8 @@ def generate_report_deska_lita(dane, rep):
 
     rep.write("**c) klejenie okładziny:**")
     rep.write("Klejenie podłogi z deski litej należy przeprowadzić przy użyciu kleju polimerowego twardo-elastycznego WAKOL MS 260. (szpachla B13, zużycie: 1350 g/m²).")
+    write_and_track(dane, rep, 'MS 260')
+    render_potrzebne_materialy(dane, rep)
 
 # --- SEKCJA: LVT CIENKIE ---
 def generate_report_lvt_cienkie(dane, rep):
