@@ -391,14 +391,23 @@ class WakolPDF(FPDF):
                 self.set_font('Arial', '', 9)
             except:
                 pass
-            self.cell(0, 4, "adres:    Sławęcińska 16, Macierzysz", ln=True, align='R')
-            self.cell(0, 4, "          05-850 Ożarów Mazowiecki", ln=True, align='R')
-            self.cell(0, 4, f"data:    {self.data_badania_str}", ln=True, align='R')
-            self.cell(0, 4, f"autor:    {self.autor_str}", ln=True, align='R')
-            self.cell(0, 4, "telefon:    +48 22 436 24 20", ln=True, align='R')
-            self.cell(0, 4, "telefax:    +48 22 436 24 21", ln=True, align='R')
-            self.cell(0, 4, "e-mail:    biuro@loba-wakol.pl", ln=True, align='R')
-            self.cell(0, 4, f"strona:    {self.page_no()} z {{nb}}", ln=True, align='R')
+            label_x = 140
+            value_x = 155
+            
+            def print_row(lbl, val):
+                self.set_x(label_x)
+                self.cell(15, 4, lbl)
+                self.set_x(value_x)
+                self.cell(0, 4, val, ln=True)
+
+            print_row("adres:", "Sławęcińska 16, Macierzysz")
+            print_row("", "05-850 Ożarów Mazowiecki")
+            print_row("data:", self.data_badania_str)
+            print_row("autor:", self.autor_str)
+            print_row("telefon:", "+48 22 436 24 20")
+            print_row("telefax:", "+48 22 436 24 21")
+            print_row("e-mail:", "biuro@loba-wakol.pl")
+            print_row("strona:", f"{self.page_no()} z {{nb}}")
             self.set_y(60)
         else:
             try:
