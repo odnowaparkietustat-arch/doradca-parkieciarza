@@ -115,7 +115,8 @@ PRODUCTS = {
     'D 3004 (bruzdowane)': {'name': 'WAKOL D 3004 (koncentrat)', 'usage': 75, 'sizes': [10, 5], 'text': ""},
     'AR 150': {'name': 'WAKOL AR 150 (mata kompensacyjna)', 'usage': 1000, 'sizes': [50], 'text': ""},
     'D 3060': {'name': 'WAKOL D 3060 (plastyfikator)', 'usage': 1000, 'sizes': [10], 'text': ""},
-    'Płyta RP': {'name': 'WAKOL RP 104 (płyta rozdzielająca)', 'usage': 1000, 'sizes': [1], 'text': ""}
+    'PU 280 (RP)': {'name': 'WAKOL PU 280 (grunt dla RP)', 'usage': 200, 'sizes': [11, 5], 'text': "* Zalecamy zagruntowanie całej powierzchni podłoża gruntówką wzmacniającą **WAKOL PU 280**. Aplikować wałkiem. Nie zostawiać kałuż tj. zbierać nadmiar niewchłoniętej gruntówki. Zużycie ok. 200 g/m². Czas schnięcia 1 godzina. Czas do montażu – 72 godziny."},
+    'Płyta RP': {'name': 'WAKOL RP 704 (płyta odprzęgająca)', 'usage': 1000, 'sizes': [1], 'text': "* Na tak przygotowane podłoże zalecamy przyklejenie płyty odprzęgającej o grubości 4 mm **WAKOL RP 704**. Należy przyklejać klejem 2K PU (**WAKOL PU 225**). Płytę odprzęgającą po ułożeniu należy docisnąć. Płytę można docinać używając noża trapezowego. Można układać parkiet, jeśli tylko klejona płyta nie przesuwa się w trakcie chodzenia po niej."}
 }
 
 def write_and_track(dane, rep, prod_key, custom_kg=None):
@@ -246,12 +247,11 @@ def render_wspolne_zalecenia_podloze(dane, rep):
             if area > 0:
                 write_and_track(dane, rep, 'Z 635', custom_kg=area * 5 * 1.5)
         elif dane['bruzdowane_wybor'] == "płyta RP":
-            rep.write("* Naprawa instalacji ogrzewania bruzdowanego: zalecamy aplikację gruntu **WAKOL PU 280** i klejenie płyty **WAKOL RP 104** (arkusze 0,6 m²) na klej **WAKOL PU 225**.")
-            write_and_track(dane, rep, 'PU 280 (1W)')
-            write_and_track(dane, rep, 'PU 225')
             area = dane.get('area_m2', 0)
-            if area > 0:
-                write_and_track(dane, rep, 'Płyta RP', custom_kg=math.ceil(area / 0.6))
+            rep.write("* Naprawa instalacji ogrzewania bruzdowanego (płyta odprzęgająca):")
+            write_and_track(dane, rep, 'PU 280 (RP)')
+            write_and_track(dane, rep, 'Płyta RP', custom_kg=math.ceil(area / 0.6) if area > 0 else 0)
+            write_and_track(dane, rep, 'PU 225')
 
 def render_wspolna_chemia(dane, rep):
     used_d3004 = False
