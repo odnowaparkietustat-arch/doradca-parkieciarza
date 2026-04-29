@@ -38,9 +38,9 @@ FULL_PU235_BARRIER = "* Zalecamy wykonanie **bariery przeciwwilgociowej** poprze
 FULL_PU280_1W = "* Zalecamy wykonanie gruntowania wzmacniającego poprzez zagruntowanie powierzchni jastrychu gruntówką poliuretanową **WAKOL PU 280**. Aplikować wałkiem. Podczas aplikacji nie zostawiać kałuż tj. zbierać nadmiar niewchłoniętej gruntówki. Zużycie **ok. 150 g/m²**. **Czas schnięcia – jedna godzina**."
 FULL_PU280_BARRIER = "* Z uwagi na podwyższoną wilgotność zalecamy stworzenie **bariery przeciwwilgociowej** poprzez zagruntowanie powierzchni jastrychu gruntówką poliuretanową **WAKOL PU 280**. Aplikować wałkiem. Podczas aplikacji nie zostawiać kałuż tj. zbierać nadmiar niewchłoniętej gruntówki. 1. warstwa nałożona wałkiem **ok. 100-150 g/m²**. **Czas schnięcia – jedna godzina**. 2. warstwa **ok. 100 g/m²** - **czas schnięcia – jedna godzina**. **Czas do klejenia: 72 godziny od zagruntowania**."
 FULL_D3004 = "* Zagruntować podłoże koncentratem gruntówki dyspersyjnej **WAKOL D 3004**. Proporcje mieszania: 1 część **WAKOL D 3004** + 2 części wody. **Czas schnięcia**: na jastrychach cementowych i betonie po optycznym wyschnięciu **ok. 30 min**. Sposób nanoszenia: wałek do gruntowania microfazer. Zużycie: **ok. 50 g/m²** koncentratu."
-FULL_Z625 = "* Wylać masę wyrównawczą **WAKOL Z 625** - wymieszać ją w czystym naczyniu z zimną wodą w proporcji 6,00 – 6,25 litrów wody na 25 kg masy. Mieszać unikając tworzenia się grudek. Prędkość obrotowa mieszadła może wynosić max. 600 obrotów na minutę. Wymieszaną masę nanosić w żądanej grubości na podłoże przy pomocy szpachli, łaty lub rakli. Przed pracą należy zwrócić uwagę na obecność wypełnień fug przy ścianach. Zużycie **ok. 1,5 kg/m²/mm**. **Możliwość chodzenia po 2 godzinach**. **Możliwość klejenia podłóg drewnianych przy warstwie do 5 mm – po 6 godzinach**, przy warstwie do 10 mm – po 12 godzinach, przy warstwie 30 mm – po 24 godzinach."
-FULL_Z675 = "* Wylać masę wyrównawczą **WAKOL Z 675** - wymieszać ją w czystym naczyniu z zimną wodą w proporcji 6,0 – 6,5 litrów wody na 25 kg masy. Mieszać unikając tworzenia się grudek. Prędkość obrotowa mieszadła może wynosić max. 600 obrotów na minutę. Wymieszaną masę nanosić w żądanej grubości na podłoże przy pomocy szpachli, łaty lub rakli. Przed pracą należy zwrócić uwagę na obecność wypełnień fug przy ścianach. Zużycie **ok. 1,5 kg/m²/mm**. **Możliwość chodzenia po 2-3 godzinach**. **Możliwość klejenia podłóg po ok. 24 godzinach przy grubości warstwy do 3 mm**, przy większych grubościach czas schnięcia ulega wydłużeniu."
-FULL_Z635 = "* Następnie na podłoże wylać masę wyrównawczą **WAKOL Z 635** - wymieszać ją w czystym naczyniu z zimną wodą w proporcji 6,25 litrów wody na 25 kg masy. Mieszać unikając tworzenia się grudek. Prędkość obrotowa mieszadła może wynosić max. 600 obrotów na minutę. Wymieszaną masę nanosić w żądanej grubości na podłoże przy pomocy szpachli, łaty lub rakli. Przed pracą należy zwrócić uwagę na obecność wypełnień fug przy ścianach. Zużycie **ok. 1,5 kg/m²/mm**. **Możliwość chodzenia po 2,5 godzinach**. **Możliwość klejenia podłóg drewnianych przy warstwie do 5 mm – po 24 godzinach**, przy warstwie do 10 mm – po 72 godzinach."
+FULL_Z625 = "* Wylać masę wyrównawczą **WAKOL Z 625** - wymieszać ją w czystym naczyniu z zimną wodą w proporcji 6,00 – 6,25 litrów wody na 25 kg masy. Mieszać unikając tworzenia się grudek. Prędkość obrotowa mieszadła może wynosić max. 600 obrotów na minutę. Wymieszaną masę nanosić w żądanej grubości na podłoże przy pomocy szpachli, łaty lub rakli. Przed pracą należy zwrócić uwagę na obecność wypełnień fug przy ścianach. Zużycie **ok. 1,6 kg/m²/mm**. **Możliwość chodzenia po 2 godzinach**. **Możliwość klejenia podłóg drewnianych przy warstwie do 5 mm – po 6 godzinach**, przy warstwie do 10 mm – po 12 godzinach, przy warstwie 30 mm – po 24 godzinach."
+FULL_Z675 = "* Wylać masę wyrównawczą **WAKOL Z 675** - wymieszać ją w czystym naczyniu z zimną wodą w proporcji 6,0 – 6,5 litrów wody na 25 kg masy. Mieszać unikając tworzenia się grudek. Prędkość obrotowa mieszadła może wynosić max. 600 obrotów na minutę. Wymieszaną masę nanosić w żądanej grubości na podłoże przy pomocy szpachli, łaty lub rakli. Przed pracą należy zwrócić uwagę na obecność wypełnień fug przy ścianach. Zużycie **ok. 1,6 kg/m²/mm**. **Możliwość chodzenia po 2-3 godzinach**. **Możliwość klejenia podłóg po ok. 24 godzinach przy grubości warstwy do 3 mm**, przy większych grubościach czas schnięcia ulega wydłużeniu."
+FULL_Z635 = "* Następnie na podłoże wylać masę wyrównawczą **WAKOL Z 635** - wymieszać ją w czystym naczyniu z zimną wodą w proporcji 6,25 litrów wody na 25 kg masy. Mieszać unikając tworzenia się grudek. Prędkość obrotowa mieszadła może wynosić max. 600 obrotów na minutę. Wymieszaną masę nanosić w żądanej grubości na podłoże przy pomocy szpachli, łaty lub rakli. Przed pracą należy zwrócić uwagę na obecność wypełnień fug przy ścianach. Zużycie **ok. 1,6 kg/m²/mm**. **Możliwość chodzenia po 2,5 godzinach**. **Możliwość klejenia podłóg drewnianych przy warstwie do 5 mm – po 24 godzinach**, przy warstwie do 10 mm – po 72 godzinach."
 FULL_D3055 = "* Zalecamy zagruntowanie całej powierzchni jastrychu gruntówką dyspersyjną **WAKOL D 3055** - aplikacja wałkiem **ok. 150 g/m²**. **Czas schnięcia ok. 30 min**."
 
 def insert_header():
@@ -103,18 +103,36 @@ PRODUCTS = {
     'D 3055': {'name': 'WAKOL D 3055', 'usage': 150, 'sizes': [10, 5], 'text': FULL_D3055},
     'PU 225': {'name': 'WAKOL PU 225 (klej)', 'usage': 1250, 'sizes': [10], 'text': ""},
     'MS 230': {'name': 'WAKOL MS 230 (klej)', 'usage': 1350, 'sizes': [18], 'text': ""},
-    'MS 260': {'name': 'WAKOL MS 260 (klej)', 'usage': 1350, 'sizes': [18], 'text': ""}
+    'MS 260': {'name': 'WAKOL MS 260 (klej)', 'usage': 1350, 'sizes': [18], 'text': ""},
+    'D 3318': {'name': 'WAKOL D 3318 (klej)', 'usage': 350, 'sizes': [13], 'text': ""},
+    'Z 645': {'name': 'WAKOL Z 645 (masa naprawcza)', 'usage': 1.6, 'sizes': [25], 'text': ""},
+    'Z 625': {'name': 'WAKOL Z 625 (masa samorozlewna)', 'usage_per_mm': 1.6, 'sizes': [25], 'text': FULL_Z625},
+    'Z 635': {'name': 'WAKOL Z 635 (masa samorozlewna)', 'usage_per_mm': 1.6, 'sizes': [25], 'text': FULL_Z635},
+    'Z 675': {'name': 'WAKOL Z 675 (masa samorozlewna)', 'usage_per_mm': 1.6, 'sizes': [25], 'text': FULL_Z675}
 }
 
-def write_and_track(dane, rep, prod_key):
+def write_and_track(dane, rep, prod_key, custom_kg=None):
     prod = PRODUCTS[prod_key]
     if prod['text']:
         rep.write(prod['text'])
     if 'materials' not in dane:
         dane['materials'] = []
-    area = dane.get('area_m2')
-    if not area: return
-    needed_kg = (area * prod['usage']) / 1000.0
+        
+    needed_kg = 0
+    if custom_kg is not None:
+        needed_kg = custom_kg
+    else:
+        area = dane.get('area_m2')
+        if not area: return
+        
+        if 'usage_per_mm' in prod:
+            thick = dane.get('leveling_thickness')
+            if not thick: return
+            needed_kg = area * thick * prod['usage_per_mm']
+        else:
+            needed_kg = (area * prod['usage']) / 1000.0
+            
+    if needed_kg <= 0: return
     sizes = sorted(prod['sizes'], reverse=True)
     best_combo = None
     best_waste = float('inf')
@@ -188,10 +206,20 @@ def render_wspolne_zalecenia_podloze(dane, rep):
     
     if dane['cracks_klaw'] == "TAK" or dane['cracks_pek'] == "TAK": rep.write("* Pęknięcia / Klawiszujące dylatacje - zespolić żywicą laną **WAKOL PS 205**. Wymieszaną żywicę wlewać w pęknięcia, nadmiar zgarnąć lub zatrzeć.")
     if dane['holes'] == "TAK":
+        kg_z645 = None
+        if dane.get('holes_width') and dane.get('holes_length') and dane.get('holes_depth'):
+            area_h = (dane['holes_width'] / 100.0) * (dane['holes_length'] / 100.0)
+            thick_mm = dane['holes_depth'] * 10.0
+            kg_z645 = area_h * thick_mm * 1.6
+
         if dane.get('holes_depth') and dane['holes_depth'] >= 1.0:
+            if kg_z645 is not None: kg_z645 /= 2.0
             rep.write("* Ubytki zaszpachlować masą **WAKOL Z 645** wymieszaną z piaskiem kwarcowym w proporcji 1:1  – czas schnięcia 1 godzina.")
         else:
             rep.write("* Ubytki zaszpachlować masą szpachlową **WAKOL Z 645** z dodatkiem plastyfikatora **WAKOL D 3060** (7 litrów WAKOL D 3060 na 25 kg WAKOL Z 645). Czas schnięcia min. 3h. W razie potrzeby użyć siatki zbrojeniowej WAKOL AR 150.")
+        
+        if kg_z645 is not None:
+            write_and_track(dane, rep, 'Z 645', custom_kg=kg_z645)
 
 def render_wspolna_chemia(dane, rep):
     used_d3004 = False
@@ -299,7 +327,7 @@ def generate_report_deska_warstwowa(dane, rep):
     if dane['needs_levelling'] == "TAK":
         if not used_d3004:
             rep.write("* Następnie należy zaaplikować specjalistyczny mostek sczepny za pomocą produktu **WAKOL D 3045**. Aplikować równomiernie za pomocą wałka. Zużycie wynosi **ok. 150 g/m²**. **Czas schnięcia 1 godzina**.")
-        rep.write(FULL_Z635)
+        write_and_track(dane, rep, 'Z 635')
 
     rep.write("**c) klejenie okładziny:**")
     if dane['substrate'] == "jastrych anhydrytowy" and dane['strength_val'] == 1:
@@ -326,7 +354,7 @@ def generate_report_deska_lita(dane, rep):
     if dane['needs_levelling'] == "TAK":
         if not used_d3004:
             rep.write("* Następnie należy zaaplikować specjalistyczny mostek sczepny za pomocą produktu **WAKOL D 3045**. Aplikować równomiernie za pomocą wałka. Zużycie wynosi **ok. 150 g/m²**. **Czas schnięcia 1 godzina**.")
-        rep.write(FULL_Z625)
+        write_and_track(dane, rep, 'Z 625')
 
     rep.write("**c) klejenie okładziny:**")
     rep.write("Klejenie podłogi z deski litej należy przeprowadzić przy użyciu kleju polimerowego twardo-elastycznego WAKOL MS 260. (szpachla B13, zużycie: 1350 g/m²).")
@@ -345,6 +373,7 @@ def generate_report_lvt_cienkie(dane, rep):
     if dane['already_levelled'] == "TAK":
         rep.write("**a) klejenie okładziny:**")
         rep.write("Klejenie podłogi winylowej (LVT) należy przeprowadzić przy użyciu kleju WAKOL D 3318 (szpachla TKB A2, zużycie: 350 g/m²). · Czas wstępnego odparowania: ok. 5 - 10 minut. · Czas układania: ok. 10 minut")
+        write_and_track(dane, rep, 'D 3318')
         render_potrzebne_materialy(dane, rep)
         return
 
@@ -354,10 +383,11 @@ def generate_report_lvt_cienkie(dane, rep):
     if dane['needs_levelling'] == "TAK":
         if not used_d3004:
             rep.write("* Następnie należy zaaplikować specjalistyczny mostek sczepny za pomocą produktu **WAKOL D 3045**. Aplikować równomiernie za pomocą wałka. Zużycie wynosi **ok. 150 g/m²**. **Czas schnięcia 1 godzina**.")
-        rep.write(FULL_Z675)
+        write_and_track(dane, rep, 'Z 675')
 
     rep.write("**c) klejenie okładziny:**")
     rep.write("Klejenie podłogi winylowej (LVT) należy przeprowadzić przy użyciu kleju WAKOL D 3318 (szpachla TKB A2, zużycie: 350 g/m²). · Czas wstępnego odparowania: ok. 5 - 10 minut. · Czas układania: ok. 10 minut")
+    write_and_track(dane, rep, 'D 3318')
     render_potrzebne_materialy(dane, rep)
 
 # --- SEKCJA: LVT GRUBE ---
@@ -370,7 +400,7 @@ def generate_report_lvt_grube(dane, rep):
     if dane['needs_levelling'] == "TAK":
         if not used_d3004:
             rep.write("* Następnie należy zaaplikować specjalistyczny mostek sczepny za pomocą produktu **WAKOL D 3045**. Aplikować równomiernie za pomocą wałka. Zużycie wynosi **ok. 150 g/m²**. **Czas schnięcia 1 godzina**.")
-        rep.write(FULL_Z675)
+        write_and_track(dane, rep, 'Z 675')
 
     rep.write("**c) klejenie okładziny:**")
     rep.write("Klejenie podłogi LVT z twardym rdzeniem należy przeprowadzić przy użyciu kleju **WAKOL MS 230** (szpachla B13, zużycie: 1350 g/m²) bądź kleju **WAKOL PU 225** (szpachla B11, zużycie: 1250 g/m²).")
@@ -399,7 +429,7 @@ def generate_report_pcv_w_rolce(dane, rep):
     if dane['needs_levelling'] == "TAK":
         if not used_d3004:
             rep.write("* Następnie należy zaaplikować specjalistyczny mostek sczepny za pomocą produktu **WAKOL D 3045**. Aplikować równomiernie za pomocą wałka. Zużycie wynosi **ok. 150 g/m²**. **Czas schnięcia 1 godzina**.")
-        rep.write(FULL_Z675)
+        write_and_track(dane, rep, 'Z 675')
 
     rep.write("**c) klejenie okładziny PCV:**")
     rep.write("Klejenie wykładziny PCV w rolce należy przeprowadzić przy użyciu kleju WAKOL D 3307 (szpachla TKB A2, zużycie: 300 – 330 g/m²). · Czas wstępnego odparowania: ok. 10 - 20 minut. · Czas układania: ok. 15 - 20 minut")
@@ -426,7 +456,7 @@ def generate_report_wykladzina_dywanowa(dane, rep):
     if dane['needs_levelling'] == "TAK":
         if not used_d3004:
             rep.write("* Następnie należy zaaplikować specjalistyczny mostek sczepny za pomocą produktu **WAKOL D 3045**. Aplikować równomiernie za pomocą wałka. Zużycie wynosi **ok. 150 g/m²**. **Czas schnięcia 1 godzina**.")
-        rep.write(FULL_Z675)
+        write_and_track(dane, rep, 'Z 675')
 
     rep.write("**c) klejenie wykładziny tekstylnej:**")
     rep.write("Klejenie wykładziny tekstylnej należy przeprowadzić przy użyciu kleju WAKOL D 3308 (szpachla TKB B1 400-450 g/m²). · Czas wstępnego odparowania: ok. 5-10 minut. · Czas otwarty kleju ok. 10-15 minut")
@@ -731,6 +761,8 @@ dane_protokolu = {
     "pek_meters": pek_meters,
     "holes": holes,
     "holes_depth": holes_depth if 'holes_depth' in locals() else None,
+    "holes_width": h_width if 'h_width' in locals() else None,
+    "holes_length": h_length if 'h_length' in locals() else None,
     "hole_details": hole_details,
     "ventilation_type": ventilation_type,
     "moisture": moisture,
