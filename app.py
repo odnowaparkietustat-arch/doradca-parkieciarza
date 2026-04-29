@@ -106,9 +106,14 @@ PRODUCTS = {
     'MS 260': {'name': 'WAKOL MS 260 (klej)', 'usage': 1350, 'sizes': [18], 'text': ""},
     'D 3318': {'name': 'WAKOL D 3318 (klej)', 'usage': 350, 'sizes': [13], 'text': ""},
     'Z 645': {'name': 'WAKOL Z 645 (masa naprawcza)', 'usage': 1.6, 'sizes': [25], 'text': ""},
+    'Z 645 (bruzdowane)': {'name': 'WAKOL Z 645 (masa szpachlowa)', 'usage': 2000, 'sizes': [25], 'text': ""},
     'Z 625': {'name': 'WAKOL Z 625 (masa samorozlewna)', 'usage_per_mm': 1.6, 'sizes': [25], 'text': FULL_Z625},
     'Z 635': {'name': 'WAKOL Z 635 (masa samorozlewna)', 'usage_per_mm': 1.6, 'sizes': [25], 'text': FULL_Z635},
-    'Z 675': {'name': 'WAKOL Z 675 (masa samorozlewna)', 'usage_per_mm': 1.6, 'sizes': [25], 'text': FULL_Z675}
+    'Z 675': {'name': 'WAKOL Z 675 (masa samorozlewna)', 'usage_per_mm': 1.6, 'sizes': [25], 'text': FULL_Z675},
+    'D 3004 (bruzdowane)': {'name': 'WAKOL D 3004 (koncentrat)', 'usage': 75, 'sizes': [10, 5], 'text': ""},
+    'AR 150': {'name': 'WAKOL AR 150 (mata kompensacyjna)', 'usage': 1000, 'sizes': [50], 'text': ""},
+    'D 3060': {'name': 'WAKOL D 3060 (plastyfikator)', 'usage': 1000, 'sizes': [10], 'text': ""},
+    'Płyta RP': {'name': 'WAKOL RP 104 (płyta rozdzielająca)', 'usage': 1000, 'sizes': [1], 'text': ""}
 }
 
 def write_and_track(dane, rep, prod_key, custom_kg=None):
@@ -221,8 +226,36 @@ def render_wspolne_zalecenia_podloze(dane, rep):
         if kg_z645 is not None:
             write_and_track(dane, rep, 'Z 645', custom_kg=kg_z645)
 
+    if dane['heating_exists'] == "TAK" and dane['h_type'] == "bruzdowane":
+        if dane['bruzdowane_wybor'] == "masa samorozlewna":
+            rep.write("* Podłoże zagruntować koncentratem gruntówki dyspersyjnej **WAKOL D 3004**. Proporcje mieszania: 1 część WAKOL D 3004 + 1 część wody; Czas schnięcia: 1h. Sposób nanoszenia: wałek do gruntowania microfazer. Zużycie: ok. 75 g/m² koncentratu.")
+            write_and_track(dane, rep, 'D 3004 (bruzdowane)')
+            
+            rep.write("* Na tak przygotowane podłoże należy rozłożyć matę **WAKOL AR 150** i zaszpachlować ją masą szpachlową **WAKOL Z 645** z dodatkiem plastyfikatora **WAKOL D 3060** (7 litrów WAKOL D 3060 na 25 kg WAKOL Z 645). Czas schnięcia min. 3h.")
+            area = dane.get('area_m2', 0)
+            if area > 0:
+                write_and_track(dane, rep, 'AR 150', custom_kg=area)
+                kg_z645_bruzdowane = area * 2.0
+                write_and_track(dane, rep, 'Z 645 (bruzdowane)', custom_kg=kg_z645_bruzdowane)
+                bags_z645 = math.ceil(kg_z645_bruzdowane / 25.0)
+                write_and_track(dane, rep, 'D 3060', custom_kg=bags_z645 * 7.0)
+                
+            rep.write("* Następnie na podłoże wylać masę wyrównawczą **WAKOL Z 635** - wymieszać ją w czystym naczyniu z zimną wodą w proporcji 6,25 litrów wody na 25 kg masy. Mieszać unikając tworzenia się grudek. Prędkość obrotowa mieszadła może wynosić max. 600 obrotów na minutę. Wymieszaną masę nanosić w żądanej grubości na podłoże przy pomocy szpachli, łaty lub rakli. Przed pracą należy zwrócić uwagę na obecność wypełnień fug przy ścianach. Zużycie ok. 1,5 kg/m²/ mm. Możliwość chodzenia po 2,5 godzinach. Możliwość klejenia podłóg drewnianych przy warstwie do 5 mm – po 24 godzinach, przy warstwie do 10 mm – po 72 godzinach.")
+            if area > 0:
+                write_and_track(dane, rep, 'Z 635', custom_kg=area * 5 * 1.5)
+        elif dane['bruzdowane_wybor'] == "płyta RP":
+            rep.write("* Naprawa instalacji ogrzewania bruzdowanego: zalecamy aplikację gruntu **WAKOL PU 280** i klejenie płyty **WAKOL RP 104** (arkusze 0,6 m²) na klej **WAKOL PU 225**.")
+            write_and_track(dane, rep, 'PU 280 (1W)')
+            write_and_track(dane, rep, 'PU 225')
+            area = dane.get('area_m2', 0)
+            if area > 0:
+                write_and_track(dane, rep, 'Płyta RP', custom_kg=math.ceil(area / 0.6))
+
 def render_wspolna_chemia(dane, rep):
     used_d3004 = False
+    if dane.get('h_type') == "bruzdowane" and dane.get('bruzdowane_wybor'):
+        return True # Pomijamy standardową chemię, obsłużona w naprawie podłoża
+
     if dane['decision_after_cure'] == "Wykonanie bariery przeciwwilgociowej":
         if dane['strength_val'] <= 2: write_and_track(dane, rep, 'PU 235 (Bariera)')
         else: write_and_track(dane, rep, 'PU 280 (Bariera)')
@@ -251,6 +284,9 @@ def render_wspolna_chemia(dane, rep):
 
 def render_chemia_deska_warstwowa(dane, rep):
     used_d3004 = False
+    if dane.get('h_type') == "bruzdowane" and dane.get('bruzdowane_wybor'):
+        return True
+
     if dane['decision_after_cure'] == "Wykonanie bariery przeciwwilgociowej":
         if dane['strength_val'] <= 2: write_and_track(dane, rep, 'PU 235 (Bariera)')
         else: write_and_track(dane, rep, 'PU 280 (Bariera)')
@@ -280,6 +316,9 @@ def render_chemia_deska_warstwowa(dane, rep):
 
 def render_chemia_deska_lita(dane, rep):
     used_d3004 = False
+    if dane.get('h_type') == "bruzdowane" and dane.get('bruzdowane_wybor'):
+        return True
+
     if dane['decision_after_cure'] == "Wykonanie bariery przeciwwilgociowej":
         if dane['strength_val'] <= 2: write_and_track(dane, rep, 'PU 235 (Bariera)')
         else: write_and_track(dane, rep, 'PU 280 (Bariera)')
@@ -324,7 +363,7 @@ def generate_report_deska_warstwowa(dane, rep):
     render_wspolne_zalecenia_podloze(dane, rep)
     used_d3004 = render_chemia_deska_warstwowa(dane, rep)
 
-    if dane['needs_levelling'] == "TAK":
+    if dane['needs_levelling'] == "TAK" and dane.get('bruzdowane_wybor') != "masa samorozlewna":
         if not used_d3004:
             rep.write("* Następnie należy zaaplikować specjalistyczny mostek sczepny za pomocą produktu **WAKOL D 3045**. Aplikować równomiernie za pomocą wałka. Zużycie wynosi **ok. 150 g/m²**. **Czas schnięcia 1 godzina**.")
         write_and_track(dane, rep, 'Z 635')
@@ -351,7 +390,7 @@ def generate_report_deska_lita(dane, rep):
     render_wspolne_zalecenia_podloze(dane, rep)
     used_d3004 = render_chemia_deska_lita(dane, rep)
 
-    if dane['needs_levelling'] == "TAK":
+    if dane['needs_levelling'] == "TAK" and dane.get('bruzdowane_wybor') != "masa samorozlewna":
         if not used_d3004:
             rep.write("* Następnie należy zaaplikować specjalistyczny mostek sczepny za pomocą produktu **WAKOL D 3045**. Aplikować równomiernie za pomocą wałka. Zużycie wynosi **ok. 150 g/m²**. **Czas schnięcia 1 godzina**.")
         write_and_track(dane, rep, 'Z 625')
@@ -380,7 +419,7 @@ def generate_report_lvt_cienkie(dane, rep):
     render_wspolne_zalecenia_podloze(dane, rep)
     used_d3004 = render_wspolna_chemia(dane, rep)
 
-    if dane['needs_levelling'] == "TAK":
+    if dane['needs_levelling'] == "TAK" and dane.get('bruzdowane_wybor') != "masa samorozlewna":
         if not used_d3004:
             rep.write("* Następnie należy zaaplikować specjalistyczny mostek sczepny za pomocą produktu **WAKOL D 3045**. Aplikować równomiernie za pomocą wałka. Zużycie wynosi **ok. 150 g/m²**. **Czas schnięcia 1 godzina**.")
         write_and_track(dane, rep, 'Z 675')
@@ -397,7 +436,7 @@ def generate_report_lvt_grube(dane, rep):
     render_wspolne_zalecenia_podloze(dane, rep)
     used_d3004 = render_chemia_deska_warstwowa(dane, rep)
 
-    if dane['needs_levelling'] == "TAK":
+    if dane['needs_levelling'] == "TAK" and dane.get('bruzdowane_wybor') != "masa samorozlewna":
         if not used_d3004:
             rep.write("* Następnie należy zaaplikować specjalistyczny mostek sczepny za pomocą produktu **WAKOL D 3045**. Aplikować równomiernie za pomocą wałka. Zużycie wynosi **ok. 150 g/m²**. **Czas schnięcia 1 godzina**.")
         write_and_track(dane, rep, 'Z 675')
@@ -426,7 +465,7 @@ def generate_report_pcv_w_rolce(dane, rep):
     render_wspolne_zalecenia_podloze(dane, rep)
     used_d3004 = render_wspolna_chemia(dane, rep)
 
-    if dane['needs_levelling'] == "TAK":
+    if dane['needs_levelling'] == "TAK" and dane.get('bruzdowane_wybor') != "masa samorozlewna":
         if not used_d3004:
             rep.write("* Następnie należy zaaplikować specjalistyczny mostek sczepny za pomocą produktu **WAKOL D 3045**. Aplikować równomiernie za pomocą wałka. Zużycie wynosi **ok. 150 g/m²**. **Czas schnięcia 1 godzina**.")
         write_and_track(dane, rep, 'Z 675')
@@ -453,7 +492,7 @@ def generate_report_wykladzina_dywanowa(dane, rep):
     render_wspolne_zalecenia_podloze(dane, rep)
     used_d3004 = render_wspolna_chemia(dane, rep)
 
-    if dane['needs_levelling'] == "TAK":
+    if dane['needs_levelling'] == "TAK" and dane.get('bruzdowane_wybor') != "masa samorozlewna":
         if not used_d3004:
             rep.write("* Następnie należy zaaplikować specjalistyczny mostek sczepny za pomocą produktu **WAKOL D 3045**. Aplikować równomiernie za pomocą wałka. Zużycie wynosi **ok. 150 g/m²**. **Czas schnięcia 1 godzina**.")
         write_and_track(dane, rep, 'Z 675')
@@ -663,24 +702,34 @@ substrate_age_val = st.number_input("Wiek podłoża (podaj ilość miesięcy):",
 
 st.write("2. Czy jest instalacja ogrzewania podłogowego?")
 heating_exists = st.radio("Ogrzewanie:", ["TAK", "NIE"], index=1, horizontal=True)
-heating_info = ""; heating_curing_done = None
+heating_info = ""; heating_curing_done = None; h_type = None; bruzdowane_wybor = None
 if heating_exists == "TAK":
     h_type = st.selectbox("Typ ogrzewania:", ["wodne klasyczne", "bruzdowane", "w suchej zabudowie", "elektryczne (powierzchniowe)", "elektryczne (głębokie)", "płyta fundamentowa grzewcza"])
+    if h_type == "bruzdowane":
+        bruzdowane_wybor = st.radio("Wybierz technologię (ogrzewanie bruzdowane):", ["masa samorozlewna", "płyta RP"], horizontal=True)
+        
     st.write("❓ Czy został przeprowadzony proces wygrzewania zgodnie z protokołem?")
     heating_curing_done = st.radio("Proces wygrzewania:", ["TAK", "NIE"], index=1, horizontal=True)
     mapping = {"wodne klasyczne": "instalacja ogrzewania podłogowego wodna, klasyczna", "bruzdowane": "instalacja ogrzewania podłogowego wodna, bruzdowana", "w suchej zabudowie": "instalacja ogrzewania podłogowego wodna, w suchej zabudowie", "elektryczne (powierzchniowe)": "instalacja ogrzewania podłogowego elektryczna, powierzchniowa", "elektryczne (głębokie)": "instalacja ogrzewania podłogowego elektryczna, umieszczona głęboko w podłożu", "płyta fundamentowa grzewcza": "ogrzewanie realizowane poprzez płytę fundamentową grzewczą"}
     heating_info = mapping.get(h_type, h_type)
 
 st.write("3. Czy podłoże wymaga wyrównania (masy)?")
-needs_levelling = st.radio("Wymaga wyrównania:", ["TAK", "NIE"], index=1, horizontal=True)
 leveling_thickness = 0
 already_levelled = "NIE"
 
-if needs_levelling == "TAK":
-    leveling_thickness = st.number_input("Planowana grubość masy (mm):", min_value=1, value=None)
-elif flooring_type in ["wykładzina dywanowa", "pcv w rolce", "lvt cienkie"]:
-    st.warning("Pod wybraną okładzinę wymagane jest wyrównanie podłoża.")
-    already_levelled = st.radio("Czy podłoże zostało już wcześniej wyrównane?", ["TAK", "NIE"], index=1, horizontal=True)
+if h_type == "bruzdowane" and bruzdowane_wybor == "masa samorozlewna":
+    st.info("Wyrównanie jest wymuszone przez technologię 'masa samorozlewna' na ogrzewaniu bruzdowanym.")
+    needs_levelling = "TAK"
+    leveling_thickness = 5
+    st.info("Grubość masy została automatycznie ustalona na 5 mm.")
+else:
+    needs_levelling = st.radio("Wymaga wyrównania:", ["TAK", "NIE"], index=1, horizontal=True)
+    if needs_levelling == "TAK":
+        leveling_thickness = st.number_input("Planowana grubość masy (mm):", min_value=1, value=None)
+    elif flooring_type in ["wykładzina dywanowa", "pcv w rolce", "lvt cienkie"]:
+        st.warning("Pod wybraną okładzinę wymagane jest wyrównanie podłoża.")
+        already_levelled = st.radio("Czy podłoże zostało już wcześniej wyrównane?", ["TAK", "NIE"], index=1, horizontal=True)
+
 
 st.write("4. Czy dylatacje obwodowe zachowane prawidłowo?")
 dilatations_obw_ok = st.radio("Dylatacje obwodowe:", ["TAK", "NIE"], index=0, horizontal=True)
@@ -751,6 +800,8 @@ dane_protokolu = {
     "heating_exists": heating_exists,
     "heating_info": heating_info,
     "heating_curing_done": heating_curing_done,
+    "h_type": h_type,
+    "bruzdowane_wybor": bruzdowane_wybor,
     "needs_levelling": needs_levelling,
     "leveling_thickness": leveling_thickness,
     "already_levelled": already_levelled,
