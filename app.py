@@ -248,7 +248,6 @@ def render_wspolne_zalecenia_podloze(dane, rep):
                 write_and_track(dane, rep, 'Z 635', custom_kg=area * 5 * 1.5)
         elif dane['bruzdowane_wybor'] == "płyta RP":
             area = dane.get('area_m2', 0)
-            rep.write("* Naprawa instalacji ogrzewania bruzdowanego (płyta odprzęgająca):")
             write_and_track(dane, rep, 'PU 280 (RP)')
             write_and_track(dane, rep, 'Płyta RP', custom_kg=math.ceil(area / 0.6) if area > 0 else 0)
             write_and_track(dane, rep, 'PU 225')
