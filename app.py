@@ -783,24 +783,6 @@ moisture = st.number_input("11. Poziom wilgoci podłoża (CM %)", format="%.1f",
 limit = 1.5 if substrate == "jastrych cementowy" and heating_exists == "TAK" else 1.8 if substrate == "jastrych cementowy" else 0.3 if substrate == "jastrych anhydrytowy" and heating_exists == "TAK" else 0.5 if substrate == "jastrych anhydrytowy" else 1.5
 barrier_max = 2.5 if heating_exists == "TAK" else 3.5
 
-decision_after_cure = None
-needs_drying_action = False
-if moisture is not None and moisture > limit:
-    needs_drying_action = True
-    if h_type == "bruzdowane":
-        st.warning(f"Podłoże jest zbyt wilgotne. Konieczność doprowadzenia do normatywnego poziomu wilgoci ({limit}% CM) przed przystąpieniem do dalszych prac.")
-        decision_after_cure = "dalsze osuszanie"
-    else:
-        opt_dry = "przeprowadzenie procesu wygrzewania" if heating_exists == "TAK" else "dalsze osuszanie"
-        if substrate == "jastrych anhydrytowy" or (heating_exists == "TAK" and heating_curing_done == "NIE"):
-            decision_after_cure = opt_dry
-        else:
-            if moisture <= barrier_max:
-                decision_after_cure = st.radio("Postępowanie z podwyższoną wilgocią:", ["Wykonanie bariery przeciwwilgociowej", opt_dry], horizontal=True)
-                needs_drying_action = (decision_after_cure != "Wykonanie bariery przeciwwilgociowej")
-            else:
-                decision_after_cure = opt_dry
-
 # --- TESTY MECHANICZNE I WYTRZYMAŁOŚĆ ---
 st.write("### 12. Testy mechaniczne i Wytrzymałość")
 col_t1, col_t2, col_t3 = st.columns(3)
@@ -814,6 +796,26 @@ for i in range(6):
     presso_results.append(st.number_input(f"Próba {i+1} (N/mm²)", min_value=0.0, step=0.1, key=f"p_{i}", value=None))
 strength_labels = {1: "bardzo słaby", 2: "słaby", 3: "umiarkowanie słaby", 4: "umiarkowanie mocny", 5: "mocny"}
 strength_val = st.select_slider("Ocena ogólna wytrzymałości podłoża:", options=[1, 2, 3, 4, 5], value=3, format_func=lambda x: strength_labels[x])
+
+decision_after_cure = None
+needs_drying_action = False
+if moisture is not None and moisture > limit:
+    needs_drying_action = True
+    if h_type == "bruzdowane":
+        st.warning(f"Podłoże jest zbyt wilgotne. Konieczność doprowadzenia do normatywnego poziomu wilgoci ({limit}% CM) przed przystąpieniem do dalszych prac.")
+        decision_after_cure = "dalsze osuszanie"
+    else:
+        opt_dry = "przeprowadzenie procesu wygrzewania" if heating_exists == "TAK" else "dalsze osuszanie"
+        if substrate == "jastrych anhydrytowy" or (heating_exists == "TAK" and heating_curing_done == "NIE") or strength_val == 1:
+            if strength_val == 1 and moisture > limit and h_type != "bruzdowane":
+                st.warning("Podłoże bardzo słabe — bariera przeciwwilgociowa niedostępna. Wymagane doprowadzenie do normatywnego poziomu wilgoci przed gruntowaniem PS 275.")
+            decision_after_cure = opt_dry
+        else:
+            if moisture <= barrier_max:
+                decision_after_cure = st.radio("Postępowanie z podwyższoną wilgocią:", ["Wykonanie bariery przeciwwilgociowej", opt_dry], horizontal=True)
+                needs_drying_action = (decision_after_cure != "Wykonanie bariery przeciwwilgociowej")
+            else:
+                decision_after_cure = opt_dry
 
 # PAKOWANIE DANYCH DO SŁOWNIKA DLA FUNKCJI GENERUJĄCYCH
 dane_protokolu = {
