@@ -116,7 +116,8 @@ PRODUCTS = {
     'AR 150': {'name': 'WAKOL AR 150 (mata kompensacyjna)', 'usage': 1000, 'sizes': [50], 'text': ""},
     'D 3060': {'name': 'WAKOL D 3060 (plastyfikator)', 'usage': 1000, 'sizes': [10], 'text': ""},
     'PU 280 (RP)': {'name': 'WAKOL PU 280 (grunt dla RP)', 'usage': 200, 'sizes': [11, 5], 'text': "* Zalecamy zagruntowanie całej powierzchni podłoża gruntówką wzmacniającą **WAKOL PU 280**. Aplikować wałkiem. Nie zostawiać kałuż tj. zbierać nadmiar niewchłoniętej gruntówki. Zużycie ok. 200 g/m². Czas schnięcia 1 godzina. Czas do montażu – 72 godziny."},
-    'Płyta RP': {'name': 'WAKOL RP 704 (płyta odprzęgająca)', 'usage': 1000, 'sizes': [1], 'text': "* Na tak przygotowane podłoże zalecamy przyklejenie płyty odprzęgającej o grubości 4 mm **WAKOL RP 704**. Należy przyklejać klejem 2K PU (**WAKOL PU 225**). Płytę odprzęgającą po ułożeniu należy docisnąć. Płytę można docinać używając noża trapezowego. Można układać parkiet, jeśli tylko klejona płyta nie przesuwa się w trakcie chodzenia po niej."}
+    'Płyta RP': {'name': 'WAKOL RP 704 (płyta odprzęgająca)', 'usage': 1000, 'sizes': [1], 'unit': 'szt', 'text': "* Na tak przygotowane podłoże zalecamy przyklejenie płyty odprzęgającej o grubości 4 mm **WAKOL RP 704**. Należy przyklejać klejem 2K PU (**WAKOL PU 225**). Płytę odprzęgającą po ułożeniu należy docisnąć. Płytę można docinać używając noża trapezowego. Można układać parkiet, jeśli tylko klejona płyta nie przesuwa się w trakcie chodzenia po niej."},
+    'PS 205': {'name': 'WAKOL PS 205 (żywica lana)', 'sizes': [1], 'unit': 'kpl.', 'text': ""}
 }
 
 def write_and_track(dane, rep, prod_key, custom_kg=None):
@@ -161,17 +162,22 @@ def write_and_track(dane, rep, prod_key, custom_kg=None):
                 if waste < best_waste:
                     best_waste = waste
                     best_combo = {sizes[0]: i, sizes[1]: j}
+    unit = prod.get('unit', 'kg')
     combo_str = []
     if best_combo:
         for size in sizes:
             if best_combo.get(size, 0) > 0:
-                combo_str.append(f"{best_combo[size]}x {size} kg")
+                if unit != 'kg' and size == 1:
+                    combo_str.append(f"{best_combo[size]} {unit}")
+                else:
+                    combo_str.append(f"{best_combo[size]}x {size} {unit}")
     # check if material already added to prevent duplicates (e.g. glue when falling through if-else)
     if not any(m['name'] == prod['name'] for m in dane['materials']):
         dane['materials'].append({
             'name': prod['name'],
             'kg': round(needed_kg, 2),
-            'combo': " + ".join(combo_str) if combo_str else f"{math.ceil(needed_kg)} kg"
+            'combo': " + ".join(combo_str) if combo_str else f"{math.ceil(needed_kg)} {unit}",
+            'unit': unit
         })
 
 def render_potrzebne_materialy(dane, rep):
@@ -179,7 +185,11 @@ def render_potrzebne_materialy(dane, rep):
     if not dane.get('materials'): return
     rep.write("**Potrzebne materiały (szacunkowo na podstawie powierzchni):**")
     for m in dane['materials']:
-        rep.write(f"- {m['name']}: **{m['kg']} kg** ({m['combo']})")
+        unit = m.get('unit', 'kg')
+        if unit == 'kg':
+            rep.write(f"- {m['name']}: **{m['kg']} kg** ({m['combo']})")
+        else:
+            rep.write(f"- {m['name']}: **{math.ceil(m['kg'])} {unit}**")
 
 def render_wspolne_zalecenia_podloze(dane, rep):
     rep.write("**a) przygotowanie podłoża:**")
@@ -212,7 +222,16 @@ def render_wspolne_zalecenia_podloze(dane, rep):
     elif dane['needs_drying_action']:
         rep.write(f"Po doprowadzeniu do normatywnego poziomu wilgoci **{dane['norm_val_bracket']}** zalecamy:")
     
-    if dane['cracks_klaw'] == "TAK" or dane['cracks_pek'] == "TAK": rep.write("* Pęknięcia / Klawiszujące dylatacje - zespolić żywicą laną **WAKOL PS 205**. Wymieszaną żywicę wlewać w pęknięcia, nadmiar zgarnąć lub zatrzeć.")
+    if dane['cracks_klaw'] == "TAK" or dane['cracks_pek'] == "TAK":
+        rep.write("* Pęknięcia / Klawiszujące dylatacje - zespolić żywicą laną **WAKOL PS 205**. Wymieszaną żywicę wlewać w pęknięcia, nadmiar zgarnąć lub zatrzeć.")
+        total_meters = 0
+        if dane['cracks_klaw'] == "TAK":
+            total_meters += dane.get('klaw_meters') or 0
+        if dane['cracks_pek'] == "TAK":
+            total_meters += dane.get('pek_meters') or 0
+        if total_meters > 0:
+            write_and_track(dane, rep, 'PS 205', custom_kg=total_meters / 6.5)
+
     if dane['holes'] == "TAK":
         kg_z645 = None
         if dane.get('holes_width') and dane.get('holes_length') and dane.get('holes_depth'):
@@ -709,8 +728,11 @@ if heating_exists == "TAK":
     if h_type == "bruzdowane":
         bruzdowane_wybor = st.radio("Wybierz technologię (ogrzewanie bruzdowane):", ["masa samorozlewna", "płyta RP"], horizontal=True)
         
-    st.write("❓ Czy został przeprowadzony proces wygrzewania zgodnie z protokołem?")
-    heating_curing_done = st.radio("Proces wygrzewania:", ["TAK", "NIE"], index=1, horizontal=True)
+    if h_type != "bruzdowane":
+        st.write("❓ Czy został przeprowadzony proces wygrzewania zgodnie z protokołem?")
+        heating_curing_done = st.radio("Proces wygrzewania:", ["TAK", "NIE"], index=1, horizontal=True)
+    else:
+        heating_curing_done = "TAK"
     mapping = {"wodne klasyczne": "instalacja ogrzewania podłogowego wodna, klasyczna", "bruzdowane": "instalacja ogrzewania podłogowego wodna, bruzdowana", "w suchej zabudowie": "instalacja ogrzewania podłogowego wodna, w suchej zabudowie", "elektryczne (powierzchniowe)": "instalacja ogrzewania podłogowego elektryczna, powierzchniowa", "elektryczne (głębokie)": "instalacja ogrzewania podłogowego elektryczna, umieszczona głęboko w podłożu", "płyta fundamentowa grzewcza": "ogrzewanie realizowane poprzez płytę fundamentową grzewczą"}
     heating_info = mapping.get(h_type, h_type)
 
@@ -768,15 +790,19 @@ decision_after_cure = None
 needs_drying_action = False
 if moisture is not None and moisture > limit:
     needs_drying_action = True
-    opt_dry = "przeprowadzenie procesu wygrzewania" if heating_exists == "TAK" else "dalsze osuszanie"
-    if substrate == "jastrych anhydrytowy" or (heating_exists == "TAK" and heating_curing_done == "NIE"):
-        decision_after_cure = opt_dry
+    if h_type == "bruzdowane":
+        st.warning(f"Podłoże jest zbyt wilgotne. Konieczność doprowadzenia do normatywnego poziomu wilgoci ({limit}% CM) przed przystąpieniem do dalszych prac.")
+        decision_after_cure = "dalsze osuszanie"
     else:
-        if moisture <= barrier_max:
-            decision_after_cure = st.radio("Postępowanie z podwyższoną wilgocią:", ["Wykonanie bariery przeciwwilgociowej", opt_dry], horizontal=True)
-            needs_drying_action = (decision_after_cure != "Wykonanie bariery przeciwwilgociowej")
-        else:
+        opt_dry = "przeprowadzenie procesu wygrzewania" if heating_exists == "TAK" else "dalsze osuszanie"
+        if substrate == "jastrych anhydrytowy" or (heating_exists == "TAK" and heating_curing_done == "NIE"):
             decision_after_cure = opt_dry
+        else:
+            if moisture <= barrier_max:
+                decision_after_cure = st.radio("Postępowanie z podwyższoną wilgocią:", ["Wykonanie bariery przeciwwilgociowej", opt_dry], horizontal=True)
+                needs_drying_action = (decision_after_cure != "Wykonanie bariery przeciwwilgociowej")
+            else:
+                decision_after_cure = opt_dry
 
 # --- TESTY MECHANICZNE I WYTRZYMAŁOŚĆ ---
 st.write("### 12. Testy mechaniczne i Wytrzymałość")
