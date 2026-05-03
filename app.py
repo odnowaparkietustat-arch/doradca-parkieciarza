@@ -261,7 +261,7 @@ def render_wspolne_zalecenia_podloze(dane, rep):
                 write_and_track(dane, rep, 'Z 645 (bruzdowane)', custom_kg=kg_z645_bruzdowane)
                 bags_z645 = math.ceil(kg_z645_bruzdowane / 25.0)
                 write_and_track(dane, rep, 'D 3060', custom_kg=bags_z645 * 7.0)
-                write_and_track(dane, rep, 'Z 635', custom_kg=area * 5 * 1.5)
+            write_and_track(dane, rep, 'Z 635', custom_kg=area * 5 * 1.5)
         elif dane['bruzdowane_wybor'] == "płyta RP":
             area = dane.get('area_m2') or 0
             write_and_track(dane, rep, 'PU 280 (RP)')
