@@ -254,19 +254,16 @@ def render_wspolne_zalecenia_podloze(dane, rep):
             write_and_track(dane, rep, 'D 3004 (bruzdowane)')
             
             rep.write("* Na tak przygotowane podłoże należy rozłożyć matę **WAKOL AR 150** i zaszpachlować ją masą szpachlową **WAKOL Z 645** z dodatkiem plastyfikatora **WAKOL D 3060** (7 litrów WAKOL D 3060 na 25 kg WAKOL Z 645). Czas schnięcia min. 3h.")
-            area = dane.get('area_m2', 0)
+            area = dane.get('area_m2') or 0
             if area > 0:
                 write_and_track(dane, rep, 'AR 150', custom_kg=area)
                 kg_z645_bruzdowane = area * 2.0
                 write_and_track(dane, rep, 'Z 645 (bruzdowane)', custom_kg=kg_z645_bruzdowane)
                 bags_z645 = math.ceil(kg_z645_bruzdowane / 25.0)
                 write_and_track(dane, rep, 'D 3060', custom_kg=bags_z645 * 7.0)
-                
-            rep.write("* Następnie na podłoże wylać masę wyrównawczą **WAKOL Z 635** - wymieszać ją w czystym naczyniu z zimną wodą w proporcji 6,25 litrów wody na 25 kg masy. Mieszać unikając tworzenia się grudek. Prędkość obrotowa mieszadła może wynosić max. 600 obrotów na minutę. Wymieszaną masę nanosić w żądanej grubości na podłoże przy pomocy szpachli, łaty lub rakli. Przed pracą należy zwrócić uwagę na obecność wypełnień fug przy ścianach. Zużycie ok. 1,5 kg/m²/ mm. Możliwość chodzenia po 2,5 godzinach. Możliwość klejenia podłóg drewnianych przy warstwie do 5 mm – po 24 godzinach, przy warstwie do 10 mm – po 72 godzinach.")
-            if area > 0:
                 write_and_track(dane, rep, 'Z 635', custom_kg=area * 5 * 1.5)
         elif dane['bruzdowane_wybor'] == "płyta RP":
-            area = dane.get('area_m2', 0)
+            area = dane.get('area_m2') or 0
             write_and_track(dane, rep, 'PU 280 (RP)')
             write_and_track(dane, rep, 'Płyta RP', custom_kg=math.ceil(area / 0.6) if area > 0 else 0)
             write_and_track(dane, rep, 'PU 225')
