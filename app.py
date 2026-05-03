@@ -223,6 +223,8 @@ def render_wspolne_zalecenia_podloze(dane, rep):
         rep.write(f"Po doprowadzeniu do normatywnego poziomu wilgoci **{dane['norm_val_bracket']}** zalecamy:")
     
     if dane['cracks_klaw'] == "TAK" or dane['cracks_pek'] == "TAK":
+        if dane['strength_val'] == 1 and dane['substrate'] != "jastrych anhydrytowy":
+            write_and_track(dane, rep, 'PS 275')
         rep.write("* Pęknięcia / Klawiszujące dylatacje - zespolić żywicą laną **WAKOL PS 205**. Wymieszaną żywicę wlewać w pęknięcia, nadmiar zgarnąć lub zatrzeć.")
         total_meters = 0
         if dane['cracks_klaw'] == "TAK":
@@ -288,13 +290,14 @@ def render_wspolna_chemia(dane, rep):
                 if dane['strength_val'] == 1:
                     if dane['substrate'] == "jastrych anhydrytowy": write_and_track(dane, rep, 'PU 235 (1W)')
                     else:
-                        write_and_track(dane, rep, 'PS 275')
+                        if not any(m['name'] == 'WAKOL PS 275' for m in dane.get('materials', [])): write_and_track(dane, rep, 'PS 275')
                         write_and_track(dane, rep, 'PU 280 (1W)')
                 elif dane['strength_val'] == 2: write_and_track(dane, rep, 'PU 280 (1W)')
         else:
             if dane['strength_val'] == 1:
                 if dane['substrate'] == "jastrych anhydrytowy": write_and_track(dane, rep, 'PU 235 (1W)')
-                else: write_and_track(dane, rep, 'PS 275')
+                else:
+                    if not any(m['name'] == 'WAKOL PS 275' for m in dane.get('materials', [])): write_and_track(dane, rep, 'PS 275')
             elif dane['strength_val'] == 2: write_and_track(dane, rep, 'PU 235 (1W)')
             elif dane['strength_val'] in [3, 4]: write_and_track(dane, rep, 'PU 280 (1W)')
     return used_d3004
@@ -320,12 +323,13 @@ def render_chemia_deska_warstwowa(dane, rep):
             elif dane['strength_val'] == 1:
                 if dane['substrate'] == "jastrych anhydrytowy": write_and_track(dane, rep, 'PU 235 (1W)')
                 else:
-                    write_and_track(dane, rep, 'PS 275')
+                    if not any(m['name'] == 'WAKOL PS 275' for m in dane.get('materials', [])): write_and_track(dane, rep, 'PS 275')
                     write_and_track(dane, rep, 'PU 280 (1W)')
         else:
             if dane['strength_val'] == 1:
                 if dane['substrate'] == "jastrych anhydrytowy": write_and_track(dane, rep, 'PU 235 (1W)')
-                else: write_and_track(dane, rep, 'PS 275')
+                else:
+                    if not any(m['name'] == 'WAKOL PS 275' for m in dane.get('materials', [])): write_and_track(dane, rep, 'PS 275')
             elif dane['strength_val'] == 2: write_and_track(dane, rep, 'PU 235 (1W)')
             elif dane['strength_val'] == 3: write_and_track(dane, rep, 'PU 280 (1W)')
             elif dane['strength_val'] in [4, 5]: write_and_track(dane, rep, 'D 3055')
@@ -351,13 +355,14 @@ def render_chemia_deska_lita(dane, rep):
                 if dane['strength_val'] == 1:
                     if dane['substrate'] == "jastrych anhydrytowy": write_and_track(dane, rep, 'PU 235 (1W)')
                     else:
-                        write_and_track(dane, rep, 'PS 275')
+                        if not any(m['name'] == 'WAKOL PS 275' for m in dane.get('materials', [])): write_and_track(dane, rep, 'PS 275')
                         write_and_track(dane, rep, 'PU 280 (1W)')
                 elif dane['strength_val'] == 2: write_and_track(dane, rep, 'PU 280 (1W)')
         else:
             if dane['strength_val'] == 1:
                 if dane['substrate'] == "jastrych anhydrytowy": write_and_track(dane, rep, 'PU 235 (1W)')
-                else: write_and_track(dane, rep, 'PS 275')
+                else:
+                    if not any(m['name'] == 'WAKOL PS 275' for m in dane.get('materials', [])): write_and_track(dane, rep, 'PS 275')
             elif dane['strength_val'] == 2: write_and_track(dane, rep, 'PU 235 (1W)')
             elif dane['strength_val'] in [3, 4]: write_and_track(dane, rep, 'PU 280 (1W)')
             elif dane['strength_val'] == 5: write_and_track(dane, rep, 'D 3055')
