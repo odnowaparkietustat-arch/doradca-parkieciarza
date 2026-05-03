@@ -394,10 +394,12 @@ def generate_report_deska_warstwowa(dane, rep):
     if dane['substrate'] == "jastrych anhydrytowy" and dane['strength_val'] == 1:
         rep.write(f"Klejenie {nazwa_okladziny} należy przeprowadzić przy użyciu kleju do parkietu **WAKOL MS 230** (szpachla B13, zużycie: 1350 g/m²).")
         write_and_track(dane, rep, 'MS 230')
-    else:
-        rep.write(f"Klejenie {nazwa_okladziny} należy przeprowadzić przy użyciu kleju do parkietu **WAKOL MS 230** (szpachla B13, zużycie: 1350 g/m²) bądź kleju do parkietu **WAKOL PU 225** (szpachla B11, zużycie: 1250 g/m²).")
-        write_and_track(dane, rep, 'MS 230')
+    elif dane.get('klej_typ') == "bezprzesuwny":
+        rep.write(f"Klejenie {nazwa_okladziny} należy przeprowadzić przy użyciu kleju do parkietu **WAKOL PU 225** (szpachla B11, zużycie: 1250 g/m²).")
         write_and_track(dane, rep, 'PU 225')
+    else:
+        rep.write(f"Klejenie {nazwa_okladziny} należy przeprowadzić przy użyciu kleju do parkietu **WAKOL MS 230** (szpachla B13, zużycie: 1350 g/m²).")
+        write_and_track(dane, rep, 'MS 230')
         
     render_potrzebne_materialy(dane, rep)
 
@@ -418,8 +420,12 @@ def generate_report_deska_lita(dane, rep):
         write_and_track(dane, rep, 'Z 625')
 
     rep.write("**c) klejenie okładziny:**")
-    rep.write("Klejenie podłogi z deski litej należy przeprowadzić przy użyciu kleju polimerowego twardo-elastycznego WAKOL MS 260. (szpachla B13, zużycie: 1350 g/m²).")
-    write_and_track(dane, rep, 'MS 260')
+    if dane.get('klej_typ') == "bezprzesuwny":
+        rep.write("Klejenie podłogi z deski litej należy przeprowadzić przy użyciu kleju **WAKOL PU 225** (szpachla B11, zużycie: 1250 g/m²).")
+        write_and_track(dane, rep, 'PU 225')
+    else:
+        rep.write("Klejenie podłogi z deski litej należy przeprowadzić przy użyciu kleju polimerowego twardo-elastycznego **WAKOL MS 260** (szpachla B13, zużycie: 1350 g/m²).")
+        write_and_track(dane, rep, 'MS 260')
     render_potrzebne_materialy(dane, rep)
 
 # --- SEKCJA: LVT CIENKIE ---
@@ -464,9 +470,12 @@ def generate_report_lvt_grube(dane, rep):
         write_and_track(dane, rep, 'Z 675')
 
     rep.write("**c) klejenie okładziny:**")
-    rep.write("Klejenie podłogi LVT z twardym rdzeniem należy przeprowadzić przy użyciu kleju **WAKOL MS 230** (szpachla B13, zużycie: 1350 g/m²) bądź kleju **WAKOL PU 225** (szpachla B11, zużycie: 1250 g/m²).")
-    write_and_track(dane, rep, 'MS 230')
-    write_and_track(dane, rep, 'PU 225')
+    if dane.get('klej_typ') == "bezprzesuwny":
+        rep.write("Klejenie podłogi LVT z twardym rdzeniem należy przeprowadzić przy użyciu kleju **WAKOL PU 225** (szpachla B11, zużycie: 1250 g/m²).")
+        write_and_track(dane, rep, 'PU 225')
+    else:
+        rep.write("Klejenie podłogi LVT z twardym rdzeniem należy przeprowadzić przy użyciu kleju **WAKOL MS 230** (szpachla B13, zużycie: 1350 g/m²).")
+        write_and_track(dane, rep, 'MS 230')
     render_potrzebne_materialy(dane, rep)
 
 # --- SEKCJA: PCV W ROLCE ---
@@ -716,6 +725,11 @@ with st.container():
 st.divider()
 
 flooring_type = st.selectbox("Wybierz rodzaj okładziny (Sekcja):", ["deska warstwowa", "podłoga laminowana", "deska lita", "wykładzina dywanowa", "pcv w rolce", "lvt cienkie", "lvt grube z twardym rdzeniem"])
+
+klej_typ = None
+if flooring_type in ["deska warstwowa", "podłoga laminowana", "deska lita", "lvt grube z twardym rdzeniem"]:
+    klej_typ = st.radio("Rodzaj kleju:", ["elastyczny", "bezprzesuwny"], horizontal=True)
+
 st.markdown(f"### Wywiad Techniczny dla: **{flooring_type.upper()}**")
 
 substrate = st.selectbox("1. Rodzaj podłoża", ["jastrych cementowy", "jastrych anhydrytowy", "płyta fundamentowa", "podłoże drewniane (parkiet, deska, OSB)", "płytki ceramiczne", "masa samorozlewna"])
@@ -806,27 +820,29 @@ decision_after_cure = None
 needs_drying_action = False
 if moisture is not None and moisture > limit:
     needs_drying_action = True
+    opt_dry = "przeprowadzenie procesu wygrzewania" if (heating_exists == "TAK" and heating_curing_done == "NIE") else "dalsze osuszanie"
     if h_type == "bruzdowane":
         st.warning(f"Podłoże jest zbyt wilgotne. Konieczność doprowadzenia do normatywnego poziomu wilgoci ({limit}% CM) przed przystąpieniem do dalszych prac.")
         decision_after_cure = "dalsze osuszanie"
+    elif substrate == "jastrych anhydrytowy":
+        decision_after_cure = opt_dry
+    elif strength_val == 1:
+        st.warning("Podłoże bardzo słabe — bariera przeciwwilgociowa niedostępna. Wymagane doprowadzenie do normatywnego poziomu wilgoci przed gruntowaniem PS 275.")
+        decision_after_cure = opt_dry
     else:
-        opt_dry = "przeprowadzenie procesu wygrzewania" if heating_exists == "TAK" else "dalsze osuszanie"
-        if substrate == "jastrych anhydrytowy" or (heating_exists == "TAK" and heating_curing_done == "NIE") or strength_val == 1:
-            if strength_val == 1 and moisture > limit and h_type != "bruzdowane":
-                st.warning("Podłoże bardzo słabe — bariera przeciwwilgociowa niedostępna. Wymagane doprowadzenie do normatywnego poziomu wilgoci przed gruntowaniem PS 275.")
-            decision_after_cure = opt_dry
+        barrier_max = 2.5 if heating_exists == "TAK" else 3.5
+        if moisture <= barrier_max:
+            decision_after_cure = st.radio("Postępowanie z podwyższoną wilgocią:", ["Wykonanie bariery przeciwwilgociowej", opt_dry], horizontal=True)
+            needs_drying_action = (decision_after_cure != "Wykonanie bariery przeciwwilgociowej")
         else:
-            if moisture <= barrier_max:
-                decision_after_cure = st.radio("Postępowanie z podwyższoną wilgocią:", ["Wykonanie bariery przeciwwilgociowej", opt_dry], horizontal=True)
-                needs_drying_action = (decision_after_cure != "Wykonanie bariery przeciwwilgociowej")
-            else:
-                decision_after_cure = opt_dry
+            decision_after_cure = opt_dry
 
 # PAKOWANIE DANYCH DO SŁOWNIKA DLA FUNKCJI GENERUJĄCYCH
 dane_protokolu = {
     "flooring_type": flooring_type,
     "substrate": substrate,
     "area_m2": area_m2,
+    "klej_typ": klej_typ,
     "substrate_age_val": substrate_age_val,
     "heating_exists": heating_exists,
     "heating_info": heating_info,
