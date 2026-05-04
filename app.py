@@ -611,32 +611,53 @@ class WakolPDF(FPDF):
     def footer(self):
         if not getattr(self, 'is_last_page', False):
             return
-        self.set_y(-25)
+        footer_y = -32
         try:
             self.set_font('Arial', '', 7)
         except:
             pass
+
+        # Niebieska linia
+        self.set_y(footer_y)
+        self.set_draw_color(0, 82, 147)
+        self.set_line_width(0.8)
+        self.line(10, self.get_y(), 200, self.get_y())
+        self.ln(2)
+
         col1_x = 10
-        col2_x = 65
-        col3_x = 110
-        
-        self.set_xy(col1_x, -25)
-        self.cell(40, 3, "Loba-Wakol Polska Sp. z o.o.", ln=True)
-        self.set_x(col1_x); self.cell(40, 3, "ul. Sławęcińska 16, Macierzysz", ln=True)
-        self.set_x(col1_x); self.cell(40, 3, "05-850 Ożarów Mazowiecki", ln=True)
-        self.set_x(col1_x); self.cell(40, 3, "tel.: +48 22 436 24 20", ln=True)
-        
-        self.set_xy(col2_x, -25)
-        self.cell(40, 3, "KRS: 0000163623", ln=True)
-        self.set_x(col2_x); self.cell(40, 3, "NIP: 118-13-89-053", ln=True)
-        self.set_x(col2_x); self.cell(40, 3, "REGON: 013285030", ln=True)
-        self.set_x(col2_x); self.cell(40, 3, "fax: +48 22 436 24 21", ln=True)
-        
-        self.set_xy(col3_x, -25)
-        self.cell(40, 3, "ZARZĄD:", ln=True)
-        self.set_x(col3_x); self.cell(40, 3, "Stephane Moulin", ln=True)
-        self.set_x(col3_x); self.cell(40, 3, "Andreas Taddäus Ziobro", ln=True)
-        self.set_x(col3_x); self.cell(40, 3, "biuro@loba-wakol.pl", ln=True)
+        col2_x = 75
+        col3_x = 150
+        row_y = self.get_y()
+
+        # Kolumna 1: ZARZĄD
+        try: self.set_font('Arial', 'B', 6)
+        except: pass
+        self.set_xy(col1_x, row_y); self.cell(60, 3, "ZARZĄD", ln=True)
+        try: self.set_font('Arial', '', 7)
+        except: pass
+        self.set_x(col1_x); self.cell(60, 3, "Stephane Moulin", ln=True)
+        self.set_x(col1_x); self.cell(60, 3, "Andreas Taddaeus Ziobro", ln=True)
+        self.set_x(col1_x); self.cell(60, 3, "biuro@loba-wakol.pl", ln=True)
+
+        # Kolumna 2: ADRES FIRMY
+        try: self.set_font('Arial', 'B', 6)
+        except: pass
+        self.set_xy(col2_x, row_y); self.cell(70, 3, "ADRES FIRMY", ln=True)
+        try: self.set_font('Arial', '', 7)
+        except: pass
+        self.set_x(col2_x); self.cell(70, 3, "ul. Slawecinska 16, Macierzysz", ln=True)
+        self.set_x(col2_x); self.cell(70, 3, "05-850 Ozarow Mazowiecki", ln=True)
+        self.set_x(col2_x); self.cell(70, 3, "tel.: +48 22 436 24 20 | fax: +48 22 436 24 21", ln=True)
+
+        # Kolumna 3: DANE REJESTROWE
+        try: self.set_font('Arial', 'B', 6)
+        except: pass
+        self.set_xy(col3_x, row_y); self.cell(50, 3, "DANE REJESTROWE", ln=True)
+        try: self.set_font('Arial', '', 7)
+        except: pass
+        self.set_x(col3_x); self.cell(50, 3, "KRS: 0000163623", ln=True)
+        self.set_x(col3_x); self.cell(50, 3, "NIP: 118-13-89-053", ln=True)
+        self.set_x(col3_x); self.cell(50, 3, "REGON: 013285030", ln=True)
         
         try:
             import urllib.request
@@ -915,7 +936,53 @@ if st.button(f"GENERUJ PROTOKÓŁ OGLĘDZIN DLA: {flooring_type.upper()}", type=
         
         # Wyświetlenie na ekranie (cel użytkownika)
         st.markdown(rep.get_markdown())
-        
+
+        st.markdown("""
+<div style="font-family: Arial, sans-serif; color: #333; max-width: 800px;">
+    <div style="width: 100%; height: 4px; background-color: #005293; margin-bottom: 20px;"></div>
+    <table style="width: 100%; border-collapse: collapse; margin-bottom: 25px;">
+        <tr>
+            <td style="width: 20%; text-align: left; vertical-align: middle;">
+                <img src="https://www.loba-wakol.pl/fileadmin/templates/images/loba_logo.png" alt="Loba" style="height: 50px; width: auto; display: block;">
+            </td>
+            <td style="width: 60%; text-align: center; vertical-align: middle;">
+                <h1 style="font-size: 12.5pt; margin: 0; color: #005293; text-transform: uppercase; white-space: nowrap; letter-spacing: 0.2px;">
+                    LOBA-WAKOL POLSKA SPÓŁKA Z O.O.
+                </h1>
+            </td>
+            <td style="width: 20%; text-align: right; vertical-align: middle;">
+                <img src="https://www.loba-wakol.pl/fileadmin/templates/images/wakol_logo.png" alt="Wakol" style="height: 50px; width: auto; display: block; margin-left: auto;">
+            </td>
+        </tr>
+    </table>
+    <div style="border-top: 1px solid #005293; padding-top: 15px;">
+        <table style="width: 100%; font-size: 9pt; line-height: 1.5; border-collapse: collapse;">
+            <tr>
+                <td style="width: 33%; vertical-align: top;">
+                    <span style="color: #005293; font-size: 8pt; font-weight: bold; display: block; margin-bottom: 4px; text-transform: uppercase;">ZARZĄD</span>
+                    <strong>Stephane Moulin</strong><br>
+                    <strong>Andreas Taddäus Ziobro</strong><br>
+                    <a href="mailto:biuro@loba-wakol.pl" style="color: #005293; text-decoration: none;">biuro@loba-wakol.pl</a>
+                </td>
+                <td style="width: 34%; vertical-align: top; text-align: center;">
+                    <span style="color: #005293; font-size: 8pt; font-weight: bold; display: block; margin-bottom: 4px; text-transform: uppercase;">ADRES FIRMY</span>
+                    ul. Sławęcińska 16, Macierzysz<br>
+                    05-850 Ożarów Mazowiecki<br>
+                    tel.: +48 22 436 24 20<br>
+                    fax: +48 22 436 24 21
+                </td>
+                <td style="width: 33%; vertical-align: top; text-align: right;">
+                    <span style="color: #005293; font-size: 8pt; font-weight: bold; display: block; margin-bottom: 4px; text-transform: uppercase;">DANE REJESTROWE</span>
+                    KRS: 0000163623<br>
+                    NIP: 118-13-89-053<br>
+                    REGON: 013285030
+                </td>
+            </tr>
+        </table>
+    </div>
+</div>
+""", unsafe_allow_html=True)
+
         st.divider()
         
         # Przyciski pobierania
