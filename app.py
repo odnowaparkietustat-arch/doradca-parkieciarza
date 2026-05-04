@@ -585,61 +585,44 @@ def _add_docx_footer(doc):
         r.append(t)
         return r
 
-    def make_br():
-        r = OxmlElement('w:r')
-        r.append(OxmlElement('w:br'))
-        return r
+    # Trzy kolumny przez tabstopy — niezawodne w stopkach Word
+    # A4 17cm użytkowe = 9639 twipsów; center=4819, right=9639
+    TAB_C = '4819'
+    TAB_R = '9639'
 
-    # Tabela trójkolumnowa — szerokości procentowe (pct), żeby działało niezależnie od marginesów
-    # 5000 = 100%, 1666/1667/1667 = ~33% każda
-    tbl = OxmlElement('w:tbl')
-    tblPr = OxmlElement('w:tblPr')
-    tblW = OxmlElement('w:tblW')
-    tblW.set(qn('w:w'), '5000')
-    tblW.set(qn('w:type'), 'pct')
-    tblPr.append(tblW)
-    tblBorders = OxmlElement('w:tblBorders')
-    for bn in ['top', 'left', 'bottom', 'right', 'insideH', 'insideV']:
-        b = OxmlElement(f'w:{bn}')
-        b.set(qn('w:val'), 'none')
-        tblBorders.append(b)
-    tblPr.append(tblBorders)
-    tblLayout = OxmlElement('w:tblLayout')
-    tblLayout.set(qn('w:type'), 'fixed')
-    tblPr.append(tblLayout)
-    tbl.append(tblPr)
-
-    tr = OxmlElement('w:tr')
-    cols_data = [
-        ('ZARZĄD', ['Stephane Moulin', 'Andreas Taddäus Ziobro', 'biuro@loba-wakol.pl'], 'left', '1666'),
-        ('ADRES FIRMY', ['ul. Sławęcińska 16, Macierzysz', '05-850 Ożarów Mazowiecki', 'tel.: +48 22 436 24 20', 'fax: +48 22 436 24 21'], 'center', '1667'),
-        ('DANE REJESTROWE', ['KRS: 0000163623', 'NIP: 118-13-89-053', 'REGON: 013285030'], 'right', '1667'),
-    ]
-    for title, lines, align, col_pct in cols_data:
-        tc = OxmlElement('w:tc')
-        tcPr = OxmlElement('w:tcPr')
-        tcW = OxmlElement('w:tcW')
-        tcW.set(qn('w:w'), col_pct)
-        tcW.set(qn('w:type'), 'pct')
-        tcPr.append(tcW)
-        tc.append(tcPr)
+    def make_tab_row(left, center, right, is_title=False):
         p = OxmlElement('w:p')
         pPr = OxmlElement('w:pPr')
-        jc = OxmlElement('w:jc')
-        jc.set(qn('w:val'), align)
-        pPr.append(jc)
+        tabs_el = OxmlElement('w:tabs')
+        for val, pos in [('center', TAB_C), ('right', TAB_R)]:
+            t = OxmlElement('w:tab')
+            t.set(qn('w:val'), val)
+            t.set(qn('w:pos'), pos)
+            tabs_el.append(t)
+        pPr.append(tabs_el)
         p.append(pPr)
-        p.append(make_run(title, bold=True, size_half=14, color='005293'))
-        p.append(make_br())
-        for line in lines:
-            p.append(make_run(line, size_half=16))
-            p.append(make_br())
-        tc.append(p)
-        tr.append(tc)
-    tbl.append(tr)
-    ft_elem.append(tbl)
+        sz = 14 if is_title else 16
+        col = '005293' if is_title else None
+        bd = is_title
+        for i, txt in enumerate([left, center, right]):
+            if i > 0:
+                r_tab = OxmlElement('w:r')
+                r_tab.append(OxmlElement('w:tab'))
+                p.append(r_tab)
+            if txt:
+                p.append(make_run(txt, bold=bd, size_half=sz, color=col))
+        return p
 
-    # Word wymaga przynajmniej jednego paragrafu na końcu stopki
+    footer_rows = [
+        ('ZARZĄD',              'ADRES FIRMY',                       'DANE REJESTROWE',  True),
+        ('Stephane Moulin',     'ul. Sławęcińska 16, Macierzysz',    'KRS: 0000163623',  False),
+        ('Andreas Taddäus Ziobro', '05-850 Ożarów Mazowiecki',       'NIP: 118-13-89-053', False),
+        ('biuro@loba-wakol.pl', 'tel.: +48 22 436 24 20',            'REGON: 013285030', False),
+        ('',                    'fax: +48 22 436 24 21',             '',                 False),
+    ]
+    for left, center, right, is_title in footer_rows:
+        ft_elem.append(make_tab_row(left, center, right, is_title))
+
     ft_elem.append(OxmlElement('w:p'))
 
 def _add_docx_header(doc, data_badania_str='', autor_str=''):
