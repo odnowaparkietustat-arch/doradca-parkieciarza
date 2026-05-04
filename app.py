@@ -626,142 +626,92 @@ def _add_docx_footer(doc):
     ft_elem.append(OxmlElement('w:p'))
 
 def _add_docx_header(doc, data_badania_str='', autor_str=''):
-    from docx.shared import Inches, Cm
+    from docx.shared import Inches, Cm, Pt
+    from docx.enum.text import WD_ALIGN_PARAGRAPH
     import os
 
     section = doc.sections[0]
-    section.top_margin = Cm(7.0)
+    section.top_margin = Cm(2.5)
     section.bottom_margin = Cm(4.5)
     section.left_margin = Cm(2.0)
     section.right_margin = Cm(2.0)
-    # Jawne wpisanie w:titlePg do XML – python-docx API nie zawsze skutkuje
-    sectPr = section._sectPr
-    if sectPr.find(qn('w:titlePg')) is None:
-        sectPr.append(OxmlElement('w:titlePg'))
 
-    def xml_para_right(text, bold=False, size_pt=9, color=None):
-        p = OxmlElement('w:p')
-        pPr = OxmlElement('w:pPr')
-        jc = OxmlElement('w:jc')
-        jc.set(qn('w:val'), 'right')
-        pPr.append(jc)
-        p.append(pPr)
-        r = OxmlElement('w:r')
-        rPr = OxmlElement('w:rPr')
-        if bold:
-            rPr.append(OxmlElement('w:b'))
-        sz = OxmlElement('w:sz')
-        sz.set(qn('w:val'), str(int(size_pt * 2)))
-        rPr.append(sz)
-        if color:
-            cl = OxmlElement('w:color')
-            cl.set(qn('w:val'), color)
-            rPr.append(cl)
-        r.append(rPr)
-        t = OxmlElement('w:t')
-        t.text = text
-        t.set('{http://www.w3.org/XML/1998/namespace}space', 'preserve')
-        r.append(t)
-        p.append(r)
-        return p
-
-    # === NAGŁÓWEK PIERWSZEJ STRONY — tabela 2-kolumnowa: logo | dane firmy ===
-    first_header = section.first_page_header
-    fh = first_header._element
-    for child in list(fh):
+    # Pusty nagłówek Word na wszystkich stronach (brak miejsca na nagłówek)
+    hdr = section.header
+    hdr_el = hdr._element
+    for child in list(hdr_el):
         tag = child.tag.split('}')[-1] if '}' in child.tag else child.tag
         if tag in ('p', 'tbl', 'sdt'):
-            fh.remove(child)
+            hdr_el.remove(child)
+    hdr_el.append(OxmlElement('w:p'))
 
-    LOGO_COL = 4500
-    INFO_COL = 5140
-
-    def make_tc_no_border(width_twips):
-        tc = OxmlElement('w:tc')
-        tcPr = OxmlElement('w:tcPr')
-        tcW = OxmlElement('w:tcW')
-        tcW.set(qn('w:w'), str(width_twips))
-        tcW.set(qn('w:type'), 'dxa')
-        tcPr.append(tcW)
-        tcBdr = OxmlElement('w:tcBorders')
-        for bn in ['top', 'left', 'bottom', 'right']:
-            b = OxmlElement(f'w:{bn}')
-            b.set(qn('w:val'), 'none')
-            tcBdr.append(b)
-        tcPr.append(tcBdr)
-        tc.append(tcPr)
-        return tc
-
-    tbl_h = OxmlElement('w:tbl')
-    tblPr_h = OxmlElement('w:tblPr')
-    tblW_h = OxmlElement('w:tblW')
-    tblW_h.set(qn('w:w'), str(LOGO_COL + INFO_COL))
-    tblW_h.set(qn('w:type'), 'dxa')
-    tblPr_h.append(tblW_h)
-    tblLay_h = OxmlElement('w:tblLayout')
-    tblLay_h.set(qn('w:type'), 'fixed')
-    tblPr_h.append(tblLay_h)
-    tblBdr_h = OxmlElement('w:tblBorders')
+    # Logo + dane firmy jako tabela w TREŚCI dokumentu (pierwsza strona naturalnie)
+    tbl = doc.add_table(rows=1, cols=2)
+    tbl_el = tbl._tbl
+    tbl_pr = tbl_el.find(qn('w:tblPr'))
+    if tbl_pr is None:
+        tbl_pr = OxmlElement('w:tblPr')
+        tbl_el.insert(0, tbl_pr)
+    tbl_bdr = OxmlElement('w:tblBorders')
     for bn in ['top', 'left', 'bottom', 'right', 'insideH', 'insideV']:
         b = OxmlElement(f'w:{bn}')
         b.set(qn('w:val'), 'none')
-        tblBdr_h.append(b)
-    tblPr_h.append(tblBdr_h)
-    tbl_h.append(tblPr_h)
+        tbl_bdr.append(b)
+    tbl_pr.append(tbl_bdr)
 
-    tblGrid_h = OxmlElement('w:tblGrid')
-    for w in [LOGO_COL, INFO_COL]:
-        gc = OxmlElement('w:gridCol')
-        gc.set(qn('w:w'), str(w))
-        tblGrid_h.append(gc)
-    tbl_h.append(tblGrid_h)
+    left_cell = tbl.rows[0].cells[0]
+    right_cell = tbl.rows[0].cells[1]
 
-    tr_h = OxmlElement('w:tr')
-
-    # Lewa kolumna: logo
-    tc_logo = make_tc_no_border(LOGO_COL)
-    p_logo_xml = OxmlElement('w:p')
-    tc_logo.append(p_logo_xml)
-    tr_h.append(tc_logo)
-
-    # Prawa kolumna: dane firmy (każda linia osobny paragraf, wyrównanie do prawej)
-    tc_info = make_tc_no_border(INFO_COL)
-    info_lines = [
-        ('Loba-Wakol Polska Sp. z o.o.', True, 13, '005293'),
-        ('ul. Sławęcińska 16, Macierzysz', False, 8, None),
-        ('05-850 Ożarów Mazowiecki', False, 8, None),
-        (f'data: {data_badania_str}', False, 8, None),
-        (f'autor: {autor_str}', False, 8, None),
-        ('tel.: +48 22 436 24 20  |  fax: +48 22 436 24 21', False, 8, None),
-        ('biuro@loba-wakol.pl', False, 8, None),
-    ]
-    for text, bold, size_pt, color in info_lines:
-        tc_info.append(xml_para_right(text, bold=bold, size_pt=size_pt, color=color))
-    tr_h.append(tc_info)
-
-    tbl_h.append(tr_h)
-    fh.append(tbl_h)
-
-    # Logo przez API (wymaga obiektu Paragraph dla relacji obrazu)
+    # Lewa komórka: logo
+    para_logo = left_cell.paragraphs[0]
+    para_logo.alignment = WD_ALIGN_PARAGRAPH.LEFT
     if os.path.exists('loba_wakol_logo.png'):
         try:
-            from docx.text.paragraph import Paragraph as DocxPara
-            logo_para_obj = DocxPara(p_logo_xml, first_header)
-            logo_para_obj.add_run().add_picture('loba_wakol_logo.png', width=Inches(3.5))
+            para_logo.add_run().add_picture('loba_wakol_logo.png', width=Inches(3.5))
         except:
             pass
 
-    # === NAGŁÓWEK POZOSTAŁYCH STRON (całkowicie pusty) ===
-    header = section.header
-    hdr_elem = header._element
-    for child in list(hdr_elem):
-        tag = child.tag.split('}')[-1] if '}' in child.tag else child.tag
-        if tag in ('p', 'tbl', 'sdt'):
-            hdr_elem.remove(child)
-    hdr_elem.append(OxmlElement('w:p'))  # Word wymaga co najmniej jednego paragrafu
+    # Prawa komórka: dane firmy
+    info_lines = [
+        ('Loba-Wakol Polska Sp. z o.o.', True, 14),
+        ('ul. Sławęcińska 16, Macierzysz', False, 9),
+        ('05-850 Ożarów Mazowiecki', False, 9),
+        (f'data: {data_badania_str}', False, 9),
+        (f'autor: {autor_str}', False, 9),
+        ('tel.: +48 22 436 24 20  |  fax: +48 22 436 24 21', False, 9),
+        ('biuro@loba-wakol.pl', False, 9),
+    ]
+    for i, (text, bold, size) in enumerate(info_lines):
+        para = right_cell.paragraphs[0] if i == 0 else right_cell.add_paragraph()
+        para.alignment = WD_ALIGN_PARAGRAPH.RIGHT
+        run = para.add_run(text)
+        run.bold = bold
+        run.font.size = Pt(size)
+        if bold:
+            run.font.color.rgb = RGBColor(0x00, 0x52, 0x93)
+
+    # Niebieski separator po tabeli nagłówka
+    sep = doc.add_paragraph()
+    sep_pPr = sep._p.get_or_add_pPr()
+    sep_bdr = OxmlElement('w:pBdr')
+    bot = OxmlElement('w:bottom')
+    bot.set(qn('w:val'), 'single')
+    bot.set(qn('w:sz'), '12')
+    bot.set(qn('w:space'), '4')
+    bot.set(qn('w:color'), '005293')
+    sep_bdr.append(bot)
+    sep_pPr.append(sep_bdr)
+
 
 def generate_docx(md_text, data_badania_str='', autor_str=''):
     doc = Document()
+    # Usuń domyślny pusty paragraf
+    for p in list(doc.paragraphs):
+        p._element.getparent().remove(p._element)
+
+    # Nagłówek (logo + dane firmy) jako treść — PRZED resztą
+    _add_docx_header(doc, data_badania_str, autor_str)
+
     for line in md_text.split('\n\n'):
         line = line.strip()
         if not line: continue
@@ -777,8 +727,7 @@ def generate_docx(md_text, data_badania_str='', autor_str=''):
         else:
             p = doc.add_paragraph()
             _add_runs(p, line)
-            
-    _add_docx_header(doc, data_badania_str, autor_str)
+
     _add_docx_footer(doc)
     bio = io.BytesIO()
     doc.save(bio)
