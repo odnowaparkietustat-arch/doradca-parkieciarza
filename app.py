@@ -590,14 +590,13 @@ def _add_docx_footer(doc):
         r.append(OxmlElement('w:br'))
         return r
 
-    # Tabela trójkolumnowa przez XML
-    # A4 (11908 twips) - 2x margines 2cm (1134 twips) = 9640 twips -> 3213 na kolumnę
-    COL_W = 3213
+    # Tabela trójkolumnowa — szerokości procentowe (pct), żeby działało niezależnie od marginesów
+    # 5000 = 100%, 1666/1667/1667 = ~33% każda
     tbl = OxmlElement('w:tbl')
     tblPr = OxmlElement('w:tblPr')
     tblW = OxmlElement('w:tblW')
-    tblW.set(qn('w:w'), str(COL_W * 3))
-    tblW.set(qn('w:type'), 'dxa')
+    tblW.set(qn('w:w'), '5000')
+    tblW.set(qn('w:type'), 'pct')
     tblPr.append(tblW)
     tblBorders = OxmlElement('w:tblBorders')
     for bn in ['top', 'left', 'bottom', 'right', 'insideH', 'insideV']:
@@ -610,25 +609,18 @@ def _add_docx_footer(doc):
     tblPr.append(tblLayout)
     tbl.append(tblPr)
 
-    tblGrid = OxmlElement('w:tblGrid')
-    for _ in range(3):
-        gc = OxmlElement('w:gridCol')
-        gc.set(qn('w:w'), str(COL_W))
-        tblGrid.append(gc)
-    tbl.append(tblGrid)
-
     tr = OxmlElement('w:tr')
     cols_data = [
-        ('ZARZĄD', ['Stephane Moulin', 'Andreas Taddäus Ziobro', 'biuro@loba-wakol.pl'], 'left'),
-        ('ADRES FIRMY', ['ul. Sławęcińska 16, Macierzysz', '05-850 Ożarów Mazowiecki', 'tel.: +48 22 436 24 20', 'fax: +48 22 436 24 21'], 'center'),
-        ('DANE REJESTROWE', ['KRS: 0000163623', 'NIP: 118-13-89-053', 'REGON: 013285030'], 'right'),
+        ('ZARZĄD', ['Stephane Moulin', 'Andreas Taddäus Ziobro', 'biuro@loba-wakol.pl'], 'left', '1666'),
+        ('ADRES FIRMY', ['ul. Sławęcińska 16, Macierzysz', '05-850 Ożarów Mazowiecki', 'tel.: +48 22 436 24 20', 'fax: +48 22 436 24 21'], 'center', '1667'),
+        ('DANE REJESTROWE', ['KRS: 0000163623', 'NIP: 118-13-89-053', 'REGON: 013285030'], 'right', '1667'),
     ]
-    for title, lines, align in cols_data:
+    for title, lines, align, col_pct in cols_data:
         tc = OxmlElement('w:tc')
         tcPr = OxmlElement('w:tcPr')
         tcW = OxmlElement('w:tcW')
-        tcW.set(qn('w:w'), str(COL_W))
-        tcW.set(qn('w:type'), 'dxa')
+        tcW.set(qn('w:w'), col_pct)
+        tcW.set(qn('w:type'), 'pct')
         tcPr.append(tcW)
         tc.append(tcPr)
         p = OxmlElement('w:p')
