@@ -591,11 +591,13 @@ def _add_docx_footer(doc):
         return r
 
     # Tabela trójkolumnowa przez XML
+    # A4 (11908 twips) - 2x margines 2cm (1134 twips) = 9640 twips -> 3213 na kolumnę
+    COL_W = 3213
     tbl = OxmlElement('w:tbl')
     tblPr = OxmlElement('w:tblPr')
     tblW = OxmlElement('w:tblW')
-    tblW.set(qn('w:w'), '0')
-    tblW.set(qn('w:type'), 'auto')
+    tblW.set(qn('w:w'), str(COL_W * 3))
+    tblW.set(qn('w:type'), 'dxa')
     tblPr.append(tblW)
     tblBorders = OxmlElement('w:tblBorders')
     for bn in ['top', 'left', 'bottom', 'right', 'insideH', 'insideV']:
@@ -605,6 +607,13 @@ def _add_docx_footer(doc):
     tblPr.append(tblBorders)
     tbl.append(tblPr)
 
+    tblGrid = OxmlElement('w:tblGrid')
+    for _ in range(3):
+        gc = OxmlElement('w:gridCol')
+        gc.set(qn('w:w'), str(COL_W))
+        tblGrid.append(gc)
+    tbl.append(tblGrid)
+
     tr = OxmlElement('w:tr')
     cols_data = [
         ('ZARZĄD', ['Stephane Moulin', 'Andreas Taddäus Ziobro', 'biuro@loba-wakol.pl'], 'left'),
@@ -613,6 +622,12 @@ def _add_docx_footer(doc):
     ]
     for title, lines, align in cols_data:
         tc = OxmlElement('w:tc')
+        tcPr = OxmlElement('w:tcPr')
+        tcW = OxmlElement('w:tcW')
+        tcW.set(qn('w:w'), str(COL_W))
+        tcW.set(qn('w:type'), 'dxa')
+        tcPr.append(tcW)
+        tc.append(tcPr)
         p = OxmlElement('w:p')
         pPr = OxmlElement('w:pPr')
         jc = OxmlElement('w:jc')
@@ -674,7 +689,7 @@ def _add_docx_header(doc, data_badania_str='', autor_str=''):
     # Logo (lewy górny róg)
     if os.path.exists('loba_wakol_logo.png'):
         try:
-            first_header.paragraphs[0].add_run().add_picture('loba_wakol_logo.png', width=Inches(1.8))
+            first_header.paragraphs[0].add_run().add_picture('loba_wakol_logo.png', width=Inches(2.8))
         except:
             pass
     fh = first_header._element
@@ -683,25 +698,14 @@ def _add_docx_header(doc, data_badania_str='', autor_str=''):
     fh.append(xml_para_right(f'data: {data_badania_str}  |  autor: {autor_str}', size_pt=8))
     fh.append(xml_para_right('tel.: +48 22 436 24 20  |  fax: +48 22 436 24 21  |  biuro@loba-wakol.pl', size_pt=8))
 
-    # === NAGŁÓWEK POZOSTAŁYCH STRON ===
+    # === NAGŁÓWEK POZOSTAŁYCH STRON (bez logo) ===
     header = section.header
     hdr_elem = header._element
     for child in list(hdr_elem):
         tag = child.tag.split('}')[-1] if '}' in child.tag else child.tag
         if tag in ('p', 'tbl', 'sdt'):
             hdr_elem.remove(child)
-    if os.path.exists('loba_wakol_logo.png'):
-        try:
-            p_logo = OxmlElement('w:p')
-            hdr_elem.append(p_logo)
-            # odbuduj paragraph przez API
-            from docx.text.paragraph import Paragraph
-            para_obj = Paragraph(p_logo, header)
-            para_obj.add_run().add_picture('loba_wakol_logo.png', width=Inches(0.9))
-        except:
-            hdr_elem.append(xml_para_right('Loba-Wakol Polska Sp. z o.o.', size_pt=8, color='005293'))
-    else:
-        hdr_elem.append(xml_para_right('Loba-Wakol Polska Sp. z o.o.', size_pt=8, color='005293'))
+    hdr_elem.append(xml_para_right('Loba-Wakol Polska Sp. z o.o.', size_pt=8, color='005293'))
     hdr_elem.append(OxmlElement('w:p'))
 
 def generate_docx(md_text, data_badania_str='', autor_str=''):
