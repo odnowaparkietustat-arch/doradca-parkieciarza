@@ -748,13 +748,13 @@ class WakolPDF(FPDF):
         self.autor_str = autor_str
 
     def header(self):
-        try:
-            import os
-            if os.path.exists('loba_wakol_logo.png'):
-                self.image('loba_wakol_logo.png', x=10, y=8, w=45)
-        except:
-            pass
         if self.page_no() == 1:
+            try:
+                import os
+                if os.path.exists('loba_wakol_logo.png'):
+                    self.image('loba_wakol_logo.png', x=10, y=8, w=45)
+            except:
+                pass
             try:
                 self.set_font('Arial', 'B', 16)
             except:
