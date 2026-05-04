@@ -6,6 +6,10 @@ import io
 
 try:
     from docx import Document
+    from docx.shared import Pt, RGBColor
+    from docx.oxml.ns import qn
+    from docx.oxml import OxmlElement
+    from docx.enum.text import WD_ALIGN_PARAGRAPH
     import fpdf
     from fpdf import FPDF
     EXPORTS_READY = True
@@ -535,6 +539,79 @@ def generate_report_wykladzina_dywanowa(dane, rep):
 # ==========================================
 # EXPORT DO DOCX I PDF
 # ==========================================
+def _add_docx_footer(doc):
+    section = doc.sections[0]
+    footer = section.footer
+    footer.is_linked_to_previous = False
+
+    # Usuń domyślny pusty paragraf
+    for para in list(footer.paragraphs):
+        para._p.getparent().remove(para._p)
+
+    # Niebieski pasek jako górna ramka paragrafu
+    p_border = OxmlElement('w:p')
+    pPr = OxmlElement('w:pPr')
+    pBdr = OxmlElement('w:pBdr')
+    top = OxmlElement('w:top')
+    top.set(qn('w:val'), 'single')
+    top.set(qn('w:sz'), '24')
+    top.set(qn('w:space'), '4')
+    top.set(qn('w:color'), '005293')
+    pBdr.append(top)
+    pPr.append(pBdr)
+    p_border.append(pPr)
+    footer._element.append(p_border)
+
+    # Tabela trójkolumnowa
+    table = footer.add_table(rows=1, cols=3)
+    tbl = table._tbl
+    tblPr = tbl.find(qn('w:tblPr'))
+    if tblPr is None:
+        tblPr = OxmlElement('w:tblPr')
+        tbl.insert(0, tblPr)
+    tblBorders = OxmlElement('w:tblBorders')
+    for border_name in ['top', 'left', 'bottom', 'right', 'insideH', 'insideV']:
+        b = OxmlElement(f'w:{border_name}')
+        b.set(qn('w:val'), 'none')
+        tblBorders.append(b)
+    tblPr.append(tblBorders)
+
+    def fill_cell(cell, title, lines, align=WD_ALIGN_PARAGRAPH.LEFT):
+        para = cell.paragraphs[0]
+        para.alignment = align
+        r = para.add_run(title + '\n')
+        r.bold = True
+        r.font.size = Pt(7)
+        r.font.color.rgb = RGBColor(0, 82, 147)
+        for line in lines:
+            rn = para.add_run(line + '\n')
+            rn.font.size = Pt(8)
+
+    fill_cell(table.cell(0, 0), 'ZARZĄD', [
+        'Stephane Moulin', 'Andreas Taddäus Ziobro', 'biuro@loba-wakol.pl'
+    ])
+    fill_cell(table.cell(0, 1), 'ADRES FIRMY', [
+        'ul. Sławęcińska 16, Macierzysz', '05-850 Ożarów Mazowiecki',
+        'tel.: +48 22 436 24 20', 'fax: +48 22 436 24 21'
+    ], WD_ALIGN_PARAGRAPH.CENTER)
+    fill_cell(table.cell(0, 2), 'DANE REJESTROWE', [
+        'KRS: 0000163623', 'NIP: 118-13-89-053', 'REGON: 013285030'
+    ], WD_ALIGN_PARAGRAPH.RIGHT)
+
+def _add_docx_header_logo(doc):
+    from docx.shared import Inches
+    import os
+    if not os.path.exists('loba_wakol_logo.png'):
+        return
+    section = doc.sections[0]
+    header = section.header
+    para = header.paragraphs[0]
+    run = para.add_run()
+    try:
+        run.add_picture('loba_wakol_logo.png', width=Inches(1.8))
+    except:
+        pass
+
 def generate_docx(md_text):
     doc = Document()
     for line in md_text.split('\n\n'):
@@ -553,6 +630,8 @@ def generate_docx(md_text):
             p = doc.add_paragraph()
             _add_runs(p, line)
             
+    _add_docx_header_logo(doc)
+    _add_docx_footer(doc)
     bio = io.BytesIO()
     doc.save(bio)
     return bio.getvalue()
@@ -569,9 +648,14 @@ class WakolPDF(FPDF):
         super().__init__()
         self.data_badania_str = data_badania_str
         self.autor_str = autor_str
-        self.is_last_page = False
 
     def header(self):
+        try:
+            import os
+            if os.path.exists('loba_wakol_logo.png'):
+                self.image('loba_wakol_logo.png', x=10, y=8, w=45)
+        except:
+            pass
         if self.page_no() == 1:
             try:
                 self.set_font('Arial', 'B', 16)
@@ -609,8 +693,6 @@ class WakolPDF(FPDF):
             self.set_y(20)
 
     def footer(self):
-        if not getattr(self, 'is_last_page', False):
-            return
         footer_y = -32
         try:
             self.set_font('Arial', '', 7)
@@ -695,6 +777,7 @@ def generate_pdf(md_text, data_badania_str, autor_str):
         st.error(f"Błąd ładowania czcionki: {str(e)}")
         pdf.set_font('helvetica', size=11)
         
+    pdf.set_auto_page_break(auto=True, margin=38)
     pdf.add_page()
     for line in md_text.split('\n\n'):
         line = line.strip()
@@ -722,7 +805,6 @@ def generate_pdf(md_text, data_badania_str, autor_str):
                 pdf.multi_cell(0, 6, txt=line)
         pdf.ln(2)
         
-    pdf.is_last_page = True
     output = pdf.output(dest='S')
     if type(output) is str:
         return output.encode('latin-1')
