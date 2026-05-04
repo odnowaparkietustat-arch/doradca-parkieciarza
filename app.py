@@ -544,59 +544,93 @@ def _add_docx_footer(doc):
     footer = section.footer
     footer.is_linked_to_previous = False
 
-    # Usuń domyślny pusty paragraf
-    for para in list(footer.paragraphs):
-        para._p.getparent().remove(para._p)
+    # Wyczyść element stopki
+    ft_elem = footer._element
+    for child in list(ft_elem):
+        tag = child.tag.split('}')[-1] if '}' in child.tag else child.tag
+        if tag in ('p', 'tbl', 'sdt'):
+            ft_elem.remove(child)
 
     # Niebieski pasek jako górna ramka paragrafu
     p_border = OxmlElement('w:p')
-    pPr = OxmlElement('w:pPr')
+    pPr_b = OxmlElement('w:pPr')
     pBdr = OxmlElement('w:pBdr')
-    top = OxmlElement('w:top')
-    top.set(qn('w:val'), 'single')
-    top.set(qn('w:sz'), '24')
-    top.set(qn('w:space'), '4')
-    top.set(qn('w:color'), '005293')
-    pBdr.append(top)
-    pPr.append(pBdr)
-    p_border.append(pPr)
-    footer._element.append(p_border)
+    top_b = OxmlElement('w:top')
+    top_b.set(qn('w:val'), 'single')
+    top_b.set(qn('w:sz'), '24')
+    top_b.set(qn('w:space'), '4')
+    top_b.set(qn('w:color'), '005293')
+    pBdr.append(top_b)
+    pPr_b.append(pBdr)
+    p_border.append(pPr_b)
+    ft_elem.append(p_border)
 
-    # Tabela trójkolumnowa
-    table = footer.add_table(rows=1, cols=3)
-    tbl = table._tbl
-    tblPr = tbl.find(qn('w:tblPr'))
-    if tblPr is None:
-        tblPr = OxmlElement('w:tblPr')
-        tbl.insert(0, tblPr)
+    # Pomocnicze funkcje do budowania XML
+    def make_run(text, bold=False, size_half=16, color=None):
+        r = OxmlElement('w:r')
+        rPr = OxmlElement('w:rPr')
+        if bold:
+            rPr.append(OxmlElement('w:b'))
+        sz = OxmlElement('w:sz')
+        sz.set(qn('w:val'), str(size_half))
+        rPr.append(sz)
+        if color:
+            cl = OxmlElement('w:color')
+            cl.set(qn('w:val'), color)
+            rPr.append(cl)
+        r.append(rPr)
+        t = OxmlElement('w:t')
+        t.text = text
+        t.set('{http://www.w3.org/XML/1998/namespace}space', 'preserve')
+        r.append(t)
+        return r
+
+    def make_br():
+        r = OxmlElement('w:r')
+        r.append(OxmlElement('w:br'))
+        return r
+
+    # Tabela trójkolumnowa przez XML
+    tbl = OxmlElement('w:tbl')
+    tblPr = OxmlElement('w:tblPr')
+    tblW = OxmlElement('w:tblW')
+    tblW.set(qn('w:w'), '0')
+    tblW.set(qn('w:type'), 'auto')
+    tblPr.append(tblW)
     tblBorders = OxmlElement('w:tblBorders')
-    for border_name in ['top', 'left', 'bottom', 'right', 'insideH', 'insideV']:
-        b = OxmlElement(f'w:{border_name}')
+    for bn in ['top', 'left', 'bottom', 'right', 'insideH', 'insideV']:
+        b = OxmlElement(f'w:{bn}')
         b.set(qn('w:val'), 'none')
         tblBorders.append(b)
     tblPr.append(tblBorders)
+    tbl.append(tblPr)
 
-    def fill_cell(cell, title, lines, align=WD_ALIGN_PARAGRAPH.LEFT):
-        para = cell.paragraphs[0]
-        para.alignment = align
-        r = para.add_run(title + '\n')
-        r.bold = True
-        r.font.size = Pt(7)
-        r.font.color.rgb = RGBColor(0, 82, 147)
+    tr = OxmlElement('w:tr')
+    cols_data = [
+        ('ZARZĄD', ['Stephane Moulin', 'Andreas Taddäus Ziobro', 'biuro@loba-wakol.pl'], 'left'),
+        ('ADRES FIRMY', ['ul. Sławęcińska 16, Macierzysz', '05-850 Ożarów Mazowiecki', 'tel.: +48 22 436 24 20', 'fax: +48 22 436 24 21'], 'center'),
+        ('DANE REJESTROWE', ['KRS: 0000163623', 'NIP: 118-13-89-053', 'REGON: 013285030'], 'right'),
+    ]
+    for title, lines, align in cols_data:
+        tc = OxmlElement('w:tc')
+        p = OxmlElement('w:p')
+        pPr = OxmlElement('w:pPr')
+        jc = OxmlElement('w:jc')
+        jc.set(qn('w:val'), align)
+        pPr.append(jc)
+        p.append(pPr)
+        p.append(make_run(title, bold=True, size_half=14, color='005293'))
+        p.append(make_br())
         for line in lines:
-            rn = para.add_run(line + '\n')
-            rn.font.size = Pt(8)
+            p.append(make_run(line, size_half=16))
+            p.append(make_br())
+        tc.append(p)
+        tr.append(tc)
+    tbl.append(tr)
+    ft_elem.append(tbl)
 
-    fill_cell(table.cell(0, 0), 'ZARZĄD', [
-        'Stephane Moulin', 'Andreas Taddäus Ziobro', 'biuro@loba-wakol.pl'
-    ])
-    fill_cell(table.cell(0, 1), 'ADRES FIRMY', [
-        'ul. Sławęcińska 16, Macierzysz', '05-850 Ożarów Mazowiecki',
-        'tel.: +48 22 436 24 20', 'fax: +48 22 436 24 21'
-    ], WD_ALIGN_PARAGRAPH.CENTER)
-    fill_cell(table.cell(0, 2), 'DANE REJESTROWE', [
-        'KRS: 0000163623', 'NIP: 118-13-89-053', 'REGON: 013285030'
-    ], WD_ALIGN_PARAGRAPH.RIGHT)
+    # Word wymaga przynajmniej jednego paragrafu na końcu stopki
+    ft_elem.append(OxmlElement('w:p'))
 
 def _add_docx_header_logo(doc):
     from docx.shared import Inches
