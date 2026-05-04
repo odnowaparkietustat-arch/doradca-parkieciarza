@@ -632,21 +632,79 @@ def _add_docx_footer(doc):
     # Word wymaga przynajmniej jednego paragrafu na końcu stopki
     ft_elem.append(OxmlElement('w:p'))
 
-def _add_docx_header_logo(doc):
-    from docx.shared import Inches
+def _add_docx_header(doc, data_badania_str='', autor_str=''):
+    from docx.shared import Inches, Cm
     import os
-    if not os.path.exists('loba_wakol_logo.png'):
-        return
-    section = doc.sections[0]
-    header = section.header
-    para = header.paragraphs[0]
-    run = para.add_run()
-    try:
-        run.add_picture('loba_wakol_logo.png', width=Inches(1.8))
-    except:
-        pass
 
-def generate_docx(md_text):
+    section = doc.sections[0]
+    section.different_first_page_header_footer = True
+    section.top_margin = Cm(7.0)
+    section.bottom_margin = Cm(4.5)
+    section.left_margin = Cm(2.0)
+    section.right_margin = Cm(2.0)
+
+    def xml_para_right(text, bold=False, size_pt=9, color=None):
+        p = OxmlElement('w:p')
+        pPr = OxmlElement('w:pPr')
+        jc = OxmlElement('w:jc')
+        jc.set(qn('w:val'), 'right')
+        pPr.append(jc)
+        p.append(pPr)
+        r = OxmlElement('w:r')
+        rPr = OxmlElement('w:rPr')
+        if bold:
+            rPr.append(OxmlElement('w:b'))
+        sz = OxmlElement('w:sz')
+        sz.set(qn('w:val'), str(int(size_pt * 2)))
+        rPr.append(sz)
+        if color:
+            cl = OxmlElement('w:color')
+            cl.set(qn('w:val'), color)
+            rPr.append(cl)
+        r.append(rPr)
+        t = OxmlElement('w:t')
+        t.text = text
+        t.set('{http://www.w3.org/XML/1998/namespace}space', 'preserve')
+        r.append(t)
+        p.append(r)
+        return p
+
+    # === NAGŁÓWEK PIERWSZEJ STRONY ===
+    first_header = section.first_page_header
+    # Logo (lewy górny róg)
+    if os.path.exists('loba_wakol_logo.png'):
+        try:
+            first_header.paragraphs[0].add_run().add_picture('loba_wakol_logo.png', width=Inches(1.8))
+        except:
+            pass
+    fh = first_header._element
+    fh.append(xml_para_right('Loba-Wakol Polska Sp. z o.o.', bold=True, size_pt=13, color='005293'))
+    fh.append(xml_para_right('ul. Sławęcińska 16, Macierzysz  |  05-850 Ożarów Mazowiecki', size_pt=8))
+    fh.append(xml_para_right(f'data: {data_badania_str}  |  autor: {autor_str}', size_pt=8))
+    fh.append(xml_para_right('tel.: +48 22 436 24 20  |  fax: +48 22 436 24 21  |  biuro@loba-wakol.pl', size_pt=8))
+
+    # === NAGŁÓWEK POZOSTAŁYCH STRON ===
+    header = section.header
+    hdr_elem = header._element
+    for child in list(hdr_elem):
+        tag = child.tag.split('}')[-1] if '}' in child.tag else child.tag
+        if tag in ('p', 'tbl', 'sdt'):
+            hdr_elem.remove(child)
+    if os.path.exists('loba_wakol_logo.png'):
+        try:
+            p_logo = OxmlElement('w:p')
+            hdr_elem.append(p_logo)
+            # odbuduj paragraph przez API
+            from docx.text.paragraph import Paragraph
+            para_obj = Paragraph(p_logo, header)
+            para_obj.add_run().add_picture('loba_wakol_logo.png', width=Inches(0.9))
+        except:
+            hdr_elem.append(xml_para_right('Loba-Wakol Polska Sp. z o.o.', size_pt=8, color='005293'))
+    else:
+        hdr_elem.append(xml_para_right('Loba-Wakol Polska Sp. z o.o.', size_pt=8, color='005293'))
+    hdr_elem.append(OxmlElement('w:p'))
+
+def generate_docx(md_text, data_badania_str='', autor_str=''):
     doc = Document()
     for line in md_text.split('\n\n'):
         line = line.strip()
@@ -664,7 +722,7 @@ def generate_docx(md_text):
             p = doc.add_paragraph()
             _add_runs(p, line)
             
-    _add_docx_header_logo(doc)
+    _add_docx_header(doc, data_badania_str, autor_str)
     _add_docx_footer(doc)
     bio = io.BytesIO()
     doc.save(bio)
@@ -1111,7 +1169,7 @@ if st.button(f"GENERUJ PROTOKÓŁ OGLĘDZIN DLA: {flooring_type.upper()}", type=
             base_filename = f"Protokol_Wakol_{safe_klient}_{safe_adres}_{data_str}"
             
             with col_d1:
-                docx_file = generate_docx(rep.get_markdown())
+                docx_file = generate_docx(rep.get_markdown(), data_badania.strftime('%d.%m.%Y'), autor)
                 st.download_button(
                     label="📄 Pobierz jako plik Word (.docx)",
                     data=docx_file,
