@@ -752,7 +752,7 @@ class WakolPDF(FPDF):
             try:
                 import os
                 if os.path.exists('loba_wakol_logo.png'):
-                    self.image('loba_wakol_logo.png', x=10, y=8, w=45)
+                    self.image('loba_wakol_logo.png', x=10, y=8, w=90)
             except:
                 pass
             try:
