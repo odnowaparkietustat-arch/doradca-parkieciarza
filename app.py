@@ -605,6 +605,9 @@ def _add_docx_footer(doc):
         b.set(qn('w:val'), 'none')
         tblBorders.append(b)
     tblPr.append(tblBorders)
+    tblLayout = OxmlElement('w:tblLayout')
+    tblLayout.set(qn('w:type'), 'fixed')
+    tblPr.append(tblLayout)
     tbl.append(tblPr)
 
     tblGrid = OxmlElement('w:tblGrid')
@@ -687,19 +690,91 @@ def _add_docx_header(doc, data_badania_str='', autor_str=''):
         p.append(r)
         return p
 
-    # === NAGŁÓWEK PIERWSZEJ STRONY ===
+    # === NAGŁÓWEK PIERWSZEJ STRONY — tabela 2-kolumnowa: logo | dane firmy ===
     first_header = section.first_page_header
-    # Logo (lewy górny róg)
+    fh = first_header._element
+    for child in list(fh):
+        tag = child.tag.split('}')[-1] if '}' in child.tag else child.tag
+        if tag in ('p', 'tbl', 'sdt'):
+            fh.remove(child)
+
+    LOGO_COL = 4500
+    INFO_COL = 5140
+
+    def make_tc_no_border(width_twips):
+        tc = OxmlElement('w:tc')
+        tcPr = OxmlElement('w:tcPr')
+        tcW = OxmlElement('w:tcW')
+        tcW.set(qn('w:w'), str(width_twips))
+        tcW.set(qn('w:type'), 'dxa')
+        tcPr.append(tcW)
+        tcBdr = OxmlElement('w:tcBorders')
+        for bn in ['top', 'left', 'bottom', 'right']:
+            b = OxmlElement(f'w:{bn}')
+            b.set(qn('w:val'), 'none')
+            tcBdr.append(b)
+        tcPr.append(tcBdr)
+        tc.append(tcPr)
+        return tc
+
+    tbl_h = OxmlElement('w:tbl')
+    tblPr_h = OxmlElement('w:tblPr')
+    tblW_h = OxmlElement('w:tblW')
+    tblW_h.set(qn('w:w'), str(LOGO_COL + INFO_COL))
+    tblW_h.set(qn('w:type'), 'dxa')
+    tblPr_h.append(tblW_h)
+    tblLay_h = OxmlElement('w:tblLayout')
+    tblLay_h.set(qn('w:type'), 'fixed')
+    tblPr_h.append(tblLay_h)
+    tblBdr_h = OxmlElement('w:tblBorders')
+    for bn in ['top', 'left', 'bottom', 'right', 'insideH', 'insideV']:
+        b = OxmlElement(f'w:{bn}')
+        b.set(qn('w:val'), 'none')
+        tblBdr_h.append(b)
+    tblPr_h.append(tblBdr_h)
+    tbl_h.append(tblPr_h)
+
+    tblGrid_h = OxmlElement('w:tblGrid')
+    for w in [LOGO_COL, INFO_COL]:
+        gc = OxmlElement('w:gridCol')
+        gc.set(qn('w:w'), str(w))
+        tblGrid_h.append(gc)
+    tbl_h.append(tblGrid_h)
+
+    tr_h = OxmlElement('w:tr')
+
+    # Lewa kolumna: logo
+    tc_logo = make_tc_no_border(LOGO_COL)
+    p_logo_xml = OxmlElement('w:p')
+    tc_logo.append(p_logo_xml)
+    tr_h.append(tc_logo)
+
+    # Prawa kolumna: dane firmy (każda linia osobny paragraf, wyrównanie do prawej)
+    tc_info = make_tc_no_border(INFO_COL)
+    info_lines = [
+        ('Loba-Wakol Polska Sp. z o.o.', True, 13, '005293'),
+        ('ul. Sławęcińska 16, Macierzysz', False, 8, None),
+        ('05-850 Ożarów Mazowiecki', False, 8, None),
+        (f'data: {data_badania_str}', False, 8, None),
+        (f'autor: {autor_str}', False, 8, None),
+        ('tel.: +48 22 436 24 20  |  fax: +48 22 436 24 21', False, 8, None),
+        ('biuro@loba-wakol.pl', False, 8, None),
+    ]
+    for text, bold, size_pt, color in info_lines:
+        tc_info.append(xml_para_right(text, bold=bold, size_pt=size_pt, color=color))
+    tr_h.append(tc_info)
+
+    tbl_h.append(tr_h)
+    fh.append(tbl_h)
+
+    # Logo przez API (wymaga obiektu Paragraph dla relacji obrazu)
     if os.path.exists('loba_wakol_logo.png'):
         try:
-            first_header.paragraphs[0].add_run().add_picture('loba_wakol_logo.png', width=Inches(3.5))
+            from docx.text.paragraph import Paragraph as DocxPara
+            logo_para_obj = DocxPara(p_logo_xml, first_header)
+            logo_para_obj.add_run().add_picture('loba_wakol_logo.png', width=Inches(3.5))
         except:
             pass
-    fh = first_header._element
-    fh.append(xml_para_right('Loba-Wakol Polska Sp. z o.o.', bold=True, size_pt=13, color='005293'))
-    fh.append(xml_para_right('ul. Sławęcińska 16, Macierzysz  |  05-850 Ożarów Mazowiecki', size_pt=8))
-    fh.append(xml_para_right(f'data: {data_badania_str}  |  autor: {autor_str}', size_pt=8))
-    fh.append(xml_para_right('tel.: +48 22 436 24 20  |  fax: +48 22 436 24 21  |  biuro@loba-wakol.pl', size_pt=8))
 
     # === NAGŁÓWEK POZOSTAŁYCH STRON (całkowicie pusty) ===
     header = section.header
