@@ -652,11 +652,14 @@ def _add_docx_header(doc, data_badania_str='', autor_str=''):
     import os
 
     section = doc.sections[0]
-    section.different_first_page_header_footer = True
     section.top_margin = Cm(7.0)
     section.bottom_margin = Cm(4.5)
     section.left_margin = Cm(2.0)
     section.right_margin = Cm(2.0)
+    # Jawne wpisanie w:titlePg do XML – python-docx API nie zawsze skutkuje
+    sectPr = section._sectPr
+    if sectPr.find(qn('w:titlePg')) is None:
+        sectPr.append(OxmlElement('w:titlePg'))
 
     def xml_para_right(text, bold=False, size_pt=9, color=None):
         p = OxmlElement('w:p')
@@ -689,7 +692,7 @@ def _add_docx_header(doc, data_badania_str='', autor_str=''):
     # Logo (lewy górny róg)
     if os.path.exists('loba_wakol_logo.png'):
         try:
-            first_header.paragraphs[0].add_run().add_picture('loba_wakol_logo.png', width=Inches(2.8))
+            first_header.paragraphs[0].add_run().add_picture('loba_wakol_logo.png', width=Inches(3.5))
         except:
             pass
     fh = first_header._element
@@ -698,15 +701,14 @@ def _add_docx_header(doc, data_badania_str='', autor_str=''):
     fh.append(xml_para_right(f'data: {data_badania_str}  |  autor: {autor_str}', size_pt=8))
     fh.append(xml_para_right('tel.: +48 22 436 24 20  |  fax: +48 22 436 24 21  |  biuro@loba-wakol.pl', size_pt=8))
 
-    # === NAGŁÓWEK POZOSTAŁYCH STRON (bez logo) ===
+    # === NAGŁÓWEK POZOSTAŁYCH STRON (całkowicie pusty) ===
     header = section.header
     hdr_elem = header._element
     for child in list(hdr_elem):
         tag = child.tag.split('}')[-1] if '}' in child.tag else child.tag
         if tag in ('p', 'tbl', 'sdt'):
             hdr_elem.remove(child)
-    hdr_elem.append(xml_para_right('Loba-Wakol Polska Sp. z o.o.', size_pt=8, color='005293'))
-    hdr_elem.append(OxmlElement('w:p'))
+    hdr_elem.append(OxmlElement('w:p'))  # Word wymaga co najmniej jednego paragrafu
 
 def generate_docx(md_text, data_badania_str='', autor_str=''):
     doc = Document()
