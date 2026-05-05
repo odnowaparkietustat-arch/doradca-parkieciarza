@@ -1042,7 +1042,11 @@ st.write("4. Czy dylatacje obwodowe zachowane prawidłowo?")
 dilatations_obw_ok = st.radio("Dylatacje obwodowe:", ["TAK", "NIE"], index=0, horizontal=True)
 st.write("5. Czy występują klawiszujące dylatacje pozorne?")
 cracks_klaw = st.radio("Klawiszowanie pozorne:", ["TAK", "NIE"], index=1, horizontal=True)
-klaw_meters = st.number_input("Ilość mb klawiszujących:", min_value=0.1, step=0.1, value=None) if cracks_klaw == "TAK" else 0.0
+klaw_meters = 0.0
+img_klaw = []
+if cracks_klaw == "TAK":
+    klaw_meters = st.number_input("Ilość mb klawiszujących:", min_value=0.1, step=0.1, value=None)
+    img_klaw = st.file_uploader("Zdjęcia klawiszujących dylatacji:", accept_multiple_files=True, type=["png", "jpg", "jpeg"], key="img_klaw")
 st.write("6. Czy występują pęknięcia podłoża wymagające zespolenia?")
 cracks_pek = st.radio("Pęknięcia do zespolenia:", ["TAK", "NIE"], index=1, horizontal=True)
 pek_meters = 0.0
@@ -1159,6 +1163,7 @@ dane_protokolu = {
     "hum_air": hum_air,
     "presso_results": presso_results,
     "images": {
+        "Klawiszujące dylatacje": img_klaw if 'img_klaw' in locals() and img_klaw else [],
         "Pęknięcia podłoża": img_pek if 'img_pek' in locals() and img_pek else [],
         "Ubytki w podłożu": img_holes if 'img_holes' in locals() and img_holes else [],
         "Testy mechaniczne (rysik, młotek, szczotka)": img_mech if 'img_mech' in locals() and img_mech else [],
