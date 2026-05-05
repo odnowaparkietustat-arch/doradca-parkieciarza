@@ -39,8 +39,8 @@ class ReportBuilder:
 
 # --- STAŁE TECHNOLOGICZNE (OPISY PRODUKTÓW) ---
 FULL_PS275 = "* Zalecamy aplikację gruntówki wzmacniającej **WAKOL PS 275** w dwóch warstwach – grubym wałkiem sznurkowym, zużycie w sumie **ok. 700 g/m²**. Każda z warstw po **350 g/m²**, aplikowane po sobie w odstępie jednej godziny. Aplikując gruntówkę **WAKOL PS 275** należy zwrócić uwagę, aby dobrze wchłaniała się w podłoże i unikać powstawania kałuż na powierzchni jastrychu. Po nałożeniu drugiej warstwy gruntówki w razie potrzeby wykonać posypkę z piasku kwarcowego. **Po 7 dniach schnięcia** powierzchnię należy **przeszlifować papierem o gradacji 24 – 40** usuwając przyklejony do powierzchni piasek kwarcowy i dokładnie odkurzyć."
-FULL_PU235_1W = "* Zalecamy wykonanie gruntowania wzmacniającego poprzez zagruntowanie powierzchni jastrychu gruntówką poliuretanową **WAKOL PU 235**. Aplikować wałkiem. Podczas aplikacji nie zostawiać kałuż tj. zbierać nadmiar niewchłoniętej gruntówki. Zużycie **ok. 150 g/m²**. **Czas schnięcia – jedna godzina**."
-FULL_PU235_BARRIER = "* Zalecamy wykonanie **bariery przeciwwilgociowej** poprzez dwukrotne zagruntowanie gruntówką wzmacniającą **WAKOL PU 235**. Podczas aplikacji nie zostawiać kałuż tj. zbierać nadmiar niewchłoniętej gruntówki. 1. warstwa nałożona wałkiem **ok. 150 g/m²**. **Czas schnięcia – 3-6 godzin**. 2. warstwa zużycie **ok. 100 g/m²**. **Czas schnięcia – 3-6 godzin**. **Czas klejenia 72 godziny od zagruntowania**."
+FULL_PU235_1W = "* Zalecamy wykonanie gruntowania wzmacniającego poprzez zagruntowanie powierzchni jastrychu gruntówką poliuretanową **WAKOL PU 235**. Aplikować wałkiem. Podczas aplikacji nie zostawiać kałuż tj. zbierać nadmiar niewchłoniętej gruntówki. Zużycie **ok. 150 g/m²**. **Czas schnięcia – 4-6 godzin**."
+FULL_PU235_BARRIER = "* Zalecamy wykonanie **bariery przeciwwilgociowej** poprzez dwukrotne zagruntowanie gruntówką wzmacniającą **WAKOL PU 235**. Podczas aplikacji nie zostawiać kałuż tj. zbierać nadmiar niewchłoniętej gruntówki. 1. warstwa nałożona wałkiem **ok. 150 g/m²**. **Czas schnięcia – 4-6 godzin**. 2. warstwa zużycie **ok. 100 g/m²**. **Czas schnięcia – 4-6 godzin**. **Czas klejenia 72 godziny od zagruntowania**."
 FULL_PU280_1W = "* Zalecamy wykonanie gruntowania wzmacniającego poprzez zagruntowanie powierzchni jastrychu gruntówką poliuretanową **WAKOL PU 280**. Aplikować wałkiem. Podczas aplikacji nie zostawiać kałuż tj. zbierać nadmiar niewchłoniętej gruntówki. Zużycie **ok. 150 g/m²**. **Czas schnięcia – jedna godzina**."
 FULL_PU280_BARRIER = "* Z uwagi na podwyższoną wilgotność zalecamy stworzenie **bariery przeciwwilgociowej** poprzez zagruntowanie powierzchni jastrychu gruntówką poliuretanową **WAKOL PU 280**. Aplikować wałkiem. Podczas aplikacji nie zostawiać kałuż tj. zbierać nadmiar niewchłoniętej gruntówki. 1. warstwa nałożona wałkiem **ok. 100-150 g/m²**. **Czas schnięcia – jedna godzina**. 2. warstwa **ok. 100 g/m²** - **czas schnięcia – jedna godzina**. **Czas do klejenia: 72 godziny od zagruntowania**."
 FULL_D3004 = "* Zagruntować podłoże koncentratem gruntówki dyspersyjnej **WAKOL D 3004**. Proporcje mieszania: 1 część **WAKOL D 3004** + 2 części wody. **Czas schnięcia**: na jastrychach cementowych i betonie po optycznym wyschnięciu **ok. 30 min**. Sposób nanoszenia: wałek do gruntowania microfazer. Zużycie: **ok. 50 g/m²** koncentratu."
@@ -73,22 +73,32 @@ def render_wspolne_dane_optyczne(dane, rep):
     age_txt = f" w wieku {dane['substrate_age_val']} miesięcy" if dane['substrate_age_val'] else ""
     heat_txt = f" Została zainstalowana {dane['heating_info']}." if dane['heating_exists'] == "TAK" else " Brak instalacji ogrzewania podłogowego."
     curing_txt = " Został przeprowadzony proces wygrzewania zgodnie z protokołem." if dane['heating_curing_done'] == "TAK" else " Nie został przeprowadzony proces wygrzewania podłoża." if dane['heating_exists'] == "TAK" else ""
-    dil_txt = " Dylatacje obwodowe zachowane prawidłowo." if dane['dilatations_obw_ok'] == "TAK" else " Dylatacje obwodowe nie zachowane prawidłowo."
+    dil_txt = " Dylatacje obwodowe zachowane prawidłowo." if dane['dilatations_obw_ok'] == "TAK" else " **Dylatacje obwodowe nie zachowane prawidłowo.**"
     klaw_m = dane.get('klaw_meters') or 0
     pek_m = dane.get('pek_meters') or 0
-    klaw_txt = f" Zaobserwowano {klaw_m} metrów bieżących dylatacji pozornych wymagających zespolenia." if dane['cracks_klaw'] == "TAK" else " Nie zaobserwowano dylatacji pozornych wymagających zespolenia."
-    pek_txt = f" Zaobserwowano {pek_m} metrów bieżących pęknięć wymagających zespolenia." if dane['cracks_pek'] == "TAK" else " Nie zaobserwowano pęknięć wymagających zespolenia."
-    holes_txt = f" Zaobserwowano fragmenty wymagające wypełnienia masą naprawczą{dane['hole_details']}." if dane['holes'] == "TAK" else " Nie stwierdzono ubytków lub zdegradowanych miejsc wymagających wypełnienia."
-    level_txt = f" Podłoże wymaga wyrównania masą wyrównawczą o planowanej grubości {dane['leveling_thickness']} milimetrów." if dane['needs_levelling'] == "TAK" else " Podłoże nie wymaga wyrównania masą wyrównawczą."
+    klaw_txt = f" **Zaobserwowano {klaw_m} metrów bieżących dylatacji pozornych wymagających zespolenia.**" if dane['cracks_klaw'] == "TAK" else " Nie zaobserwowano dylatacji pozornych wymagających zespolenia."
+    pek_txt = f" **Zaobserwowano {pek_m} metrów bieżących pęknięć wymagających zespolenia.**" if dane['cracks_pek'] == "TAK" else " Nie zaobserwowano pęknięć wymagających zespolenia."
+    holes_txt = f" **Zaobserwowano fragmenty wymagające wypełnienia masą naprawczą{dane['hole_details']}.**" if dane['holes'] == "TAK" else " Nie stwierdzono ubytków lub zdegradowanych miejsc wymagających wypełnienia."
+    level_txt = f" **Podłoże wymaga wyrównania masą wyrównawczą o planowanej grubości {dane['leveling_thickness']} milimetrów.**" if dane['needs_levelling'] == "TAK" else ""
     vent_txt = f" Rodzaj zastosowanej wentylacji: wentylacja {dane['ventilation_type'].lower()}."
+    evenness_txt = " Nie badano równości podłoża." if dane['needs_levelling'] == "NIE" else ""
+    dodatkowe_txt = f" Dodatkowe informacje: {dane['dodatkowe_informacje']}" if dane.get('dodatkowe_informacje') else ""
     
     area_txt = f" o powierzchni {dane['area_m2']} m²" if dane.get('area_m2') else ""
-    full_opt_report = f"Podłoże pod planowaną okładzinę ({dane['flooring_type']}) stanowi {dane['substrate']}{area_txt}{age_txt}.{heat_txt}{curing_txt}{dil_txt}{klaw_txt}{pek_txt}{holes_txt}{level_txt} {vent_txt}"
+    full_opt_report = f"Podłoże pod planowaną okładzinę ({dane['flooring_type']}) stanowi {dane['substrate']}{area_txt}{age_txt}.{heat_txt}{curing_txt}{dil_txt}{klaw_txt}{pek_txt}{holes_txt}{level_txt} {vent_txt}{evenness_txt}{dodatkowe_txt}"
     rep.write(f"**a) oględziny optyczne:** {full_opt_report}")
     
     presso_valid = [str(p) for p in dane.get('presso_results', []) if p is not None]
-    presso_txt = f"\n- Wyniki PressoMess: {', '.join(presso_valid)} N/mm²" if presso_valid else ""
-    rep.write(f"**b) badanie wytrzymałości:**\n- Młotek: {dane['test_hammer']}\n- Rysik: {dane['test_ripper']}\n- Szczotka: {dane['test_brush']}{presso_txt}\n- Ocena ogólna: **{dane['strength_labels'][dane['strength_val']]}**")
+    
+    tests_out = []
+    if dane.get('test_hammer'): tests_out.append(f"- Młotek: {dane['test_hammer']}")
+    if dane.get('test_ripper'): tests_out.append(f"- Rysik: {dane['test_ripper']}")
+    if dane.get('test_brush'): tests_out.append(f"- Szczotka: {dane['test_brush']}")
+    if presso_valid: tests_out.append(f"- Wyniki PressoMess: {', '.join(presso_valid)} N/mm²")
+    tests_out.append(f"- Ocena ogólna: **{dane['strength_labels'][dane['strength_val']]}**")
+    
+    tests_str = "\n".join(tests_out)
+    rep.write(f"**b) badanie wytrzymałości:**\n{tests_str}")
     
     moisture_status = "POZYTYWNY" if dane['moisture'] <= dane['limit'] else "NEGATYWNY"
     rep.write(f"**c) badanie wilgotności:** Wynik badania wilgotności metodą CM: **{dane['moisture']} % CM** (Norma: {dane['limit']} % CM) — **Wynik: {moisture_status}**")
@@ -703,7 +713,7 @@ def _add_docx_header(doc, data_badania_str='', autor_str=''):
     sep_pPr.append(sep_bdr)
 
 
-def generate_docx(md_text, data_badania_str='', autor_str=''):
+def generate_docx(md_text, data_badania_str='', autor_str='', images=None):
     doc = Document()
     # Usuń domyślny pusty paragraf
     for p in list(doc.paragraphs):
@@ -727,6 +737,31 @@ def generate_docx(md_text, data_badania_str='', autor_str=''):
         else:
             p = doc.add_paragraph()
             _add_runs(p, line)
+
+    if images:
+        has_images = any(len(img_list) > 0 for img_list in images.values())
+        if has_images:
+            doc.add_page_break()
+            p_attach = doc.add_heading(level=1)
+            _add_runs(p_attach, "ZAŁĄCZNIKI ZDJĘCIOWE")
+            
+            from docx.shared import Inches
+            for category, img_list in images.items():
+                if img_list:
+                    p_cat = doc.add_heading(level=2)
+                    _add_runs(p_cat, category)
+                    
+                    for img in img_list:
+                        try:
+                            img.seek(0)
+                            img_data = img.read()
+                            p_img = doc.add_paragraph()
+                            from docx.enum.text import WD_ALIGN_PARAGRAPH
+                            p_img.alignment = WD_ALIGN_PARAGRAPH.CENTER
+                            run = p_img.add_run()
+                            run.add_picture(io.BytesIO(img_data), width=Inches(5.0))
+                        except Exception as e:
+                            doc.add_paragraph(f"[Błąd ładowania zdjęcia: {e}]")
 
     _add_docx_footer(doc)
     bio = io.BytesIO()
@@ -846,7 +881,7 @@ class WakolPDF(FPDF):
         except:
             pass
 
-def generate_pdf(md_text, data_badania_str, autor_str):
+def generate_pdf(md_text, data_badania_str, autor_str, images=None):
     pdf = WakolPDF(data_badania_str, autor_str)
     pdf.alias_nb_pages()
     import os
@@ -902,6 +937,39 @@ def generate_pdf(md_text, data_badania_str, autor_str):
                 pdf.multi_cell(0, 6, txt=line)
         pdf.ln(2)
         
+    if images:
+        has_images = any(len(img_list) > 0 for img_list in images.values())
+        if has_images:
+            pdf.add_page()
+            pdf.set_font(pdf.font_family, 'B', 16)
+            pdf.multi_cell(0, 10, txt="ZAŁĄCZNIKI ZDJĘCIOWE")
+            pdf.ln(5)
+            
+            import tempfile
+            import os
+            for category, img_list in images.items():
+                if img_list:
+                    pdf.set_font(pdf.font_family, 'B', 14)
+                    pdf.multi_cell(0, 8, txt=category)
+                    pdf.ln(2)
+                    
+                    for img in img_list:
+                        try:
+                            img.seek(0)
+                            img_data = img.read()
+                            
+                            with tempfile.NamedTemporaryFile(delete=False, suffix=".jpg") as tmp:
+                                tmp.write(img_data)
+                                tmp_path = tmp.name
+                                
+                            pdf.image(tmp_path, w=130)
+                            pdf.ln(5)
+                            os.remove(tmp_path)
+                        except Exception as e:
+                            pdf.set_font(pdf.font_family, '', 11)
+                            pdf.multi_cell(0, 6, txt=f"[Błąd ładowania zdjęcia: {e}]")
+                            pdf.ln(2)
+
     output = pdf.output(dest='S')
     if type(output) is str:
         return output.encode('latin-1')
@@ -977,11 +1045,16 @@ cracks_klaw = st.radio("Klawiszowanie pozorne:", ["TAK", "NIE"], index=1, horizo
 klaw_meters = st.number_input("Ilość mb klawiszujących:", min_value=0.1, step=0.1, value=None) if cracks_klaw == "TAK" else 0.0
 st.write("6. Czy występują pęknięcia podłoża wymagające zespolenia?")
 cracks_pek = st.radio("Pęknięcia do zespolenia:", ["TAK", "NIE"], index=1, horizontal=True)
-pek_meters = st.number_input("Ilość mb pęknięć do zespolenia:", min_value=0.1, step=0.1, value=None) if cracks_pek == "TAK" else 0.0
+pek_meters = 0.0
+img_pek = []
+if cracks_pek == "TAK":
+    pek_meters = st.number_input("Ilość mb pęknięć do zespolenia:", min_value=0.1, step=0.1, value=None)
+    img_pek = st.file_uploader("Zdjęcia pęknięć:", accept_multiple_files=True, type=["png", "jpg", "jpeg"], key="img_pek")
 st.write("7. Czy są ubytki bądź zdegradowane fragmenty wymagające wypełnienia masą naprawczą?")
 holes = st.radio("Ubytki:", ["TAK", "NIE"], index=1, horizontal=True)
 hole_details = ""
 holes_depth = None
+img_holes = []
 if holes == "TAK":
     col_h1, col_h2, col_h3 = st.columns(3)
     with col_h1: h_depth = st.number_input("Grubość (cm)", min_value=0.1, value=None)
@@ -989,9 +1062,13 @@ if holes == "TAK":
     with col_h3: h_length = st.number_input("Długość (cm)", min_value=0.1, value=None)
     if h_depth and h_width and h_length: hole_details = f" o wymiarach ok. {h_length}x{h_width} cm i grubości {h_depth} cm"
     holes_depth = h_depth
+    img_holes = st.file_uploader("Zdjęcia ubytków:", accept_multiple_files=True, type=["png", "jpg", "jpeg"], key="img_holes")
 
 st.write("8. Rodzaj wentylacji")
 ventilation_type = st.radio("Wentylacja:", ["Grawitacyjna", "Mechaniczna"], horizontal=True)
+
+dodatkowe_informacje = st.text_area("Dodatkowe informacje z oględzin (opcjonalnie):", placeholder="Wpisz inne zaobserwowane uwagi do protokołu...")
+img_dodatkowe = st.file_uploader("Zdjęcia - dodatkowe informacje:", accept_multiple_files=True, type=["png", "jpg", "jpeg"], key="img_dod")
 
 col_w1, col_w2 = st.columns(2)
 with col_w1: temp_air = st.number_input("9. Temperatura powietrza (°C)", step=0.5, value=None)
@@ -1005,14 +1082,16 @@ barrier_max = 2.5 if heating_exists == "TAK" else 3.5
 # --- TESTY MECHANICZNE I WYTRZYMAŁOŚĆ ---
 st.write("### 12. Testy mechaniczne i Wytrzymałość")
 col_t1, col_t2, col_t3 = st.columns(3)
-with col_t1: test_hammer = st.selectbox("Młotek", ["negatywny", "dostateczny", "pozytywny"], index=2)
-with col_t2: test_ripper = st.selectbox("Rysik", ["negatywny", "dostateczny", "pozytywny"], index=2)
-with col_t3: test_brush = st.selectbox("Szczotka", ["negatywny", "pozytywny"], index=1)
+with col_t1: test_hammer = st.selectbox("Młotek", ["", "negatywny", "dostateczny", "pozytywny"], index=0)
+with col_t2: test_ripper = st.selectbox("Rysik", ["", "negatywny", "dostateczny", "pozytywny"], index=0)
+with col_t3: test_brush = st.selectbox("Szczotka", ["", "negatywny", "dostateczny", "pozytywny"], index=0)
+img_mech = st.file_uploader("Zdjęcia z testów mechanicznych:", accept_multiple_files=True, type=["png", "jpg", "jpeg"], key="img_mech")
 
 st.write("**Badanie PressoMess**")
 presso_results = []
 for i in range(6):
     presso_results.append(st.number_input(f"Próba {i+1} (N/mm²)", min_value=0.0, step=0.1, key=f"p_{i}", value=None))
+img_presso = st.file_uploader("Zdjęcia - PressoMess:", accept_multiple_files=True, type=["png", "jpg", "jpeg"], key="img_presso")
 strength_labels = {1: "bardzo słaby", 2: "słaby", 3: "umiarkowanie słaby", 4: "umiarkowanie mocny", 5: "mocny"}
 strength_val = st.select_slider("Ocena ogólna wytrzymałości podłoża:", options=[1, 2, 3, 4, 5], value=3, format_func=lambda x: strength_labels[x])
 
@@ -1063,6 +1142,7 @@ dane_protokolu = {
     "holes_length": h_length if 'h_length' in locals() else None,
     "hole_details": hole_details,
     "ventilation_type": ventilation_type,
+    "dodatkowe_informacje": dodatkowe_informacje,
     "moisture": moisture,
     "limit": limit,
     "curing_not_done": (heating_exists == "TAK" and heating_curing_done == "NIE"),
@@ -1077,7 +1157,14 @@ dane_protokolu = {
     "strength_val": strength_val,
     "temp_air": temp_air,
     "hum_air": hum_air,
-    "presso_results": presso_results
+    "presso_results": presso_results,
+    "images": {
+        "Pęknięcia podłoża": img_pek if 'img_pek' in locals() and img_pek else [],
+        "Ubytki w podłożu": img_holes if 'img_holes' in locals() and img_holes else [],
+        "Testy mechaniczne (rysik, młotek, szczotka)": img_mech if 'img_mech' in locals() and img_mech else [],
+        "Badanie PressoMess": img_presso if 'img_presso' in locals() and img_presso else [],
+        "Dodatkowe informacje z oględzin": img_dodatkowe if 'img_dodatkowe' in locals() and img_dodatkowe else []
+    }
 }
 
 # --- GENEROWANIE PROTOKOŁU W ZALEŻNOŚCI OD WYBRANEJ OKŁADZINY ---
@@ -1174,7 +1261,7 @@ if st.button(f"GENERUJ PROTOKÓŁ OGLĘDZIN DLA: {flooring_type.upper()}", type=
             base_filename = f"Protokol_Wakol_{safe_klient}_{safe_adres}_{data_str}"
             
             with col_d1:
-                docx_file = generate_docx(rep.get_markdown(), data_badania.strftime('%d.%m.%Y'), autor)
+                docx_file = generate_docx(rep.get_markdown(), data_badania.strftime('%d.%m.%Y'), autor, dane_protokolu.get('images'))
                 st.download_button(
                     label="📄 Pobierz jako plik Word (.docx)",
                     data=docx_file,
@@ -1183,7 +1270,7 @@ if st.button(f"GENERUJ PROTOKÓŁ OGLĘDZIN DLA: {flooring_type.upper()}", type=
                     use_container_width=True
                 )
             with col_d2:
-                pdf_file = generate_pdf(rep.get_markdown(), data_badania.strftime('%d.%m.%Y'), autor)
+                pdf_file = generate_pdf(rep.get_markdown(), data_badania.strftime('%d.%m.%Y'), autor, dane_protokolu.get('images'))
                 if pdf_file:
                     st.download_button(
                         label="📕 Pobierz jako plik PDF (.pdf)",
