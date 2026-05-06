@@ -110,34 +110,41 @@ def render_wspolne_dane_optyczne(dane, rep):
         rep.write(f"**d) warunki klimatyczne:** {', '.join(klimat)}.")
 
 PRODUCTS = {
-    'PU 280 (1W)': {'name': 'WAKOL PU 280 (1 warstwa)', 'usage': 150, 'sizes': [11, 5], 'text': FULL_PU280_1W},
-    'PU 280 (Bariera)': {'name': 'WAKOL PU 280 (bariera)', 'usage': 250, 'sizes': [11, 5], 'text': FULL_PU280_BARRIER},
-    'PU 235 (1W)': {'name': 'WAKOL PU 235 (1 warstwa)', 'usage': 150, 'sizes': [11], 'text': FULL_PU235_1W},
-    'PU 235 (Bariera)': {'name': 'WAKOL PU 235 (bariera)', 'usage': 250, 'sizes': [11], 'text': FULL_PU235_BARRIER},
-    'PS 275': {'name': 'WAKOL PS 275', 'usage': 700, 'sizes': [11], 'text': FULL_PS275},
-    'D 3004': {'name': 'WAKOL D 3004', 'usage': 50, 'sizes': [10, 5], 'text': FULL_D3004},
-    'D 3055': {'name': 'WAKOL D 3055', 'usage': 150, 'sizes': [10, 5], 'text': FULL_D3055},
-    'PU 225': {'name': 'WAKOL PU 225 (klej)', 'usage': 1250, 'sizes': [10], 'text': ""},
-    'MS 230': {'name': 'WAKOL MS 230 (klej)', 'usage': 1350, 'sizes': [18], 'text': ""},
-    'MS 260': {'name': 'WAKOL MS 260 (klej)', 'usage': 1350, 'sizes': [18], 'text': ""},
-    'D 3318': {'name': 'WAKOL D 3318 (klej)', 'usage': 350, 'sizes': [13], 'text': ""},
-    'Z 645': {'name': 'WAKOL Z 645 (masa naprawcza)', 'usage': 1.6, 'sizes': [25], 'text': ""},
-    'Z 645 (bruzdowane)': {'name': 'WAKOL Z 645 (masa szpachlowa)', 'usage': 2000, 'sizes': [25], 'text': ""},
-    'Z 625': {'name': 'WAKOL Z 625 (masa samorozlewna)', 'usage_per_mm': 1.6, 'sizes': [25], 'text': FULL_Z625},
-    'Z 635': {'name': 'WAKOL Z 635 (masa samorozlewna)', 'usage_per_mm': 1.6, 'sizes': [25], 'text': FULL_Z635},
-    'Z 675': {'name': 'WAKOL Z 675 (masa samorozlewna)', 'usage_per_mm': 1.6, 'sizes': [25], 'text': FULL_Z675},
-    'D 3004 (bruzdowane)': {'name': 'WAKOL D 3004 (koncentrat)', 'usage': 75, 'sizes': [10, 5], 'text': ""},
-    'AR 150': {'name': 'WAKOL AR 150 (mata kompensacyjna)', 'usage': 1000, 'sizes': [50], 'text': ""},
-    'D 3060': {'name': 'WAKOL D 3060 (plastyfikator)', 'usage': 1000, 'sizes': [10], 'text': ""},
-    'PU 280 (RP)': {'name': 'WAKOL PU 280 (grunt dla RP)', 'usage': 200, 'sizes': [11, 5], 'text': "* Zalecamy zagruntowanie całej powierzchni podłoża gruntówką wzmacniającą **WAKOL PU 280**. Aplikować wałkiem. Nie zostawiać kałuż tj. zbierać nadmiar niewchłoniętej gruntówki. Zużycie ok. 200 g/m². Czas schnięcia 1 godzina. Czas do montażu – 72 godziny."},
-    'Płyta RP': {'name': 'WAKOL RP 704 (płyta odprzęgająca)', 'usage': 1000, 'sizes': [1], 'unit': 'szt', 'text': "* Na tak przygotowane podłoże zalecamy przyklejenie płyty odprzęgającej o grubości 4 mm **WAKOL RP 704**. Należy przyklejać klejem 2K PU (**WAKOL PU 225**). Płytę odprzęgającą po ułożeniu należy docisnąć. Płytę można docinać używając noża trapezowego. Można układać parkiet, jeśli tylko klejona płyta nie przesuwa się w trakcie chodzenia po niej."},
-    'PS 205': {'name': 'WAKOL PS 205 (żywica lana)', 'sizes': [1], 'unit': 'kpl.', 'text': ""}
+    'PU 280 (1W)': {'name': 'WAKOL PU 280 (1 warstwa)', 'usage': 150, 'sizes': [11, 5], 'text': FULL_PU280_1W, 'price': 54.27},
+    'PU 280 (Bariera)': {'name': 'WAKOL PU 280 (bariera)', 'usage': 250, 'sizes': [11, 5], 'text': FULL_PU280_BARRIER, 'price': 54.27},
+    'PU 235 (1W)': {'name': 'WAKOL PU 235 (1 warstwa)', 'usage': 150, 'sizes': [11], 'text': FULL_PU235_1W, 'price': 50.60},
+    'PU 235 (Bariera)': {'name': 'WAKOL PU 235 (bariera)', 'usage': 250, 'sizes': [11], 'text': FULL_PU235_BARRIER, 'price': 50.60},
+    'PS 275': {'name': 'WAKOL PS 275', 'usage': 700, 'sizes': [11], 'text': FULL_PS275, 'price': 19.08},
+    'D 3004': {'name': 'WAKOL D 3004', 'usage': 50, 'sizes': [10, 5], 'text': FULL_D3004, 'price': 23.32},
+    'D 3055': {'name': 'WAKOL D 3055', 'usage': 150, 'sizes': [10, 5], 'text': FULL_D3055, 'price': 16.96},
+    'PU 225': {'name': 'WAKOL PU 225 (klej)', 'usage': 1250, 'sizes': [10], 'text': "", 'price': 13.55},
+    'MS 230': {'name': 'WAKOL MS 230 (klej)', 'usage': 1350, 'sizes': [18], 'text': "", 'price': 15.00},
+    'MS 260': {'name': 'WAKOL MS 260 (klej)', 'usage': 1350, 'sizes': [18], 'text': "", 'price': 13.46},
+    'D 3318': {'name': 'WAKOL D 3318 (klej)', 'usage': 350, 'sizes': [13], 'text': "", 'price': 17.60},
+    'Z 645': {'name': 'WAKOL Z 645 (masa naprawcza)', 'usage': 1.6, 'sizes': [25], 'text': "", 'price': 4.26},
+    'Z 645 (bruzdowane)': {'name': 'WAKOL Z 645 (masa szpachlowa)', 'usage': 2000, 'sizes': [25], 'text': "", 'price': 4.26},
+    'Z 625': {'name': 'WAKOL Z 625 (masa samorozlewna)', 'usage_per_mm': 1.6, 'sizes': [25], 'text': FULL_Z625, 'price': 4.09},
+    'Z 635': {'name': 'WAKOL Z 635 (masa samorozlewna)', 'usage_per_mm': 1.6, 'sizes': [25], 'text': FULL_Z635, 'price': 3.18},
+    'Z 675': {'name': 'WAKOL Z 675 (masa samorozlewna)', 'usage_per_mm': 1.6, 'sizes': [25], 'text': FULL_Z675, 'price': 2.81},
+    'D 3004 (bruzdowane)': {'name': 'WAKOL D 3004 (koncentrat)', 'usage': 75, 'sizes': [10, 5], 'text': "", 'price': 23.32},
+    'AR 150': {'name': 'WAKOL AR 150 (mata kompensacyjna)', 'usage': 1000, 'sizes': [50], 'text': "", 'price': 8.06},
+    'D 3060': {'name': 'WAKOL D 3060 (plastyfikator)', 'usage': 1000, 'sizes': [10], 'text': "", 'price': 26.00},
+    'PU 280 (RP)': {'name': 'WAKOL PU 280 (grunt dla RP)', 'usage': 200, 'sizes': [11, 5], 'text': "* Zalecamy zagruntowanie całej powierzchni podłoża gruntówką wzmacniającą **WAKOL PU 280**. Aplikować wałkiem. Nie zostawiać kałuż tj. zbierać nadmiar niewchłoniętej gruntówki. Zużycie ok. 200 g/m². Czas schnięcia 1 godzina. Czas do montażu – 72 godziny.", 'price': 54.27},
+    'Płyta RP': {'name': 'WAKOL RP 704 (płyta odprzęgająca)', 'usage': 1000, 'sizes': [1], 'unit': 'szt', 'text': "* Na tak przygotowane podłoże zalecamy przyklejenie płyty odprzęgającej o grubości 4 mm **WAKOL RP 704**. Należy przyklejać klejem 2K PU (**WAKOL PU 225**). Płytę odprzęgającą po ułożeniu należy docisnąć. Płytę można docinać używając noża trapezowego. Można układać parkiet, jeśli tylko klejona płyta nie przesuwa się w trakcie chodzenia po niej.", 'price': 22.05},
+    'PS 205': {'name': 'WAKOL PS 205 (żywica lana)', 'sizes': [1], 'unit': 'kpl.', 'text': "", 'price': 48.40}
 }
 
 def write_and_track(dane, rep, prod_key, custom_kg=None):
     prod = PRODUCTS[prod_key]
-    if prod['text']:
-        rep.write(prod['text'])
+    
+    if 'written_texts' not in dane:
+        dane['written_texts'] = set()
+        
+    if prod_key not in dane['written_texts']:
+        if prod['text']:
+            rep.write(prod['text'])
+        dane['written_texts'].add(prod_key)
+        
     if 'materials' not in dane:
         dane['materials'] = []
         
@@ -178,20 +185,30 @@ def write_and_track(dane, rep, prod_key, custom_kg=None):
                     best_combo = {sizes[0]: i, sizes[1]: j}
     unit = prod.get('unit', 'kg')
     combo_str = []
+    bought_qty = 0
     if best_combo:
         for size in sizes:
-            if best_combo.get(size, 0) > 0:
+            qty = best_combo.get(size, 0)
+            if qty > 0:
+                bought_qty += qty * size
                 if unit != 'kg' and size == 1:
-                    combo_str.append(f"{best_combo[size]} {unit}")
+                    combo_str.append(f"{qty} {unit}")
                 else:
-                    combo_str.append(f"{best_combo[size]}x {size} {unit}")
+                    combo_str.append(f"{qty}x {size} {unit}")
+    else:
+        bought_qty = math.ceil(needed_kg)
+
     # check if material already added to prevent duplicates (e.g. glue when falling through if-else)
     if not any(m['name'] == prod['name'] for m in dane['materials']):
+        cost = bought_qty * prod.get('price', 0)
         dane['materials'].append({
             'name': prod['name'],
             'kg': round(needed_kg, 2),
+            'bought_qty': bought_qty,
             'combo': " + ".join(combo_str) if combo_str else f"{math.ceil(needed_kg)} {unit}",
-            'unit': unit
+            'unit': unit,
+            'price_per_unit': prod.get('price', 0),
+            'total_cost': cost
         })
 
 def render_potrzebne_materialy(dane, rep):
@@ -204,6 +221,15 @@ def render_potrzebne_materialy(dane, rep):
             rep.write(f"- {m['name']}: **{m['kg']} kg** ({m['combo']})")
         else:
             rep.write(f"- {m['name']}: **{math.ceil(m['kg'])} {unit}**")
+            
+    if dane.get('include_cost', False):
+        rep.write("\n**Szacowany wstępny kosztorys materiałowy (Netto):**")
+        total_sum = 0
+        for m in dane['materials']:
+            if m.get('price_per_unit', 0) > 0:
+                rep.write(f"- {m['name']}: {m['bought_qty']} {m['unit']} x {m['price_per_unit']} PLN = **{m['total_cost']:.2f} PLN**")
+                total_sum += m['total_cost']
+        rep.write(f"**RAZEM NETTO:** **{total_sum:.2f} PLN**")
 
 def render_wspolne_zalecenia_podloze(dane, rep):
     rep.write("**a) przygotowanie podłoża:**")
@@ -304,14 +330,14 @@ def render_wspolna_chemia(dane, rep):
                 if dane['strength_val'] == 1:
                     if dane['substrate'] == "jastrych anhydrytowy": write_and_track(dane, rep, 'PU 235 (1W)')
                     else:
-                        if not any(m['name'] == 'WAKOL PS 275' for m in dane.get('materials', [])): write_and_track(dane, rep, 'PS 275')
+                        write_and_track(dane, rep, 'PS 275')
                         write_and_track(dane, rep, 'PU 280 (1W)')
                 elif dane['strength_val'] == 2: write_and_track(dane, rep, 'PU 280 (1W)')
         else:
             if dane['strength_val'] == 1:
                 if dane['substrate'] == "jastrych anhydrytowy": write_and_track(dane, rep, 'PU 235 (1W)')
                 else:
-                    if not any(m['name'] == 'WAKOL PS 275' for m in dane.get('materials', [])): write_and_track(dane, rep, 'PS 275')
+                    write_and_track(dane, rep, 'PS 275')
             elif dane['strength_val'] == 2: write_and_track(dane, rep, 'PU 235 (1W)')
             elif dane['strength_val'] in [3, 4]: write_and_track(dane, rep, 'PU 280 (1W)')
     return used_d3004
@@ -337,13 +363,13 @@ def render_chemia_deska_warstwowa(dane, rep):
             elif dane['strength_val'] == 1:
                 if dane['substrate'] == "jastrych anhydrytowy": write_and_track(dane, rep, 'PU 235 (1W)')
                 else:
-                    if not any(m['name'] == 'WAKOL PS 275' for m in dane.get('materials', [])): write_and_track(dane, rep, 'PS 275')
+                    write_and_track(dane, rep, 'PS 275')
                     write_and_track(dane, rep, 'PU 280 (1W)')
         else:
             if dane['strength_val'] == 1:
                 if dane['substrate'] == "jastrych anhydrytowy": write_and_track(dane, rep, 'PU 235 (1W)')
                 else:
-                    if not any(m['name'] == 'WAKOL PS 275' for m in dane.get('materials', [])): write_and_track(dane, rep, 'PS 275')
+                    write_and_track(dane, rep, 'PS 275')
             elif dane['strength_val'] == 2: write_and_track(dane, rep, 'PU 235 (1W)')
             elif dane['strength_val'] == 3: write_and_track(dane, rep, 'PU 280 (1W)')
             elif dane['strength_val'] in [4, 5]: write_and_track(dane, rep, 'D 3055')
@@ -369,14 +395,14 @@ def render_chemia_deska_lita(dane, rep):
                 if dane['strength_val'] == 1:
                     if dane['substrate'] == "jastrych anhydrytowy": write_and_track(dane, rep, 'PU 235 (1W)')
                     else:
-                        if not any(m['name'] == 'WAKOL PS 275' for m in dane.get('materials', [])): write_and_track(dane, rep, 'PS 275')
+                        write_and_track(dane, rep, 'PS 275')
                         write_and_track(dane, rep, 'PU 280 (1W)')
                 elif dane['strength_val'] == 2: write_and_track(dane, rep, 'PU 280 (1W)')
         else:
             if dane['strength_val'] == 1:
                 if dane['substrate'] == "jastrych anhydrytowy": write_and_track(dane, rep, 'PU 235 (1W)')
                 else:
-                    if not any(m['name'] == 'WAKOL PS 275' for m in dane.get('materials', [])): write_and_track(dane, rep, 'PS 275')
+                    write_and_track(dane, rep, 'PS 275')
             elif dane['strength_val'] == 2: write_and_track(dane, rep, 'PU 235 (1W)')
             elif dane['strength_val'] in [3, 4]: write_and_track(dane, rep, 'PU 280 (1W)')
             elif dane['strength_val'] == 5: write_and_track(dane, rep, 'D 3055')
@@ -712,6 +738,31 @@ def _add_docx_header(doc, data_badania_str='', autor_str=''):
     sep_bdr.append(bot)
     sep_pPr.append(sep_bdr)
 
+def compress_image(img_data, max_width=800):
+    try:
+        from PIL import Image
+        import io
+        img = Image.open(io.BytesIO(img_data))
+        if img.mode in ("RGBA", "P"):
+            img = img.convert("RGB")
+        if img.width > max_width:
+            ratio = max_width / float(img.width)
+            new_height = int((float(img.height) * float(ratio)))
+            # Użycie LANCZOS dla nowszych wersji PIL, lub ANTIALIAS dla starszych
+            try:
+                resample = Image.Resampling.LANCZOS
+            except AttributeError:
+                resample = Image.ANTIALIAS
+            img = img.resize((max_width, new_height), resample)
+        out_bio = io.BytesIO()
+        img.save(out_bio, format="JPEG", quality=75, optimize=True)
+        return out_bio.getvalue()
+    except ImportError:
+        import streamlit as st
+        st.warning("Brak biblioteki Pillow (PIL). Zdjęcia nie będą kompresowane.")
+        return img_data
+    except Exception as e:
+        return img_data
 
 def generate_docx(md_text, data_badania_str='', autor_str='', images=None):
     doc = Document()
@@ -754,7 +805,7 @@ def generate_docx(md_text, data_badania_str='', autor_str='', images=None):
                     for img in img_list:
                         try:
                             img.seek(0)
-                            img_data = img.read()
+                            img_data = compress_image(img.read())
                             p_img = doc.add_paragraph()
                             from docx.enum.text import WD_ALIGN_PARAGRAPH
                             p_img.alignment = WD_ALIGN_PARAGRAPH.CENTER
@@ -956,7 +1007,7 @@ def generate_pdf(md_text, data_badania_str, autor_str, images=None):
                     for img in img_list:
                         try:
                             img.seek(0)
-                            img_data = img.read()
+                            img_data = compress_image(img.read())
                             
                             with tempfile.NamedTemporaryFile(delete=False, suffix=".jpg") as tmp:
                                 tmp.write(img_data)
@@ -975,6 +1026,98 @@ def generate_pdf(md_text, data_badania_str, autor_str, images=None):
         return output.encode('latin-1')
     return bytes(output)
 
+def render_wersja_pro(nazwa_klienta, miejscowosc, adres, autor, data_badania):
+    st.markdown("### 🛠️ Wersja PRO - Ręczny Kreator Protokołu")
+    
+    pro_okladzina = st.text_input("Nazwa okładziny docelowej (do wydruku):", placeholder="np. deska lita, podłoga warstwowa, PCV...")
+    pro_area = st.number_input("Powierzchnia inwestycji (m²):", min_value=1.0, step=1.0, format="%.1f", value=None)
+    
+    st.write("#### 1. Czynności przygotowawcze")
+    czynnosci = st.text_area("Wpisz czynności (np. Szlifowanie, odkurzanie, nacinanie pęknięć):", height=100)
+    
+    st.write("#### 2. Wybór chemii WAKOL")
+    
+    if "pro_products_count" not in st.session_state:
+        st.session_state.pro_products_count = 1
+        
+    product_keys = ["BRAK"] + list(PRODUCTS.keys())
+    pro_selected_products = []
+    
+    for i in range(st.session_state.pro_products_count):
+        st.markdown(f"**Produkt nr {i+1}**")
+        col1, col2 = st.columns([2, 1])
+        with col1:
+            prod_key = st.selectbox(f"Wybierz produkt {i+1}", product_keys, key=f"pro_prod_{i}")
+        with col2:
+            prod_usage = st.number_input(f"Zużycie (jednostki/m²) dla prod. {i+1}", min_value=0.0, step=0.01, format="%.2f", key=f"pro_usage_{i}")
+            
+        if prod_key != "BRAK":
+            pro_selected_products.append({"key": prod_key, "usage": prod_usage})
+            
+    if st.button("➕ Dodaj kolejny produkt"):
+        st.session_state.pro_products_count += 1
+        st.rerun()
+        
+    st.divider()
+    include_cost = st.checkbox("Dołącz wstępny kosztorys materiałowy do protokołu (Netto)", value=True, key="pro_cost")
+    
+    if st.button("GENERUJ PROTOKÓŁ PRO", type="primary", use_container_width=True):
+        if not pro_area:
+            st.error("Proszę podać powierzchnię inwestycji (m²)!")
+            return
+            
+        st.divider()
+        insert_header()
+        rep = ReportBuilder()
+        
+        # Nagłówek
+        tytul = f"Dotyczy: Protokół z robót przygotowawczych w obiekcie:\nAdres: {adres}, {miejscowosc}\nDla: {nazwa_klienta}\n\nSzanowni Państwo,\n\nW dniu {data_badania.strftime('%d.%m.%Y')} zalecono następujący system przygotowania podłoża pod instalację okładziny: {pro_okladzina}.\n\n"
+        rep.write(tytul)
+        
+        rep.markdown("#### **I. Zalecenia technologiczne**")
+        
+        if czynnosci.strip():
+            rep.write("**a) czynności przygotowawcze:**")
+            rep.write(f"* {czynnosci.strip()}")
+            
+        rep.write("\n**b) system chemii WAKOL:**")
+        
+        dane_pro = {'written_texts': set(), 'materials': [], 'area_m2': pro_area, 'include_cost': include_cost}
+        
+        for p in pro_selected_products:
+            key = p['key']
+            usage = p['usage']
+            if usage > 0:
+                needed = usage * pro_area
+                write_and_track(dane_pro, rep, key, custom_kg=needed)
+            else:
+                st.warning(f"Produkt {PRODUCTS[key]['name']} ma ustawione zużycie 0. Zostanie pominięty w kosztorysie ilościowym.")
+                if PRODUCTS[key]['text']:
+                    rep.write(PRODUCTS[key]['text'])
+                
+        rep.write("\n---\n")
+        render_potrzebne_materialy(dane_pro, rep)
+        
+        rep.write("\n**Prosimy o zapoznanie się z kartami technicznymi zalecanych produktów WAKOL.**\n\nPodstawą naszego zalecenia jest stosowanie i prawidłowa obróbka wszystkich wymienionych materiałów firmy WAKOL w podanej kolejności, przestrzegając reguł rzemiosła i obowiązujących norm oraz instrukcji.\n\nW przypadku jakichkolwiek pytań lub wątpliwości proszę o kontakt pod numer telefonu: 603 214 218\n\nZ poważaniem,\n\nLoba-Wakol Polska Sp. z o.o.\n" + autor)
+        
+        st.markdown(rep.get_markdown())
+        
+        if EXPORTS_READY:
+            col_d1, col_d2 = st.columns(2)
+            safe_adres = adres.replace(' ', '_').replace('/', '_').replace('.', '')
+            data_str = data_badania.strftime('%d-%m-%Y')
+            safe_klient = nazwa_klienta.replace(' ', '_').replace('/', '_')
+            base_filename = f"Protokol_PRO_Wakol_{safe_klient}_{safe_adres}_{data_str}"
+            
+            with col_d1:
+                docx_file = generate_docx(rep.get_markdown(), data_badania.strftime('%d.%m.%Y'), autor, None)
+                st.download_button(label="📄 Pobierz jako plik Word (.docx)", data=docx_file, file_name=f"{base_filename}.docx", mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document", use_container_width=True)
+            with col_d2:
+                pdf_file = generate_pdf(rep.get_markdown(), data_badania.strftime('%d.%m.%Y'), autor, None)
+                if pdf_file:
+                    st.download_button(label="📕 Pobierz jako plik PDF (.pdf)", data=pdf_file, file_name=f"{base_filename}.pdf", mime="application/pdf", use_container_width=True)
+
+
 # ==========================================
 # 3. INTERFEJS UŻYTKOWNIKA (FORMULARZ)
 # ==========================================
@@ -991,6 +1134,13 @@ with st.container():
         data_badania = st.date_input("Data badania", date.today())
 
 st.divider()
+tryb = st.radio("Wybierz tryb pracy aplikacji:", ["Wersja Ogólna (Automatyczna)", "Wersja PRO (Ręczna)"], horizontal=True)
+st.divider()
+
+if tryb == "Wersja PRO (Ręczna)":
+    render_wersja_pro(nazwa_klienta, miejscowosc, adres, autor, data_badania)
+    st.stop()
+
 
 flooring_type = st.selectbox("Wybierz rodzaj okładziny (Sekcja):", ["deska warstwowa", "podłoga laminowana", "deska lita", "wykładzina dywanowa", "pcv w rolce", "lvt cienkie", "lvt grube z twardym rdzeniem"])
 
@@ -1120,8 +1270,12 @@ if moisture is not None and moisture > limit:
         else:
             decision_after_cure = opt_dry
 
+st.write("### 13. Opcje raportu")
+include_cost = st.checkbox("Dołącz wstępny kosztorys materiałowy do protokołu (Netto)", value=True)
+
 # PAKOWANIE DANYCH DO SŁOWNIKA DLA FUNKCJI GENERUJĄCYCH
 dane_protokolu = {
+    "include_cost": include_cost,
     "flooring_type": flooring_type,
     "substrate": substrate,
     "area_m2": area_m2,
