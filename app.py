@@ -1048,11 +1048,29 @@ def render_wersja_pro(nazwa_klienta, miejscowosc, adres, autor, data_badania):
         col1, col2 = st.columns([2, 1])
         with col1:
             prod_key = st.selectbox(f"Wybierz produkt {i+1}", product_keys, key=f"pro_prod_{i}")
+            
+        pro_label = "jednostki/m²"
+        multiplier = 1.0
+        
+        if prod_key != "BRAK":
+            if "PU " in prod_key or "PS " in prod_key or "MS " in prod_key or "D " in prod_key:
+                pro_label = "g/m²"
+                multiplier = 0.001
+            elif "Z " in prod_key:
+                pro_label = "kg/m²"
+                multiplier = 1.0
+            elif "AR 150" in prod_key:
+                pro_label = "m²/m²"
+                multiplier = 1.0
+            elif "Płyta RP" in prod_key:
+                pro_label = "m²/m² (szt=0.6m²)"
+                multiplier = 1.0 / 0.6
+                
         with col2:
-            prod_usage = st.number_input(f"Zużycie (jednostki/m²) dla prod. {i+1}", min_value=0.0, step=0.01, format="%.2f", key=f"pro_usage_{i}")
+            prod_usage = st.number_input(f"Zużycie [{pro_label}]", min_value=0.0, step=10.0 if multiplier == 0.001 else 0.1, format="%.2f", key=f"pro_usage_{i}")
             
         if prod_key != "BRAK":
-            pro_selected_products.append({"key": prod_key, "usage": prod_usage})
+            pro_selected_products.append({"key": prod_key, "usage": prod_usage, "multiplier": multiplier})
             
     if st.button("➕ Dodaj kolejny produkt"):
         st.session_state.pro_products_count += 1
@@ -1084,12 +1102,30 @@ def render_wersja_pro(nazwa_klienta, miejscowosc, adres, autor, data_badania):
         
         dane_pro = {'written_texts': set(), 'materials': [], 'area_m2': pro_area, 'include_cost': include_cost}
         
+        selected_keys = [p['key'] for p in pro_selected_products if p['usage'] > 0]
+        has_z645 = 'Z 645' in selected_keys or 'Z 645 (bruzdowane)' in selected_keys
+        has_ar150 = 'AR 150' in selected_keys
+        has_d3060 = 'D 3060' in selected_keys
+        
+        combined_printed = False
+        
         for p in pro_selected_products:
             key = p['key']
             usage = p['usage']
+            multiplier = p['multiplier']
             if usage > 0:
-                needed = usage * pro_area
-                write_and_track(dane_pro, rep, key, custom_kg=needed)
+                needed = usage * pro_area * multiplier
+                
+                # ZASADA: Wersja PRO - połączony tekst dla Z 645 + AR 150 + D 3060
+                is_combo_item = key in ['Z 645', 'Z 645 (bruzdowane)', 'D 3060', 'AR 150']
+                if is_combo_item and has_z645 and has_ar150 and has_d3060:
+                    if not combined_printed:
+                        rep.write("* Na tak przygotowane podłoże należy rozłożyć matę z włókna szklanego **WAKOL AR 150** i zaszpachlować ją masą szpachlową **WAKOL Z 645** z dodatkiem plastyfikatora **WAKOL D 3060** (7 litrów WAKOL D 3060 na 25 kg WAKOL Z 645). Czas schnięcia min. 3h.")
+                        combined_printed = True
+                    # wpisz do bazy materiałów, teksty i tak są puste
+                    write_and_track(dane_pro, rep, key, custom_kg=needed)
+                else:
+                    write_and_track(dane_pro, rep, key, custom_kg=needed)
             else:
                 st.warning(f"Produkt {PRODUCTS[key]['name']} ma ustawione zużycie 0. Zostanie pominięty w kosztorysie ilościowym.")
                 if PRODUCTS[key]['text']:
