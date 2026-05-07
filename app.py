@@ -339,7 +339,9 @@ def render_wspolna_chemia(dane, rep):
         return False
 
     if dane['decision_after_cure'] == "Wykonanie bariery przeciwwilgociowej":
-        if dane['strength_val'] <= 2: write_and_track(dane, rep, 'PU 235 (Bariera)')
+        if dane['substrate'] == "płyta fundamentowa":
+            write_and_track(dane, rep, 'PU 280 (Bariera Płyta)')
+        elif dane['strength_val'] <= 2: write_and_track(dane, rep, 'PU 235 (Bariera)')
         else: write_and_track(dane, rep, 'PU 280 (Bariera)')
     elif not dane['decision_after_cure'] or "Wykonanie" not in str(dane['decision_after_cure']):
         if dane['needs_levelling'] == "TAK":
