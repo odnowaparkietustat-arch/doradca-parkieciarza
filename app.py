@@ -264,23 +264,34 @@ def render_wspolne_zalecenia_podloze(dane, rep):
     
     if dane['curing_not_done']:
         if dane['is_moisture_neg']:
-            rep.write(f"* **Konieczność przeprowadzenia pełnego procesu wygrzewania podłoża** w celu uzyskania normatywnego poziomu wilgoci **{dane['norm_val_bracket']}**.")
+            if dane['decision_after_cure'] == "osuszanie przed barierą":
+                rep.write(f"* **Konieczność przeprowadzenia pełnego procesu wygrzewania podłoża** w celu obniżenia poziomu wilgoci do max. **{dane.get('barrier_max', '2.8')}%**, a następnie wykonanie bariery.")
+            else:
+                rep.write(f"* **Konieczność przeprowadzenia pełnego procesu wygrzewania podłoża** w celu uzyskania normatywnego poziomu wilgoci **{dane['norm_val_bracket']}**.")
         else:
             rep.write(f"* **Konieczność przeprowadzenia pełnego procesu wygrzewania podłoża** zgodnie z protokołem.")
     elif dane['is_moisture_neg']:
         if dane['decision_after_cure'] == "Wykonanie bariery przeciwwilgociowej":
             rep.write("* Zalecamy wykonanie **bariery przeciwwilgociowej**.")
+        elif dane['decision_after_cure'] == "osuszanie przed barierą":
+            rep.write(f"* Zalecamy doprowadzenie poziomu wilgoci do max. **{dane.get('barrier_max', '2.8')}%** poprzez dalsze osuszanie, a następnie wykonanie bariery przeciwwilgociowej.")
         else:
             rep.write(f"* Zalecamy doprowadzenie do normatywnego poziomu wilgoci **{dane['norm_val_bracket']}** poprzez {dane['decision_after_cure']}.")
 
     rep.write("**b) naprawa i wzmocnienie podłoża:**")
     if dane['curing_not_done']:
         if dane['is_moisture_neg']:
-            rep.write(f"Po doprowadzeniu do normatywnego poziomu wilgoci **{dane['norm_val_bracket']}** jastrychu poprzez **przeprowadzenie procesu wygrzewania** zalecamy:")
+            if dane['decision_after_cure'] == "osuszanie przed barierą":
+                rep.write(f"Po doprowadzeniu poziomu wilgoci do max. **{dane.get('barrier_max', '2.8')}%** poprzez **przeprowadzenie procesu wygrzewania** zalecamy:")
+            else:
+                rep.write(f"Po doprowadzeniu do normatywnego poziomu wilgoci **{dane['norm_val_bracket']}** jastrychu poprzez **przeprowadzenie procesu wygrzewania** zalecamy:")
         else:
             rep.write("Po **przeprowadzeniu pełnego procesu wygrzewania** zalecamy:")
     elif dane['needs_drying_action']:
-        rep.write(f"Po doprowadzeniu do normatywnego poziomu wilgoci **{dane['norm_val_bracket']}** zalecamy:")
+        if dane['decision_after_cure'] == "osuszanie przed barierą":
+            rep.write(f"Po doprowadzeniu poziomu wilgoci do max. **{dane.get('barrier_max', '2.8')}%** zalecamy:")
+        else:
+            rep.write(f"Po doprowadzeniu do normatywnego poziomu wilgoci **{dane['norm_val_bracket']}** zalecamy:")
     
     if dane['cracks_klaw'] == "TAK" or dane['cracks_pek'] == "TAK":
         if dane['strength_val'] == 1 and dane['substrate'] != "jastrych anhydrytowy":
@@ -338,7 +349,7 @@ def render_wspolna_chemia(dane, rep):
     if dane['substrate'] == "płytki ceramiczne":
         return False
 
-    if dane['decision_after_cure'] == "Wykonanie bariery przeciwwilgociowej":
+    if dane['decision_after_cure'] in ["Wykonanie bariery przeciwwilgociowej", "osuszanie przed barierą"]:
         if dane['substrate'] == "płyta fundamentowa":
             write_and_track(dane, rep, 'PU 280 (Bariera Płyta)')
         elif dane['strength_val'] <= 2: write_and_track(dane, rep, 'PU 235 (Bariera)')
@@ -375,12 +386,12 @@ def render_chemia_deska_warstwowa(dane, rep):
     if dane['substrate'] == "płytki ceramiczne":
         return False
 
-    if dane['decision_after_cure'] == "Wykonanie bariery przeciwwilgociowej":
+    if dane['decision_after_cure'] in ["Wykonanie bariery przeciwwilgociowej", "osuszanie przed barierą"]:
         if dane['substrate'] == "płyta fundamentowa":
             write_and_track(dane, rep, 'PU 280 (Bariera Płyta)')
         elif dane['strength_val'] <= 2: write_and_track(dane, rep, 'PU 235 (Bariera)')
         else: write_and_track(dane, rep, 'PU 280 (Bariera)')
-    elif not dane['decision_after_cure'] or "Wykonanie" not in str(dane['decision_after_cure']):
+    elif not dane['decision_after_cure'] or "Wykonanie" not in str(dane['decision_after_cure']) and "barierą" not in str(dane['decision_after_cure']):
         if dane['needs_levelling'] == "TAK":
             if dane['strength_val'] in [3, 4, 5]:
                 if dane['substrate'] == "jastrych anhydrytowy" and dane['leveling_thickness'] and dane['leveling_thickness'] > 5:
@@ -413,12 +424,12 @@ def render_chemia_deska_lita(dane, rep):
     if dane['substrate'] == "płytki ceramiczne":
         return False
 
-    if dane['decision_after_cure'] == "Wykonanie bariery przeciwwilgociowej":
+    if dane['decision_after_cure'] in ["Wykonanie bariery przeciwwilgociowej", "osuszanie przed barierą"]:
         if dane['substrate'] == "płyta fundamentowa":
             write_and_track(dane, rep, 'PU 280 (Bariera Płyta)')
         elif dane['strength_val'] <= 2: write_and_track(dane, rep, 'PU 235 (Bariera)')
         else: write_and_track(dane, rep, 'PU 280 (Bariera)')
-    elif not dane['decision_after_cure'] or "Wykonanie" not in str(dane['decision_after_cure']):
+    elif not dane['decision_after_cure'] or "Wykonanie" not in str(dane['decision_after_cure']) and "barierą" not in str(dane['decision_after_cure']):
         if dane['needs_levelling'] == "TAK":
             if dane['strength_val'] in [3, 4, 5]:
                 if dane['substrate'] == "jastrych anhydrytowy" and dane['leveling_thickness'] and dane['leveling_thickness'] > 5:
@@ -560,12 +571,12 @@ def render_chemia_lvt_grube(dane, rep):
     if dane['substrate'] == "płytki ceramiczne":
         return False
 
-    if dane['decision_after_cure'] == "Wykonanie bariery przeciwwilgociowej":
+    if dane['decision_after_cure'] in ["Wykonanie bariery przeciwwilgociowej", "osuszanie przed barierą"]:
         if dane['substrate'] == "płyta fundamentowa":
             write_and_track(dane, rep, 'PU 280 (Bariera Płyta)')
         elif dane['strength_val'] <= 2: write_and_track(dane, rep, 'PU 235 (Bariera)')
         else: write_and_track(dane, rep, 'PU 280 (Bariera)')
-    elif not dane['decision_after_cure'] or "Wykonanie" not in str(dane['decision_after_cure']):
+    elif not dane['decision_after_cure'] or ("Wykonanie" not in str(dane['decision_after_cure']) and "barierą" not in str(dane['decision_after_cure'])):
         if dane['needs_levelling'] == "TAK":
             if dane['strength_val'] in [3, 4, 5]:
                 if dane['substrate'] == "jastrych anhydrytowy" and dane['leveling_thickness'] and dane['leveling_thickness'] > 5:
@@ -1439,7 +1450,7 @@ if moisture is not None and moisture > limit:
     if substrate == "płyta fundamentowa":
         if moisture > barrier_max:
             st.warning(f"Podłoże jest zbyt wilgotne. Konieczność doprowadzenia do poziomu wilgoci max. {barrier_max}% przed wykonaniem bariery przeciwwilgociowej.")
-            decision_after_cure = "dalsze osuszanie"
+            decision_after_cure = "osuszanie przed barierą"
         else:
             decision_after_cure = "Wykonanie bariery przeciwwilgociowej"
             needs_drying_action = False
@@ -1478,6 +1489,7 @@ dane_protokolu = {
     "klej_typ": klej_typ,
     "lvt_bottom_type": lvt_bottom_type,
     "substrate_age_val": substrate_age_val,
+    "barrier_max": barrier_max,
     "heating_exists": heating_exists,
     "heating_info": heating_info,
     "heating_curing_done": heating_curing_done,
