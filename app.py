@@ -128,6 +128,7 @@ PRODUCTS = {
     'Z 675': {'name': 'WAKOL Z 675 (masa samorozlewna)', 'usage_per_mm': 1.6, 'sizes': [25], 'text': FULL_Z675, 'price': 2.81},
     'D 3004 (bruzdowane)': {'name': 'WAKOL D 3004 (koncentrat)', 'usage': 75, 'sizes': [10, 5], 'text': "", 'price': 23.32},
     'AR 150': {'name': 'WAKOL AR 150 (mata kompensacyjna)', 'usage': 1000, 'sizes': [50], 'text': "", 'price': 8.06},
+    'EM 140': {'name': 'WAKOL EM 140 (włóknina odsprzęgająca)', 'usage': 1000, 'sizes': [50], 'text': "", 'price': 17.67},
     'D 3060': {'name': 'WAKOL D 3060 (plastyfikator)', 'usage': 1000, 'sizes': [10], 'text': "", 'price': 26.00},
     'PU 280 (RP)': {'name': 'WAKOL PU 280 (grunt dla RP)', 'usage': 200, 'sizes': [11, 5], 'text': "* Zalecamy zagruntowanie całej powierzchni podłoża gruntówką wzmacniającą **WAKOL PU 280**. Aplikować wałkiem. Nie zostawiać kałuż tj. zbierać nadmiar niewchłoniętej gruntówki. Zużycie ok. 200 g/m². Czas schnięcia 1 godzina. Czas do montażu – 72 godziny.", 'price': 54.27},
     'Płyta RP': {'name': 'WAKOL RP 704 (płyta odprzęgająca)', 'usage': 1000, 'sizes': [1], 'unit': 'szt', 'text': "* Na tak przygotowane podłoże zalecamy przyklejenie płyty odprzęgającej o grubości 4 mm **WAKOL RP 704**. Należy przyklejać klejem 2K PU (**WAKOL PU 225**). Płytę odprzęgającą po ułożeniu należy docisnąć. Płytę można docinać używając noża trapezowego. Można układać parkiet, jeśli tylko klejona płyta nie przesuwa się w trakcie chodzenia po niej.", 'price': 22.05},
@@ -201,6 +202,7 @@ def write_and_track(dane, rep, prod_key, custom_kg=None):
     # check if material already added to prevent duplicates (e.g. glue when falling through if-else)
     if not any(m['name'] == prod['name'] for m in dane['materials']):
         cost = bought_qty * prod.get('price', 0)
+        exact_cost = needed_kg * prod.get('price', 0)
         dane['materials'].append({
             'name': prod['name'],
             'kg': round(needed_kg, 2),
@@ -208,7 +210,8 @@ def write_and_track(dane, rep, prod_key, custom_kg=None):
             'combo': " + ".join(combo_str) if combo_str else f"{math.ceil(needed_kg)} {unit}",
             'unit': unit,
             'price_per_unit': prod.get('price', 0),
-            'total_cost': cost
+            'total_cost': cost,
+            'exact_cost': exact_cost
         })
 
 def render_potrzebne_materialy(dane, rep):
@@ -223,13 +226,21 @@ def render_potrzebne_materialy(dane, rep):
             rep.write(f"- {m['name']}: **{math.ceil(m['kg'])} {unit}**")
             
     if dane.get('include_cost', False):
-        rep.write("\n**Szacowany wstępny kosztorys materiałowy (Netto):**")
+        rep.write("\n**Wariant 1: Szacowany wstępny kosztorys materiałowy (Rzeczywiste zużycie Netto)**")
+        total_sum_exact = 0
+        for m in dane['materials']:
+            if m.get('price_per_unit', 0) > 0:
+                rep.write(f"- {m['name']}: {m['kg']} {m['unit']} x {m['price_per_unit']} PLN = **{m['exact_cost']:.2f} PLN**")
+                total_sum_exact += m['exact_cost']
+        rep.write(f"**RAZEM NETTO (Rzeczywiste zużycie):** **{total_sum_exact:.2f} PLN**")
+        
+        rep.write("\n**Wariant 2: Szacowany wstępny kosztorys materiałowy (Pełne opakowania hurtowe Netto)**")
         total_sum = 0
         for m in dane['materials']:
             if m.get('price_per_unit', 0) > 0:
                 rep.write(f"- {m['name']}: {m['bought_qty']} {m['unit']} x {m['price_per_unit']} PLN = **{m['total_cost']:.2f} PLN**")
                 total_sum += m['total_cost']
-        rep.write(f"**RAZEM NETTO:** **{total_sum:.2f} PLN**")
+        rep.write(f"**RAZEM NETTO (Pełne opakowania):** **{total_sum:.2f} PLN**")
 
 def render_wspolne_zalecenia_podloze(dane, rep):
     rep.write("**a) przygotowanie podłoża:**")
@@ -470,24 +481,13 @@ def generate_report_deska_lita(dane, rep):
 
 # --- SEKCJA: LVT CIENKIE ---
 def generate_report_lvt_cienkie(dane, rep):
-    if dane['needs_levelling'] == "NIE" and dane['already_levelled'] == "NIE":
-        rep.error("BŁĄD: Pod okładzinę LVT cienkie wymagane jest wyrównanie podłoża. Poinformuj klienta o konieczności wylania masy!")
-        return
-        
     render_wspolne_dane_optyczne(dane, rep)
     rep.markdown("#### **II. Zalecenia techniczne (LVT Cienkie)**")
     
-    if dane['already_levelled'] == "TAK":
-        rep.write("**a) klejenie okładziny:**")
-        rep.write("Klejenie podłogi winylowej (LVT) należy przeprowadzić przy użyciu kleju WAKOL D 3318 (szpachla TKB A2, zużycie: 350 g/m²). · Czas wstępnego odparowania: ok. 5 - 10 minut. · Czas układania: ok. 10 minut")
-        write_and_track(dane, rep, 'D 3318')
-        render_potrzebne_materialy(dane, rep)
-        return
-
     render_wspolne_zalecenia_podloze(dane, rep)
     used_d3004 = render_wspolna_chemia(dane, rep)
 
-    if dane['needs_levelling'] == "TAK" and dane.get('bruzdowane_wybor') != "masa samorozlewna":
+    if dane.get('bruzdowane_wybor') != "masa samorozlewna":
         if not used_d3004:
             rep.write("* Następnie należy zaaplikować specjalistyczny mostek sczepny za pomocą produktu **WAKOL D 3045**. Aplikować równomiernie za pomocą wałka. Zużycie wynosi **ok. 150 g/m²**. **Czas schnięcia 1 godzina**.")
         write_and_track(dane, rep, 'Z 675')
@@ -510,11 +510,11 @@ def generate_report_lvt_grube(dane, rep):
         write_and_track(dane, rep, 'Z 675')
 
     rep.write("**c) klejenie okładziny:**")
-    if dane.get('klej_typ') == "bezprzesuwny":
-        rep.write("Klejenie podłogi LVT z twardym rdzeniem należy przeprowadzić przy użyciu kleju **WAKOL PU 225** (szpachla B11, zużycie: 1250 g/m²).")
-        write_and_track(dane, rep, 'PU 225')
+    bottom_type = dane.get('lvt_bottom_type', '')
+    if bottom_type == "Winyl na piankowym spodzie":
+        rep.write("**Brak możliwości klejenia.** Możliwość montażu okładziny jedynie na pływająco.")
     else:
-        rep.write("Klejenie podłogi LVT z twardym rdzeniem należy przeprowadzić przy użyciu kleju **WAKOL MS 230** (szpachla B13, zużycie: 1350 g/m²).")
+        rep.write(f"Klejenie podłogi LVT ({bottom_type}) należy przeprowadzić przy użyciu kleju **WAKOL MS 230** (szpachla B13, zużycie: 1350 g/m²).")
         write_and_track(dane, rep, 'MS 230')
     render_potrzebne_materialy(dane, rep)
 
@@ -1059,8 +1059,8 @@ def render_wersja_pro(nazwa_klienta, miejscowosc, adres, autor, data_badania):
             elif "Z " in prod_key:
                 pro_label = "kg/m²"
                 multiplier = 1.0
-            elif "AR 150" in prod_key:
-                pro_label = "m²/m²"
+            elif "AR 150" in prod_key or "EM 140" in prod_key:
+                pro_label = "Suma m² na całą inwestycję"
                 multiplier = 1.0
             elif "Płyta RP" in prod_key:
                 pro_label = "m²/m² (szt=0.6m²)"
@@ -1114,7 +1114,10 @@ def render_wersja_pro(nazwa_klienta, miejscowosc, adres, autor, data_badania):
             usage = p['usage']
             multiplier = p['multiplier']
             if usage > 0:
-                needed = usage * pro_area * multiplier
+                if "AR 150" in key or "EM 140" in key:
+                    needed = usage * multiplier
+                else:
+                    needed = usage * pro_area * multiplier
                 
                 # ZASADA: Wersja PRO - połączony tekst dla Z 645 + AR 150 + D 3060
                 is_combo_item = key in ['Z 645', 'Z 645 (bruzdowane)', 'D 3060', 'AR 150']
@@ -1181,8 +1184,11 @@ if tryb == "Wersja PRO (Ręczna)":
 flooring_type = st.selectbox("Wybierz rodzaj okładziny (Sekcja):", ["deska warstwowa", "podłoga laminowana", "deska lita", "wykładzina dywanowa", "pcv w rolce", "lvt cienkie", "lvt grube z twardym rdzeniem"])
 
 klej_typ = None
-if flooring_type in ["deska warstwowa", "podłoga laminowana", "deska lita", "lvt grube z twardym rdzeniem"]:
+lvt_bottom_type = None
+if flooring_type in ["deska warstwowa", "podłoga laminowana", "deska lita"]:
     klej_typ = st.radio("Rodzaj kleju:", ["elastyczny", "bezprzesuwny"], horizontal=True)
+elif flooring_type == "lvt grube z twardym rdzeniem":
+    lvt_bottom_type = st.radio("Rodzaj spodu LVT:", ["Winyl z zintegrowanym spodem korkowym", "Winyl na homogenicznym spodzie", "Winyl na piankowym spodzie"], horizontal=True)
 
 st.markdown(f"### Wywiad Techniczny dla: **{flooring_type.upper()}**")
 
@@ -1219,7 +1225,11 @@ else:
     needs_levelling = st.radio("Wymaga wyrównania:", ["TAK", "NIE"], index=1, horizontal=True)
     if needs_levelling == "TAK":
         leveling_thickness = st.number_input("Planowana grubość masy (mm):", min_value=1, value=None)
-    elif flooring_type in ["wykładzina dywanowa", "pcv w rolce", "lvt cienkie"]:
+    elif flooring_type == "lvt cienkie":
+        st.info("Wyrównanie podłoża (masą WAKOL Z 675) jest technologicznie wymuszone pod okładzinę LVT cienkie.")
+        needs_levelling = "TAK"
+        leveling_thickness = st.number_input("Planowana grubość masy (mm):", min_value=1, value=None)
+    elif flooring_type in ["wykładzina dywanowa", "pcv w rolce"]:
         st.warning("Pod wybraną okładzinę wymagane jest wyrównanie podłoża.")
         already_levelled = st.radio("Czy podłoże zostało już wcześniej wyrównane?", ["TAK", "NIE"], index=1, horizontal=True)
 
@@ -1316,6 +1326,7 @@ dane_protokolu = {
     "substrate": substrate,
     "area_m2": area_m2,
     "klej_typ": klej_typ,
+    "lvt_bottom_type": lvt_bottom_type,
     "substrate_age_val": substrate_age_val,
     "heating_exists": heating_exists,
     "heating_info": heating_info,
