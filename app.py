@@ -43,6 +43,7 @@ FULL_PU235_1W = "* Zalecamy wykonanie gruntowania wzmacniającego poprzez zagrun
 FULL_PU235_BARRIER = "* Zalecamy wykonanie **bariery przeciwwilgociowej** poprzez dwukrotne zagruntowanie gruntówką wzmacniającą **WAKOL PU 235**. Podczas aplikacji nie zostawiać kałuż tj. zbierać nadmiar niewchłoniętej gruntówki. 1. warstwa nałożona wałkiem **ok. 150 g/m²**. **Czas schnięcia – 4-6 godzin**. 2. warstwa zużycie **ok. 100 g/m²**. **Czas schnięcia – 4-6 godzin**. **Czas klejenia 72 godziny od zagruntowania**."
 FULL_PU280_1W = "* Zalecamy wykonanie gruntowania wzmacniającego poprzez zagruntowanie powierzchni jastrychu gruntówką poliuretanową **WAKOL PU 280**. Aplikować wałkiem. Podczas aplikacji nie zostawiać kałuż tj. zbierać nadmiar niewchłoniętej gruntówki. Zużycie **ok. 150 g/m²**. **Czas schnięcia – jedna godzina**."
 FULL_PU280_BARRIER = "* Z uwagi na podwyższoną wilgotność zalecamy stworzenie **bariery przeciwwilgociowej** poprzez zagruntowanie powierzchni jastrychu gruntówką poliuretanową **WAKOL PU 280**. Aplikować wałkiem. Podczas aplikacji nie zostawiać kałuż tj. zbierać nadmiar niewchłoniętej gruntówki. 1. warstwa nałożona wałkiem **ok. 100-150 g/m²**. **Czas schnięcia – jedna godzina**. 2. warstwa **ok. 100 g/m²** - **czas schnięcia – jedna godzina**. **Czas do klejenia: 72 godziny od zagruntowania**."
+FULL_PU280_BARRIER_PLYTA = "* Z uwagi na grubość płyty fundamentowej zalecamy stworzenie **bariery przeciwwilgociowej** poprzez zagruntowanie powierzchni podłoża gruntówką poliuretanową **WAKOL PU 280**. Aplikować wałkiem. Podczas aplikacji nie zostawiać kałuż tj. zbierać nadmiar niewchłoniętej gruntówki. 1. warstwa nałożona wałkiem **ok. 100-150 g/m²**. **Czas schnięcia – jedna godzina**. 2. warstwa **ok. 100 g/m²** - **czas schnięcia – jedna godzina**. **Czas do klejenia: 72 godziny od zagruntowania**."
 FULL_D3004 = "* Zagruntować podłoże koncentratem gruntówki dyspersyjnej **WAKOL D 3004**. Proporcje mieszania: 1 część **WAKOL D 3004** + 2 części wody. **Czas schnięcia**: na jastrychach cementowych i betonie po optycznym wyschnięciu **ok. 30 min**. Sposób nanoszenia: wałek do gruntowania microfazer. Zużycie: **ok. 50 g/m²** koncentratu."
 FULL_Z625 = "* Wylać masę wyrównawczą **WAKOL Z 625** - wymieszać ją w czystym naczyniu z zimną wodą w proporcji 6,00 – 6,25 litrów wody na 25 kg masy. Mieszać unikając tworzenia się grudek. Prędkość obrotowa mieszadła może wynosić max. 600 obrotów na minutę. Wymieszaną masę nanosić w żądanej grubości na podłoże przy pomocy szpachli, łaty lub rakli. Przed pracą należy zwrócić uwagę na obecność wypełnień fug przy ścianach. Zużycie **ok. 1,6 kg/m²/mm**. **Możliwość chodzenia po 2 godzinach**. **Możliwość klejenia podłóg drewnianych przy warstwie do 5 mm – po 6 godzinach**, przy warstwie do 10 mm – po 12 godzinach, przy warstwie 30 mm – po 24 godzinach."
 FULL_Z675 = "* Wylać masę wyrównawczą **WAKOL Z 675** - wymieszać ją w czystym naczyniu z zimną wodą w proporcji 6,0 – 6,5 litrów wody na 25 kg masy. Mieszać unikając tworzenia się grudek. Prędkość obrotowa mieszadła może wynosić max. 600 obrotów na minutę. Wymieszaną masę nanosić w żądanej grubości na podłoże przy pomocy szpachli, łaty lub rakli. Przed pracą należy zwrócić uwagę na obecność wypełnień fug przy ścianach. Zużycie **ok. 1,6 kg/m²/mm**. **Możliwość chodzenia po 2-3 godzinach**. **Możliwość klejenia podłóg po ok. 24 godzinach przy grubości warstwy do 3 mm**, przy większych grubościach czas schnięcia ulega wydłużeniu."
@@ -112,6 +113,7 @@ def render_wspolne_dane_optyczne(dane, rep):
 PRODUCTS = {
     'PU 280 (1W)': {'name': 'WAKOL PU 280 (1 warstwa)', 'usage': 150, 'sizes': [11, 5], 'text': FULL_PU280_1W, 'price': 54.27},
     'PU 280 (Bariera)': {'name': 'WAKOL PU 280 (bariera)', 'usage': 250, 'sizes': [11, 5], 'text': FULL_PU280_BARRIER, 'price': 54.27},
+    'PU 280 (Bariera Płyta)': {'name': 'WAKOL PU 280 (bariera)', 'usage': 250, 'sizes': [11, 5], 'text': FULL_PU280_BARRIER_PLYTA, 'price': 54.27},
     'PU 235 (1W)': {'name': 'WAKOL PU 235 (1 warstwa)', 'usage': 150, 'sizes': [11], 'text': FULL_PU235_1W, 'price': 50.60},
     'PU 235 (Bariera)': {'name': 'WAKOL PU 235 (bariera)', 'usage': 250, 'sizes': [11], 'text': FULL_PU235_BARRIER, 'price': 50.60},
     'PS 275': {'name': 'WAKOL PS 275', 'usage': 700, 'sizes': [11], 'text': FULL_PS275, 'price': 19.08},
@@ -361,7 +363,7 @@ def render_chemia_deska_warstwowa(dane, rep):
 
     if dane['decision_after_cure'] == "Wykonanie bariery przeciwwilgociowej":
         if dane['substrate'] == "płyta fundamentowa":
-            write_and_track(dane, rep, 'PU 280 (Bariera)')
+            write_and_track(dane, rep, 'PU 280 (Bariera Płyta)')
         elif dane['strength_val'] <= 2: write_and_track(dane, rep, 'PU 235 (Bariera)')
         else: write_and_track(dane, rep, 'PU 280 (Bariera)')
     elif not dane['decision_after_cure'] or "Wykonanie" not in str(dane['decision_after_cure']):
@@ -396,7 +398,7 @@ def render_chemia_deska_lita(dane, rep):
 
     if dane['decision_after_cure'] == "Wykonanie bariery przeciwwilgociowej":
         if dane['substrate'] == "płyta fundamentowa":
-            write_and_track(dane, rep, 'PU 280 (Bariera)')
+            write_and_track(dane, rep, 'PU 280 (Bariera Płyta)')
         elif dane['strength_val'] <= 2: write_and_track(dane, rep, 'PU 235 (Bariera)')
         else: write_and_track(dane, rep, 'PU 280 (Bariera)')
     elif not dane['decision_after_cure'] or "Wykonanie" not in str(dane['decision_after_cure']):
@@ -525,7 +527,9 @@ def render_chemia_lvt_grube(dane, rep):
         return True
 
     if dane['decision_after_cure'] == "Wykonanie bariery przeciwwilgociowej":
-        if dane['strength_val'] <= 2: write_and_track(dane, rep, 'PU 235 (Bariera)')
+        if dane['substrate'] == "płyta fundamentowa":
+            write_and_track(dane, rep, 'PU 280 (Bariera Płyta)')
+        elif dane['strength_val'] <= 2: write_and_track(dane, rep, 'PU 235 (Bariera)')
         else: write_and_track(dane, rep, 'PU 280 (Bariera)')
     elif not dane['decision_after_cure'] or "Wykonanie" not in str(dane['decision_after_cure']):
         if dane['needs_levelling'] == "TAK":
@@ -1571,4 +1575,3 @@ if st.button(f"GENERUJ PROTOKÓŁ OGLĘDZIN DLA: {flooring_type.upper()}", type=
                     )
         else:
             st.error("⚠️ Brak bibliotek do generowania Word/PDF. Dodaj plik `requirements.txt` w swoim repozytorium na GitHubie z zawartością:\n```\npython-docx\nfpdf2\n```")
-
