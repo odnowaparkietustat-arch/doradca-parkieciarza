@@ -253,7 +253,13 @@ def render_wspolne_zalecenia_podloze(dane, rep):
         rep.write("* Rozbruzdowanie klawiszujących dylatacji pozornych.")
     if dane['cracks_pek'] == "TAK":
         rep.write("* Rozbruzdowanie pęknięć wymagających zespolenia.")
-    rep.write("* **Szlif podłoża** w celu uzyskania porowatej i chłonnej powierzchni!")
+    
+    if dane['substrate'] == "płytki ceramiczne":
+        rep.write("* Mechaniczne usunięcie szkliwa płytek poprzez szlif.")
+        rep.write("* Sprawdzenie stabilności połączenia płytek z podłożem (głuche elementy skuć i zaszpachlować masą szpachlową).")
+    else:
+        rep.write("* **Szlif podłoża** w celu uzyskania porowatej i chłonnej powierzchni!")
+        
     rep.write("* Dokładne odkurzenie powierzchni odkurzaczem przemysłowym.")
     
     if dane['curing_not_done']:
@@ -329,6 +335,9 @@ def render_wspolna_chemia(dane, rep):
     if dane.get('h_type') == "bruzdowane" and dane.get('bruzdowane_wybor'):
         return True # Pomijamy standardową chemię, obsłużona w naprawie podłoża
 
+    if dane['substrate'] == "płytki ceramiczne":
+        return False
+
     if dane['decision_after_cure'] == "Wykonanie bariery przeciwwilgociowej":
         if dane['strength_val'] <= 2: write_and_track(dane, rep, 'PU 235 (Bariera)')
         else: write_and_track(dane, rep, 'PU 280 (Bariera)')
@@ -360,6 +369,9 @@ def render_chemia_deska_warstwowa(dane, rep):
     used_d3004 = False
     if dane.get('h_type') == "bruzdowane" and dane.get('bruzdowane_wybor'):
         return True
+
+    if dane['substrate'] == "płytki ceramiczne":
+        return False
 
     if dane['decision_after_cure'] == "Wykonanie bariery przeciwwilgociowej":
         if dane['substrate'] == "płyta fundamentowa":
@@ -395,6 +407,9 @@ def render_chemia_deska_lita(dane, rep):
     used_d3004 = False
     if dane.get('h_type') == "bruzdowane" and dane.get('bruzdowane_wybor'):
         return True
+
+    if dane['substrate'] == "płytki ceramiczne":
+        return False
 
     if dane['decision_after_cure'] == "Wykonanie bariery przeciwwilgociowej":
         if dane['substrate'] == "płyta fundamentowa":
@@ -450,7 +465,10 @@ def generate_report_deska_warstwowa(dane, rep):
         write_and_track(dane, rep, 'Z 635')
 
     rep.write("**c) klejenie okładziny:**")
-    if dane['substrate'] == "płyta fundamentowa" and dane['needs_levelling'] == "NIE":
+    if dane['substrate'] == "płytki ceramiczne" and dane['needs_levelling'] == "NIE":
+        rep.write(f"Klejenie {nazwa_okladziny} należy przeprowadzić przy użyciu dwuskładnikowego kleju poliuretanowego **WAKOL PU 225** (szpachla B11, zużycie: 1250 g/m²).")
+        write_and_track(dane, rep, 'PU 225')
+    elif dane['substrate'] == "płyta fundamentowa" and dane['needs_levelling'] == "NIE":
         rep.write(f"Klejenie {nazwa_okladziny} należy przeprowadzić przy użyciu kleju polimerowego twardo-elastycznego **WAKOL MS 260** (szpachla B13, zużycie: 1350 g/m²).")
         write_and_track(dane, rep, 'MS 260')
     elif dane['substrate'] == "jastrych anhydrytowy" and dane['strength_val'] == 1:
@@ -483,7 +501,10 @@ def generate_report_deska_lita(dane, rep):
         write_and_track(dane, rep, 'Z 625')
 
     rep.write("**c) klejenie okładziny:**")
-    if dane['substrate'] == "płyta fundamentowa" and dane['needs_levelling'] == "NIE":
+    if dane['substrate'] == "płytki ceramiczne" and dane['needs_levelling'] == "NIE":
+        rep.write(f"Klejenie podłogi z deski litej należy przeprowadzić przy użyciu dwuskładnikowego kleju poliuretanowego **WAKOL PU 225** (szpachla B11, zużycie: 1250 g/m²).")
+        write_and_track(dane, rep, 'PU 225')
+    elif dane['substrate'] == "płyta fundamentowa" and dane['needs_levelling'] == "NIE":
         rep.write("Klejenie podłogi z deski litej należy przeprowadzić przy użyciu kleju polimerowego twardo-elastycznego **WAKOL MS 260** (szpachla B13, zużycie: 1350 g/m²).")
         write_and_track(dane, rep, 'MS 260')
     elif dane.get('klej_typ') == "bezprzesuwny":
@@ -500,7 +521,13 @@ def generate_report_lvt_cienkie(dane, rep):
     rep.markdown("#### **II. Zalecenia techniczne (LVT Cienkie)**")
     
     if dane.get('already_levelled') == "TAK":
-        rep.write("**a) klejenie okładziny:**")
+        rep.write("**a) przygotowanie podłoża:**")
+        if dane['curing_not_done']:
+            rep.write("* **Konieczność przeprowadzenia pełnego procesu wygrzewania podłoża** zgodnie z protokołem.")
+            rep.write("Po **przeprowadzeniu pełnego procesu wygrzewania** zalecamy:")
+        rep.write("* Szlif podłoża w celu uzyskania gładkiej powierzchni.")
+        rep.write("* Dokładne odkurzenie powierzchni odkurzaczem przemysłowym.")
+        rep.write("**b) klejenie okładziny:**")
         rep.write("Klejenie podłogi winylowej (LVT) należy przeprowadzić przy użyciu kleju WAKOL D 3318 (szpachla TKB A2, zużycie: 350 g/m²). · Czas wstępnego odparowania: ok. 5 - 10 minut. · Czas układania: ok. 10 minut")
         write_and_track(dane, rep, 'D 3318')
         render_potrzebne_materialy(dane, rep)
@@ -514,6 +541,8 @@ def generate_report_lvt_cienkie(dane, rep):
             rep.write("* Następnie należy zaaplikować specjalistyczny mostek sczepny za pomocą produktu **WAKOL D 3045**. Aplikować równomiernie za pomocą wałka. Zużycie wynosi **ok. 150 g/m²**. **Czas schnięcia 1 godzina**.")
             write_and_track(dane, rep, 'D 3045')
         write_and_track(dane, rep, 'Z 675')
+        
+    rep.write("* Po wyschnięciu masy samorozlewnej zalecamy szlif podłoża w celu uzyskania gładkiej powierzchni oraz dokładne odkurzenie.")
 
     rep.write("**c) klejenie okładziny:**")
     rep.write("Klejenie podłogi winylowej (LVT) należy przeprowadzić przy użyciu kleju WAKOL D 3318 (szpachla TKB A2, zużycie: 350 g/m²). · Czas wstępnego odparowania: ok. 5 - 10 minut. · Czas układania: ok. 10 minut")
@@ -525,6 +554,9 @@ def render_chemia_lvt_grube(dane, rep):
     used_d3004 = False
     if dane.get('h_type') == "bruzdowane" and dane.get('bruzdowane_wybor'):
         return True
+
+    if dane['substrate'] == "płytki ceramiczne":
+        return False
 
     if dane['decision_after_cure'] == "Wykonanie bariery przeciwwilgociowej":
         if dane['substrate'] == "płyta fundamentowa":
@@ -572,6 +604,9 @@ def generate_report_lvt_grube(dane, rep):
     bottom_type = dane.get('lvt_bottom_type', '')
     if bottom_type == "Winyl na piankowym spodzie":
         rep.write("**Brak możliwości klejenia.** Możliwość montażu okładziny jedynie na pływająco.")
+    elif dane['substrate'] == "płytki ceramiczne" and dane['needs_levelling'] == "NIE":
+        rep.write(f"Klejenie podłogi LVT ({bottom_type}) należy przeprowadzić przy użyciu dwuskładnikowego kleju poliuretanowego **WAKOL PU 225** (szpachla B11, zużycie: 1250 g/m²).")
+        write_and_track(dane, rep, 'PU 225')
     elif dane['substrate'] == "płyta fundamentowa" and dane['needs_levelling'] == "NIE":
         rep.write(f"Klejenie podłogi LVT ({bottom_type}) należy przeprowadzić przy użyciu kleju polimerowego twardo-elastycznego **WAKOL MS 260** (szpachla B13, zużycie: 1350 g/m²).")
         write_and_track(dane, rep, 'MS 260')
@@ -590,7 +625,13 @@ def generate_report_pcv_w_rolce(dane, rep):
     rep.markdown("#### **II. Zalecenia techniczne (PCV w rolce)**")
     
     if dane['already_levelled'] == "TAK":
-        rep.write("**a) klejenie okładziny PCV:**")
+        rep.write("**a) przygotowanie podłoża:**")
+        if dane['curing_not_done']:
+            rep.write("* **Konieczność przeprowadzenia pełnego procesu wygrzewania podłoża** zgodnie z protokołem.")
+            rep.write("Po **przeprowadzeniu pełnego procesu wygrzewania** zalecamy:")
+        rep.write("* Szlif podłoża w celu uzyskania gładkiej powierzchni.")
+        rep.write("* Dokładne odkurzenie powierzchni odkurzaczem przemysłowym.")
+        rep.write("**b) klejenie okładziny PCV:**")
         rep.write("Klejenie wykładziny PCV w rolce należy przeprowadzić przy użyciu kleju WAKOL D 3307 (szpachla TKB A2, zużycie: 300 – 330 g/m²). · Czas wstępnego odparowania: ok. 10 - 20 minut. · Czas układania: ok. 15 - 20 minut")
         render_potrzebne_materialy(dane, rep)
         return
@@ -603,6 +644,8 @@ def generate_report_pcv_w_rolce(dane, rep):
             rep.write("* Następnie należy zaaplikować specjalistyczny mostek sczepny za pomocą produktu **WAKOL D 3045**. Aplikować równomiernie za pomocą wałka. Zużycie wynosi **ok. 150 g/m²**. **Czas schnięcia 1 godzina**.")
             write_and_track(dane, rep, 'D 3045')
         write_and_track(dane, rep, 'Z 675')
+        
+    rep.write("* Po wyschnięciu masy samorozlewnej zalecamy szlif podłoża w celu uzyskania gładkiej powierzchni oraz dokładne odkurzenie.")
 
     rep.write("**c) klejenie okładziny PCV:**")
     rep.write("Klejenie wykładziny PCV w rolce należy przeprowadzić przy użyciu kleju WAKOL D 3307 (szpachla TKB A2, zużycie: 300 – 330 g/m²). · Czas wstępnego odparowania: ok. 10 - 20 minut. · Czas układania: ok. 15 - 20 minut")
@@ -618,7 +661,13 @@ def generate_report_wykladzina_dywanowa(dane, rep):
     rep.markdown("#### **II. Zalecenia techniczne (Wykładzina dywanowa)**")
     
     if dane['already_levelled'] == "TAK":
-        rep.write("**a) klejenie wykładziny tekstylnej:**")
+        rep.write("**a) przygotowanie podłoża:**")
+        if dane['curing_not_done']:
+            rep.write("* **Konieczność przeprowadzenia pełnego procesu wygrzewania podłoża** zgodnie z protokołem.")
+            rep.write("Po **przeprowadzeniu pełnego procesu wygrzewania** zalecamy:")
+        rep.write("* Szlif podłoża w celu uzyskania gładkiej powierzchni.")
+        rep.write("* Dokładne odkurzenie powierzchni odkurzaczem przemysłowym.")
+        rep.write("**b) klejenie wykładziny tekstylnej:**")
         rep.write("Klejenie wykładziny tekstylnej należy przeprowadzić przy użyciu kleju WAKOL D 3308 (szpachla TKB B1 400-450 g/m²). · Czas wstępnego odparowania: ok. 5-10 minut. · Czas otwarty kleju ok. 10-15 minut")
         render_potrzebne_materialy(dane, rep)
         return
@@ -631,6 +680,8 @@ def generate_report_wykladzina_dywanowa(dane, rep):
             rep.write("* Następnie należy zaaplikować specjalistyczny mostek sczepny za pomocą produktu **WAKOL D 3045**. Aplikować równomiernie za pomocą wałka. Zużycie wynosi **ok. 150 g/m²**. **Czas schnięcia 1 godzina**.")
             write_and_track(dane, rep, 'D 3045')
         write_and_track(dane, rep, 'Z 675')
+        
+    rep.write("* Po wyschnięciu masy samorozlewnej zalecamy szlif podłoża w celu uzyskania gładkiej powierzchni oraz dokładne odkurzenie.")
 
     rep.write("**c) klejenie wykładziny tekstylnej:**")
     rep.write("Klejenie wykładziny tekstylnej należy przeprowadzić przy użyciu kleju WAKOL D 3308 (szpachla TKB B1 400-450 g/m²). · Czas wstępnego odparowania: ok. 5-10 minut. · Czas otwarty kleju ok. 10-15 minut")
