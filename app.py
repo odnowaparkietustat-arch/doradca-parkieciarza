@@ -1406,7 +1406,7 @@ else:
 
 # --- LOGIKA NORM I BARIER ---
 if substrate == "płyta fundamentowa":
-    limit = 2.8
+    limit = 1.5 if heating_exists == "TAK" else 2.8
     barrier_max = 2.8
 else:
     limit = 1.5 if substrate == "jastrych cementowy" and heating_exists == "TAK" else 1.8 if substrate == "jastrych cementowy" else 0.3 if substrate == "jastrych anhydrytowy" and heating_exists == "TAK" else 0.5 if substrate == "jastrych anhydrytowy" else 1.5
@@ -1435,15 +1435,16 @@ if moisture is not None and moisture > limit:
     needs_drying_action = True
     opt_dry = "przeprowadzenie procesu wygrzewania" if (heating_exists == "TAK" and heating_curing_done == "NIE") else "dalsze osuszanie"
     if substrate == "płyta fundamentowa":
-        st.warning(f"Podłoże jest zbyt wilgotne. Konieczność doprowadzenia do normatywnego poziomu wilgoci (max. {limit}%) przed przystąpieniem do dalszych prac.")
-        decision_after_cure = "dalsze osuszanie"
+        if moisture > barrier_max:
+            st.warning(f"Podłoże jest zbyt wilgotne. Konieczność doprowadzenia do poziomu wilgoci max. {barrier_max}% przed wykonaniem bariery przeciwwilgociowej.")
+            decision_after_cure = "dalsze osuszanie"
+        else:
+            decision_after_cure = "Wykonanie bariery przeciwwilgociowej"
+            needs_drying_action = False
     elif h_type == "bruzdowane":
         st.warning(f"Podłoże jest zbyt wilgotne. Konieczność doprowadzenia do normatywnego poziomu wilgoci ({limit}% CM) przed przystąpieniem do dalszych prac.")
         decision_after_cure = "dalsze osuszanie"
     elif substrate == "jastrych anhydrytowy":
-        decision_after_cure = opt_dry
-    elif strength_val == 1:
-        st.warning("Podłoże bardzo słabe — bariera przeciwwilgociowa niedostępna. Wymagane doprowadzenie do normatywnego poziomu wilgoci przed gruntowaniem PS 275.")
         decision_after_cure = opt_dry
     else:
         if moisture <= barrier_max:
