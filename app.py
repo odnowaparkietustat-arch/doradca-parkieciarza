@@ -1446,6 +1446,14 @@ if moisture is not None and moisture > limit:
         decision_after_cure = "dalsze osuszanie"
     elif substrate == "jastrych anhydrytowy":
         decision_after_cure = opt_dry
+    elif strength_val == 1:
+        if moisture <= barrier_max:
+            st.info("Z uwagi na bardzo słabe i nienormatywnie wilgotne podłoże (nie można zastosować PS 275), system wymusza wykonanie bariery przeciwwilgociowej za pomocą PU 235.")
+            decision_after_cure = "Wykonanie bariery przeciwwilgociowej"
+            needs_drying_action = False
+        else:
+            st.warning("Podłoże jest bardzo słabe i zbyt wilgotne na barierę. Konieczne jest dalsze osuszanie.")
+            decision_after_cure = opt_dry
     else:
         if moisture <= barrier_max:
             decision_after_cure = st.radio("Postępowanie z podwyższoną wilgocią:", ["Wykonanie bariery przeciwwilgociowej", opt_dry], horizontal=True)
