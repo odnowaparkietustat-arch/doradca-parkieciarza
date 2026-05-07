@@ -116,6 +116,7 @@ PRODUCTS = {
     'PU 235 (Bariera)': {'name': 'WAKOL PU 235 (bariera)', 'usage': 250, 'sizes': [11], 'text': FULL_PU235_BARRIER, 'price': 50.60},
     'PS 275': {'name': 'WAKOL PS 275', 'usage': 700, 'sizes': [11], 'text': FULL_PS275, 'price': 19.08},
     'D 3004': {'name': 'WAKOL D 3004', 'usage': 50, 'sizes': [10, 5], 'text': FULL_D3004, 'price': 23.32},
+    'D 3045': {'name': 'WAKOL D 3045 (mostek sczepny)', 'usage': 150, 'sizes': [12, 5], 'text': "", 'price': 25.00},
     'D 3055': {'name': 'WAKOL D 3055', 'usage': 150, 'sizes': [10, 5], 'text': FULL_D3055, 'price': 16.96},
     'PU 225': {'name': 'WAKOL PU 225 (klej)', 'usage': 1250, 'sizes': [10], 'text': "", 'price': 13.55},
     'MS 230': {'name': 'WAKOL MS 230 (klej)', 'usage': 1350, 'sizes': [18], 'text': "", 'price': 15.00},
@@ -359,7 +360,9 @@ def render_chemia_deska_warstwowa(dane, rep):
         return True
 
     if dane['decision_after_cure'] == "Wykonanie bariery przeciwwilgociowej":
-        if dane['strength_val'] <= 2: write_and_track(dane, rep, 'PU 235 (Bariera)')
+        if dane['substrate'] == "płyta fundamentowa":
+            write_and_track(dane, rep, 'PU 280 (Bariera)')
+        elif dane['strength_val'] <= 2: write_and_track(dane, rep, 'PU 235 (Bariera)')
         else: write_and_track(dane, rep, 'PU 280 (Bariera)')
     elif not dane['decision_after_cure'] or "Wykonanie" not in str(dane['decision_after_cure']):
         if dane['needs_levelling'] == "TAK":
@@ -392,7 +395,9 @@ def render_chemia_deska_lita(dane, rep):
         return True
 
     if dane['decision_after_cure'] == "Wykonanie bariery przeciwwilgociowej":
-        if dane['strength_val'] <= 2: write_and_track(dane, rep, 'PU 235 (Bariera)')
+        if dane['substrate'] == "płyta fundamentowa":
+            write_and_track(dane, rep, 'PU 280 (Bariera)')
+        elif dane['strength_val'] <= 2: write_and_track(dane, rep, 'PU 235 (Bariera)')
         else: write_and_track(dane, rep, 'PU 280 (Bariera)')
     elif not dane['decision_after_cure'] or "Wykonanie" not in str(dane['decision_after_cure']):
         if dane['needs_levelling'] == "TAK":
@@ -439,10 +444,14 @@ def generate_report_deska_warstwowa(dane, rep):
     if dane['needs_levelling'] == "TAK" and dane.get('bruzdowane_wybor') != "masa samorozlewna":
         if not used_d3004:
             rep.write("* Następnie należy zaaplikować specjalistyczny mostek sczepny za pomocą produktu **WAKOL D 3045**. Aplikować równomiernie za pomocą wałka. Zużycie wynosi **ok. 150 g/m²**. **Czas schnięcia 1 godzina**.")
+            write_and_track(dane, rep, 'D 3045')
         write_and_track(dane, rep, 'Z 635')
 
     rep.write("**c) klejenie okładziny:**")
-    if dane['substrate'] == "jastrych anhydrytowy" and dane['strength_val'] == 1:
+    if dane['substrate'] == "płyta fundamentowa" and dane['needs_levelling'] == "NIE":
+        rep.write(f"Klejenie {nazwa_okladziny} należy przeprowadzić przy użyciu kleju polimerowego twardo-elastycznego **WAKOL MS 260** (szpachla B13, zużycie: 1350 g/m²).")
+        write_and_track(dane, rep, 'MS 260')
+    elif dane['substrate'] == "jastrych anhydrytowy" and dane['strength_val'] == 1:
         rep.write(f"Klejenie {nazwa_okladziny} należy przeprowadzić przy użyciu kleju do parkietu **WAKOL MS 230** (szpachla B13, zużycie: 1350 g/m²).")
         write_and_track(dane, rep, 'MS 230')
     elif dane.get('klej_typ') == "bezprzesuwny":
@@ -468,10 +477,14 @@ def generate_report_deska_lita(dane, rep):
     if dane['needs_levelling'] == "TAK" and dane.get('bruzdowane_wybor') != "masa samorozlewna":
         if not used_d3004:
             rep.write("* Następnie należy zaaplikować specjalistyczny mostek sczepny za pomocą produktu **WAKOL D 3045**. Aplikować równomiernie za pomocą wałka. Zużycie wynosi **ok. 150 g/m²**. **Czas schnięcia 1 godzina**.")
+            write_and_track(dane, rep, 'D 3045')
         write_and_track(dane, rep, 'Z 625')
 
     rep.write("**c) klejenie okładziny:**")
-    if dane.get('klej_typ') == "bezprzesuwny":
+    if dane['substrate'] == "płyta fundamentowa" and dane['needs_levelling'] == "NIE":
+        rep.write("Klejenie podłogi z deski litej należy przeprowadzić przy użyciu kleju polimerowego twardo-elastycznego **WAKOL MS 260** (szpachla B13, zużycie: 1350 g/m²).")
+        write_and_track(dane, rep, 'MS 260')
+    elif dane.get('klej_typ') == "bezprzesuwny":
         rep.write("Klejenie podłogi z deski litej należy przeprowadzić przy użyciu kleju **WAKOL PU 225** (szpachla B11, zużycie: 1250 g/m²).")
         write_and_track(dane, rep, 'PU 225')
     else:
@@ -484,12 +497,20 @@ def generate_report_lvt_cienkie(dane, rep):
     render_wspolne_dane_optyczne(dane, rep)
     rep.markdown("#### **II. Zalecenia techniczne (LVT Cienkie)**")
     
+    if dane.get('already_levelled') == "TAK":
+        rep.write("**a) klejenie okładziny:**")
+        rep.write("Klejenie podłogi winylowej (LVT) należy przeprowadzić przy użyciu kleju WAKOL D 3318 (szpachla TKB A2, zużycie: 350 g/m²). · Czas wstępnego odparowania: ok. 5 - 10 minut. · Czas układania: ok. 10 minut")
+        write_and_track(dane, rep, 'D 3318')
+        render_potrzebne_materialy(dane, rep)
+        return
+
     render_wspolne_zalecenia_podloze(dane, rep)
     used_d3004 = render_wspolna_chemia(dane, rep)
 
     if dane.get('bruzdowane_wybor') != "masa samorozlewna":
         if not used_d3004:
             rep.write("* Następnie należy zaaplikować specjalistyczny mostek sczepny za pomocą produktu **WAKOL D 3045**. Aplikować równomiernie za pomocą wałka. Zużycie wynosi **ok. 150 g/m²**. **Czas schnięcia 1 godzina**.")
+            write_and_track(dane, rep, 'D 3045')
         write_and_track(dane, rep, 'Z 675')
 
     rep.write("**c) klejenie okładziny:**")
@@ -498,21 +519,58 @@ def generate_report_lvt_cienkie(dane, rep):
     render_potrzebne_materialy(dane, rep)
 
 # --- SEKCJA: LVT GRUBE ---
+def render_chemia_lvt_grube(dane, rep):
+    used_d3004 = False
+    if dane.get('h_type') == "bruzdowane" and dane.get('bruzdowane_wybor'):
+        return True
+
+    if dane['decision_after_cure'] == "Wykonanie bariery przeciwwilgociowej":
+        if dane['strength_val'] <= 2: write_and_track(dane, rep, 'PU 235 (Bariera)')
+        else: write_and_track(dane, rep, 'PU 280 (Bariera)')
+    elif not dane['decision_after_cure'] or "Wykonanie" not in str(dane['decision_after_cure']):
+        if dane['needs_levelling'] == "TAK":
+            if dane['strength_val'] in [3, 4, 5]:
+                if dane['substrate'] == "jastrych anhydrytowy" and dane['leveling_thickness'] and dane['leveling_thickness'] > 5:
+                    write_and_track(dane, rep, 'PU 280 (1W)')
+                else:
+                    write_and_track(dane, rep, 'D 3004')
+                    used_d3004 = True
+            elif dane['strength_val'] == 2:
+                write_and_track(dane, rep, 'PU 280 (1W)')
+            elif dane['strength_val'] == 1:
+                if dane['substrate'] == "jastrych anhydrytowy": write_and_track(dane, rep, 'PU 235 (1W)')
+                else:
+                    write_and_track(dane, rep, 'PS 275')
+                    write_and_track(dane, rep, 'PU 280 (1W)')
+        else:
+            if dane['strength_val'] in [3, 4, 5]:
+                write_and_track(dane, rep, 'D 3055')
+            elif dane['strength_val'] in [1, 2]:
+                if dane['substrate'] == "jastrych anhydrytowy" and dane['strength_val'] == 1:
+                    write_and_track(dane, rep, 'PU 235 (1W)')
+                else:
+                    write_and_track(dane, rep, 'PU 280 (1W)')
+    return used_d3004
+
 def generate_report_lvt_grube(dane, rep):
     render_wspolne_dane_optyczne(dane, rep)
     rep.markdown("#### **II. Zalecenia techniczne (LVT Grube z twardym rdzeniem)**")
     render_wspolne_zalecenia_podloze(dane, rep)
-    used_d3004 = render_chemia_deska_warstwowa(dane, rep)
+    used_d3004 = render_chemia_lvt_grube(dane, rep)
 
     if dane['needs_levelling'] == "TAK" and dane.get('bruzdowane_wybor') != "masa samorozlewna":
         if not used_d3004:
             rep.write("* Następnie należy zaaplikować specjalistyczny mostek sczepny za pomocą produktu **WAKOL D 3045**. Aplikować równomiernie za pomocą wałka. Zużycie wynosi **ok. 150 g/m²**. **Czas schnięcia 1 godzina**.")
+            write_and_track(dane, rep, 'D 3045')
         write_and_track(dane, rep, 'Z 675')
 
     rep.write("**c) klejenie okładziny:**")
     bottom_type = dane.get('lvt_bottom_type', '')
     if bottom_type == "Winyl na piankowym spodzie":
         rep.write("**Brak możliwości klejenia.** Możliwość montażu okładziny jedynie na pływająco.")
+    elif dane['substrate'] == "płyta fundamentowa" and dane['needs_levelling'] == "NIE":
+        rep.write(f"Klejenie podłogi LVT ({bottom_type}) należy przeprowadzić przy użyciu kleju polimerowego twardo-elastycznego **WAKOL MS 260** (szpachla B13, zużycie: 1350 g/m²).")
+        write_and_track(dane, rep, 'MS 260')
     else:
         rep.write(f"Klejenie podłogi LVT ({bottom_type}) należy przeprowadzić przy użyciu kleju **WAKOL MS 230** (szpachla B13, zużycie: 1350 g/m²).")
         write_and_track(dane, rep, 'MS 230')
@@ -539,6 +597,7 @@ def generate_report_pcv_w_rolce(dane, rep):
     if dane['needs_levelling'] == "TAK" and dane.get('bruzdowane_wybor') != "masa samorozlewna":
         if not used_d3004:
             rep.write("* Następnie należy zaaplikować specjalistyczny mostek sczepny za pomocą produktu **WAKOL D 3045**. Aplikować równomiernie za pomocą wałka. Zużycie wynosi **ok. 150 g/m²**. **Czas schnięcia 1 godzina**.")
+            write_and_track(dane, rep, 'D 3045')
         write_and_track(dane, rep, 'Z 675')
 
     rep.write("**c) klejenie okładziny PCV:**")
@@ -566,6 +625,7 @@ def generate_report_wykladzina_dywanowa(dane, rep):
     if dane['needs_levelling'] == "TAK" and dane.get('bruzdowane_wybor') != "masa samorozlewna":
         if not used_d3004:
             rep.write("* Następnie należy zaaplikować specjalistyczny mostek sczepny za pomocą produktu **WAKOL D 3045**. Aplikować równomiernie za pomocą wałka. Zużycie wynosi **ok. 150 g/m²**. **Czas schnięcia 1 godzina**.")
+            write_and_track(dane, rep, 'D 3045')
         write_and_track(dane, rep, 'Z 675')
 
     rep.write("**c) klejenie wykładziny tekstylnej:**")
@@ -1212,7 +1272,11 @@ if heating_exists == "TAK":
     mapping = {"wodne klasyczne": "instalacja ogrzewania podłogowego wodna, klasyczna", "bruzdowane": "instalacja ogrzewania podłogowego wodna, bruzdowana", "w suchej zabudowie": "instalacja ogrzewania podłogowego wodna, w suchej zabudowie", "elektryczne (powierzchniowe)": "instalacja ogrzewania podłogowego elektryczna, powierzchniowa", "elektryczne (głębokie)": "instalacja ogrzewania podłogowego elektryczna, umieszczona głęboko w podłożu", "płyta fundamentowa grzewcza": "ogrzewanie realizowane poprzez płytę fundamentową grzewczą"}
     heating_info = mapping.get(h_type, h_type)
 
-st.write("3. Czy podłoże wymaga wyrównania (masy)?")
+if flooring_type == "lvt cienkie":
+    st.write("3. Podłoże zostało wyrównane masą")
+else:
+    st.write("3. Czy podłoże wymaga wyrównania (masy)?")
+
 leveling_thickness = 0
 already_levelled = "NIE"
 
@@ -1221,13 +1285,19 @@ if h_type == "bruzdowane" and bruzdowane_wybor == "masa samorozlewna":
     needs_levelling = "TAK"
     leveling_thickness = 5
     st.info("Grubość masy została automatycznie ustalona na 5 mm.")
+elif flooring_type == "lvt cienkie":
+    lvt_already = st.radio("Odpowiedź:", ["TAK", "NIE"], index=1, horizontal=True)
+    if lvt_already == "TAK":
+        already_levelled = "TAK"
+        needs_levelling = "NIE"
+    else:
+        already_levelled = "NIE"
+        needs_levelling = "TAK"
+        st.info("Wyrównanie podłoża (masą WAKOL Z 675) jest technologicznie wymuszone pod okładzinę LVT cienkie.")
+        leveling_thickness = st.number_input("Planowana grubość masy (mm):", min_value=1, value=None)
 else:
     needs_levelling = st.radio("Wymaga wyrównania:", ["TAK", "NIE"], index=1, horizontal=True)
     if needs_levelling == "TAK":
-        leveling_thickness = st.number_input("Planowana grubość masy (mm):", min_value=1, value=None)
-    elif flooring_type == "lvt cienkie":
-        st.info("Wyrównanie podłoża (masą WAKOL Z 675) jest technologicznie wymuszone pod okładzinę LVT cienkie.")
-        needs_levelling = "TAK"
         leveling_thickness = st.number_input("Planowana grubość masy (mm):", min_value=1, value=None)
     elif flooring_type in ["wykładzina dywanowa", "pcv w rolce"]:
         st.warning("Pod wybraną okładzinę wymagane jest wyrównanie podłoża.")
@@ -1273,11 +1343,19 @@ img_dodatkowe = st.file_uploader("Zdjęcia - dodatkowe informacje:", accept_mult
 col_w1, col_w2 = st.columns(2)
 with col_w1: temp_air = st.number_input("9. Temperatura powietrza (°C)", step=0.5, value=None)
 with col_w2: hum_air = st.number_input("10. Wilgotność powietrza (%)", step=1.0, value=None)
-moisture = st.number_input("11. Poziom wilgoci podłoża (CM %)", format="%.1f", value=None)
+
+if substrate == "płyta fundamentowa":
+    moisture = st.number_input("11. Poziom wilgoci podłoża (badanie elektroniczne %)", format="%.1f", value=None)
+else:
+    moisture = st.number_input("11. Poziom wilgoci podłoża (CM %)", format="%.1f", value=None)
 
 # --- LOGIKA NORM I BARIER ---
-limit = 1.5 if substrate == "jastrych cementowy" and heating_exists == "TAK" else 1.8 if substrate == "jastrych cementowy" else 0.3 if substrate == "jastrych anhydrytowy" and heating_exists == "TAK" else 0.5 if substrate == "jastrych anhydrytowy" else 1.5
-barrier_max = 2.5 if heating_exists == "TAK" else 3.5
+if substrate == "płyta fundamentowa":
+    limit = 2.8
+    barrier_max = 2.8
+else:
+    limit = 1.5 if substrate == "jastrych cementowy" and heating_exists == "TAK" else 1.8 if substrate == "jastrych cementowy" else 0.3 if substrate == "jastrych anhydrytowy" and heating_exists == "TAK" else 0.5 if substrate == "jastrych anhydrytowy" else 1.5
+    barrier_max = 2.5 if heating_exists == "TAK" else 3.5
 
 # --- TESTY MECHANICZNE I WYTRZYMAŁOŚĆ ---
 st.write("### 12. Testy mechaniczne i Wytrzymałość")
@@ -1297,10 +1375,14 @@ strength_val = st.select_slider("Ocena ogólna wytrzymałości podłoża:", opti
 
 decision_after_cure = None
 needs_drying_action = False
+
 if moisture is not None and moisture > limit:
     needs_drying_action = True
     opt_dry = "przeprowadzenie procesu wygrzewania" if (heating_exists == "TAK" and heating_curing_done == "NIE") else "dalsze osuszanie"
-    if h_type == "bruzdowane":
+    if substrate == "płyta fundamentowa":
+        st.warning(f"Podłoże jest zbyt wilgotne. Konieczność doprowadzenia do normatywnego poziomu wilgoci (max. {limit}%) przed przystąpieniem do dalszych prac.")
+        decision_after_cure = "dalsze osuszanie"
+    elif h_type == "bruzdowane":
         st.warning(f"Podłoże jest zbyt wilgotne. Konieczność doprowadzenia do normatywnego poziomu wilgoci ({limit}% CM) przed przystąpieniem do dalszych prac.")
         decision_after_cure = "dalsze osuszanie"
     elif substrate == "jastrych anhydrytowy":
@@ -1309,12 +1391,14 @@ if moisture is not None and moisture > limit:
         st.warning("Podłoże bardzo słabe — bariera przeciwwilgociowa niedostępna. Wymagane doprowadzenie do normatywnego poziomu wilgoci przed gruntowaniem PS 275.")
         decision_after_cure = opt_dry
     else:
-        barrier_max = 2.5 if heating_exists == "TAK" else 3.5
         if moisture <= barrier_max:
             decision_after_cure = st.radio("Postępowanie z podwyższoną wilgocią:", ["Wykonanie bariery przeciwwilgociowej", opt_dry], horizontal=True)
             needs_drying_action = (decision_after_cure != "Wykonanie bariery przeciwwilgociowej")
         else:
             decision_after_cure = opt_dry
+else:
+    if substrate == "płyta fundamentowa":
+        decision_after_cure = "Wykonanie bariery przeciwwilgociowej"
 
 st.write("### 13. Opcje raportu")
 include_cost = st.checkbox("Dołącz wstępny kosztorys materiałowy do protokołu (Netto)", value=True)
@@ -1487,3 +1571,4 @@ if st.button(f"GENERUJ PROTOKÓŁ OGLĘDZIN DLA: {flooring_type.upper()}", type=
                     )
         else:
             st.error("⚠️ Brak bibliotek do generowania Word/PDF. Dodaj plik `requirements.txt` w swoim repozytorium na GitHubie z zawartością:\n```\npython-docx\nfpdf2\n```")
+
