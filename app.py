@@ -101,8 +101,11 @@ def render_wspolne_dane_optyczne(dane, rep):
     tests_str = "\n".join(tests_out)
     rep.write(f"**b) badanie wytrzymałości:**\n{tests_str}")
     
-    moisture_status = "POZYTYWNY" if dane['moisture'] <= dane['limit'] else "NEGATYWNY"
-    rep.write(f"**c) badanie wilgotności:** Wynik badania wilgotności metodą CM: **{dane['moisture']} % CM** (Norma: {dane['limit']} % CM) — **Wynik: {moisture_status}**")
+    if dane.get('moisture') is not None:
+        moisture_status = "POZYTYWNY" if dane['moisture'] <= dane['limit'] else "NEGATYWNY"
+        rep.write(f"**c) badanie wilgotności:** Wynik badania wilgotności metodą CM: **{dane['moisture']} % CM** (Norma: {dane['limit']} % CM) — **Wynik: {moisture_status}**")
+    else:
+        rep.write("**c) badanie wilgotności:** Nie dotyczy — podłoże drewniane / ceramiczne.")
 
     klimat = []
     if dane.get('temp_air') is not None: klimat.append(f"Temperatura powietrza: {dane['temp_air']} °C")
@@ -1609,7 +1612,7 @@ dane_protokolu = {
 
 # --- GENEROWANIE PROTOKOŁU W ZALEŻNOŚCI OD WYBRANEJ OKŁADZINY ---
 if st.button(f"GENERUJ PROTOKÓŁ OGLĘDZIN DLA: {flooring_type.upper()}", type="primary", use_container_width=True):
-    if moisture is None:
+    if moisture is None and not _substrate_no_moisture:
         st.error("Proszę podać wilgotność podłoża!")
     else:
         st.divider()
@@ -1721,4 +1724,3 @@ if st.button(f"GENERUJ PROTOKÓŁ OGLĘDZIN DLA: {flooring_type.upper()}", type=
                     )
         else:
             st.error("⚠️ Brak bibliotek do generowania Word/PDF. Dodaj plik `requirements.txt` w swoim repozytorium na GitHubie z zawartością:\n```\npython-docx\nfpdf2\n```")
-
