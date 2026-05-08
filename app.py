@@ -1,3 +1,4 @@
+
 import streamlit as st
 from datetime import date
 import io
@@ -78,8 +79,8 @@ def render_wspolne_dane_optyczne(dane, rep):
     klaw_m = dane.get('klaw_meters') or 0
     pek_m = dane.get('pek_meters') or 0
     klaw_txt = f" **Zaobserwowano {klaw_m} metrów bieżących dylatacji pozornych wymagających zespolenia.**" if dane['cracks_klaw'] == "TAK" else ""
-    pek_txt = f" **Zaobserwowano {pek_m} metrów bieżących pęknięć wymagających zespolenia.**" if dane['cracks_pek'] == "TAK" else ""
-    holes_txt = f" **Zaobserwowano fragmenty wymagające wypełnienia masą naprawczą{dane['hole_details']}.**" if dane['holes'] == "TAK" else ""
+    pek_txt = f" **Stwierdzono obecność pęknięć wymagających zespolenia ({pek_m} mb).**" if dane['cracks_pek'] == "TAK" else ""
+    holes_txt = f" **Zlokalizowano ubytki wymagające wypełnienia masą naprawczą{dane['hole_details']}.**" if dane['holes'] == "TAK" else ""
     level_txt = f" **Podłoże wymaga wyrównania masą wyrównawczą o planowanej grubości {dane['leveling_thickness']} milimetrów.**" if dane['needs_levelling'] == "TAK" else ""
     vent_txt = f" Rodzaj zastosowanej wentylacji: wentylacja {dane['ventilation_type'].lower()}."
     evenness_txt = " Nie badano równości podłoża." if dane['needs_levelling'] == "NIE" else ""
