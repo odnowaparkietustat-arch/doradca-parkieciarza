@@ -1305,40 +1305,26 @@ def render_wersja_pro(nazwa_klienta, miejscowosc, adres, autor, data_badania):
             rep.write(opis_pro.strip())
             rep.write("\n---\n")
 
-        rep.markdown("#### **I. Zalecenia technologiczne**")
-
         if czynnosci.strip():
-            rep.write("**a) czynności przygotowawcze:**")
+            rep.write("**Sposób przygotowania:**")
             rep.write(f"* {czynnosci.strip()}")
 
-        rep.write("\n**b) system chemii WAKOL:**")
-
-        dane_pro = {'written_texts': set(), 'materials': [], 'area_m2': pro_area, 'include_cost': include_cost}
-
+        # Zbieramy materiały do kosztorysu bez wypisywania tekstów produktów
         selected_keys = [p['key'] for p in pro_selected_products if p['usage'] > 0]
-        has_z645 = 'Z 645' in selected_keys or 'Z 645 (bruzdowane)' in selected_keys
-        has_ar150 = 'AR 150' in selected_keys
-        has_d3060 = 'D 3060' in selected_keys
-
-        combined_printed = False
+        dane_pro = {
+            'written_texts': set(selected_keys),  # blokuje wypisywanie opisów produktów
+            'materials': [],
+            'area_m2': pro_area,
+            'include_cost': include_cost,
+        }
 
         for p in pro_selected_products:
             key = p['key']
             needed = p['usage']
             if needed > 0:
-                # ZASADA: Wersja PRO - połączony tekst dla Z 645 + AR 150 + D 3060
-                is_combo_item = key in ['Z 645', 'Z 645 (bruzdowane)', 'D 3060', 'AR 150']
-                if is_combo_item and has_z645 and has_ar150 and has_d3060:
-                    if not combined_printed:
-                        rep.write("* Na tak przygotowane podłoże należy rozłożyć matę z włókna szklanego **WAKOL AR 150** i zaszpachlować ją masą szpachlową **WAKOL Z 645** z dodatkiem plastyfikatora **WAKOL D 3060** (7 litrów WAKOL D 3060 na 25 kg WAKOL Z 645). Czas schnięcia min. 3h.")
-                        combined_printed = True
-                    write_and_track(dane_pro, rep, key, custom_kg=needed)
-                else:
-                    write_and_track(dane_pro, rep, key, custom_kg=needed)
+                write_and_track(dane_pro, rep, key, custom_kg=needed)
             else:
-                st.warning(f"Produkt {PRODUCTS[key]['name']} ma ustawione zużycie 0. Zostanie pominięty w kosztorysie ilościowym.")
-                if PRODUCTS[key]['text']:
-                    rep.write(PRODUCTS[key]['text'])
+                st.warning(f"Produkt {PRODUCTS[key]['name']} ma ustawione zużycie 0. Zostanie pominięty w kosztorysie.")
                 
         rep.write("\n---\n")
         render_potrzebne_materialy(dane_pro, rep)
