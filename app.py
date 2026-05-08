@@ -138,39 +138,9 @@ PRODUCTS = {
     'PS 205': {'name': 'WAKOL PS 205 (żywica lana)', 'sizes': [1], 'unit': 'kpl.', 'text': "", 'price': 48.40}
 }
 
-def write_and_track(dane, rep, prod_key, custom_kg=None):
-    prod = PRODUCTS[prod_key]
-    
-    if 'written_texts' not in dane:
-        dane['written_texts'] = set()
-        
-    if prod_key not in dane['written_texts']:
-        if prod['text']:
-            rep.write(prod['text'])
-        dane['written_texts'].add(prod_key)
-        
-    if 'materials' not in dane:
-        dane['materials'] = []
-        
-    needed_kg = 0
-    if custom_kg is not None:
-        needed_kg = custom_kg
-    else:
-        area = dane.get('area_m2')
-        if not area: return
-        
-        if 'usage_per_mm' in prod:
-            thick = dane.get('leveling_thickness')
-            if not thick: return
-            needed_kg = area * thick * prod['usage_per_mm']
-        else:
-            needed_kg = (area * prod['usage']) / 1000.0
-            
-    if needed_kg <= 0: return
-    sizes = sorted(prod['sizes'], reverse=True)
+def _calc_combo(needed_kg, sizes, unit):
     best_combo = None
     best_waste = float('inf')
-    import math
     max_large = int(math.ceil(needed_kg / sizes[0])) if sizes else 0
     for i in range(max_large + 1):
         rem = needed_kg - i * sizes[0]
@@ -187,7 +157,6 @@ def write_and_track(dane, rep, prod_key, custom_kg=None):
                 if waste < best_waste:
                     best_waste = waste
                     best_combo = {sizes[0]: i, sizes[1]: j}
-    unit = prod.get('unit', 'kg')
     combo_str = []
     bought_qty = 0
     if best_combo:
@@ -201,21 +170,76 @@ def write_and_track(dane, rep, prod_key, custom_kg=None):
                     combo_str.append(f"{qty}x {size} {unit}")
     else:
         bought_qty = math.ceil(needed_kg)
+    combo = " + ".join(combo_str) if combo_str else f"{math.ceil(needed_kg)} {unit}"
+    return bought_qty, combo
 
-    # check if material already added to prevent duplicates (e.g. glue when falling through if-else)
-    if not any(m['name'] == prod['name'] for m in dane['materials']):
-        cost = bought_qty * prod.get('price', 0)
-        exact_cost = needed_kg * prod.get('price', 0)
+def write_and_track(dane, rep, prod_key, custom_kg=None):
+    prod = PRODUCTS[prod_key]
+
+    if 'written_texts' not in dane:
+        dane['written_texts'] = set()
+
+    if prod_key not in dane['written_texts']:
+        if prod['text']:
+            rep.write(prod['text'])
+        dane['written_texts'].add(prod_key)
+
+    if 'materials' not in dane:
+        dane['materials'] = []
+
+    needed_kg = 0
+    if custom_kg is not None:
+        needed_kg = custom_kg
+    else:
+        area = dane.get('area_m2')
+        if not area: return
+        if 'usage_per_mm' in prod:
+            thick = dane.get('leveling_thickness')
+            if not thick: return
+            needed_kg = area * thick * prod['usage_per_mm']
+        else:
+            needed_kg = (area * prod['usage']) / 1000.0
+
+    if needed_kg <= 0: return
+    sizes = sorted(prod['sizes'], reverse=True)
+    unit = prod.get('unit', 'kg')
+    price = prod.get('price', 0)
+    pkg_size = sizes[0] if sizes else 1
+
+    existing = next((m for m in dane['materials'] if m['name'] == prod['name']), None)
+    if existing:
+        new_total = round(existing['kg'] + needed_kg, 2)
+        new_bought, new_combo = _calc_combo(new_total, sizes, unit)
+        existing['kg'] = new_total
+        existing['bought_qty'] = new_bought
+        existing['combo'] = new_combo
+        existing['total_cost'] = new_bought * price
+        existing['exact_cost'] = new_total * price
+    else:
+        bought_qty, combo = _calc_combo(needed_kg, sizes, unit)
         dane['materials'].append({
             'name': prod['name'],
             'kg': round(needed_kg, 2),
             'bought_qty': bought_qty,
-            'combo': " + ".join(combo_str) if combo_str else f"{math.ceil(needed_kg)} {unit}",
+            'combo': combo,
             'unit': unit,
-            'price_per_unit': prod.get('price', 0),
-            'total_cost': cost,
-            'exact_cost': exact_cost
+            'pkg_size': pkg_size,
+            'price_per_unit': price,
+            'total_cost': bought_qty * price,
+            'exact_cost': needed_kg * price,
         })
+
+def _fmt_pkg(needed, pkg_size, unit):
+    real_p = needed / pkg_size if pkg_size else needed
+    buy_p = math.ceil(real_p)
+    real_str = str(int(real_p)) if real_p == int(real_p) else f"{real_p:.1f}".replace('.', ',')
+    if buy_p == 1:
+        buy_word = "opakowanie"
+    elif buy_p in [2, 3, 4]:
+        buy_word = "opakowania"
+    else:
+        buy_word = "opakowań"
+    return f"{real_str} ({buy_p} {buy_word} po {pkg_size} {unit})"
 
 def render_potrzebne_materialy(dane, rep):
     if not dane.get('area_m2'): return
@@ -223,10 +247,8 @@ def render_potrzebne_materialy(dane, rep):
     rep.write("**Potrzebne materiały (szacunkowo na podstawie powierzchni):**")
     for m in dane['materials']:
         unit = m.get('unit', 'kg')
-        if unit == 'kg':
-            rep.write(f"- {m['name']}: **{m['kg']} kg** ({m['combo']})")
-        else:
-            rep.write(f"- {m['name']}: **{math.ceil(m['kg'])} {unit}**")
+        pkg_size = m.get('pkg_size', 1)
+        rep.write(f"- {m['name']}: **{_fmt_pkg(m['kg'], pkg_size, unit)}**")
             
     if dane.get('include_cost', False):
         rep.write("\n**Wariant 1: Szacowany wstępny kosztorys materiałowy (Rzeczywiste zużycie Netto)**")
