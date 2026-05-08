@@ -74,12 +74,12 @@ def render_wspolne_dane_optyczne(dane, rep):
     age_txt = f" w wieku {dane['substrate_age_val']} miesięcy" if dane['substrate_age_val'] else ""
     heat_txt = f" Została zainstalowana {dane['heating_info']}." if dane['heating_exists'] == "TAK" else " Brak instalacji ogrzewania podłogowego."
     curing_txt = " Został przeprowadzony proces wygrzewania zgodnie z protokołem." if dane['heating_curing_done'] == "TAK" else " Nie został przeprowadzony proces wygrzewania podłoża." if dane['heating_exists'] == "TAK" else ""
-    dil_txt = " Dylatacje obwodowe zachowane prawidłowo." if dane['dilatations_obw_ok'] == "TAK" else " **Dylatacje obwodowe nie zachowane prawidłowo.**"
+    dil_txt = " Dylatacje zachowane prawidłowo." if dane['dilatations_obw_ok'] == "TAK" else " **Dylatacje obwodowe nie zachowane prawidłowo.**"
     klaw_m = dane.get('klaw_meters') or 0
     pek_m = dane.get('pek_meters') or 0
-    klaw_txt = f" **Zaobserwowano {klaw_m} metrów bieżących dylatacji pozornych wymagających zespolenia.**" if dane['cracks_klaw'] == "TAK" else " Nie zaobserwowano dylatacji pozornych wymagających zespolenia."
-    pek_txt = f" **Zaobserwowano {pek_m} metrów bieżących pęknięć wymagających zespolenia.**" if dane['cracks_pek'] == "TAK" else " Nie zaobserwowano pęknięć wymagających zespolenia."
-    holes_txt = f" **Zaobserwowano fragmenty wymagające wypełnienia masą naprawczą{dane['hole_details']}.**" if dane['holes'] == "TAK" else " Nie stwierdzono ubytków lub zdegradowanych miejsc wymagających wypełnienia."
+    klaw_txt = f" **Zaobserwowano {klaw_m} metrów bieżących dylatacji pozornych wymagających zespolenia.**" if dane['cracks_klaw'] == "TAK" else ""
+    pek_txt = f" **Zaobserwowano {pek_m} metrów bieżących pęknięć wymagających zespolenia.**" if dane['cracks_pek'] == "TAK" else ""
+    holes_txt = f" **Zaobserwowano fragmenty wymagające wypełnienia masą naprawczą{dane['hole_details']}.**" if dane['holes'] == "TAK" else ""
     level_txt = f" **Podłoże wymaga wyrównania masą wyrównawczą o planowanej grubości {dane['leveling_thickness']} milimetrów.**" if dane['needs_levelling'] == "TAK" else ""
     vent_txt = f" Rodzaj zastosowanej wentylacji: wentylacja {dane['ventilation_type'].lower()}."
     evenness_txt = " Nie badano równości podłoża." if dane['needs_levelling'] == "NIE" else ""
@@ -285,7 +285,6 @@ def render_wspolne_zalecenia_podloze(dane, rep):
         rep.write("* Sprawdzenie stabilności połączenia płytek z podłożem (głuche elementy skuć i zaszpachlować masą szpachlową).")
     elif dane['substrate'] == "podłoże drewniane (parkiet, deska, OSB)":
         rep.write("* **Szlif podłoża** w celu wyrównania i oczyszczenia powierzchni drewnianej.")
-        rep.write("* Dokładne odkurzenie. Klejenie okładziny bezpośrednio — bez gruntowania.")
     else:
         rep.write("* **Szlif podłoża** w celu uzyskania porowatej i chłonnej powierzchni!")
         
