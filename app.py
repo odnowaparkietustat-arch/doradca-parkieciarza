@@ -241,31 +241,37 @@ def _fmt_pkg(needed, pkg_size, unit):
         buy_word = "opakowań"
     return f"{real_str} ({buy_p} {buy_word} po {pkg_size} {unit})"
 
+def _kosztorys_line(m, qty):
+    unit = m.get('unit', 'kg')
+    pkg_size = m.get('pkg_size', 1)
+    price = m.get('price_per_unit', 0)
+    cost = qty * price
+    real_p = qty / pkg_size if pkg_size else qty
+    real_str = str(int(real_p)) if real_p == int(real_p) else f"{real_p:.1f}".replace('.', ',')
+    return f"- {m['name']}: {qty} {unit}({real_str} opak.{pkg_size}{unit}) x {price:.2f} PLN = **{cost:.2f} PLN**", cost
+
 def render_potrzebne_materialy(dane, rep):
     if not dane.get('area_m2'): return
     if not dane.get('materials'): return
-    rep.write("**Potrzebne materiały (szacunkowo na podstawie powierzchni):**")
+    if not dane.get('include_cost', False): return
+
+    rep.write("\n**Wariant 1: Kosztorys materiałowy – rzeczywiste zużycie (Netto)**")
+    total1 = 0.0
     for m in dane['materials']:
-        unit = m.get('unit', 'kg')
-        pkg_size = m.get('pkg_size', 1)
-        rep.write(f"- {m['name']}: **{_fmt_pkg(m['kg'], pkg_size, unit)}**")
-            
-    if dane.get('include_cost', False):
-        rep.write("\n**Wariant 1: Szacowany wstępny kosztorys materiałowy (Rzeczywiste zużycie Netto)**")
-        total_sum_exact = 0
-        for m in dane['materials']:
-            if m.get('price_per_unit', 0) > 0:
-                rep.write(f"- {m['name']}: {m['kg']} {m['unit']} x {m['price_per_unit']} PLN = **{m['exact_cost']:.2f} PLN**")
-                total_sum_exact += m['exact_cost']
-        rep.write(f"**RAZEM NETTO (Rzeczywiste zużycie):** **{total_sum_exact:.2f} PLN**")
-        
-        rep.write("\n**Wariant 2: Szacowany wstępny kosztorys materiałowy (Pełne opakowania hurtowe Netto)**")
-        total_sum = 0
-        for m in dane['materials']:
-            if m.get('price_per_unit', 0) > 0:
-                rep.write(f"- {m['name']}: {m['bought_qty']} {m['unit']} x {m['price_per_unit']} PLN = **{m['total_cost']:.2f} PLN**")
-                total_sum += m['total_cost']
-        rep.write(f"**RAZEM NETTO (Pełne opakowania):** **{total_sum:.2f} PLN**")
+        if m.get('price_per_unit', 0) <= 0: continue
+        line, cost = _kosztorys_line(m, m['kg'])
+        rep.write(line)
+        total1 += cost
+    rep.write(f"**RAZEM NETTO (Wariant 1): {total1:.2f} PLN**")
+
+    rep.write("\n**Wariant 2: Kosztorys materiałowy – pełne opakowania (Netto)**")
+    total2 = 0.0
+    for m in dane['materials']:
+        if m.get('price_per_unit', 0) <= 0: continue
+        line, cost = _kosztorys_line(m, m['bought_qty'])
+        rep.write(line)
+        total2 += cost
+    rep.write(f"**RAZEM NETTO (Wariant 2): {total2:.2f} PLN**")
 
 def render_wspolne_zalecenia_podloze(dane, rep):
     rep.write("**a) przygotowanie podłoża:**")
