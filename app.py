@@ -472,7 +472,9 @@ def generate_report_deska_warstwowa(dane, rep):
     used_d3004 = render_chemia_deska_warstwowa(dane, rep)
 
     if dane['needs_levelling'] == "TAK" and dane.get('bruzdowane_wybor') != "masa samorozlewna":
-        if not used_d3004:
+        _pu_applied = any(k in dane.get('written_texts', set()) for k in ['PU 280 (1W)', 'PU 280 (Bariera)', 'PU 280 (Bariera Płyta)', 'PU 235 (1W)', 'PU 235 (Bariera)'])
+        _skip_d3045 = dane.get('leveling_mesh') == "z siatką" and _pu_applied
+        if not used_d3004 and not _skip_d3045:
             rep.write("* Następnie należy zaaplikować specjalistyczny mostek sczepny za pomocą produktu **WAKOL D 3045**. Aplikować równomiernie za pomocą wałka. Zużycie wynosi **ok. 150 g/m²**. **Czas schnięcia 1 godzina**.")
             write_and_track(dane, rep, 'D 3045')
         if dane.get('leveling_mesh') == "z siatką":
@@ -516,7 +518,9 @@ def generate_report_deska_lita(dane, rep):
     used_d3004 = render_chemia_deska_lita(dane, rep)
 
     if dane['needs_levelling'] == "TAK" and dane.get('bruzdowane_wybor') != "masa samorozlewna":
-        if not used_d3004:
+        _pu_applied = any(k in dane.get('written_texts', set()) for k in ['PU 280 (1W)', 'PU 280 (Bariera)', 'PU 280 (Bariera Płyta)', 'PU 235 (1W)', 'PU 235 (Bariera)'])
+        _skip_d3045 = dane.get('leveling_mesh') == "z siatką" and _pu_applied
+        if not used_d3004 and not _skip_d3045:
             rep.write("* Następnie należy zaaplikować specjalistyczny mostek sczepny za pomocą produktu **WAKOL D 3045**. Aplikować równomiernie za pomocą wałka. Zużycie wynosi **ok. 150 g/m²**. **Czas schnięcia 1 godzina**.")
             write_and_track(dane, rep, 'D 3045')
         if dane.get('leveling_mesh') == "z siatką":
@@ -566,7 +570,9 @@ def generate_report_lvt_cienkie(dane, rep):
     used_d3004 = render_wspolna_chemia(dane, rep)
 
     if dane.get('bruzdowane_wybor') != "masa samorozlewna":
-        if not used_d3004:
+        _pu_applied = any(k in dane.get('written_texts', set()) for k in ['PU 280 (1W)', 'PU 280 (Bariera)', 'PU 280 (Bariera Płyta)', 'PU 235 (1W)', 'PU 235 (Bariera)'])
+        _skip_d3045 = dane.get('leveling_mesh') == "z siatką" and _pu_applied
+        if not used_d3004 and not _skip_d3045:
             rep.write("* Następnie należy zaaplikować specjalistyczny mostek sczepny za pomocą produktu **WAKOL D 3045**. Aplikować równomiernie za pomocą wałka. Zużycie wynosi **ok. 150 g/m²**. **Czas schnięcia 1 godzina**.")
             write_and_track(dane, rep, 'D 3045')
         if dane.get('leveling_mesh') == "z siatką":
@@ -632,7 +638,9 @@ def generate_report_lvt_grube(dane, rep):
     used_d3004 = render_chemia_lvt_grube(dane, rep)
 
     if dane['needs_levelling'] == "TAK" and dane.get('bruzdowane_wybor') != "masa samorozlewna":
-        if not used_d3004:
+        _pu_applied = any(k in dane.get('written_texts', set()) for k in ['PU 280 (1W)', 'PU 280 (Bariera)', 'PU 280 (Bariera Płyta)', 'PU 235 (1W)', 'PU 235 (Bariera)'])
+        _skip_d3045 = dane.get('leveling_mesh') == "z siatką" and _pu_applied
+        if not used_d3004 and not _skip_d3045:
             rep.write("* Następnie należy zaaplikować specjalistyczny mostek sczepny za pomocą produktu **WAKOL D 3045**. Aplikować równomiernie za pomocą wałka. Zużycie wynosi **ok. 150 g/m²**. **Czas schnięcia 1 godzina**.")
             write_and_track(dane, rep, 'D 3045')
         if dane.get('leveling_mesh') == "z siatką":
@@ -685,7 +693,9 @@ def generate_report_pcv_w_rolce(dane, rep):
     used_d3004 = render_wspolna_chemia(dane, rep)
 
     if dane['needs_levelling'] == "TAK" and dane.get('bruzdowane_wybor') != "masa samorozlewna":
-        if not used_d3004:
+        _pu_applied = any(k in dane.get('written_texts', set()) for k in ['PU 280 (1W)', 'PU 280 (Bariera)', 'PU 280 (Bariera Płyta)', 'PU 235 (1W)', 'PU 235 (Bariera)'])
+        _skip_d3045 = dane.get('leveling_mesh') == "z siatką" and _pu_applied
+        if not used_d3004 and not _skip_d3045:
             rep.write("* Następnie należy zaaplikować specjalistyczny mostek sczepny za pomocą produktu **WAKOL D 3045**. Aplikować równomiernie za pomocą wałka. Zużycie wynosi **ok. 150 g/m²**. **Czas schnięcia 1 godzina**.")
             write_and_track(dane, rep, 'D 3045')
         if dane.get('leveling_mesh') == "z siatką":
@@ -729,7 +739,9 @@ def generate_report_wykladzina_dywanowa(dane, rep):
     used_d3004 = render_wspolna_chemia(dane, rep)
 
     if dane['needs_levelling'] == "TAK" and dane.get('bruzdowane_wybor') != "masa samorozlewna":
-        if not used_d3004:
+        _pu_applied = any(k in dane.get('written_texts', set()) for k in ['PU 280 (1W)', 'PU 280 (Bariera)', 'PU 280 (Bariera Płyta)', 'PU 235 (1W)', 'PU 235 (Bariera)'])
+        _skip_d3045 = dane.get('leveling_mesh') == "z siatką" and _pu_applied
+        if not used_d3004 and not _skip_d3045:
             rep.write("* Następnie należy zaaplikować specjalistyczny mostek sczepny za pomocą produktu **WAKOL D 3045**. Aplikować równomiernie za pomocą wałka. Zużycie wynosi **ok. 150 g/m²**. **Czas schnięcia 1 godzina**.")
             write_and_track(dane, rep, 'D 3045')
         if dane.get('leveling_mesh') == "z siatką":
