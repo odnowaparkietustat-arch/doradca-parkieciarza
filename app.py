@@ -475,6 +475,14 @@ def generate_report_deska_warstwowa(dane, rep):
         if not used_d3004:
             rep.write("* Następnie należy zaaplikować specjalistyczny mostek sczepny za pomocą produktu **WAKOL D 3045**. Aplikować równomiernie za pomocą wałka. Zużycie wynosi **ok. 150 g/m²**. **Czas schnięcia 1 godzina**.")
             write_and_track(dane, rep, 'D 3045')
+        if dane.get('leveling_mesh') == "z siatką":
+            area = dane.get('area_m2') or 0
+            rep.write("* Na przygotowane podłoże należy rozłożyć matę zbrojeniową **WAKOL AR 150** i zaszpachlować ją masą szpachlową **WAKOL Z 645** z dodatkiem plastyfikatora **WAKOL D 3060** (7 litrów WAKOL D 3060 na 25 kg WAKOL Z 645). Czas schnięcia min. 3h.")
+            if area > 0:
+                write_and_track(dane, rep, 'AR 150', custom_kg=area)
+                kg_z645_mesh = area * 2.0
+                write_and_track(dane, rep, 'Z 645 (bruzdowane)', custom_kg=kg_z645_mesh)
+                write_and_track(dane, rep, 'D 3060', custom_kg=area * 0.56)
         write_and_track(dane, rep, 'Z 635')
 
     rep.write("**c) klejenie okładziny:**")
@@ -511,6 +519,14 @@ def generate_report_deska_lita(dane, rep):
         if not used_d3004:
             rep.write("* Następnie należy zaaplikować specjalistyczny mostek sczepny za pomocą produktu **WAKOL D 3045**. Aplikować równomiernie za pomocą wałka. Zużycie wynosi **ok. 150 g/m²**. **Czas schnięcia 1 godzina**.")
             write_and_track(dane, rep, 'D 3045')
+        if dane.get('leveling_mesh') == "z siatką":
+            area = dane.get('area_m2') or 0
+            rep.write("* Na przygotowane podłoże należy rozłożyć matę zbrojeniową **WAKOL AR 150** i zaszpachlować ją masą szpachlową **WAKOL Z 645** z dodatkiem plastyfikatora **WAKOL D 3060** (7 litrów WAKOL D 3060 na 25 kg WAKOL Z 645). Czas schnięcia min. 3h.")
+            if area > 0:
+                write_and_track(dane, rep, 'AR 150', custom_kg=area)
+                kg_z645_mesh = area * 2.0
+                write_and_track(dane, rep, 'Z 645 (bruzdowane)', custom_kg=kg_z645_mesh)
+                write_and_track(dane, rep, 'D 3060', custom_kg=area * 0.56)
         write_and_track(dane, rep, 'Z 625')
 
     rep.write("**c) klejenie okładziny:**")
@@ -553,8 +569,16 @@ def generate_report_lvt_cienkie(dane, rep):
         if not used_d3004:
             rep.write("* Następnie należy zaaplikować specjalistyczny mostek sczepny za pomocą produktu **WAKOL D 3045**. Aplikować równomiernie za pomocą wałka. Zużycie wynosi **ok. 150 g/m²**. **Czas schnięcia 1 godzina**.")
             write_and_track(dane, rep, 'D 3045')
+        if dane.get('leveling_mesh') == "z siatką":
+            area = dane.get('area_m2') or 0
+            rep.write("* Na przygotowane podłoże należy rozłożyć matę zbrojeniową **WAKOL AR 150** i zaszpachlować ją masą szpachlową **WAKOL Z 645** z dodatkiem plastyfikatora **WAKOL D 3060** (7 litrów WAKOL D 3060 na 25 kg WAKOL Z 645). Czas schnięcia min. 3h.")
+            if area > 0:
+                write_and_track(dane, rep, 'AR 150', custom_kg=area)
+                kg_z645_mesh = area * 2.0
+                write_and_track(dane, rep, 'Z 645 (bruzdowane)', custom_kg=kg_z645_mesh)
+                write_and_track(dane, rep, 'D 3060', custom_kg=area * 0.56)
         write_and_track(dane, rep, 'Z 675')
-        
+
     rep.write("* Po wyschnięciu masy samorozlewnej zalecamy szlif podłoża w celu uzyskania gładkiej powierzchni oraz dokładne odkurzenie.")
 
     rep.write("**c) klejenie okładziny:**")
@@ -611,6 +635,14 @@ def generate_report_lvt_grube(dane, rep):
         if not used_d3004:
             rep.write("* Następnie należy zaaplikować specjalistyczny mostek sczepny za pomocą produktu **WAKOL D 3045**. Aplikować równomiernie za pomocą wałka. Zużycie wynosi **ok. 150 g/m²**. **Czas schnięcia 1 godzina**.")
             write_and_track(dane, rep, 'D 3045')
+        if dane.get('leveling_mesh') == "z siatką":
+            area = dane.get('area_m2') or 0
+            rep.write("* Na przygotowane podłoże należy rozłożyć matę zbrojeniową **WAKOL AR 150** i zaszpachlować ją masą szpachlową **WAKOL Z 645** z dodatkiem plastyfikatora **WAKOL D 3060** (7 litrów WAKOL D 3060 na 25 kg WAKOL Z 645). Czas schnięcia min. 3h.")
+            if area > 0:
+                write_and_track(dane, rep, 'AR 150', custom_kg=area)
+                kg_z645_mesh = area * 2.0
+                write_and_track(dane, rep, 'Z 645 (bruzdowane)', custom_kg=kg_z645_mesh)
+                write_and_track(dane, rep, 'D 3060', custom_kg=area * 0.56)
         write_and_track(dane, rep, 'Z 675')
 
     rep.write("**c) klejenie okładziny:**")
@@ -656,8 +688,16 @@ def generate_report_pcv_w_rolce(dane, rep):
         if not used_d3004:
             rep.write("* Następnie należy zaaplikować specjalistyczny mostek sczepny za pomocą produktu **WAKOL D 3045**. Aplikować równomiernie za pomocą wałka. Zużycie wynosi **ok. 150 g/m²**. **Czas schnięcia 1 godzina**.")
             write_and_track(dane, rep, 'D 3045')
+        if dane.get('leveling_mesh') == "z siatką":
+            area = dane.get('area_m2') or 0
+            rep.write("* Na przygotowane podłoże należy rozłożyć matę zbrojeniową **WAKOL AR 150** i zaszpachlować ją masą szpachlową **WAKOL Z 645** z dodatkiem plastyfikatora **WAKOL D 3060** (7 litrów WAKOL D 3060 na 25 kg WAKOL Z 645). Czas schnięcia min. 3h.")
+            if area > 0:
+                write_and_track(dane, rep, 'AR 150', custom_kg=area)
+                kg_z645_mesh = area * 2.0
+                write_and_track(dane, rep, 'Z 645 (bruzdowane)', custom_kg=kg_z645_mesh)
+                write_and_track(dane, rep, 'D 3060', custom_kg=area * 0.56)
         write_and_track(dane, rep, 'Z 675')
-        
+
     rep.write("* Po wyschnięciu masy samorozlewnej zalecamy szlif podłoża w celu uzyskania gładkiej powierzchni oraz dokładne odkurzenie.")
 
     rep.write("**c) klejenie okładziny PCV:**")
@@ -692,8 +732,16 @@ def generate_report_wykladzina_dywanowa(dane, rep):
         if not used_d3004:
             rep.write("* Następnie należy zaaplikować specjalistyczny mostek sczepny za pomocą produktu **WAKOL D 3045**. Aplikować równomiernie za pomocą wałka. Zużycie wynosi **ok. 150 g/m²**. **Czas schnięcia 1 godzina**.")
             write_and_track(dane, rep, 'D 3045')
+        if dane.get('leveling_mesh') == "z siatką":
+            area = dane.get('area_m2') or 0
+            rep.write("* Na przygotowane podłoże należy rozłożyć matę zbrojeniową **WAKOL AR 150** i zaszpachlować ją masą szpachlową **WAKOL Z 645** z dodatkiem plastyfikatora **WAKOL D 3060** (7 litrów WAKOL D 3060 na 25 kg WAKOL Z 645). Czas schnięcia min. 3h.")
+            if area > 0:
+                write_and_track(dane, rep, 'AR 150', custom_kg=area)
+                kg_z645_mesh = area * 2.0
+                write_and_track(dane, rep, 'Z 645 (bruzdowane)', custom_kg=kg_z645_mesh)
+                write_and_track(dane, rep, 'D 3060', custom_kg=area * 0.56)
         write_and_track(dane, rep, 'Z 675')
-        
+
     rep.write("* Po wyschnięciu masy samorozlewnej zalecamy szlif podłoża w celu uzyskania gładkiej powierzchni oraz dokładne odkurzenie.")
 
     rep.write("**c) klejenie wykładziny tekstylnej:**")
@@ -1160,45 +1208,38 @@ def render_wersja_pro(nazwa_klienta, miejscowosc, adres, autor, data_badania):
     pro_okladzina = st.text_input("Nazwa okładziny docelowej (do wydruku):", placeholder="np. deska lita, podłoga warstwowa, PCV...")
     pro_area = st.number_input("Powierzchnia inwestycji (m²):", min_value=1.0, step=1.0, format="%.1f", value=None)
     
-    st.write("#### 1. Czynności przygotowawcze")
+    st.write("#### 1. Opis protokołu")
+    opis_pro = st.text_area("Opis sytuacji / uwagi techniczne:", height=150, placeholder="Wpisz opis stanu podłoża, warunków, uwag technicznych...")
+
+    st.write("#### 2. Czynności przygotowawcze")
     czynnosci = st.text_area("Wpisz czynności (np. Szlifowanie, odkurzanie, nacinanie pęknięć):", height=100)
-    
-    st.write("#### 2. Wybór chemii WAKOL")
-    
+
+    st.write("#### 3. Wybór chemii WAKOL")
+
     if "pro_products_count" not in st.session_state:
         st.session_state.pro_products_count = 1
-        
+
     product_keys = ["BRAK"] + list(PRODUCTS.keys())
     pro_selected_products = []
-    
+
     for i in range(st.session_state.pro_products_count):
         st.markdown(f"**Produkt nr {i+1}**")
         col1, col2 = st.columns([2, 1])
         with col1:
             prod_key = st.selectbox(f"Wybierz produkt {i+1}", product_keys, key=f"pro_prod_{i}")
-            
-        pro_label = "jednostki/m²"
-        multiplier = 1.0
-        
+
+        pro_label = "kg"
         if prod_key != "BRAK":
-            if "PU " in prod_key or "PS " in prod_key or "MS " in prod_key or "D " in prod_key:
-                pro_label = "g/m²"
-                multiplier = 0.001
-            elif "Z " in prod_key:
-                pro_label = "kg/m²"
-                multiplier = 1.0
-            elif "AR 150" in prod_key or "EM 140" in prod_key:
-                pro_label = "Suma m² na całą inwestycję"
-                multiplier = 1.0
+            if "AR 150" in prod_key or "EM 140" in prod_key:
+                pro_label = "m²"
             elif "Płyta RP" in prod_key:
-                pro_label = "m²/m² (szt=0.6m²)"
-                multiplier = 1.0 / 0.6
-                
+                pro_label = "szt"
+
         with col2:
-            prod_usage = st.number_input(f"Zużycie [{pro_label}]", min_value=0.0, step=10.0 if multiplier == 0.001 else 0.1, format="%.2f", key=f"pro_usage_{i}")
-            
+            prod_usage = st.number_input(f"Łączna ilość [{pro_label}]", min_value=0.0, step=0.5, format="%.2f", key=f"pro_usage_{i}")
+
         if prod_key != "BRAK":
-            pro_selected_products.append({"key": prod_key, "usage": prod_usage, "multiplier": multiplier})
+            pro_selected_products.append({"key": prod_key, "usage": prod_usage})
             
     if st.button("➕ Dodaj kolejny produkt"):
         st.session_state.pro_products_count += 1
@@ -1220,40 +1261,37 @@ def render_wersja_pro(nazwa_klienta, miejscowosc, adres, autor, data_badania):
         tytul = f"Dotyczy: Protokół z robót przygotowawczych w obiekcie:\nAdres: {adres}, {miejscowosc}\nDla: {nazwa_klienta}\n\nSzanowni Państwo,\n\nW dniu {data_badania.strftime('%d.%m.%Y')} zalecono następujący system przygotowania podłoża pod instalację okładziny: {pro_okladzina}.\n\n"
         rep.write(tytul)
         
+        if opis_pro.strip():
+            rep.write(opis_pro.strip())
+            rep.write("\n---\n")
+
         rep.markdown("#### **I. Zalecenia technologiczne**")
-        
+
         if czynnosci.strip():
             rep.write("**a) czynności przygotowawcze:**")
             rep.write(f"* {czynnosci.strip()}")
-            
+
         rep.write("\n**b) system chemii WAKOL:**")
-        
+
         dane_pro = {'written_texts': set(), 'materials': [], 'area_m2': pro_area, 'include_cost': include_cost}
-        
+
         selected_keys = [p['key'] for p in pro_selected_products if p['usage'] > 0]
         has_z645 = 'Z 645' in selected_keys or 'Z 645 (bruzdowane)' in selected_keys
         has_ar150 = 'AR 150' in selected_keys
         has_d3060 = 'D 3060' in selected_keys
-        
+
         combined_printed = False
-        
+
         for p in pro_selected_products:
             key = p['key']
-            usage = p['usage']
-            multiplier = p['multiplier']
-            if usage > 0:
-                if "AR 150" in key or "EM 140" in key:
-                    needed = usage * multiplier
-                else:
-                    needed = usage * pro_area * multiplier
-                
+            needed = p['usage']
+            if needed > 0:
                 # ZASADA: Wersja PRO - połączony tekst dla Z 645 + AR 150 + D 3060
                 is_combo_item = key in ['Z 645', 'Z 645 (bruzdowane)', 'D 3060', 'AR 150']
                 if is_combo_item and has_z645 and has_ar150 and has_d3060:
                     if not combined_printed:
                         rep.write("* Na tak przygotowane podłoże należy rozłożyć matę z włókna szklanego **WAKOL AR 150** i zaszpachlować ją masą szpachlową **WAKOL Z 645** z dodatkiem plastyfikatora **WAKOL D 3060** (7 litrów WAKOL D 3060 na 25 kg WAKOL Z 645). Czas schnięcia min. 3h.")
                         combined_printed = True
-                    # wpisz do bazy materiałów, teksty i tak są puste
                     write_and_track(dane_pro, rep, key, custom_kg=needed)
                 else:
                     write_and_track(dane_pro, rep, key, custom_kg=needed)
@@ -1347,6 +1385,7 @@ else:
 
 leveling_thickness = 0
 already_levelled = "NIE"
+leveling_mesh = "bez siatki"
 
 if h_type == "bruzdowane" and bruzdowane_wybor == "masa samorozlewna":
     st.info("Wyrównanie jest wymuszone przez technologię 'masa samorozlewna' na ogrzewaniu bruzdowanym.")
@@ -1363,14 +1402,15 @@ elif flooring_type == "lvt cienkie":
         needs_levelling = "TAK"
         st.info("Wyrównanie podłoża (masą WAKOL Z 675) jest technologicznie wymuszone pod okładzinę LVT cienkie.")
         leveling_thickness = st.number_input("Planowana grubość masy (mm):", min_value=1, value=None)
+        leveling_mesh = st.radio("Rodzaj wyrównania:", ["bez siatki", "z siatką"], index=0, horizontal=True)
 else:
     needs_levelling = st.radio("Wymaga wyrównania:", ["TAK", "NIE"], index=1, horizontal=True)
     if needs_levelling == "TAK":
         leveling_thickness = st.number_input("Planowana grubość masy (mm):", min_value=1, value=None)
+        leveling_mesh = st.radio("Rodzaj wyrównania:", ["bez siatki", "z siatką"], index=0, horizontal=True)
     elif flooring_type in ["wykładzina dywanowa", "pcv w rolce"]:
         st.warning("Pod wybraną okładzinę wymagane jest wyrównanie podłoża.")
         already_levelled = st.radio("Czy podłoże zostało już wcześniej wyrównane?", ["TAK", "NIE"], index=1, horizontal=True)
-
 
 st.write("4. Czy dylatacje obwodowe zachowane prawidłowo?")
 dilatations_obw_ok = st.radio("Dylatacje obwodowe:", ["TAK", "NIE"], index=0, horizontal=True)
@@ -1497,6 +1537,7 @@ dane_protokolu = {
     "bruzdowane_wybor": bruzdowane_wybor,
     "needs_levelling": needs_levelling,
     "leveling_thickness": leveling_thickness,
+    "leveling_mesh": leveling_mesh,
     "already_levelled": already_levelled,
     "dilatations_obw_ok": dilatations_obw_ok,
     "cracks_klaw": cracks_klaw,
