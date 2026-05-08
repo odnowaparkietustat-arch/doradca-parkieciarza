@@ -139,39 +139,25 @@ PRODUCTS = {
 }
 
 def _calc_combo(needed_kg, sizes, unit):
-    best_combo = None
-    best_waste = float('inf')
-    max_large = int(math.ceil(needed_kg / sizes[0])) if sizes else 0
-    for i in range(max_large + 1):
-        rem = needed_kg - i * sizes[0]
-        if rem <= 0:
-            waste = -rem
-            if waste < best_waste:
-                best_waste = waste
-                best_combo = {sizes[0]: i}
-                if len(sizes) > 1: best_combo[sizes[1]] = 0
-        else:
-            if len(sizes) > 1:
-                j = int(math.ceil(rem / sizes[1]))
-                waste = (i * sizes[0] + j * sizes[1]) - needed_kg
-                if waste < best_waste:
-                    best_waste = waste
-                    best_combo = {sizes[0]: i, sizes[1]: j}
-    combo_str = []
-    bought_qty = 0
-    if best_combo:
-        for size in sizes:
-            qty = best_combo.get(size, 0)
-            if qty > 0:
-                bought_qty += qty * size
-                if unit != 'kg' and size == 1:
-                    combo_str.append(f"{qty} {unit}")
-                else:
-                    combo_str.append(f"{qty}x {size} {unit}")
-    else:
-        bought_qty = math.ceil(needed_kg)
-    combo = " + ".join(combo_str) if combo_str else f"{math.ceil(needed_kg)} {unit}"
-    return bought_qty, combo
+    if not sizes:
+        q = math.ceil(needed_kg)
+        return q, f"{q} {unit}"
+    if len(sizes) == 1:
+        q = math.ceil(needed_kg / sizes[0])
+        return q * sizes[0], f"{q}x {sizes[0]} {unit}"
+    large, small = sizes[0], sizes[1]
+    n_large = math.floor(needed_kg / large)
+    rem = needed_kg - n_large * large
+    n_small = math.ceil(rem / small) if rem > 0 else 0
+    bought = n_large * large + n_small * small
+    parts = []
+    if n_large > 0: parts.append(f"{n_large}x {large} {unit}")
+    if n_small > 0: parts.append(f"{n_small}x {small} {unit}")
+    if not parts:
+        n_small = 1
+        bought = small
+        parts = [f"1x {small} {unit}"]
+    return bought, " + ".join(parts)
 
 def write_and_track(dane, rep, prod_key, custom_kg=None):
     prod = PRODUCTS[prod_key]
@@ -241,14 +227,23 @@ def _fmt_pkg(needed, pkg_size, unit):
         buy_word = "opakowań"
     return f"{real_str} ({buy_p} {buy_word} po {pkg_size} {unit})"
 
-def _kosztorys_line(m, qty):
+def _kosztorys_line_v1(m):
     unit = m.get('unit', 'kg')
     pkg_size = m.get('pkg_size', 1)
     price = m.get('price_per_unit', 0)
-    cost = qty * price
-    real_p = qty / pkg_size if pkg_size else qty
+    kg = m['kg']
+    cost = kg * price
+    real_p = kg / pkg_size if pkg_size else kg
     real_str = str(int(real_p)) if real_p == int(real_p) else f"{real_p:.1f}".replace('.', ',')
-    return f"- {m['name']}: {qty} {unit}({real_str} opak.{pkg_size}{unit}) x {price:.2f} PLN = **{cost:.2f} PLN**", cost
+    return f"- {m['name']}: {kg} {unit}({real_str} opak.{pkg_size}{unit}) x {price:.2f} PLN = **{cost:.2f} PLN**", cost
+
+def _kosztorys_line_v2(m):
+    unit = m.get('unit', 'kg')
+    price = m.get('price_per_unit', 0)
+    bought = m['bought_qty']
+    cost = bought * price
+    combo = m.get('combo', f"{bought} {unit}")
+    return f"- {m['name']}: {bought} {unit}({combo}) x {price:.2f} PLN = **{cost:.2f} PLN**", cost
 
 def render_potrzebne_materialy(dane, rep):
     if not dane.get('area_m2'): return
@@ -259,7 +254,7 @@ def render_potrzebne_materialy(dane, rep):
     total1 = 0.0
     for m in dane['materials']:
         if m.get('price_per_unit', 0) <= 0: continue
-        line, cost = _kosztorys_line(m, m['kg'])
+        line, cost = _kosztorys_line_v1(m)
         rep.write(line)
         total1 += cost
     rep.write(f"**RAZEM NETTO (Wariant 1): {total1:.2f} PLN**")
@@ -268,7 +263,7 @@ def render_potrzebne_materialy(dane, rep):
     total2 = 0.0
     for m in dane['materials']:
         if m.get('price_per_unit', 0) <= 0: continue
-        line, cost = _kosztorys_line(m, m['bought_qty'])
+        line, cost = _kosztorys_line_v2(m)
         rep.write(line)
         total2 += cost
     rep.write(f"**RAZEM NETTO (Wariant 2): {total2:.2f} PLN**")
