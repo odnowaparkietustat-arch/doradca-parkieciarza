@@ -1389,12 +1389,31 @@ st.markdown(f"### Wywiad Techniczny dla: **{flooring_type.upper()}**")
 
 substrate = st.selectbox("1. Rodzaj podłoża", ["jastrych cementowy", "jastrych anhydrytowy", "płyta fundamentowa", "podłoże drewniane (parkiet, deska)", "podłoże z płyty OSB", "płytki ceramiczne", "masa samorozlewna"])
 
+_force_levelling = False
+_force_holes = False
+
 if substrate in ["podłoże drewniane (parkiet, deska)", "podłoże z płyty OSB", "płytki ceramiczne"]:
     st.write("1a. Czy podłoże jest stabilnie związane z podkładem?")
     substrate_stable = st.radio("Stabilność podłoża:", ["TAK", "NIE"], index=0, horizontal=True, key="substrate_stable")
     if substrate_stable == "NIE":
-        st.error("⚠️ Podłoże nie jest stabilnie związane z podkładem. Konieczny jest **demontaż podłoża** przed przystąpieniem do dalszych prac.")
-        st.stop()
+        if substrate in ["podłoże drewniane (parkiet, deska)", "podłoże z płyty OSB"]:
+            st.warning("⚠️ Podłoże wymaga demontażu. Po demontażu konieczne jest wyrównanie masą samorozlewną.")
+            substrate = st.selectbox("Rodzaj podłoża po demontażu:", ["jastrych cementowy", "jastrych anhydrytowy", "płyta fundamentowa"], key="sub_after_demo")
+            _force_levelling = True
+        else:
+            st.warning("⚠️ Podłoże ceramiczne nie jest stabilnie związane z podkładem.")
+            ceramic_action = st.radio(
+                "Wybierz sposób postępowania:",
+                ["Konieczność skucia całości", "Skucie luźnych fragmentów i zaszpachlowanie ubytków"],
+                key="ceramic_action"
+            )
+            if ceramic_action == "Konieczność skucia całości":
+                st.warning("⚠️ Po skuciu całości płytek konieczne jest wyrównanie masą samorozlewną.")
+                substrate = st.selectbox("Rodzaj podłoża po skuciu:", ["jastrych cementowy", "jastrych anhydrytowy", "płyta fundamentowa"], key="sub_after_demo")
+                _force_levelling = True
+            else:
+                st.info("ℹ️ Skucie luźnych fragmentów ceramicznych i zaszpachlowanie powstałych ubytków.")
+                _force_holes = True
 
 area_m2 = st.number_input("Powierzchnia inwestycji (m²):", min_value=1.0, step=1.0, format="%.1f", value=None)
 substrate_age_val = st.number_input("Wiek podłoża (podaj ilość miesięcy):", min_value=0.5, step=0.5, format="%.1f", value=None)
@@ -1424,7 +1443,12 @@ leveling_thickness = 0
 already_levelled = "NIE"
 leveling_mesh = "bez siatki"
 
-if h_type == "bruzdowane" and bruzdowane_wybor == "masa samorozlewna":
+if _force_levelling:
+    st.info("Wyrównanie jest wymuszone po demontażu podłoża.")
+    needs_levelling = "TAK"
+    leveling_thickness = st.number_input("Planowana grubość masy po demontażu (mm):", min_value=1, value=None, key="lev_thick_demo")
+    leveling_mesh = st.radio("Rodzaj wyrównania:", ["bez siatki", "z siatką"], index=0, horizontal=True, key="lev_mesh_demo")
+elif h_type == "bruzdowane" and bruzdowane_wybor == "masa samorozlewna":
     st.info("Wyrównanie jest wymuszone przez technologię 'masa samorozlewna' na ogrzewaniu bruzdowanym.")
     needs_levelling = "TAK"
     leveling_thickness = 5
@@ -1466,18 +1490,30 @@ if cracks_pek == "TAK":
     pek_meters = st.number_input("Ilość mb pęknięć do zespolenia:", min_value=0.1, step=0.1, value=None)
     img_pek = st.file_uploader("Zdjęcia pęknięć:", accept_multiple_files=True, type=["png", "jpg", "jpeg"], key="img_pek")
 st.write("7. Czy są ubytki bądź zdegradowane fragmenty wymagające wypełnienia masą naprawczą?")
-holes = st.radio("Ubytki:", ["TAK", "NIE"], index=1, horizontal=True)
 hole_details = ""
 holes_depth = None
+h_depth = None; h_width = None; h_length = None
 img_holes = []
-if holes == "TAK":
+if _force_holes:
+    holes = "TAK"
+    st.info("ℹ️ Ubytki po skuciu płytek ceramicznych — podaj wymiary:")
     col_h1, col_h2, col_h3 = st.columns(3)
-    with col_h1: h_depth = st.number_input("Grubość (cm)", min_value=0.1, value=None)
-    with col_h2: h_width = st.number_input("Szerokość (cm)", min_value=0.1, value=None)
-    with col_h3: h_length = st.number_input("Długość (cm)", min_value=0.1, value=None)
+    with col_h1: h_depth = st.number_input("Grubość ubytków (cm)", min_value=0.1, value=None, key="h_depth_f")
+    with col_h2: h_width = st.number_input("Szerokość ubytków (cm)", min_value=0.1, value=None, key="h_width_f")
+    with col_h3: h_length = st.number_input("Długość ubytków (cm)", min_value=0.1, value=None, key="h_length_f")
     if h_depth and h_width and h_length: hole_details = f" o wymiarach ok. {h_length}x{h_width} cm i grubości {h_depth} cm"
     holes_depth = h_depth
-    img_holes = st.file_uploader("Zdjęcia ubytków:", accept_multiple_files=True, type=["png", "jpg", "jpeg"], key="img_holes")
+    img_holes = st.file_uploader("Zdjęcia ubytków po skuciu:", accept_multiple_files=True, type=["png", "jpg", "jpeg"], key="img_holes_f")
+else:
+    holes = st.radio("Ubytki:", ["TAK", "NIE"], index=1, horizontal=True)
+    if holes == "TAK":
+        col_h1, col_h2, col_h3 = st.columns(3)
+        with col_h1: h_depth = st.number_input("Grubość (cm)", min_value=0.1, value=None)
+        with col_h2: h_width = st.number_input("Szerokość (cm)", min_value=0.1, value=None)
+        with col_h3: h_length = st.number_input("Długość (cm)", min_value=0.1, value=None)
+        if h_depth and h_width and h_length: hole_details = f" o wymiarach ok. {h_length}x{h_width} cm i grubości {h_depth} cm"
+        holes_depth = h_depth
+        img_holes = st.file_uploader("Zdjęcia ubytków:", accept_multiple_files=True, type=["png", "jpg", "jpeg"], key="img_holes")
 
 st.write("8. Rodzaj wentylacji")
 ventilation_type = st.radio("Wentylacja:", ["Grawitacyjna", "Mechaniczna"], horizontal=True)
