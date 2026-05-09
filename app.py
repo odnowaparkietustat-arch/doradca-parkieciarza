@@ -1,4 +1,3 @@
-
 import streamlit as st
 from datetime import date
 import io
@@ -284,8 +283,11 @@ def render_wspolne_zalecenia_podloze(dane, rep):
     if dane['substrate'] == "płytki ceramiczne":
         rep.write("* Mechaniczne usunięcie szkliwa płytek poprzez szlif.")
         rep.write("* Sprawdzenie stabilności połączenia płytek z podłożem (głuche elementy skuć i zaszpachlować masą szpachlową).")
-    elif dane['substrate'] == "podłoże drewniane (parkiet, deska, OSB)":
+    elif dane['substrate'] == "podłoże drewniane (parkiet, deska)":
         rep.write("* **Szlif podłoża** w celu wyrównania i oczyszczenia powierzchni drewnianej.")
+    elif dane['substrate'] == "podłoże z płyty OSB":
+        rep.write("* **Szlif podłoża** w celu wyrównania i oczyszczenia powierzchni płyty OSB.")
+        rep.write("* Sprawdzenie i dokręcenie wkrętów mocujących płyty OSB (łby wkrętów muszą być zagłębione w powierzchni).")
     else:
         rep.write("* **Szlif podłoża** w celu uzyskania porowatej i chłonnej powierzchni!")
         
@@ -375,7 +377,7 @@ def render_wspolna_chemia(dane, rep):
     if dane.get('h_type') == "bruzdowane" and dane.get('bruzdowane_wybor'):
         return True # Pomijamy standardową chemię, obsłużona w naprawie podłoża
 
-    if dane['substrate'] in ["płytki ceramiczne", "podłoże drewniane (parkiet, deska, OSB)"]:
+    if dane['substrate'] in ["płytki ceramiczne", "podłoże drewniane (parkiet, deska)", "podłoże z płyty OSB"]:
         return False
 
     if dane['decision_after_cure'] in ["Wykonanie bariery przeciwwilgociowej", "osuszanie przed barierą"]:
@@ -412,7 +414,7 @@ def render_chemia_deska_warstwowa(dane, rep):
     if dane.get('h_type') == "bruzdowane" and dane.get('bruzdowane_wybor'):
         return True
 
-    if dane['substrate'] in ["płytki ceramiczne", "podłoże drewniane (parkiet, deska, OSB)"]:
+    if dane['substrate'] in ["płytki ceramiczne", "podłoże drewniane (parkiet, deska)", "podłoże z płyty OSB"]:
         return False
 
     if dane['decision_after_cure'] in ["Wykonanie bariery przeciwwilgociowej", "osuszanie przed barierą"]:
@@ -450,7 +452,7 @@ def render_chemia_deska_lita(dane, rep):
     if dane.get('h_type') == "bruzdowane" and dane.get('bruzdowane_wybor'):
         return True
 
-    if dane['substrate'] in ["płytki ceramiczne", "podłoże drewniane (parkiet, deska, OSB)"]:
+    if dane['substrate'] in ["płytki ceramiczne", "podłoże drewniane (parkiet, deska)", "podłoże z płyty OSB"]:
         return False
 
     if dane['decision_after_cure'] in ["Wykonanie bariery przeciwwilgociowej", "osuszanie przed barierą"]:
@@ -627,7 +629,7 @@ def render_chemia_lvt_grube(dane, rep):
     if dane.get('h_type') == "bruzdowane" and dane.get('bruzdowane_wybor'):
         return True
 
-    if dane['substrate'] in ["płytki ceramiczne", "podłoże drewniane (parkiet, deska, OSB)"]:
+    if dane['substrate'] in ["płytki ceramiczne", "podłoże drewniane (parkiet, deska)", "podłoże z płyty OSB"]:
         return False
 
     if dane['decision_after_cure'] in ["Wykonanie bariery przeciwwilgociowej", "osuszanie przed barierą"]:
@@ -1385,7 +1387,15 @@ elif flooring_type == "lvt grube z twardym rdzeniem":
 
 st.markdown(f"### Wywiad Techniczny dla: **{flooring_type.upper()}**")
 
-substrate = st.selectbox("1. Rodzaj podłoża", ["jastrych cementowy", "jastrych anhydrytowy", "płyta fundamentowa", "podłoże drewniane (parkiet, deska, OSB)", "płytki ceramiczne", "masa samorozlewna"])
+substrate = st.selectbox("1. Rodzaj podłoża", ["jastrych cementowy", "jastrych anhydrytowy", "płyta fundamentowa", "podłoże drewniane (parkiet, deska)", "podłoże z płyty OSB", "płytki ceramiczne", "masa samorozlewna"])
+
+if substrate in ["podłoże drewniane (parkiet, deska)", "podłoże z płyty OSB", "płytki ceramiczne"]:
+    st.write("1a. Czy podłoże jest stabilnie związane z podkładem?")
+    substrate_stable = st.radio("Stabilność podłoża:", ["TAK", "NIE"], index=0, horizontal=True, key="substrate_stable")
+    if substrate_stable == "NIE":
+        st.error("⚠️ Podłoże nie jest stabilnie związane z podkładem. Konieczny jest **demontaż podłoża** przed przystąpieniem do dalszych prac.")
+        st.stop()
+
 area_m2 = st.number_input("Powierzchnia inwestycji (m²):", min_value=1.0, step=1.0, format="%.1f", value=None)
 substrate_age_val = st.number_input("Wiek podłoża (podaj ilość miesięcy):", min_value=0.5, step=0.5, format="%.1f", value=None)
 
@@ -1479,7 +1489,7 @@ col_w1, col_w2 = st.columns(2)
 with col_w1: temp_air = st.number_input("9. Temperatura powietrza (°C)", step=0.5, value=None)
 with col_w2: hum_air = st.number_input("10. Wilgotność powietrza (%)", step=1.0, value=None)
 
-_substrate_no_moisture = substrate in ["podłoże drewniane (parkiet, deska, OSB)", "płytki ceramiczne"]
+_substrate_no_moisture = substrate in ["podłoże drewniane (parkiet, deska)", "podłoże z płyty OSB", "płytki ceramiczne"]
 if _substrate_no_moisture:
     st.info("11. Poziom wilgoci podłoża — nie dotyczy tego rodzaju podłoża.")
     moisture = None
