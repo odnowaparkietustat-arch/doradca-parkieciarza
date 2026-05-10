@@ -1451,7 +1451,11 @@ heating_info = ""; heating_curing_done = None; h_type = None; bruzdowane_wybor =
 if heating_exists == "TAK":
     h_type = st.selectbox("Typ ogrzewania:", ["wodne klasyczne", "bruzdowane", "w suchej zabudowie", "elektryczne (powierzchniowe)", "elektryczne (głębokie)", "płyta fundamentowa grzewcza"])
     if h_type == "bruzdowane":
-        bruzdowane_wybor = st.radio("Wybierz technologię (ogrzewanie bruzdowane):", ["masa samorozlewna", "płyta RP"], horizontal=True)
+        if flooring_type == "lvt cienkie":
+            bruzdowane_wybor = "masa samorozlewna"
+            st.info("Przy LVT cienkim i ogrzewaniu bruzdowanym wymagana jest masa samorozlewna — technologia ustawiona automatycznie.")
+        else:
+            bruzdowane_wybor = st.radio("Wybierz technologię (ogrzewanie bruzdowane):", ["masa samorozlewna", "płyta RP"], horizontal=True)
         
     if h_type != "bruzdowane":
         st.write("❓ Czy został przeprowadzony proces wygrzewania zgodnie z protokołem?")
@@ -1565,28 +1569,8 @@ col_w1, col_w2 = st.columns(2)
 with col_w1: temp_air = st.number_input("9. Temperatura powietrza (°C)", step=0.5, value=None)
 with col_w2: hum_air = st.number_input("10. Wilgotność powietrza (%)", step=1.0, value=None)
 
-_substrate_no_moisture = substrate in ["podłoże drewniane (parkiet, deska)", "podłoże z płyty OSB", "płytki ceramiczne"]
-if _substrate_no_moisture:
-    st.info("11. Poziom wilgoci podłoża — nie dotyczy tego rodzaju podłoża.")
-    moisture = None
-elif substrate == "płyta fundamentowa":
-    moisture = st.number_input("11. Poziom wilgoci podłoża (%)", format="%.1f", value=None)
-else:
-    moisture = st.number_input("11. Poziom wilgoci podłoża (CM %)", format="%.1f", value=None)
-
-# --- LOGIKA NORM I BARIER ---
-if substrate == "płyta fundamentowa":
-    limit = 1.5 if heating_exists == "TAK" else 1.8
-    barrier_max = 2.8
-elif substrate == "jastrych anhydrytowy":
-    limit = 0.3 if heating_exists == "TAK" else 0.5
-    barrier_max = 2.5 if heating_exists == "TAK" else 3.5
-else:
-    limit = 1.5 if heating_exists == "TAK" else 1.8
-    barrier_max = 2.5 if heating_exists == "TAK" else 3.5
-
 # --- TESTY MECHANICZNE I WYTRZYMAŁOŚĆ ---
-st.write("### 12. Testy mechaniczne i Wytrzymałość")
+st.write("### 11. Testy mechaniczne i Wytrzymałość")
 col_t1, col_t2, col_t3 = st.columns(3)
 with col_t1: test_hammer = st.selectbox("Młotek", ["", "negatywny", "dostateczny", "pozytywny"], index=0)
 with col_t2: test_ripper = st.selectbox("Rysik", ["", "negatywny", "dostateczny", "pozytywny"], index=0)
@@ -1604,6 +1588,27 @@ if substrate == "podłoże z płyty OSB":
     st.info("Ocena ogólna wytrzymałości podłoża: **mocny** — wartość ustawiona automatycznie dla płyty OSB.")
 else:
     strength_val = st.select_slider("Ocena ogólna wytrzymałości podłoża:", options=[1, 2, 3, 4, 5], value=3, format_func=lambda x: strength_labels[x])
+
+# --- LOGIKA NORM I BARIER ---
+if substrate == "płyta fundamentowa":
+    limit = 1.5 if heating_exists == "TAK" else 1.8
+    barrier_max = 2.8
+elif substrate == "jastrych anhydrytowy":
+    limit = 0.3 if heating_exists == "TAK" else 0.5
+    barrier_max = 2.5 if heating_exists == "TAK" else 3.5
+else:
+    limit = 1.5 if heating_exists == "TAK" else 1.8
+    barrier_max = 2.5 if heating_exists == "TAK" else 3.5
+
+# --- WILGOTNOŚĆ PODŁOŻA + DECYZJA (razem) ---
+_substrate_no_moisture = substrate in ["podłoże drewniane (parkiet, deska)", "podłoże z płyty OSB", "płytki ceramiczne"]
+if _substrate_no_moisture:
+    st.info("12. Poziom wilgoci podłoża — nie dotyczy tego rodzaju podłoża.")
+    moisture = None
+elif substrate == "płyta fundamentowa":
+    moisture = st.number_input("12. Poziom wilgoci podłoża (%)", format="%.1f", value=None)
+else:
+    moisture = st.number_input("12. Poziom wilgoci podłoża (CM %)", format="%.1f", value=None)
 
 decision_after_cure = None
 needs_drying_action = False
