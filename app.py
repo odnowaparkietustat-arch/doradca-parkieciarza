@@ -499,8 +499,14 @@ def render_chemia_deska_lita(dane, rep):
 def generate_report_deska_warstwowa(dane, rep):
     render_wspolne_dane_optyczne(dane, rep)
     
-    nazwa_okladziny = "podłogę drewnianą" if dane['flooring_type'] == "deska warstwowa" else "podłogę laminowaną"
-    tytul_sekcji = "Deska Warstwowa" if dane['flooring_type'] == "deska warstwowa" else "Podłoga laminowana"
+    if dane['flooring_type'] == "deska warstwowa":
+        nazwa_okladziny, tytul_sekcji = "podłogę drewnianą", "Deska Warstwowa"
+    elif dane['flooring_type'] == "lity parkiet (maks. 8 cm x 60 cm)":
+        nazwa_okladziny, tytul_sekcji = "lity parkiet", "Lity Parkiet (maks. 8 cm x 60 cm)"
+    elif dane['flooring_type'] == "mozaika drewniana (min. 16 mm grubości, maks. 20 cm długości)":
+        nazwa_okladziny, tytul_sekcji = "mozaikę drewnianą", "Mozaika Drewniana (min. 16 mm, maks. 20 cm)"
+    else:
+        nazwa_okladziny, tytul_sekcji = "podłogę laminowaną", "Podłoga laminowana"
     
     if dane['substrate'] == "jastrych cementowy":
         rep.write(f"**Aby bezpiecznie kleić {nazwa_okladziny} na jastrychu cementowym, jego wytrzymałość na ścinanie musi wynosić między 1,5 a 2,0 N/mm² a wilgotność nie może przekraczać 1,8% CM. (z ogrzewaniem podłogowym max. 1,5% CM).**")
@@ -1389,11 +1395,11 @@ if tryb == "Wersja PRO (Ręczna)":
     st.stop()
 
 
-flooring_type = st.selectbox("Wybierz rodzaj okładziny (Sekcja):", ["deska warstwowa", "podłoga laminowana", "deska lita", "wykładzina dywanowa", "pcv w rolce", "lvt cienkie", "lvt grube z twardym rdzeniem"])
+flooring_type = st.selectbox("Wybierz rodzaj okładziny (Sekcja):", ["deska warstwowa", "podłoga laminowana", "lity parkiet (maks. 8 cm x 60 cm)", "mozaika drewniana (min. 16 mm grubości, maks. 20 cm długości)", "deska lita", "wykładzina dywanowa", "pcv w rolce", "lvt cienkie", "lvt grube z twardym rdzeniem"])
 
 klej_typ = None
 lvt_bottom_type = None
-if flooring_type in ["deska warstwowa", "podłoga laminowana", "deska lita"]:
+if flooring_type in ["deska warstwowa", "podłoga laminowana", "lity parkiet (maks. 8 cm x 60 cm)", "mozaika drewniana (min. 16 mm grubości, maks. 20 cm długości)", "deska lita"]:
     klej_typ = st.radio("Rodzaj kleju:", ["elastyczny", "bezprzesuwny"], horizontal=True)
 elif flooring_type == "lvt grube z twardym rdzeniem":
     lvt_bottom_type = st.radio("Rodzaj spodu LVT:", ["Winyl z zintegrowanym spodem korkowym", "Winyl na homogenicznym spodzie", "Winyl na piankowym spodzie"], horizontal=True)
@@ -1694,7 +1700,7 @@ if st.button(f"GENERUJ PROTOKÓŁ OGLĘDZIN DLA: {flooring_type.upper()}", type=
         
         rep.markdown("#### **I. Oględziny i badania**")
         
-        if flooring_type in ["deska warstwowa", "podłoga laminowana"]:
+        if flooring_type in ["deska warstwowa", "podłoga laminowana", "lity parkiet (maks. 8 cm x 60 cm)", "mozaika drewniana (min. 16 mm grubości, maks. 20 cm długości)"]:
             generate_report_deska_warstwowa(dane_protokolu, rep)
         elif flooring_type == "deska lita":
             generate_report_deska_lita(dane_protokolu, rep)
