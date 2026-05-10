@@ -1465,7 +1465,84 @@ if heating_exists == "TAK":
     mapping = {"wodne klasyczne": "instalacja ogrzewania podłogowego wodna, klasyczna", "bruzdowane": "instalacja ogrzewania podłogowego wodna, bruzdowana", "w suchej zabudowie": "instalacja ogrzewania podłogowego wodna, w suchej zabudowie", "elektryczne (powierzchniowe)": "instalacja ogrzewania podłogowego elektryczna, powierzchniowa", "elektryczne (głębokie)": "instalacja ogrzewania podłogowego elektryczna, umieszczona głęboko w podłożu", "płyta fundamentowa grzewcza": "ogrzewanie realizowane poprzez płytę fundamentową grzewczą"}
     heating_info = mapping.get(h_type, h_type)
 
-st.write("3. Czy są ubytki bądź zdegradowane fragmenty wymagające wypełnienia masą naprawczą?")
+# --- TESTY MECHANICZNE I WYTRZYMAŁOŚĆ ---
+st.write("### 3. Testy mechaniczne i Wytrzymałość")
+col_t1, col_t2, col_t3 = st.columns(3)
+with col_t1: test_hammer = st.selectbox("Młotek", ["", "negatywny", "dostateczny", "pozytywny"], index=0)
+with col_t2: test_ripper = st.selectbox("Rysik", ["", "negatywny", "dostateczny", "pozytywny"], index=0)
+with col_t3: test_brush = st.selectbox("Szczotka", ["", "negatywny", "dostateczny", "pozytywny"], index=0)
+img_mech = st.file_uploader("Zdjęcia z testów mechanicznych:", accept_multiple_files=True, type=["png", "jpg", "jpeg"], key="img_mech")
+
+st.write("**Badanie PressoMess**")
+presso_results = []
+for i in range(6):
+    presso_results.append(st.number_input(f"Próba {i+1} (N/mm²)", min_value=0.0, step=0.1, key=f"p_{i}", value=None))
+img_presso = st.file_uploader("Zdjęcia - PressoMess:", accept_multiple_files=True, type=["png", "jpg", "jpeg"], key="img_presso")
+strength_labels = {1: "bardzo słaby", 2: "słaby", 3: "umiarkowanie słaby", 4: "umiarkowanie mocny", 5: "mocny"}
+if substrate == "podłoże z płyty OSB":
+    strength_val = 5
+    st.info("Ocena ogólna wytrzymałości podłoża: **mocny** — wartość ustawiona automatycznie dla płyty OSB.")
+else:
+    strength_val = st.select_slider("Ocena ogólna wytrzymałości podłoża:", options=[1, 2, 3, 4, 5], value=3, format_func=lambda x: strength_labels[x])
+
+# --- LOGIKA NORM I BARIER ---
+if substrate == "płyta fundamentowa":
+    limit = 1.5 if heating_exists == "TAK" else 1.8
+    barrier_max = 2.8
+elif substrate == "jastrych anhydrytowy":
+    limit = 0.3 if heating_exists == "TAK" else 0.5
+    barrier_max = 2.5 if heating_exists == "TAK" else 3.5
+else:
+    limit = 1.5 if heating_exists == "TAK" else 1.8
+    barrier_max = 2.5 if heating_exists == "TAK" else 3.5
+
+# --- WILGOTNOŚĆ PODŁOŻA + DECYZJA ---
+_substrate_no_moisture = substrate in ["podłoże drewniane (parkiet, deska)", "podłoże z płyty OSB", "płytki ceramiczne"]
+if _substrate_no_moisture:
+    st.info("4. Poziom wilgoci podłoża — nie dotyczy tego rodzaju podłoża.")
+    moisture = None
+elif substrate == "płyta fundamentowa":
+    moisture = st.number_input("4. Poziom wilgoci podłoża (%)", format="%.1f", value=None)
+else:
+    moisture = st.number_input("4. Poziom wilgoci podłoża (CM %)", format="%.1f", value=None)
+
+decision_after_cure = None
+needs_drying_action = False
+
+if moisture is not None and moisture > limit:
+    needs_drying_action = True
+    opt_dry = "przeprowadzenie procesu wygrzewania" if (heating_exists == "TAK" and heating_curing_done == "NIE") else "dalsze osuszanie"
+    if substrate == "płyta fundamentowa":
+        if moisture > barrier_max:
+            st.warning(f"Podłoże jest zbyt wilgotne. Konieczność doprowadzenia do poziomu wilgoci max. {barrier_max}% przed wykonaniem bariery przeciwwilgociowej.")
+            decision_after_cure = "osuszanie przed barierą"
+        else:
+            decision_after_cure = "Wykonanie bariery przeciwwilgociowej"
+            needs_drying_action = False
+    elif h_type == "bruzdowane":
+        st.warning(f"Podłoże jest zbyt wilgotne. Konieczność doprowadzenia do normatywnego poziomu wilgoci ({limit}% CM) przed przystąpieniem do dalszych prac.")
+        decision_after_cure = "dalsze osuszanie"
+    elif substrate == "jastrych anhydrytowy":
+        decision_after_cure = opt_dry
+    elif strength_val == 1:
+        if moisture <= barrier_max:
+            st.info("Z uwagi na bardzo słabe i nienormatywnie wilgotne podłoże (nie można zastosować PS 275), system wymusza wykonanie bariery przeciwwilgociowej za pomocą PU 235.")
+            decision_after_cure = "Wykonanie bariery przeciwwilgociowej"
+            needs_drying_action = False
+        else:
+            st.warning("Podłoże jest bardzo słabe i zbyt wilgotne na barierę. Konieczne jest dalsze osuszanie.")
+            decision_after_cure = opt_dry
+    else:
+        if moisture <= barrier_max:
+            decision_after_cure = st.radio("Postępowanie z podwyższoną wilgocią:", ["Wykonanie bariery przeciwwilgociowej", opt_dry], horizontal=True)
+            needs_drying_action = (decision_after_cure != "Wykonanie bariery przeciwwilgociowej")
+        else:
+            decision_after_cure = opt_dry
+else:
+    if substrate == "płyta fundamentowa":
+        decision_after_cure = "Wykonanie bariery przeciwwilgociowej"
+
+st.write("5. Czy są ubytki bądź zdegradowane fragmenty wymagające wypełnienia masą naprawczą?")
 hole_details = ""
 holes_depth = None
 h_depth = None; h_width = None; h_length = None
@@ -1568,83 +1645,6 @@ img_dodatkowe = st.file_uploader("Zdjęcia - dodatkowe informacje:", accept_mult
 col_w1, col_w2 = st.columns(2)
 with col_w1: temp_air = st.number_input("9. Temperatura powietrza (°C)", step=0.5, value=None)
 with col_w2: hum_air = st.number_input("10. Wilgotność powietrza (%)", step=1.0, value=None)
-
-# --- TESTY MECHANICZNE I WYTRZYMAŁOŚĆ ---
-st.write("### 11. Testy mechaniczne i Wytrzymałość")
-col_t1, col_t2, col_t3 = st.columns(3)
-with col_t1: test_hammer = st.selectbox("Młotek", ["", "negatywny", "dostateczny", "pozytywny"], index=0)
-with col_t2: test_ripper = st.selectbox("Rysik", ["", "negatywny", "dostateczny", "pozytywny"], index=0)
-with col_t3: test_brush = st.selectbox("Szczotka", ["", "negatywny", "dostateczny", "pozytywny"], index=0)
-img_mech = st.file_uploader("Zdjęcia z testów mechanicznych:", accept_multiple_files=True, type=["png", "jpg", "jpeg"], key="img_mech")
-
-st.write("**Badanie PressoMess**")
-presso_results = []
-for i in range(6):
-    presso_results.append(st.number_input(f"Próba {i+1} (N/mm²)", min_value=0.0, step=0.1, key=f"p_{i}", value=None))
-img_presso = st.file_uploader("Zdjęcia - PressoMess:", accept_multiple_files=True, type=["png", "jpg", "jpeg"], key="img_presso")
-strength_labels = {1: "bardzo słaby", 2: "słaby", 3: "umiarkowanie słaby", 4: "umiarkowanie mocny", 5: "mocny"}
-if substrate == "podłoże z płyty OSB":
-    strength_val = 5
-    st.info("Ocena ogólna wytrzymałości podłoża: **mocny** — wartość ustawiona automatycznie dla płyty OSB.")
-else:
-    strength_val = st.select_slider("Ocena ogólna wytrzymałości podłoża:", options=[1, 2, 3, 4, 5], value=3, format_func=lambda x: strength_labels[x])
-
-# --- LOGIKA NORM I BARIER ---
-if substrate == "płyta fundamentowa":
-    limit = 1.5 if heating_exists == "TAK" else 1.8
-    barrier_max = 2.8
-elif substrate == "jastrych anhydrytowy":
-    limit = 0.3 if heating_exists == "TAK" else 0.5
-    barrier_max = 2.5 if heating_exists == "TAK" else 3.5
-else:
-    limit = 1.5 if heating_exists == "TAK" else 1.8
-    barrier_max = 2.5 if heating_exists == "TAK" else 3.5
-
-# --- WILGOTNOŚĆ PODŁOŻA + DECYZJA (razem) ---
-_substrate_no_moisture = substrate in ["podłoże drewniane (parkiet, deska)", "podłoże z płyty OSB", "płytki ceramiczne"]
-if _substrate_no_moisture:
-    st.info("12. Poziom wilgoci podłoża — nie dotyczy tego rodzaju podłoża.")
-    moisture = None
-elif substrate == "płyta fundamentowa":
-    moisture = st.number_input("12. Poziom wilgoci podłoża (%)", format="%.1f", value=None)
-else:
-    moisture = st.number_input("12. Poziom wilgoci podłoża (CM %)", format="%.1f", value=None)
-
-decision_after_cure = None
-needs_drying_action = False
-
-if moisture is not None and moisture > limit:
-    needs_drying_action = True
-    opt_dry = "przeprowadzenie procesu wygrzewania" if (heating_exists == "TAK" and heating_curing_done == "NIE") else "dalsze osuszanie"
-    if substrate == "płyta fundamentowa":
-        if moisture > barrier_max:
-            st.warning(f"Podłoże jest zbyt wilgotne. Konieczność doprowadzenia do poziomu wilgoci max. {barrier_max}% przed wykonaniem bariery przeciwwilgociowej.")
-            decision_after_cure = "osuszanie przed barierą"
-        else:
-            decision_after_cure = "Wykonanie bariery przeciwwilgociowej"
-            needs_drying_action = False
-    elif h_type == "bruzdowane":
-        st.warning(f"Podłoże jest zbyt wilgotne. Konieczność doprowadzenia do normatywnego poziomu wilgoci ({limit}% CM) przed przystąpieniem do dalszych prac.")
-        decision_after_cure = "dalsze osuszanie"
-    elif substrate == "jastrych anhydrytowy":
-        decision_after_cure = opt_dry
-    elif strength_val == 1:
-        if moisture <= barrier_max:
-            st.info("Z uwagi na bardzo słabe i nienormatywnie wilgotne podłoże (nie można zastosować PS 275), system wymusza wykonanie bariery przeciwwilgociowej za pomocą PU 235.")
-            decision_after_cure = "Wykonanie bariery przeciwwilgociowej"
-            needs_drying_action = False
-        else:
-            st.warning("Podłoże jest bardzo słabe i zbyt wilgotne na barierę. Konieczne jest dalsze osuszanie.")
-            decision_after_cure = opt_dry
-    else:
-        if moisture <= barrier_max:
-            decision_after_cure = st.radio("Postępowanie z podwyższoną wilgocią:", ["Wykonanie bariery przeciwwilgociowej", opt_dry], horizontal=True)
-            needs_drying_action = (decision_after_cure != "Wykonanie bariery przeciwwilgociowej")
-        else:
-            decision_after_cure = opt_dry
-else:
-    if substrate == "płyta fundamentowa":
-        decision_after_cure = "Wykonanie bariery przeciwwilgociowej"
 
 st.write("### 13. Opcje raportu")
 include_cost = st.checkbox("Dołącz wstępny kosztorys materiałowy do protokołu (Netto)", value=True)
