@@ -1492,26 +1492,15 @@ local_leveling = st.radio("Miejscowe wyrównanie:", ["TAK", "NIE"], index=1, hor
 local_leveling_kg = None
 local_leveling_details = ""
 if local_leveling == "TAK":
-    col_ll1, col_ll2, col_ll3 = st.columns(3)
-    with col_ll1: ll_width  = st.number_input("Szerokość obszaru (cm)", min_value=0.1, value=None, key="ll_w")
-    with col_ll2: ll_length = st.number_input("Długość obszaru (cm)",   min_value=0.1, value=None, key="ll_l")
-    with col_ll3: ll_thick  = st.number_input("Grubość warstwy (mm)",   min_value=0.1, value=None, key="ll_t")
-    if ll_width and ll_length and ll_thick:
-        area_ll = (ll_width / 100.0) * (ll_length / 100.0)
-        local_leveling_kg = round(area_ll * ll_thick * 1.6, 2)
+    local_leveling_kg = st.number_input("Ilość masy szpachlowej Z 645 (kg):", min_value=0.1, value=None, key="ll_kg")
+    if local_leveling_kg:
         bags_ll = math.ceil(local_leveling_kg / 25)
-        local_leveling_details = f" ok. {ll_length}x{ll_width} cm, grubość {ll_thick} mm"
-        st.info(f"Obliczone zużycie Z 645: **{local_leveling_kg} kg** — **{bags_ll} worki/worków po 25 kg**")
-    ll_kg_manual = st.number_input("Lub podaj ilość masy szpachlowej bezpośrednio (kg):", min_value=0.1, value=None, key="ll_kg_m")
-    if ll_kg_manual:
-        local_leveling_kg = ll_kg_manual
-        bags_ll_m = math.ceil(ll_kg_manual / 25)
-        st.info(f"Podana ilość Z 645: **{ll_kg_manual} kg** — **{bags_ll_m} worki/worków po 25 kg**")
+        st.info(f"Ilość worków Z 645: **{bags_ll} szt. po 25 kg**")
 
 if flooring_type == "lvt cienkie":
-    st.write("4. Podłoże zostało wyrównane masą")
+    st.write("4. Podłoże zostało wyrównane masą samorozlewną")
 else:
-    st.write("4. Czy podłoże wymaga wyrównania (masy)?")
+    st.write("4. Czy całość podłoża wymaga wyrównania masą samorozlewną?")
 
 leveling_thickness = 0
 already_levelled = "NIE"
