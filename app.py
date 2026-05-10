@@ -353,6 +353,13 @@ def render_wspolne_zalecenia_podloze(dane, rep):
         if kg_z645 is not None:
             write_and_track(dane, rep, 'Z 645', custom_kg=kg_z645)
 
+    if dane.get('local_leveling') == "TAK" and dane.get('local_leveling_kg'):
+        details = dane.get('local_leveling_details', '')
+        rep.write(f"* Miejscowe wyrównanie podłoża{details} masą szpachlową **WAKOL Z 645** z dodatkiem plastyfikatora **WAKOL D 3060** (7 litrów WAKOL D 3060 na 25 kg WAKOL Z 645). Czas schnięcia min. 3h.")
+        write_and_track(dane, rep, 'Z 645 (bruzdowane)', custom_kg=dane['local_leveling_kg'])
+        bags_local = dane['local_leveling_kg'] / 25.0
+        write_and_track(dane, rep, 'D 3060', custom_kg=bags_local * 7.0)
+
     if dane['heating_exists'] == "TAK" and dane['h_type'] == "bruzdowane":
         if dane['bruzdowane_wybor'] == "masa samorozlewna":
             rep.write("* Podłoże zagruntować koncentratem gruntówki dyspersyjnej **WAKOL D 3004**. Proporcje mieszania: 1 część WAKOL D 3004 + 1 część wody; Czas schnięcia: 1h. Sposób nanoszenia: wałek do gruntowania microfazer. Zużycie: ok. 75 g/m² koncentratu.")
@@ -1454,10 +1461,57 @@ if heating_exists == "TAK":
     mapping = {"wodne klasyczne": "instalacja ogrzewania podłogowego wodna, klasyczna", "bruzdowane": "instalacja ogrzewania podłogowego wodna, bruzdowana", "w suchej zabudowie": "instalacja ogrzewania podłogowego wodna, w suchej zabudowie", "elektryczne (powierzchniowe)": "instalacja ogrzewania podłogowego elektryczna, powierzchniowa", "elektryczne (głębokie)": "instalacja ogrzewania podłogowego elektryczna, umieszczona głęboko w podłożu", "płyta fundamentowa grzewcza": "ogrzewanie realizowane poprzez płytę fundamentową grzewczą"}
     heating_info = mapping.get(h_type, h_type)
 
-if flooring_type == "lvt cienkie":
-    st.write("3. Podłoże zostało wyrównane masą")
+st.write("3. Czy są ubytki bądź zdegradowane fragmenty wymagające wypełnienia masą naprawczą?")
+hole_details = ""
+holes_depth = None
+h_depth = None; h_width = None; h_length = None
+img_holes = []
+if _force_holes:
+    holes = "TAK"
+    st.info("ℹ️ Ubytki po skuciu płytek ceramicznych — podaj wymiary:")
+    col_h1, col_h2, col_h3 = st.columns(3)
+    with col_h1: h_depth = st.number_input("Grubość ubytków (cm)", min_value=0.1, value=None, key="h_depth_f")
+    with col_h2: h_width = st.number_input("Szerokość ubytków (cm)", min_value=0.1, value=None, key="h_width_f")
+    with col_h3: h_length = st.number_input("Długość ubytków (cm)", min_value=0.1, value=None, key="h_length_f")
+    if h_depth and h_width and h_length: hole_details = f" o wymiarach ok. {h_length}x{h_width} cm i grubości {h_depth} cm"
+    holes_depth = h_depth
+    img_holes = st.file_uploader("Zdjęcia ubytków po skuciu:", accept_multiple_files=True, type=["png", "jpg", "jpeg"], key="img_holes_f")
 else:
-    st.write("3. Czy podłoże wymaga wyrównania (masy)?")
+    holes = st.radio("Ubytki:", ["TAK", "NIE"], index=1, horizontal=True)
+    if holes == "TAK":
+        col_h1, col_h2, col_h3 = st.columns(3)
+        with col_h1: h_depth = st.number_input("Grubość (cm)", min_value=0.1, value=None)
+        with col_h2: h_width = st.number_input("Szerokość (cm)", min_value=0.1, value=None)
+        with col_h3: h_length = st.number_input("Długość (cm)", min_value=0.1, value=None)
+        if h_depth and h_width and h_length: hole_details = f" o wymiarach ok. {h_length}x{h_width} cm i grubości {h_depth} cm"
+        holes_depth = h_depth
+        img_holes = st.file_uploader("Zdjęcia ubytków:", accept_multiple_files=True, type=["png", "jpg", "jpeg"], key="img_holes")
+
+st.write("3b. Czy wymagane jest miejscowe wyrównanie masą szpachlową?")
+local_leveling = st.radio("Miejscowe wyrównanie:", ["TAK", "NIE"], index=1, horizontal=True, key="local_lev")
+local_leveling_kg = None
+local_leveling_details = ""
+if local_leveling == "TAK":
+    col_ll1, col_ll2, col_ll3 = st.columns(3)
+    with col_ll1: ll_width  = st.number_input("Szerokość obszaru (cm)", min_value=0.1, value=None, key="ll_w")
+    with col_ll2: ll_length = st.number_input("Długość obszaru (cm)",   min_value=0.1, value=None, key="ll_l")
+    with col_ll3: ll_thick  = st.number_input("Grubość warstwy (mm)",   min_value=0.1, value=None, key="ll_t")
+    if ll_width and ll_length and ll_thick:
+        area_ll = (ll_width / 100.0) * (ll_length / 100.0)
+        local_leveling_kg = round(area_ll * ll_thick * 1.6, 2)
+        bags_ll = math.ceil(local_leveling_kg / 25)
+        local_leveling_details = f" ok. {ll_length}x{ll_width} cm, grubość {ll_thick} mm"
+        st.info(f"Obliczone zużycie Z 645: **{local_leveling_kg} kg** — **{bags_ll} worki/worków po 25 kg**")
+    ll_kg_manual = st.number_input("Lub podaj ilość masy szpachlowej bezpośrednio (kg):", min_value=0.1, value=None, key="ll_kg_m")
+    if ll_kg_manual:
+        local_leveling_kg = ll_kg_manual
+        bags_ll_m = math.ceil(ll_kg_manual / 25)
+        st.info(f"Podana ilość Z 645: **{ll_kg_manual} kg** — **{bags_ll_m} worki/worków po 25 kg**")
+
+if flooring_type == "lvt cienkie":
+    st.write("4. Podłoże zostało wyrównane masą")
+else:
+    st.write("4. Czy podłoże wymaga wyrównania (masy)?")
 
 leveling_thickness = 0
 already_levelled = "NIE"
@@ -1495,47 +1549,22 @@ else:
         st.warning("Pod wybraną okładzinę wymagane jest wyrównanie podłoża.")
         already_levelled = st.radio("Czy podłoże zostało już wcześniej wyrównane?", ["TAK", "NIE"], index=1, horizontal=True)
 
-st.write("4. Czy dylatacje obwodowe zachowane prawidłowo?")
+st.write("5. Czy dylatacje obwodowe zachowane prawidłowo?")
 dilatations_obw_ok = st.radio("Dylatacje obwodowe:", ["TAK", "NIE"], index=0, horizontal=True)
-st.write("5. Czy występują klawiszujące dylatacje pozorne?")
+st.write("6. Czy występują klawiszujące dylatacje pozorne?")
 cracks_klaw = st.radio("Klawiszowanie pozorne:", ["TAK", "NIE"], index=1, horizontal=True)
 klaw_meters = 0.0
 img_klaw = []
 if cracks_klaw == "TAK":
     klaw_meters = st.number_input("Ilość mb klawiszujących:", min_value=0.1, step=0.1, value=None)
     img_klaw = st.file_uploader("Zdjęcia klawiszujących dylatacji:", accept_multiple_files=True, type=["png", "jpg", "jpeg"], key="img_klaw")
-st.write("6. Czy występują pęknięcia podłoża wymagające zespolenia?")
+st.write("7. Czy występują pęknięcia podłoża wymagające zespolenia?")
 cracks_pek = st.radio("Pęknięcia do zespolenia:", ["TAK", "NIE"], index=1, horizontal=True)
 pek_meters = 0.0
 img_pek = []
 if cracks_pek == "TAK":
     pek_meters = st.number_input("Ilość mb pęknięć do zespolenia:", min_value=0.1, step=0.1, value=None)
     img_pek = st.file_uploader("Zdjęcia pęknięć:", accept_multiple_files=True, type=["png", "jpg", "jpeg"], key="img_pek")
-st.write("7. Czy są ubytki bądź zdegradowane fragmenty wymagające wypełnienia masą naprawczą?")
-hole_details = ""
-holes_depth = None
-h_depth = None; h_width = None; h_length = None
-img_holes = []
-if _force_holes:
-    holes = "TAK"
-    st.info("ℹ️ Ubytki po skuciu płytek ceramicznych — podaj wymiary:")
-    col_h1, col_h2, col_h3 = st.columns(3)
-    with col_h1: h_depth = st.number_input("Grubość ubytków (cm)", min_value=0.1, value=None, key="h_depth_f")
-    with col_h2: h_width = st.number_input("Szerokość ubytków (cm)", min_value=0.1, value=None, key="h_width_f")
-    with col_h3: h_length = st.number_input("Długość ubytków (cm)", min_value=0.1, value=None, key="h_length_f")
-    if h_depth and h_width and h_length: hole_details = f" o wymiarach ok. {h_length}x{h_width} cm i grubości {h_depth} cm"
-    holes_depth = h_depth
-    img_holes = st.file_uploader("Zdjęcia ubytków po skuciu:", accept_multiple_files=True, type=["png", "jpg", "jpeg"], key="img_holes_f")
-else:
-    holes = st.radio("Ubytki:", ["TAK", "NIE"], index=1, horizontal=True)
-    if holes == "TAK":
-        col_h1, col_h2, col_h3 = st.columns(3)
-        with col_h1: h_depth = st.number_input("Grubość (cm)", min_value=0.1, value=None)
-        with col_h2: h_width = st.number_input("Szerokość (cm)", min_value=0.1, value=None)
-        with col_h3: h_length = st.number_input("Długość (cm)", min_value=0.1, value=None)
-        if h_depth and h_width and h_length: hole_details = f" o wymiarach ok. {h_length}x{h_width} cm i grubości {h_depth} cm"
-        holes_depth = h_depth
-        img_holes = st.file_uploader("Zdjęcia ubytków:", accept_multiple_files=True, type=["png", "jpg", "jpeg"], key="img_holes")
 
 st.write("8. Rodzaj wentylacji")
 ventilation_type = st.radio("Wentylacja:", ["Grawitacyjna", "Mechaniczna"], horizontal=True)
@@ -1647,6 +1676,9 @@ dane_protokolu = {
     "already_levelled": already_levelled,
     "requires_demolition": _force_levelling,
     "has_adhesive_residues": has_adhesive_residues,
+    "local_leveling": local_leveling,
+    "local_leveling_kg": local_leveling_kg,
+    "local_leveling_details": local_leveling_details,
     "dilatations_obw_ok": dilatations_obw_ok,
     "cracks_klaw": cracks_klaw,
     "klaw_meters": klaw_meters,
