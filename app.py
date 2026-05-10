@@ -80,13 +80,14 @@ def render_wspolne_dane_optyczne(dane, rep):
     klaw_txt = f" **Zaobserwowano {klaw_m} metrów bieżących dylatacji pozornych wymagających zespolenia.**" if dane['cracks_klaw'] == "TAK" else ""
     pek_txt = f" **Stwierdzono obecność pęknięć wymagających zespolenia ({pek_m} mb).**" if dane['cracks_pek'] == "TAK" else ""
     holes_txt = f" **Zlokalizowano ubytki wymagające wypełnienia masą naprawczą{dane['hole_details']}.**" if dane['holes'] == "TAK" else ""
+    demolition_txt = " **Podłoże wymaga demontażu przed przystąpieniem do dalszych prac.**" if dane.get('requires_demolition') else ""
     level_txt = f" **Podłoże wymaga wyrównania masą wyrównawczą o planowanej grubości {dane['leveling_thickness']} milimetrów.**" if dane['needs_levelling'] == "TAK" else ""
     vent_txt = f" Rodzaj zastosowanej wentylacji: wentylacja {dane['ventilation_type'].lower()}."
     evenness_txt = " Nie badano równości podłoża." if dane['needs_levelling'] == "NIE" else ""
     dodatkowe_txt = f" Dodatkowe informacje: {dane['dodatkowe_informacje']}" if dane.get('dodatkowe_informacje') else ""
-    
+
     area_txt = f" o powierzchni {dane['area_m2']} m²" if dane.get('area_m2') else ""
-    full_opt_report = f"Podłoże pod planowaną okładzinę ({dane['flooring_type']}) stanowi {dane['substrate']}{area_txt}{age_txt}.{heat_txt}{curing_txt}{dil_txt}{klaw_txt}{pek_txt}{holes_txt}{level_txt} {vent_txt}{evenness_txt}{dodatkowe_txt}"
+    full_opt_report = f"Podłoże pod planowaną okładzinę ({dane['flooring_type']}) stanowi {dane['substrate']}{area_txt}{age_txt}.{demolition_txt}{heat_txt}{curing_txt}{dil_txt}{klaw_txt}{pek_txt}{holes_txt}{level_txt} {vent_txt}{evenness_txt}{dodatkowe_txt}"
     rep.write(f"**a) oględziny optyczne:** {full_opt_report}")
     
     presso_valid = [str(p) for p in dane.get('presso_results', []) if p is not None]
@@ -386,6 +387,9 @@ def render_wspolna_chemia(dane, rep):
         elif dane['strength_val'] <= 2: write_and_track(dane, rep, 'PU 235 (Bariera)')
         else: write_and_track(dane, rep, 'PU 280 (Bariera)')
     elif not dane['decision_after_cure'] or "Wykonanie" not in str(dane['decision_after_cure']):
+        if dane.get('has_adhesive_residues'):
+            write_and_track(dane, rep, 'PU 280 (1W)')
+            return False
         if dane['needs_levelling'] == "TAK":
             if dane['strength_val'] in [3, 4, 5]:
                 if dane['substrate'] == "jastrych anhydrytowy" and dane['leveling_thickness'] and dane['leveling_thickness'] > 5:
@@ -423,6 +427,9 @@ def render_chemia_deska_warstwowa(dane, rep):
         elif dane['strength_val'] <= 2: write_and_track(dane, rep, 'PU 235 (Bariera)')
         else: write_and_track(dane, rep, 'PU 280 (Bariera)')
     elif not dane['decision_after_cure'] or "Wykonanie" not in str(dane['decision_after_cure']) and "barierą" not in str(dane['decision_after_cure']):
+        if dane.get('has_adhesive_residues'):
+            write_and_track(dane, rep, 'PU 280 (1W)')
+            return False
         if dane['needs_levelling'] == "TAK":
             if dane['strength_val'] in [3, 4, 5]:
                 if dane['substrate'] == "jastrych anhydrytowy" and dane['leveling_thickness'] and dane['leveling_thickness'] > 5:
@@ -461,6 +468,9 @@ def render_chemia_deska_lita(dane, rep):
         elif dane['strength_val'] <= 2: write_and_track(dane, rep, 'PU 235 (Bariera)')
         else: write_and_track(dane, rep, 'PU 280 (Bariera)')
     elif not dane['decision_after_cure'] or "Wykonanie" not in str(dane['decision_after_cure']) and "barierą" not in str(dane['decision_after_cure']):
+        if dane.get('has_adhesive_residues'):
+            write_and_track(dane, rep, 'PU 280 (1W)')
+            return False
         if dane['needs_levelling'] == "TAK":
             if dane['strength_val'] in [3, 4, 5]:
                 if dane['substrate'] == "jastrych anhydrytowy" and dane['leveling_thickness'] and dane['leveling_thickness'] > 5:
@@ -638,6 +648,9 @@ def render_chemia_lvt_grube(dane, rep):
         elif dane['strength_val'] <= 2: write_and_track(dane, rep, 'PU 235 (Bariera)')
         else: write_and_track(dane, rep, 'PU 280 (Bariera)')
     elif not dane['decision_after_cure'] or ("Wykonanie" not in str(dane['decision_after_cure']) and "barierą" not in str(dane['decision_after_cure'])):
+        if dane.get('has_adhesive_residues'):
+            write_and_track(dane, rep, 'PU 280 (1W)')
+            return False
         if dane['needs_levelling'] == "TAK":
             if dane['strength_val'] in [3, 4, 5]:
                 if dane['substrate'] == "jastrych anhydrytowy" and dane['leveling_thickness'] and dane['leveling_thickness'] > 5:
@@ -1391,6 +1404,7 @@ substrate = st.selectbox("1. Rodzaj podłoża", ["jastrych cementowy", "jastrych
 
 _force_levelling = False
 _force_holes = False
+has_adhesive_residues = False
 
 if substrate in ["podłoże drewniane (parkiet, deska)", "podłoże z płyty OSB", "płytki ceramiczne"]:
     st.write("1a. Czy podłoże jest stabilnie związane z podkładem?")
@@ -1448,6 +1462,8 @@ if _force_levelling:
     needs_levelling = "TAK"
     leveling_thickness = st.number_input("Planowana grubość masy po demontażu (mm):", min_value=1, value=None, key="lev_thick_demo")
     leveling_mesh = st.radio("Rodzaj wyrównania:", ["bez siatki", "z siatką"], index=0, horizontal=True, key="lev_mesh_demo")
+    st.write("Czy na podłożu są pozostałości starych spoin klejowych?")
+    has_adhesive_residues = st.radio("Pozostałości kleju:", ["TAK", "NIE"], index=1, horizontal=True, key="adhesive_res") == "TAK"
 elif h_type == "bruzdowane" and bruzdowane_wybor == "masa samorozlewna":
     st.info("Wyrównanie jest wymuszone przez technologię 'masa samorozlewna' na ogrzewaniu bruzdowanym.")
     needs_levelling = "TAK"
@@ -1559,7 +1575,11 @@ for i in range(6):
     presso_results.append(st.number_input(f"Próba {i+1} (N/mm²)", min_value=0.0, step=0.1, key=f"p_{i}", value=None))
 img_presso = st.file_uploader("Zdjęcia - PressoMess:", accept_multiple_files=True, type=["png", "jpg", "jpeg"], key="img_presso")
 strength_labels = {1: "bardzo słaby", 2: "słaby", 3: "umiarkowanie słaby", 4: "umiarkowanie mocny", 5: "mocny"}
-strength_val = st.select_slider("Ocena ogólna wytrzymałości podłoża:", options=[1, 2, 3, 4, 5], value=3, format_func=lambda x: strength_labels[x])
+if substrate == "podłoże z płyty OSB":
+    strength_val = 5
+    st.info("Ocena ogólna wytrzymałości podłoża: **mocny** — wartość ustawiona automatycznie dla płyty OSB.")
+else:
+    strength_val = st.select_slider("Ocena ogólna wytrzymałości podłoża:", options=[1, 2, 3, 4, 5], value=3, format_func=lambda x: strength_labels[x])
 
 decision_after_cure = None
 needs_drying_action = False
@@ -1619,6 +1639,8 @@ dane_protokolu = {
     "leveling_thickness": leveling_thickness,
     "leveling_mesh": leveling_mesh,
     "already_levelled": already_levelled,
+    "requires_demolition": _force_levelling,
+    "has_adhesive_residues": has_adhesive_residues,
     "dilatations_obw_ok": dilatations_obw_ok,
     "cracks_klaw": cracks_klaw,
     "klaw_meters": klaw_meters,
