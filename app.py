@@ -279,6 +279,8 @@ def render_potrzebne_materialy(dane, rep):
 
 def render_wspolne_zalecenia_podloze(dane, rep):
     rep.write("**a) przygotowanie podłoża:**")
+    if dane.get('requires_demolition'):
+        rep.write("* **Demontaż starej okładziny.**")
     if dane['dilatations_obw_ok'] == "NIE":
         rep.write("* Odtworzenie dylatacji obwodowych.")
     if dane['cracks_klaw'] == "TAK":
