@@ -122,7 +122,7 @@ PRODUCTS_WAKOL = {
     'PU 235 (Bariera)': {'name': 'WAKOL PU 235 (bariera)', 'usage': 250, 'sizes': [11], 'text': FULL_PU235_BARRIER, 'price': 50.60},
     'PS 275': {'name': 'WAKOL PS 275', 'usage': 700, 'sizes': [11], 'text': FULL_PS275, 'price': 19.08},
     'D 3004': {'name': 'WAKOL D 3004', 'usage': 50, 'sizes': [10, 5], 'text': FULL_D3004, 'price': 23.32},
-    'D 3045': {'name': 'WAKOL D 3045 (mostek sczepny)', 'usage': 150, 'sizes': [12, 6], 'text': "", 'price': 33.92},
+    'D 3045': {'name': 'WAKOL D 3045 (mostek sczepny)', 'usage': 150, 'sizes': [12, 6], 'text': "", 'price': 25.00},
     'D 3055': {'name': 'WAKOL D 3055', 'usage': 150, 'sizes': [10, 5], 'text': FULL_D3055, 'price': 16.96},
     'PU 225': {'name': 'WAKOL PU 225 (klej)', 'usage': 1250, 'sizes': [10], 'text': "", 'price': 13.55},
     'MS 230': {'name': 'WAKOL MS 230 (klej)', 'usage': 1350, 'sizes': [18], 'text': "", 'price': 15.00},
@@ -141,8 +141,7 @@ PRODUCTS_WAKOL = {
     'D 3060': {'name': 'WAKOL D 3060 (plastyfikator)', 'usage': 1000, 'sizes': [10], 'text': "", 'price': 26.00},
     'PU 280 (RP)': {'name': 'WAKOL PU 280 (grunt dla RP)', 'usage': 200, 'sizes': [11, 5], 'text': "* Zalecamy zagruntowanie całej powierzchni podłoża gruntówką wzmacniającą **WAKOL PU 280**. Aplikować wałkiem. Nie zostawiać kałuż tj. zbierać nadmiar niewchłoniętej gruntówki. Zużycie ok. 200 g/m². Czas schnięcia 1 godzina. Czas do montażu – 72 godziny.", 'price': 54.27},
     'Płyta RP': {'name': 'WAKOL RP 704 (płyta odprzęgająca)', 'usage': 1000, 'sizes': [1], 'unit': 'szt', 'text': "* Na tak przygotowane podłoże zalecamy przyklejenie płyty odprzęgającej o grubości 4 mm **WAKOL RP 704**. Należy przyklejać klejem 2K PU (**WAKOL PU 225**). Płytę odprzęgającą po ułożeniu należy docisnąć. Płytę można docinać używając noża trapezowego. Można układać parkiet, jeśli tylko klejona płyta nie przesuwa się w trakcie chodzenia po niej.", 'price': 22.05},
-    'PS 205': {'name': 'WAKOL PS 205 (żywica lana)', 'sizes': [1], 'unit': 'kpl.', 'text': "", 'price': 48.40},
-    'Piasek kwarcowy': {'name': 'Piasek kwarcowy', 'usage': 0, 'sizes': [25], 'text': "", 'price': 0.0},
+    'PS 205': {'name': 'WAKOL PS 205 (żywica lana)', 'sizes': [1], 'unit': 'kpl.', 'text': "", 'price': 48.40}
 }
 
 PRODUCTS_MAPEI = {
@@ -154,12 +153,46 @@ _M_ECO_PU1K_1W = "* Zalecamy wykonanie gruntowania wzmacniającego poprzez zagru
 _M_ECO_PU1K_BARRIER = "* Z uwagi na podwyższoną wilgotność zalecamy stworzenie **bariery przeciwwilgociowej** poprzez zagruntowanie powierzchni jastrychu gruntówką poliuretanową **ECO PRIM PU 1K TURBO**. Aplikować wałkiem. Podczas aplikacji nie zostawiać kałuż tj. zbierać nadmiar niewchłoniętej gruntówki. 1. warstwa nałożona wałkiem **200 g/m²**. **Czas schnięcia – 2 godziny**. 2. warstwa **150 g/m²** – **czas schnięcia – 2 godziny**. **Czas do klejenia: 72 godziny od zagruntowania**."
 _M_ECO_PU1K_BARRIER_PLYTA = "* Z uwagi na grubość płyty fundamentowej zalecamy stworzenie **bariery przeciwwilgociowej** poprzez zagruntowanie powierzchni podłoża gruntówką poliuretanową **ECO PRIM PU 1K TURBO**. Aplikować wałkiem. Podczas aplikacji nie zostawiać kałuż tj. zbierać nadmiar niewchłoniętej gruntówki. 1. warstwa nałożona wałkiem **200 g/m²**. **Czas schnięcia – 2 godziny**. 2. warstwa **150 g/m²** – **czas schnięcia – 2 godziny**. **Czas do klejenia: 72 godziny od zagruntowania**."
 _M_ECO_PU1K_RP = "* Zalecamy zagruntowanie całej powierzchni podłoża gruntówką poliuretanową **ECO PRIM PU 1K TURBO**. Aplikować wałkiem. Nie zostawiać kałuż tj. zbierać nadmiar niewchłoniętej gruntówki. Zużycie ok. 200 g/m². Czas schnięcia 2 godziny. Czas do montażu – 72 godziny."
+_M_PROSFAS = "* Zalecamy aplikację gruntówki wzmacniającej **PROSFAS** wałkiem lub pędzlem. Zużycie **ok. 1,5 kg/m²**. Aplikując **PROSFAS** należy zwrócić uwagę, aby dobrze wchłaniał się w podłoże i unikać powstawania kałuż na powierzchni jastrychu. **Po 7 dniach schnięcia** powierzchnię należy **przeszlifować papierem o gradacji 24 – 40** i dokładnie odkurzyć."
+_M_ECO_PU1K_1W_S = "* Zalecamy wykonanie gruntowania wzmacniającego poprzez zagruntowanie powierzchni jastrychu gruntówką poliuretanową **ECO PRIM PU 1K**. Aplikować wałkiem. Podczas aplikacji nie zostawiać kałuż tj. zbierać nadmiar niewchłoniętej gruntówki. Zużycie **ok. 200 g/m²**. **Czas schnięcia – 24 godziny**."
+_M_ECO_PU1K_BARRIER_S = "* Zalecamy wykonanie **bariery przeciwwilgociowej** poprzez dwukrotne zagruntowanie gruntówką poliuretanową **ECO PRIM PU 1K**. Podczas aplikacji nie zostawiać kałuż tj. zbierać nadmiar niewchłoniętej gruntówki. 1. warstwa nałożona wałkiem **200 g/m²**. **Czas schnięcia – 24 godziny**. 2. warstwa zużycie **150 g/m²**. **Czas schnięcia – 24 godziny**. **Czas klejenia 72 godziny od zagruntowania**."
+_M_ECO_GRIP = "* Zalecamy zaaplikowanie mostka sczepnego **ECO PRIM GRIP PLUS**. Aplikować równomiernie wałkiem. Zużycie wynosi **ok. 200 g/m²**. **Czas schnięcia 1 godzina**."
+_M_PRIMER_G_PRO = "* Zagruntować podłoże koncentratem gruntówki dyspersyjnej **MAPEI Primer G Pro**. Proporcje mieszania: 1 część koncentratu + 1 część wody. **Czas schnięcia 1 godzina**. Zużycie rozcieńczonej mikstury ok. 200 g/m², co daje zużycie koncentratu na poziomie **ok. 100 g/m²**."
+_M_ECO_PRIM_T_PLUS = "* Zalecamy zagruntowanie całej powierzchni jastrychu gruntówką dyspersyjną **MAPEI Eco Prim T Plus** - aplikacja wałkiem **ok. 150 g/m²**. **Czas schnięcia ok. 1 godziny**."
+_M_PLANOLIT_115 = "* Wylać masę wyrównawczą **MAPEI Planolit 115** - wymieszać ją w czystym naczyniu z zimną wodą w proporcji 5,75-6 litrów wody na 23 kg masy. Mieszać unikając tworzenia się grudek. Prędkość obrotowa mieszadła może wynosić max. 600 obrotów na minutę. Wymieszaną masę nanosić w żądanej grubości na podłoże przy pomocy szpachli, łaty lub rakli. Przed pracą należy zwrócić uwagę na obecność wypełnień fug przy ścianach. Zużycie **ok. 1,6 kg/m²/mm**. **Czas schnięcia 3mm - 24 godziny**."
+_M_ULTRAPLAN_RENOVATION = "* Wylać masę wyrównawczą **MAPEI Ultraplan Renovation** – wymieszać ją w czystym naczyniu z zimną wodą w proporcji 4,5 litrów wody na 23 kg masy. Mieszać unikając tworzenia się grudek. Prędkość obrotowa mieszadła może wynosić max. 600 obrotów na minutę. Wymieszaną masę nanosić w żądanej grubości na podłoże przy pomocy szpachli, łaty lub rakli. Przed pracą należy zwrócić uwagę na obecność wypełnień fug przy ścianach. Zużycie **ok. 1,6 kg/m²/mm**. **Czas schnięcia 3mm - 24 godziny**."
+_M_ULTRAPLAN_MAXI = "* Wylać masę wyrównawczą **MAPEI Ultraplan Maxi** – wymieszać ją w czystym naczyniu z zimną wodą w proporcji 4,75- 5,0 litrów wody na 23 kg masy. Mieszać unikając tworzenia się grudek. Prędkość obrotowa mieszadła może wynosić max. 600 obrotów na minutę. Wymieszaną masę nanosić w żądanej grubości na podłoże przy pomocy szpachli, łaty lub rakli. Przed pracą należy zwrócić uwagę na obecność wypełnień fug przy ścianach. Zużycie **ok. 1,7 kg/m²/mm**. **Czas schnięcia 3mm - 24 godziny**."
+
+PRODUCTS_MAPEI = {
+    k: dict(v, name=v['name'].replace('WAKOL', 'Mapei'), text='', price=0.0)
+    for k, v in PRODUCTS_WAKOL.items()
+}
 
 PRODUCTS_MAPEI.update({
-    'PU 280 (1W)':          {'name': 'Mapei ECO PRIM PU 1K TURBO (1 warstwa)', 'usage': 200, 'sizes': [10], 'text': _M_ECO_PU1K_1W,           'price': 0.0},
-    'PU 280 (Bariera)':     {'name': 'Mapei ECO PRIM PU 1K TURBO (bariera)',    'usage': 350, 'sizes': [10], 'text': _M_ECO_PU1K_BARRIER,       'price': 0.0},
-    'PU 280 (Bariera Płyta)':{'name': 'Mapei ECO PRIM PU 1K TURBO (bariera)',   'usage': 350, 'sizes': [10], 'text': _M_ECO_PU1K_BARRIER_PLYTA, 'price': 0.0},
-    'PU 280 (RP)':          {'name': 'Mapei ECO PRIM PU 1K TURBO (grunt dla RP)','usage': 200, 'sizes': [10], 'text': _M_ECO_PU1K_RP,           'price': 0.0},
+    'PU 280 (1W)':          {'name': 'MAPEI ECO PRIM PU 1K TURBO (1 warstwa)', 'usage': 200, 'sizes': [10], 'text': _M_ECO_PU1K_1W,           'price': 0.0},
+    'PU 280 (Bariera)':     {'name': 'MAPEI ECO PRIM PU 1K TURBO (bariera)',    'usage': 350, 'sizes': [10], 'text': _M_ECO_PU1K_BARRIER,       'price': 0.0},
+    'PU 280 (Bariera Płyta)':{'name': 'MAPEI ECO PRIM PU 1K TURBO (bariera)',   'usage': 350, 'sizes': [10], 'text': _M_ECO_PU1K_BARRIER_PLYTA, 'price': 0.0},
+    'PU 280 (RP)':          {'name': 'MAPEI ECO PRIM PU 1K TURBO (grunt dla RP)','usage': 200, 'sizes': [10], 'text': _M_ECO_PU1K_RP,           'price': 0.0},
+    'PU 235 (1W)':          {'name': 'MAPEI ECO PRIM PU 1K (1 warstwa)', 'usage': 200, 'sizes': [10, 5], 'text': _M_ECO_PU1K_1W_S,      'price': 0.0},
+    'PU 235 (Bariera)':     {'name': 'MAPEI ECO PRIM PU 1K (bariera)',    'usage': 350, 'sizes': [10, 5], 'text': _M_ECO_PU1K_BARRIER_S, 'price': 0.0},
+    'PS 275':               {'name': 'MAPEI PROSFAS',                      'usage': 1500, 'sizes': [25],  'text': _M_PROSFAS,            'price': 0.0},
+    'D 3045':               {'name': 'MAPEI ECO PRIM GRIP PLUS',           'usage': 200,  'sizes': [10, 5, 1], 'text': _M_ECO_GRIP,     'price': 0.0},
+    'D 3004':               {'name': 'MAPEI Primer G Pro',                 'usage': 100,  'sizes': [20, 10, 5, 1], 'unit': 'L', 'text': _M_PRIMER_G_PRO, 'price': 0.0},
+    'D 3004 (bruzdowane)':  {'name': 'MAPEI Primer G Pro (koncentrat)', 'usage': 100,  'sizes': [20, 10, 5, 1], 'unit': 'L', 'text': "", 'price': 0.0},
+    'D 3055':               {'name': 'MAPEI Eco Prim T Plus',              'usage': 150,  'sizes': [20, 5], 'text': _M_ECO_PRIM_T_PLUS, 'price': 0.0},
+    'Z 675':                {'name': 'MAPEI Planolit 115 (masa samorozlewna)', 'usage_per_mm': 1.6, 'sizes': [23], 'text': _M_PLANOLIT_115, 'price': 0.0},
+    'Z 635':                {'name': 'MAPEI Ultraplan Renovation (masa samorozlewna)', 'usage_per_mm': 1.6, 'sizes': [23], 'text': _M_ULTRAPLAN_RENOVATION, 'price': 0.0},
+    'Z 625':                {'name': 'MAPEI Ultraplan Maxi (masa samorozlewna)', 'usage_per_mm': 1.7, 'sizes': [23], 'text': _M_ULTRAPLAN_MAXI, 'price': 0.0},
+    'Z 645':                {'name': 'MAPEI Nivo Rapid (masa naprawcza)',  'usage': 1.6,  'sizes': [25], 'text': "", 'price': 0.0},
+    'Z 645 (bruzdowane)':   {'name': 'MAPEI Nivo Rapid (masa szpachlowa)','usage': 2000, 'sizes': [25], 'text': "", 'price': 0.0},
+    'D 3060':               {'name': 'MAPEI Latex Plus (plastyfikator)',   'usage': 1000, 'sizes': [10], 'unit': 'kg', 'text': "", 'price': 0.0},
+    'PU 225':               {'name': 'MAPEI Ultrabond ECO P909 2K (klej)', 'usage': 1250, 'sizes': [10], 'text': "", 'price': 0.0},
+    'MS 260':               {'name': 'MAPEI Ultrabond S965 1K (klej)',     'usage': 1350, 'sizes': [15], 'text': "", 'price': 0.0},
+    'MS 230':               {'name': 'MAPEI Ultrabond ECO S948 1K (klej)', 'usage': 1350, 'sizes': [15], 'text': "", 'price': 0.0},
+    'MS 230 (B11 cement)':  {'name': 'MAPEI Ultrabond ECO S948 1K (klej)', 'usage': 1150, 'sizes': [15], 'text': "", 'price': 0.0},
+    'MS 230 (B5 masa)':     {'name': 'MAPEI Ultrabond ECO S948 1K (klej)', 'usage': 900,  'sizes': [15], 'text': "", 'price': 0.0},
+    'PS 205':               {'name': 'MAPEI Epo Grip (żywica lana)',      'sizes': [10, 2], 'unit': 'kg', 'text': "", 'price': 0.0},
+    'AR 150':               {'name': 'MAPEI MAPETHERM NET 150 (siatka zbrojeniowa)', 'usage': 1000, 'sizes': [50], 'text': "", 'price': 0.0},
 })
 
 _M_PROSFAS = "* Zalecamy aplikację gruntówki wzmacniającej **PROSFAS** wałkiem lub pędzlem. Zużycie **ok. 1,5 kg/m²**. Aplikując **PROSFAS** należy zwrócić uwagę, aby dobrze wchłaniał się w podłoże i unikać powstawania kałuż na powierzchni jastrychu. **Po 7 dniach schnięcia** powierzchnię należy **przeszlifować papierem o gradacji 24 – 40** i dokładnie odkurzyć."
@@ -380,14 +413,23 @@ def render_wspolne_zalecenia_podloze(dane, rep):
     if dane['cracks_klaw'] == "TAK" or dane['cracks_pek'] == "TAK":
         if dane['strength_val'] == 1 and dane['substrate'] != "jastrych anhydrytowy":
             write_and_track(dane, rep, 'PS 275')
-        rep.write("* Pęknięcia / Klawiszujące dylatacje - zespolić żywicą laną **WAKOL PS 205**. Wymieszaną żywicę wlewać w pęknięcia, nadmiar zgarnąć lub zatrzeć.")
+        
+        firma_is_mapei = (dane.get('firma') == "Mapei")
+        if firma_is_mapei:
+            rep.write(f"* Pęknięcia / Klawiszujące dylatacje - zespolić żywicą laną **{PRODUCTS['PS 205']['name']}**. Wymieszaną żywicę wlewać w pęknięcia, nadmiar zgarnąć lub zatrzeć.")
+        else:
+            rep.write(f"* Pęknięcia / Klawiszujące dylatacje - zespolić żywicą laną **{PRODUCTS['PS 205']['name']}**. Wymieszaną żywicę wlewać w pęknięcia, nadmiar zgarnąć lub zatrzeć.")
+            
         total_meters = 0
         if dane['cracks_klaw'] == "TAK":
             total_meters += dane.get('klaw_meters') or 0
         if dane['cracks_pek'] == "TAK":
             total_meters += dane.get('pek_meters') or 0
         if total_meters > 0:
-            write_and_track(dane, rep, 'PS 205', custom_kg=total_meters / 6.5)
+            if firma_is_mapei:
+                write_and_track(dane, rep, 'PS 205', custom_kg=total_meters / 7.5)
+            else:
+                write_and_track(dane, rep, 'PS 205', custom_kg=total_meters / 6.5)
 
     if dane['holes'] == "TAK":
         kg_z645 = None
@@ -396,40 +438,59 @@ def render_wspolne_zalecenia_podloze(dane, rep):
             thick_mm = dane['holes_depth'] * 10.0
             kg_z645 = area_h * thick_mm * 1.6
 
-        _add_sand = False
+        firma_is_mapei = (dane.get('firma') == "Mapei")
         if dane.get('holes_depth') and dane['holes_depth'] >= 1.0:
-            if kg_z645 is not None:
-                kg_z645 /= 2.0
-                _add_sand = True
-            rep.write("* Ubytki zaszpachlować masą **WAKOL Z 645** wymieszaną z piaskiem kwarcowym w proporcji 1:1  – czas schnięcia 1 godzina.")
+            if kg_z645 is not None: kg_z645 /= 2.0
+            if firma_is_mapei:
+                rep.write(f"* Ubytki zaszpachlować masą **{PRODUCTS['Z 645']['name']}** wymieszaną z piaskiem kwarcowym (dodatek 30%). Czas schnięcia przed klejeniem 12 godzin.")
+            else:
+                rep.write(f"* Ubytki zaszpachlować masą **{PRODUCTS['Z 645']['name']}** wymieszaną z piaskiem kwarcowym w proporcji 1:1  – czas schnięcia 1 godzina.")
         else:
-            rep.write("* Ubytki zaszpachlować masą szpachlową **WAKOL Z 645** z dodatkiem plastyfikatora **WAKOL D 3060** (7 litrów WAKOL D 3060 na 25 kg WAKOL Z 645). Czas schnięcia min. 3h. W razie potrzeby użyć siatki zbrojeniowej WAKOL AR 150.")
-
+            if firma_is_mapei:
+                rep.write(f"* Ubytki zaszpachlować masą szpachlową **{PRODUCTS['Z 645']['name']}** z dodatkiem plastyfikatora **{PRODUCTS['D 3060']['name']}** (8 kg na 25 kg masy). Czas schnięcia min. 3h.")
+            else:
+                rep.write(f"* Ubytki zaszpachlować masą szpachlową **{PRODUCTS['Z 645']['name']}** z dodatkiem plastyfikatora **{PRODUCTS['D 3060']['name']}** (7 litrów na 25 kg masy). Czas schnięcia min. 3h. W razie potrzeby użyć siatki zbrojeniowej {PRODUCTS['AR 150']['name']}.")
+        
         if kg_z645 is not None:
             write_and_track(dane, rep, 'Z 645', custom_kg=kg_z645)
-            if _add_sand:
-                write_and_track(dane, rep, 'Piasek kwarcowy', custom_kg=kg_z645)
 
     if dane.get('local_leveling') == "TAK" and dane.get('local_leveling_kg'):
         details = dane.get('local_leveling_details', '')
-        rep.write(f"* Miejscowe wyrównanie podłoża{details} masą szpachlową **WAKOL Z 645** z dodatkiem plastyfikatora **WAKOL D 3060** (7 litrów WAKOL D 3060 na 25 kg WAKOL Z 645). Czas schnięcia min. 3h.")
+        firma_is_mapei = (dane.get('firma') == "Mapei")
+        ratio = 8.0 if firma_is_mapei else 7.0
+        
+        if firma_is_mapei:
+            rep.write(f"* Miejscowe wyrównanie podłoża{details} masą szpachlową **{PRODUCTS['Z 645']['name']}** z dodatkiem plastyfikatora **{PRODUCTS['D 3060']['name']}** ({ratio} kg na 25 kg masy). Czas schnięcia min. 3h.")
+        else:
+            rep.write(f"* Miejscowe wyrównanie podłoża{details} masą szpachlową **{PRODUCTS['Z 645']['name']}** z dodatkiem plastyfikatora **{PRODUCTS['D 3060']['name']}** ({ratio} litrów na 25 kg masy). Czas schnięcia min. 3h.")
+            
         write_and_track(dane, rep, 'Z 645 (bruzdowane)', custom_kg=dane['local_leveling_kg'])
         bags_local = dane['local_leveling_kg'] / 25.0
-        write_and_track(dane, rep, 'D 3060', custom_kg=bags_local * 7.0)
+        write_and_track(dane, rep, 'D 3060', custom_kg=bags_local * ratio)
 
     if dane['heating_exists'] == "TAK" and dane['h_type'] == "bruzdowane":
         if dane['bruzdowane_wybor'] == "masa samorozlewna":
-            rep.write("* Podłoże zagruntować koncentratem gruntówki dyspersyjnej **WAKOL D 3004**. Proporcje mieszania: 1 część WAKOL D 3004 + 1 część wody; Czas schnięcia: 1h. Sposób nanoszenia: wałek do gruntowania microfazer. Zużycie: ok. 75 g/m² koncentratu.")
+            firma_is_mapei = (dane.get('firma') == "Mapei")
+            ratio = 8.0 if firma_is_mapei else 7.0
+            
+            if firma_is_mapei:
+                rep.write(f"* Podłoże zagruntować koncentratem gruntówki dyspersyjnej **{PRODUCTS['D 3004']['name']}**. Proporcje mieszania: 1 część koncentratu + 1 część wody; Czas schnięcia: 1h. Sposób nanoszenia: wałek do gruntowania. Zużycie: ok. 100 g/m² koncentratu.")
+            else:
+                rep.write(f"* Podłoże zagruntować koncentratem gruntówki dyspersyjnej **{PRODUCTS['D 3004']['name']}**. Proporcje mieszania: 1 część koncentratu + 1 część wody; Czas schnięcia: 1h. Sposób nanoszenia: wałek do gruntowania microfazer. Zużycie: ok. 75 g/m² koncentratu.")
             write_and_track(dane, rep, 'D 3004 (bruzdowane)')
             
-            rep.write("* Na tak przygotowane podłoże należy rozłożyć matę **WAKOL AR 150** i zaszpachlować ją masą szpachlową **WAKOL Z 645** z dodatkiem plastyfikatora **WAKOL D 3060** (7 litrów WAKOL D 3060 na 25 kg WAKOL Z 645). Czas schnięcia min. 3h.")
+            if firma_is_mapei:
+                rep.write(f"* Na tak przygotowane podłoże należy rozłożyć matę zbrojeniową **{PRODUCTS['AR 150']['name']}** i zaszpachlować ją masą szpachlową **{PRODUCTS['Z 645']['name']}** z dodatkiem plastyfikatora **{PRODUCTS['D 3060']['name']}** ({ratio} kg na 25 kg masy). Czas schnięcia min. 3h.")
+            else:
+                rep.write(f"* Na tak przygotowane podłoże należy rozłożyć matę zbrojeniową **{PRODUCTS['AR 150']['name']}** i zaszpachlować ją masą szpachlową **{PRODUCTS['Z 645']['name']}** z dodatkiem plastyfikatora **{PRODUCTS['D 3060']['name']}** ({ratio} litrów na 25 kg masy). Czas schnięcia min. 3h.")
+            
             area = dane.get('area_m2') or 0
             if area > 0:
                 write_and_track(dane, rep, 'AR 150', custom_kg=area)
                 kg_z645_bruzdowane = area * 2.0
                 write_and_track(dane, rep, 'Z 645 (bruzdowane)', custom_kg=kg_z645_bruzdowane)
                 bags_z645 = math.ceil(kg_z645_bruzdowane / 25.0)
-                write_and_track(dane, rep, 'D 3060', custom_kg=bags_z645 * 7.0)
+                write_and_track(dane, rep, 'D 3060', custom_kg=bags_z645 * ratio)
             write_and_track(dane, rep, 'Z 635', custom_kg=area * 5 * 1.5)
         elif dane['bruzdowane_wybor'] == "płyta RP":
             area = dane.get('area_m2') or 0
@@ -588,16 +649,26 @@ def generate_report_deska_warstwowa(dane, rep):
         _pu_applied = any(k in dane.get('written_texts', set()) for k in ['PU 280 (1W)', 'PU 280 (Bariera)', 'PU 280 (Bariera Płyta)', 'PU 235 (1W)', 'PU 235 (Bariera)'])
         _skip_d3045 = dane.get('leveling_mesh') == "z siatką" and _pu_applied
         if not used_d3004 and not _skip_d3045:
-            rep.write("* Następnie należy zaaplikować specjalistyczny mostek sczepny za pomocą produktu **WAKOL D 3045**. Aplikować równomiernie za pomocą wałka. Zużycie wynosi **ok. 150 g/m²**. **Czas schnięcia 1 godzina**.")
-            write_and_track(dane, rep, 'D 3045')
+            if dane.get('firma') == "Mapei":
+                write_and_track(dane, rep, 'D 3045')
+            else:
+                rep.write("* Następnie należy zaaplikować specjalistyczny mostek sczepny za pomocą produktu **WAKOL D 3045**. Aplikować równomiernie za pomocą wałka. Zużycie wynosi **ok. 150 g/m²**. **Czas schnięcia 1 godzina**.")
+                write_and_track(dane, rep, 'D 3045')
         if dane.get('leveling_mesh') == "z siatką":
             area = dane.get('area_m2') or 0
-            rep.write("* Na przygotowane podłoże należy rozłożyć matę zbrojeniową **WAKOL AR 150** i zaszpachlować ją masą szpachlową **WAKOL Z 645** z dodatkiem plastyfikatora **WAKOL D 3060** (7 litrów WAKOL D 3060 na 25 kg WAKOL Z 645). Czas schnięcia min. 3h.")
+            firma_is_mapei = (dane.get('firma') == "Mapei")
+            ratio = 8.0 if firma_is_mapei else 7.0
+            
+            if firma_is_mapei:
+                rep.write(f"* Na przygotowane podłoże należy rozłożyć matę zbrojeniową **{PRODUCTS['AR 150']['name']}** i zaszpachlować ją masą szpachlową **{PRODUCTS['Z 645']['name']}** z dodatkiem plastyfikatora **{PRODUCTS['D 3060']['name']}** ({ratio} kg na 25 kg masy). Czas schnięcia min. 3h.")
+            else:
+                rep.write(f"* Na przygotowane podłoże należy rozłożyć matę zbrojeniową **{PRODUCTS['AR 150']['name']}** i zaszpachlować ją masą szpachlową **{PRODUCTS['Z 645']['name']}** z dodatkiem plastyfikatora **{PRODUCTS['D 3060']['name']}** ({ratio} litrów na 25 kg masy). Czas schnięcia min. 3h.")
+                
             if area > 0:
                 write_and_track(dane, rep, 'AR 150', custom_kg=area)
                 kg_z645_mesh = area * 2.0
                 write_and_track(dane, rep, 'Z 645 (bruzdowane)', custom_kg=kg_z645_mesh)
-                write_and_track(dane, rep, 'D 3060', custom_kg=area * 0.56)
+                write_and_track(dane, rep, 'D 3060', custom_kg=(kg_z645_mesh / 25.0) * ratio)
         write_and_track(dane, rep, 'Z 635')
 
     rep.write("**c) klejenie okładziny:**")
@@ -634,16 +705,26 @@ def generate_report_deska_lita(dane, rep):
         _pu_applied = any(k in dane.get('written_texts', set()) for k in ['PU 280 (1W)', 'PU 280 (Bariera)', 'PU 280 (Bariera Płyta)', 'PU 235 (1W)', 'PU 235 (Bariera)'])
         _skip_d3045 = dane.get('leveling_mesh') == "z siatką" and _pu_applied
         if not used_d3004 and not _skip_d3045:
-            rep.write("* Następnie należy zaaplikować specjalistyczny mostek sczepny za pomocą produktu **WAKOL D 3045**. Aplikować równomiernie za pomocą wałka. Zużycie wynosi **ok. 150 g/m²**. **Czas schnięcia 1 godzina**.")
-            write_and_track(dane, rep, 'D 3045')
+            if dane.get('firma') == "Mapei":
+                write_and_track(dane, rep, 'D 3045')
+            else:
+                rep.write("* Następnie należy zaaplikować specjalistyczny mostek sczepny za pomocą produktu **WAKOL D 3045**. Aplikować równomiernie za pomocą wałka. Zużycie wynosi **ok. 150 g/m²**. **Czas schnięcia 1 godzina**.")
+                write_and_track(dane, rep, 'D 3045')
         if dane.get('leveling_mesh') == "z siatką":
             area = dane.get('area_m2') or 0
-            rep.write("* Na przygotowane podłoże należy rozłożyć matę zbrojeniową **WAKOL AR 150** i zaszpachlować ją masą szpachlową **WAKOL Z 645** z dodatkiem plastyfikatora **WAKOL D 3060** (7 litrów WAKOL D 3060 na 25 kg WAKOL Z 645). Czas schnięcia min. 3h.")
+            firma_is_mapei = (dane.get('firma') == "Mapei")
+            ratio = 8.0 if firma_is_mapei else 7.0
+            
+            if firma_is_mapei:
+                rep.write(f"* Na przygotowane podłoże należy rozłożyć matę zbrojeniową **{PRODUCTS['AR 150']['name']}** i zaszpachlować ją masą szpachlową **{PRODUCTS['Z 645']['name']}** z dodatkiem plastyfikatora **{PRODUCTS['D 3060']['name']}** ({ratio} kg na 25 kg masy). Czas schnięcia min. 3h.")
+            else:
+                rep.write(f"* Na przygotowane podłoże należy rozłożyć matę zbrojeniową **{PRODUCTS['AR 150']['name']}** i zaszpachlować ją masą szpachlową **{PRODUCTS['Z 645']['name']}** z dodatkiem plastyfikatora **{PRODUCTS['D 3060']['name']}** ({ratio} litrów na 25 kg masy). Czas schnięcia min. 3h.")
+                
             if area > 0:
                 write_and_track(dane, rep, 'AR 150', custom_kg=area)
                 kg_z645_mesh = area * 2.0
                 write_and_track(dane, rep, 'Z 645 (bruzdowane)', custom_kg=kg_z645_mesh)
-                write_and_track(dane, rep, 'D 3060', custom_kg=area * 0.56)
+                write_and_track(dane, rep, 'D 3060', custom_kg=(kg_z645_mesh / 25.0) * ratio)
         write_and_track(dane, rep, 'Z 625')
 
     rep.write("**c) klejenie okładziny:**")
@@ -686,16 +767,26 @@ def generate_report_lvt_cienkie(dane, rep):
         _pu_applied = any(k in dane.get('written_texts', set()) for k in ['PU 280 (1W)', 'PU 280 (Bariera)', 'PU 280 (Bariera Płyta)', 'PU 235 (1W)', 'PU 235 (Bariera)'])
         _skip_d3045 = dane.get('leveling_mesh') == "z siatką" and _pu_applied
         if not used_d3004 and not _skip_d3045:
-            rep.write("* Następnie należy zaaplikować specjalistyczny mostek sczepny za pomocą produktu **WAKOL D 3045**. Aplikować równomiernie za pomocą wałka. Zużycie wynosi **ok. 150 g/m²**. **Czas schnięcia 1 godzina**.")
-            write_and_track(dane, rep, 'D 3045')
+            if dane.get('firma') == "Mapei":
+                write_and_track(dane, rep, 'D 3045')
+            else:
+                rep.write("* Następnie należy zaaplikować specjalistyczny mostek sczepny za pomocą produktu **WAKOL D 3045**. Aplikować równomiernie za pomocą wałka. Zużycie wynosi **ok. 150 g/m²**. **Czas schnięcia 1 godzina**.")
+                write_and_track(dane, rep, 'D 3045')
         if dane.get('leveling_mesh') == "z siatką":
             area = dane.get('area_m2') or 0
-            rep.write("* Na przygotowane podłoże należy rozłożyć matę zbrojeniową **WAKOL AR 150** i zaszpachlować ją masą szpachlową **WAKOL Z 645** z dodatkiem plastyfikatora **WAKOL D 3060** (7 litrów WAKOL D 3060 na 25 kg WAKOL Z 645). Czas schnięcia min. 3h.")
+            firma_is_mapei = (dane.get('firma') == "Mapei")
+            ratio = 8.0 if firma_is_mapei else 7.0
+            
+            if firma_is_mapei:
+                rep.write(f"* Na przygotowane podłoże należy rozłożyć matę zbrojeniową **{PRODUCTS['AR 150']['name']}** i zaszpachlować ją masą szpachlową **{PRODUCTS['Z 645']['name']}** z dodatkiem plastyfikatora **{PRODUCTS['D 3060']['name']}** ({ratio} kg na 25 kg masy). Czas schnięcia min. 3h.")
+            else:
+                rep.write(f"* Na przygotowane podłoże należy rozłożyć matę zbrojeniową **{PRODUCTS['AR 150']['name']}** i zaszpachlować ją masą szpachlową **{PRODUCTS['Z 645']['name']}** z dodatkiem plastyfikatora **{PRODUCTS['D 3060']['name']}** ({ratio} litrów na 25 kg masy). Czas schnięcia min. 3h.")
+                
             if area > 0:
                 write_and_track(dane, rep, 'AR 150', custom_kg=area)
                 kg_z645_mesh = area * 2.0
                 write_and_track(dane, rep, 'Z 645 (bruzdowane)', custom_kg=kg_z645_mesh)
-                write_and_track(dane, rep, 'D 3060', custom_kg=area * 0.56)
+                write_and_track(dane, rep, 'D 3060', custom_kg=(kg_z645_mesh / 25.0) * ratio)
         write_and_track(dane, rep, 'Z 675')
 
     rep.write("* Po wyschnięciu masy samorozlewnej zalecamy szlif podłoża w celu uzyskania gładkiej powierzchni oraz dokładne odkurzenie.")
@@ -757,16 +848,26 @@ def generate_report_lvt_grube(dane, rep):
         _pu_applied = any(k in dane.get('written_texts', set()) for k in ['PU 280 (1W)', 'PU 280 (Bariera)', 'PU 280 (Bariera Płyta)', 'PU 235 (1W)', 'PU 235 (Bariera)'])
         _skip_d3045 = dane.get('leveling_mesh') == "z siatką" and _pu_applied
         if not used_d3004 and not _skip_d3045:
-            rep.write("* Następnie należy zaaplikować specjalistyczny mostek sczepny za pomocą produktu **WAKOL D 3045**. Aplikować równomiernie za pomocą wałka. Zużycie wynosi **ok. 150 g/m²**. **Czas schnięcia 1 godzina**.")
-            write_and_track(dane, rep, 'D 3045')
+            if dane.get('firma') == "Mapei":
+                write_and_track(dane, rep, 'D 3045')
+            else:
+                rep.write("* Następnie należy zaaplikować specjalistyczny mostek sczepny za pomocą produktu **WAKOL D 3045**. Aplikować równomiernie za pomocą wałka. Zużycie wynosi **ok. 150 g/m²**. **Czas schnięcia 1 godzina**.")
+                write_and_track(dane, rep, 'D 3045')
         if dane.get('leveling_mesh') == "z siatką":
             area = dane.get('area_m2') or 0
-            rep.write("* Na przygotowane podłoże należy rozłożyć matę zbrojeniową **WAKOL AR 150** i zaszpachlować ją masą szpachlową **WAKOL Z 645** z dodatkiem plastyfikatora **WAKOL D 3060** (7 litrów WAKOL D 3060 na 25 kg WAKOL Z 645). Czas schnięcia min. 3h.")
+            firma_is_mapei = (dane.get('firma') == "Mapei")
+            ratio = 8.0 if firma_is_mapei else 7.0
+            
+            if firma_is_mapei:
+                rep.write(f"* Na przygotowane podłoże należy rozłożyć matę zbrojeniową **{PRODUCTS['AR 150']['name']}** i zaszpachlować ją masą szpachlową **{PRODUCTS['Z 645']['name']}** z dodatkiem plastyfikatora **{PRODUCTS['D 3060']['name']}** ({ratio} kg na 25 kg masy). Czas schnięcia min. 3h.")
+            else:
+                rep.write(f"* Na przygotowane podłoże należy rozłożyć matę zbrojeniową **{PRODUCTS['AR 150']['name']}** i zaszpachlować ją masą szpachlową **{PRODUCTS['Z 645']['name']}** z dodatkiem plastyfikatora **{PRODUCTS['D 3060']['name']}** ({ratio} litrów na 25 kg masy). Czas schnięcia min. 3h.")
+                
             if area > 0:
                 write_and_track(dane, rep, 'AR 150', custom_kg=area)
                 kg_z645_mesh = area * 2.0
                 write_and_track(dane, rep, 'Z 645 (bruzdowane)', custom_kg=kg_z645_mesh)
-                write_and_track(dane, rep, 'D 3060', custom_kg=area * 0.56)
+                write_and_track(dane, rep, 'D 3060', custom_kg=(kg_z645_mesh / 25.0) * ratio)
         write_and_track(dane, rep, 'Z 675')
 
     rep.write("**c) klejenie okładziny:**")
@@ -818,16 +919,26 @@ def generate_report_pcv_w_rolce(dane, rep):
         _pu_applied = any(k in dane.get('written_texts', set()) for k in ['PU 280 (1W)', 'PU 280 (Bariera)', 'PU 280 (Bariera Płyta)', 'PU 235 (1W)', 'PU 235 (Bariera)'])
         _skip_d3045 = dane.get('leveling_mesh') == "z siatką" and _pu_applied
         if not used_d3004 and not _skip_d3045:
-            rep.write("* Następnie należy zaaplikować specjalistyczny mostek sczepny za pomocą produktu **WAKOL D 3045**. Aplikować równomiernie za pomocą wałka. Zużycie wynosi **ok. 150 g/m²**. **Czas schnięcia 1 godzina**.")
-            write_and_track(dane, rep, 'D 3045')
+            if dane.get('firma') == "Mapei":
+                write_and_track(dane, rep, 'D 3045')
+            else:
+                rep.write("* Następnie należy zaaplikować specjalistyczny mostek sczepny za pomocą produktu **WAKOL D 3045**. Aplikować równomiernie za pomocą wałka. Zużycie wynosi **ok. 150 g/m²**. **Czas schnięcia 1 godzina**.")
+                write_and_track(dane, rep, 'D 3045')
         if dane.get('leveling_mesh') == "z siatką":
             area = dane.get('area_m2') or 0
-            rep.write("* Na przygotowane podłoże należy rozłożyć matę zbrojeniową **WAKOL AR 150** i zaszpachlować ją masą szpachlową **WAKOL Z 645** z dodatkiem plastyfikatora **WAKOL D 3060** (7 litrów WAKOL D 3060 na 25 kg WAKOL Z 645). Czas schnięcia min. 3h.")
+            firma_is_mapei = (dane.get('firma') == "Mapei")
+            ratio = 8.0 if firma_is_mapei else 7.0
+            
+            if firma_is_mapei:
+                rep.write(f"* Na przygotowane podłoże należy rozłożyć matę zbrojeniową **{PRODUCTS['AR 150']['name']}** i zaszpachlować ją masą szpachlową **{PRODUCTS['Z 645']['name']}** z dodatkiem plastyfikatora **{PRODUCTS['D 3060']['name']}** ({ratio} kg na 25 kg masy). Czas schnięcia min. 3h.")
+            else:
+                rep.write(f"* Na przygotowane podłoże należy rozłożyć matę zbrojeniową **{PRODUCTS['AR 150']['name']}** i zaszpachlować ją masą szpachlową **{PRODUCTS['Z 645']['name']}** z dodatkiem plastyfikatora **{PRODUCTS['D 3060']['name']}** ({ratio} litrów na 25 kg masy). Czas schnięcia min. 3h.")
+                
             if area > 0:
                 write_and_track(dane, rep, 'AR 150', custom_kg=area)
                 kg_z645_mesh = area * 2.0
                 write_and_track(dane, rep, 'Z 645 (bruzdowane)', custom_kg=kg_z645_mesh)
-                write_and_track(dane, rep, 'D 3060', custom_kg=area * 0.56)
+                write_and_track(dane, rep, 'D 3060', custom_kg=(kg_z645_mesh / 25.0) * ratio)
         write_and_track(dane, rep, 'Z 675')
 
     rep.write("* Po wyschnięciu masy samorozlewnej zalecamy szlif podłoża w celu uzyskania gładkiej powierzchni oraz dokładne odkurzenie.")
@@ -864,16 +975,26 @@ def generate_report_wykladzina_dywanowa(dane, rep):
         _pu_applied = any(k in dane.get('written_texts', set()) for k in ['PU 280 (1W)', 'PU 280 (Bariera)', 'PU 280 (Bariera Płyta)', 'PU 235 (1W)', 'PU 235 (Bariera)'])
         _skip_d3045 = dane.get('leveling_mesh') == "z siatką" and _pu_applied
         if not used_d3004 and not _skip_d3045:
-            rep.write("* Następnie należy zaaplikować specjalistyczny mostek sczepny za pomocą produktu **WAKOL D 3045**. Aplikować równomiernie za pomocą wałka. Zużycie wynosi **ok. 150 g/m²**. **Czas schnięcia 1 godzina**.")
-            write_and_track(dane, rep, 'D 3045')
+            if dane.get('firma') == "Mapei":
+                write_and_track(dane, rep, 'D 3045')
+            else:
+                rep.write("* Następnie należy zaaplikować specjalistyczny mostek sczepny za pomocą produktu **WAKOL D 3045**. Aplikować równomiernie za pomocą wałka. Zużycie wynosi **ok. 150 g/m²**. **Czas schnięcia 1 godzina**.")
+                write_and_track(dane, rep, 'D 3045')
         if dane.get('leveling_mesh') == "z siatką":
             area = dane.get('area_m2') or 0
-            rep.write("* Na przygotowane podłoże należy rozłożyć matę zbrojeniową **WAKOL AR 150** i zaszpachlować ją masą szpachlową **WAKOL Z 645** z dodatkiem plastyfikatora **WAKOL D 3060** (7 litrów WAKOL D 3060 na 25 kg WAKOL Z 645). Czas schnięcia min. 3h.")
+            firma_is_mapei = (dane.get('firma') == "Mapei")
+            ratio = 8.0 if firma_is_mapei else 7.0
+            
+            if firma_is_mapei:
+                rep.write(f"* Na przygotowane podłoże należy rozłożyć matę zbrojeniową **{PRODUCTS['AR 150']['name']}** i zaszpachlować ją masą szpachlową **{PRODUCTS['Z 645']['name']}** z dodatkiem plastyfikatora **{PRODUCTS['D 3060']['name']}** ({ratio} kg na 25 kg masy). Czas schnięcia min. 3h.")
+            else:
+                rep.write(f"* Na przygotowane podłoże należy rozłożyć matę zbrojeniową **{PRODUCTS['AR 150']['name']}** i zaszpachlować ją masą szpachlową **{PRODUCTS['Z 645']['name']}** z dodatkiem plastyfikatora **{PRODUCTS['D 3060']['name']}** ({ratio} litrów na 25 kg masy). Czas schnięcia min. 3h.")
+                
             if area > 0:
                 write_and_track(dane, rep, 'AR 150', custom_kg=area)
                 kg_z645_mesh = area * 2.0
                 write_and_track(dane, rep, 'Z 645 (bruzdowane)', custom_kg=kg_z645_mesh)
-                write_and_track(dane, rep, 'D 3060', custom_kg=area * 0.56)
+                write_and_track(dane, rep, 'D 3060', custom_kg=(kg_z645_mesh / 25.0) * ratio)
         write_and_track(dane, rep, 'Z 675')
 
     rep.write("* Po wyschnięciu masy samorozlewnej zalecamy szlif podłoża w celu uzyskania gładkiej powierzchni oraz dokładne odkurzenie.")
