@@ -114,7 +114,7 @@ def render_wspolne_dane_optyczne(dane, rep):
     if klimat:
         rep.write(f"**d) warunki klimatyczne:** {', '.join(klimat)}.")
 
-PRODUCTS = {
+PRODUCTS_WAKOL = {
     'PU 280 (1W)': {'name': 'WAKOL PU 280 (1 warstwa)', 'usage': 150, 'sizes': [11, 5], 'text': FULL_PU280_1W, 'price': 54.27},
     'PU 280 (Bariera)': {'name': 'WAKOL PU 280 (bariera)', 'usage': 250, 'sizes': [11, 5], 'text': FULL_PU280_BARRIER, 'price': 54.27},
     'PU 280 (Bariera Płyta)': {'name': 'WAKOL PU 280 (bariera)', 'usage': 250, 'sizes': [11, 5], 'text': FULL_PU280_BARRIER_PLYTA, 'price': 54.27},
@@ -122,7 +122,7 @@ PRODUCTS = {
     'PU 235 (Bariera)': {'name': 'WAKOL PU 235 (bariera)', 'usage': 250, 'sizes': [11], 'text': FULL_PU235_BARRIER, 'price': 50.60},
     'PS 275': {'name': 'WAKOL PS 275', 'usage': 700, 'sizes': [11], 'text': FULL_PS275, 'price': 19.08},
     'D 3004': {'name': 'WAKOL D 3004', 'usage': 50, 'sizes': [10, 5], 'text': FULL_D3004, 'price': 23.32},
-    'D 3045': {'name': 'WAKOL D 3045 (mostek sczepny)', 'usage': 150, 'sizes': [12, 6], 'text': "", 'price': 25.00},
+    'D 3045': {'name': 'WAKOL D 3045 (mostek sczepny)', 'usage': 150, 'sizes': [12, 6], 'text': "", 'price': 33.92},
     'D 3055': {'name': 'WAKOL D 3055', 'usage': 150, 'sizes': [10, 5], 'text': FULL_D3055, 'price': 16.96},
     'PU 225': {'name': 'WAKOL PU 225 (klej)', 'usage': 1250, 'sizes': [10], 'text': "", 'price': 13.55},
     'MS 230': {'name': 'WAKOL MS 230 (klej)', 'usage': 1350, 'sizes': [18], 'text': "", 'price': 15.00},
@@ -141,8 +141,46 @@ PRODUCTS = {
     'D 3060': {'name': 'WAKOL D 3060 (plastyfikator)', 'usage': 1000, 'sizes': [10], 'text': "", 'price': 26.00},
     'PU 280 (RP)': {'name': 'WAKOL PU 280 (grunt dla RP)', 'usage': 200, 'sizes': [11, 5], 'text': "* Zalecamy zagruntowanie całej powierzchni podłoża gruntówką wzmacniającą **WAKOL PU 280**. Aplikować wałkiem. Nie zostawiać kałuż tj. zbierać nadmiar niewchłoniętej gruntówki. Zużycie ok. 200 g/m². Czas schnięcia 1 godzina. Czas do montażu – 72 godziny.", 'price': 54.27},
     'Płyta RP': {'name': 'WAKOL RP 704 (płyta odprzęgająca)', 'usage': 1000, 'sizes': [1], 'unit': 'szt', 'text': "* Na tak przygotowane podłoże zalecamy przyklejenie płyty odprzęgającej o grubości 4 mm **WAKOL RP 704**. Należy przyklejać klejem 2K PU (**WAKOL PU 225**). Płytę odprzęgającą po ułożeniu należy docisnąć. Płytę można docinać używając noża trapezowego. Można układać parkiet, jeśli tylko klejona płyta nie przesuwa się w trakcie chodzenia po niej.", 'price': 22.05},
-    'PS 205': {'name': 'WAKOL PS 205 (żywica lana)', 'sizes': [1], 'unit': 'kpl.', 'text': "", 'price': 48.40}
+    'PS 205': {'name': 'WAKOL PS 205 (żywica lana)', 'sizes': [1], 'unit': 'kpl.', 'text': "", 'price': 48.40},
+    'Piasek kwarcowy': {'name': 'Piasek kwarcowy', 'usage': 0, 'sizes': [25], 'text': "", 'price': 0.0},
 }
+
+PRODUCTS_MAPEI = {
+    k: dict(v, name=v['name'].replace('WAKOL', 'Mapei'), text='', price=0.0)
+    for k, v in PRODUCTS_WAKOL.items()
+}
+
+_M_ECO_PU1K_1W = "* Zalecamy wykonanie gruntowania wzmacniającego poprzez zagruntowanie powierzchni jastrychu gruntówką poliuretanową **ECO PRIM PU 1K TURBO**. Aplikować wałkiem. Podczas aplikacji nie zostawiać kałuż tj. zbierać nadmiar niewchłoniętej gruntówki. Zużycie **ok. 200 g/m²**. **Czas schnięcia – 2 godziny**."
+_M_ECO_PU1K_BARRIER = "* Z uwagi na podwyższoną wilgotność zalecamy stworzenie **bariery przeciwwilgociowej** poprzez zagruntowanie powierzchni jastrychu gruntówką poliuretanową **ECO PRIM PU 1K TURBO**. Aplikować wałkiem. Podczas aplikacji nie zostawiać kałuż tj. zbierać nadmiar niewchłoniętej gruntówki. 1. warstwa nałożona wałkiem **200 g/m²**. **Czas schnięcia – 2 godziny**. 2. warstwa **150 g/m²** – **czas schnięcia – 2 godziny**. **Czas do klejenia: 72 godziny od zagruntowania**."
+_M_ECO_PU1K_BARRIER_PLYTA = "* Z uwagi na grubość płyty fundamentowej zalecamy stworzenie **bariery przeciwwilgociowej** poprzez zagruntowanie powierzchni podłoża gruntówką poliuretanową **ECO PRIM PU 1K TURBO**. Aplikować wałkiem. Podczas aplikacji nie zostawiać kałuż tj. zbierać nadmiar niewchłoniętej gruntówki. 1. warstwa nałożona wałkiem **200 g/m²**. **Czas schnięcia – 2 godziny**. 2. warstwa **150 g/m²** – **czas schnięcia – 2 godziny**. **Czas do klejenia: 72 godziny od zagruntowania**."
+_M_ECO_PU1K_RP = "* Zalecamy zagruntowanie całej powierzchni podłoża gruntówką poliuretanową **ECO PRIM PU 1K TURBO**. Aplikować wałkiem. Nie zostawiać kałuż tj. zbierać nadmiar niewchłoniętej gruntówki. Zużycie ok. 200 g/m². Czas schnięcia 2 godziny. Czas do montażu – 72 godziny."
+
+PRODUCTS_MAPEI.update({
+    'PU 280 (1W)':          {'name': 'Mapei ECO PRIM PU 1K TURBO (1 warstwa)', 'usage': 200, 'sizes': [10], 'text': _M_ECO_PU1K_1W,           'price': 0.0},
+    'PU 280 (Bariera)':     {'name': 'Mapei ECO PRIM PU 1K TURBO (bariera)',    'usage': 350, 'sizes': [10], 'text': _M_ECO_PU1K_BARRIER,       'price': 0.0},
+    'PU 280 (Bariera Płyta)':{'name': 'Mapei ECO PRIM PU 1K TURBO (bariera)',   'usage': 350, 'sizes': [10], 'text': _M_ECO_PU1K_BARRIER_PLYTA, 'price': 0.0},
+    'PU 280 (RP)':          {'name': 'Mapei ECO PRIM PU 1K TURBO (grunt dla RP)','usage': 200, 'sizes': [10], 'text': _M_ECO_PU1K_RP,           'price': 0.0},
+})
+
+_M_PROSFAS = "* Zalecamy aplikację gruntówki wzmacniającej **PROSFAS** wałkiem lub pędzlem. Zużycie **ok. 1,5 kg/m²**. Aplikując **PROSFAS** należy zwrócić uwagę, aby dobrze wchłaniał się w podłoże i unikać powstawania kałuż na powierzchni jastrychu. **Po 7 dniach schnięcia** powierzchnię należy **przeszlifować papierem o gradacji 24 – 40** i dokładnie odkurzyć."
+
+_M_ECO_PU1K_1W_S = "* Zalecamy wykonanie gruntowania wzmacniającego poprzez zagruntowanie powierzchni jastrychu gruntówką poliuretanową **ECO PRIM PU 1K**. Aplikować wałkiem. Podczas aplikacji nie zostawiać kałuż tj. zbierać nadmiar niewchłoniętej gruntówki. Zużycie **ok. 200 g/m²**. **Czas schnięcia – 24 godziny**."
+_M_ECO_PU1K_BARRIER_S = "* Zalecamy wykonanie **bariery przeciwwilgociowej** poprzez dwukrotne zagruntowanie gruntówką poliuretanową **ECO PRIM PU 1K**. Podczas aplikacji nie zostawiać kałuż tj. zbierać nadmiar niewchłoniętej gruntówki. 1. warstwa nałożona wałkiem **200 g/m²**. **Czas schnięcia – 24 godziny**. 2. warstwa zużycie **150 g/m²**. **Czas schnięcia – 24 godziny**. **Czas klejenia 72 godziny od zagruntowania**."
+
+_M_ECO_GRIP = "* Zalecamy zaaplikowanie mostka sczepnego **ECO PRIM GRIP PLUS**. Aplikować równomiernie wałkiem. Zużycie wynosi **ok. 200 g/m²**. **Czas schnięcia 1 godzina**."
+
+PRODUCTS_MAPEI.update({
+    'PU 235 (1W)':      {'name': 'Mapei ECO PRIM PU 1K (1 warstwa)', 'usage': 200, 'sizes': [10, 5], 'text': _M_ECO_PU1K_1W_S,      'price': 0.0},
+    'PU 235 (Bariera)': {'name': 'Mapei ECO PRIM PU 1K (bariera)',    'usage': 350, 'sizes': [10, 5], 'text': _M_ECO_PU1K_BARRIER_S, 'price': 0.0},
+    'PS 275':           {'name': 'Mapei PROSFAS',                      'usage': 1500, 'sizes': [25],  'text': _M_PROSFAS,            'price': 0.0},
+    'D 3045':           {'name': 'Mapei ECO PRIM GRIP PLUS',           'usage': 200,  'sizes': [10, 5, 1], 'text': _M_ECO_GRIP,     'price': 0.0},
+})
+PRODUCTS_UZIN = {
+    k: dict(v, name=v['name'].replace('WAKOL', 'Uzin'), text='', price=0.0)
+    for k, v in PRODUCTS_WAKOL.items()
+}
+
+PRODUCTS = PRODUCTS_WAKOL
 
 def _calc_combo(needed_kg, sizes, unit):
     if not sizes:
@@ -152,18 +190,23 @@ def _calc_combo(needed_kg, sizes, unit):
         q = math.ceil(needed_kg / sizes[0])
         return q * sizes[0], f"{q}x {sizes[0]} {unit}"
     large, small = sizes[0], sizes[1]
-    n_large = math.floor(needed_kg / large)
-    rem = needed_kg - n_large * large
-    n_small = math.ceil(rem / small) if rem > 0 else 0
-    if needed_kg > 8 and n_small >= 2:
-        n_large += 1
-        n_small = 0
-    bought = n_large * large + n_small * small
+    best_waste = None
+    best_nl, best_ns = 0, 1
+    for nl in range(0, math.ceil(needed_kg / large) + 1):
+        rem = needed_kg - nl * large
+        ns = math.ceil(rem / small) if rem > 0 else 0
+        total = nl * large + ns * small
+        waste = total - needed_kg
+        if waste >= -0.001:
+            if best_waste is None or waste < best_waste - 0.001 or (abs(waste - best_waste) < 0.001 and nl + ns < best_nl + best_ns):
+                best_waste, best_nl, best_ns = waste, nl, ns
+    if best_nl == 0 and best_ns == 0:
+        best_ns = 1
+    bought = best_nl * large + best_ns * small
     parts = []
-    if n_large > 0: parts.append(f"{n_large}x {large} {unit}")
-    if n_small > 0: parts.append(f"{n_small}x {small} {unit}")
+    if best_nl > 0: parts.append(f"{best_nl}x {large} {unit}")
+    if best_ns > 0: parts.append(f"{best_ns}x {small} {unit}")
     if not parts:
-        n_small = 1
         bought = small
         parts = [f"1x {small} {unit}"]
     return bought, " + ".join(parts)
@@ -349,18 +392,23 @@ def render_wspolne_zalecenia_podloze(dane, rep):
     if dane['holes'] == "TAK":
         kg_z645 = None
         if dane.get('holes_width') and dane.get('holes_length') and dane.get('holes_depth'):
-            area_h = (dane['holes_width'] / 100.0) * (dane['holes_length'] / 100.0)
+            area_h = (dane['holes_width'] / 100.0) * dane['holes_length']
             thick_mm = dane['holes_depth'] * 10.0
             kg_z645 = area_h * thick_mm * 1.6
 
+        _add_sand = False
         if dane.get('holes_depth') and dane['holes_depth'] >= 1.0:
-            if kg_z645 is not None: kg_z645 /= 2.0
+            if kg_z645 is not None:
+                kg_z645 /= 2.0
+                _add_sand = True
             rep.write("* Ubytki zaszpachlować masą **WAKOL Z 645** wymieszaną z piaskiem kwarcowym w proporcji 1:1  – czas schnięcia 1 godzina.")
         else:
             rep.write("* Ubytki zaszpachlować masą szpachlową **WAKOL Z 645** z dodatkiem plastyfikatora **WAKOL D 3060** (7 litrów WAKOL D 3060 na 25 kg WAKOL Z 645). Czas schnięcia min. 3h. W razie potrzeby użyć siatki zbrojeniowej WAKOL AR 150.")
-        
+
         if kg_z645 is not None:
             write_and_track(dane, rep, 'Z 645', custom_kg=kg_z645)
+            if _add_sand:
+                write_and_track(dane, rep, 'Piasek kwarcowy', custom_kg=kg_z645)
 
     if dane.get('local_leveling') == "TAK" and dane.get('local_leveling_kg'):
         details = dane.get('local_leveling_details', '')
@@ -418,7 +466,8 @@ def render_wspolna_chemia(dane, rep):
                     if dane['substrate'] == "jastrych anhydrytowy": write_and_track(dane, rep, 'PU 235 (1W)')
                     else:
                         write_and_track(dane, rep, 'PS 275')
-                        write_and_track(dane, rep, 'PU 280 (1W)')
+                        if dane.get('firma') != 'Mapei':
+                            write_and_track(dane, rep, 'PU 280 (1W)')
                 elif dane['strength_val'] == 2: write_and_track(dane, rep, 'PU 280 (1W)')
         else:
             if dane['strength_val'] == 1:
@@ -499,7 +548,8 @@ def render_chemia_deska_lita(dane, rep):
                     if dane['substrate'] == "jastrych anhydrytowy": write_and_track(dane, rep, 'PU 235 (1W)')
                     else:
                         write_and_track(dane, rep, 'PS 275')
-                        write_and_track(dane, rep, 'PU 280 (1W)')
+                        if dane.get('firma') != 'Mapei':
+                            write_and_track(dane, rep, 'PU 280 (1W)')
                 elif dane['strength_val'] == 2: write_and_track(dane, rep, 'PU 280 (1W)')
         else:
             if dane['strength_val'] == 1:
@@ -1417,6 +1467,16 @@ if tryb == "Wersja PRO (Ręczna)":
     st.stop()
 
 
+st.markdown("---")
+firma = st.radio("🏢 Wybierz firmę:", ["Wakol", "Mapei", "Uzin"], horizontal=True)
+if firma == "Mapei":
+    PRODUCTS = PRODUCTS_MAPEI
+elif firma == "Uzin":
+    PRODUCTS = PRODUCTS_UZIN
+else:
+    PRODUCTS = PRODUCTS_WAKOL
+st.markdown("---")
+
 flooring_type = st.selectbox("Wybierz rodzaj okładziny (Sekcja):", ["deska warstwowa", "podłoga laminowana", "lity parkiet (maks. 8 cm x 60 cm)", "mozaika drewniana (min. 16 mm grubości, maks. 20 cm długości)", "deska lita", "wykładzina dywanowa", "pcv w rolce", "lvt cienkie", "lvt grube z twardym rdzeniem"])
 
 klej_typ = None
@@ -1544,8 +1604,8 @@ if _force_holes:
     col_h1, col_h2, col_h3 = st.columns(3)
     with col_h1: h_depth = st.number_input("Grubość ubytków (cm)", min_value=0.1, value=None, key="h_depth_f")
     with col_h2: h_width = st.number_input("Szerokość ubytków (cm)", min_value=0.1, value=None, key="h_width_f")
-    with col_h3: h_length = st.number_input("Długość ubytków (cm)", min_value=0.1, value=None, key="h_length_f")
-    if h_depth and h_width and h_length: hole_details = f" o wymiarach ok. {h_length}x{h_width} cm i grubości {h_depth} cm"
+    with col_h3: h_length = st.number_input("Długość ubytków (m)", min_value=0.01, value=None, key="h_length_f")
+    if h_depth and h_width and h_length: hole_details = f" o wymiarach ok. {h_length} m x {h_width} cm i grubości {h_depth} cm"
     holes_depth = h_depth
     img_holes = st.file_uploader("Zdjęcia ubytków po skuciu:", accept_multiple_files=True, type=["png", "jpg", "jpeg"], key="img_holes_f")
 else:
@@ -1554,8 +1614,8 @@ else:
         col_h1, col_h2, col_h3 = st.columns(3)
         with col_h1: h_depth = st.number_input("Grubość (cm)", min_value=0.1, value=None)
         with col_h2: h_width = st.number_input("Szerokość (cm)", min_value=0.1, value=None)
-        with col_h3: h_length = st.number_input("Długość (cm)", min_value=0.1, value=None)
-        if h_depth and h_width and h_length: hole_details = f" o wymiarach ok. {h_length}x{h_width} cm i grubości {h_depth} cm"
+        with col_h3: h_length = st.number_input("Długość (m)", min_value=0.01, value=None)
+        if h_depth and h_width and h_length: hole_details = f" o wymiarach ok. {h_length} m x {h_width} cm i grubości {h_depth} cm"
         holes_depth = h_depth
         img_holes = st.file_uploader("Zdjęcia ubytków:", accept_multiple_files=True, type=["png", "jpg", "jpeg"], key="img_holes")
 
@@ -1663,6 +1723,7 @@ include_cost = st.checkbox("Dołącz wstępny kosztorys materiałowy do protoko�
 # PAKOWANIE DANYCH DO SŁOWNIKA DLA FUNKCJI GENERUJĄCYCH
 dane_protokolu = {
     "include_cost": include_cost,
+    "firma": firma,
     "flooring_type": flooring_type,
     "substrate": substrate,
     "area_m2": area_m2,
