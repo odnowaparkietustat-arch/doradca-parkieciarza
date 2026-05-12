@@ -84,10 +84,10 @@ def render_wspolne_dane_optyczne(dane, rep):
     level_txt = f" **Podłoże wymaga wyrównania masą wyrównawczą o planowanej grubości {dane['leveling_thickness']} milimetrów.**" if dane['needs_levelling'] == "TAK" else ""
     vent_txt = f" Rodzaj zastosowanej wentylacji: wentylacja {dane['ventilation_type'].lower()}."
     evenness_txt = " Nie badano równości podłoża." if dane['needs_levelling'] == "NIE" else ""
-    dodatkowe_txt = f" Dodatkowe informacje: {dane['dodatkowe_informacje']}" if dane.get('dodatkowe_informacje') else ""
+    dodatkowe_txt = f" **{dane['dodatkowe_informacje']}**" if dane.get('dodatkowe_informacje') else ""
 
     area_txt = f" o powierzchni {dane['area_m2']} m²" if dane.get('area_m2') else ""
-    full_opt_report = f"Podłoże pod planowaną okładzinę ({dane['flooring_type']}) stanowi {dane['substrate']}{area_txt}{age_txt}.{demolition_txt}{heat_txt}{curing_txt}{dil_txt}{klaw_txt}{pek_txt}{holes_txt}{level_txt} {vent_txt}{evenness_txt}{dodatkowe_txt}"
+    full_opt_report = f"Podłoże pod planowaną okładzinę ({dane['flooring_type']}) stanowi {dane['substrate']}{area_txt}{age_txt}.{dodatkowe_txt}{demolition_txt}{heat_txt}{curing_txt}{dil_txt}{klaw_txt}{pek_txt}{holes_txt}{level_txt} {vent_txt}{evenness_txt}"
     rep.write(f"**a) oględziny optyczne:** {full_opt_report}")
     
     presso_valid = [str(p) for p in dane.get('presso_results', []) if p is not None]
@@ -122,10 +122,12 @@ PRODUCTS = {
     'PU 235 (Bariera)': {'name': 'WAKOL PU 235 (bariera)', 'usage': 250, 'sizes': [11], 'text': FULL_PU235_BARRIER, 'price': 50.60},
     'PS 275': {'name': 'WAKOL PS 275', 'usage': 700, 'sizes': [11], 'text': FULL_PS275, 'price': 19.08},
     'D 3004': {'name': 'WAKOL D 3004', 'usage': 50, 'sizes': [10, 5], 'text': FULL_D3004, 'price': 23.32},
-    'D 3045': {'name': 'WAKOL D 3045 (mostek sczepny)', 'usage': 150, 'sizes': [12, 5], 'text': "", 'price': 25.00},
+    'D 3045': {'name': 'WAKOL D 3045 (mostek sczepny)', 'usage': 150, 'sizes': [12, 6], 'text': "", 'price': 25.00},
     'D 3055': {'name': 'WAKOL D 3055', 'usage': 150, 'sizes': [10, 5], 'text': FULL_D3055, 'price': 16.96},
     'PU 225': {'name': 'WAKOL PU 225 (klej)', 'usage': 1250, 'sizes': [10], 'text': "", 'price': 13.55},
     'MS 230': {'name': 'WAKOL MS 230 (klej)', 'usage': 1350, 'sizes': [18], 'text': "", 'price': 15.00},
+    'MS 230 (B11 cement)': {'name': 'WAKOL MS 230 (klej)', 'usage': 1150, 'sizes': [18], 'text': "", 'price': 15.00},
+    'MS 230 (B5 masa)': {'name': 'WAKOL MS 230 (klej)', 'usage': 900, 'sizes': [18], 'text': "", 'price': 15.00},
     'MS 260': {'name': 'WAKOL MS 260 (klej)', 'usage': 1350, 'sizes': [18], 'text': "", 'price': 13.46},
     'D 3318': {'name': 'WAKOL D 3318 (klej)', 'usage': 350, 'sizes': [13], 'text': "", 'price': 17.60},
     'Z 645': {'name': 'WAKOL Z 645 (masa naprawcza)', 'usage': 1.6, 'sizes': [25], 'text': "", 'price': 4.26},
@@ -153,6 +155,9 @@ def _calc_combo(needed_kg, sizes, unit):
     n_large = math.floor(needed_kg / large)
     rem = needed_kg - n_large * large
     n_small = math.ceil(rem / small) if rem > 0 else 0
+    if needed_kg > 8 and n_small >= 2:
+        n_large += 1
+        n_small = 0
     bought = n_large * large + n_small * small
     parts = []
     if n_large > 0: parts.append(f"{n_large}x {large} {unit}")
@@ -722,6 +727,12 @@ def generate_report_lvt_grube(dane, rep):
     elif dane['substrate'] == "płyta fundamentowa" and dane['needs_levelling'] == "NIE":
         rep.write(f"Klejenie podłogi LVT ({bottom_type}) należy przeprowadzić przy użyciu kleju polimerowego twardo-elastycznego **WAKOL MS 260** (szpachla B13, zużycie: 1350 g/m²).")
         write_and_track(dane, rep, 'MS 260')
+    elif dane['needs_levelling'] == "TAK" or dane['substrate'] == "masa samorozlewna":
+        rep.write(f"Klejenie podłogi LVT ({bottom_type}) na masie samorozlewnej należy przeprowadzić przy użyciu kleju **WAKOL MS 230** (szpachla B5, zużycie: 900 g/m²).")
+        write_and_track(dane, rep, 'MS 230 (B5 masa)')
+    elif dane['substrate'] == "jastrych cementowy":
+        rep.write(f"Klejenie podłogi LVT ({bottom_type}) na jastrychu cementowym należy przeprowadzić przy użyciu kleju **WAKOL MS 230** (szpachla B11, zużycie: 1150 g/m²).")
+        write_and_track(dane, rep, 'MS 230 (B11 cement)')
     else:
         rep.write(f"Klejenie podłogi LVT ({bottom_type}) należy przeprowadzić przy użyciu kleju **WAKOL MS 230** (szpachla B13, zużycie: 1350 g/m²).")
         write_and_track(dane, rep, 'MS 230')
