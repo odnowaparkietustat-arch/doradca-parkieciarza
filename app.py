@@ -41,9 +41,9 @@ class ReportBuilder:
 FULL_PS275 = "* Zalecamy aplikację gruntówki wzmacniającej **WAKOL PS 275** w dwóch warstwach – grubym wałkiem sznurkowym, zużycie w sumie **ok. 700 g/m²**. Każda z warstw po **350 g/m²**, aplikowane po sobie w odstępie jednej godziny. Aplikując gruntówkę **WAKOL PS 275** należy zwrócić uwagę, aby dobrze wchłaniała się w podłoże i unikać powstawania kałuż na powierzchni jastrychu. Po nałożeniu drugiej warstwy gruntówki w razie potrzeby wykonać posypkę z piasku kwarcowego. **Po 7 dniach schnięcia** powierzchnię należy **przeszlifować papierem o gradacji 24 – 40** usuwając przyklejony do powierzchni piasek kwarcowy i dokładnie odkurzyć."
 FULL_PU235_1W = "* Zalecamy wykonanie gruntowania wzmacniającego poprzez zagruntowanie powierzchni jastrychu gruntówką poliuretanową **WAKOL PU 235**. Aplikować wałkiem. Podczas aplikacji nie zostawiać kałuż tj. zbierać nadmiar niewchłoniętej gruntówki. Zużycie **ok. 150 g/m²**. **Czas schnięcia – 4-6 godzin**."
 FULL_PU235_BARRIER = "* Zalecamy wykonanie **bariery przeciwwilgociowej** poprzez dwukrotne zagruntowanie gruntówką wzmacniającą **WAKOL PU 235**. Podczas aplikacji nie zostawiać kałuż tj. zbierać nadmiar niewchłoniętej gruntówki. 1. warstwa nałożona wałkiem **ok. 150 g/m²**. **Czas schnięcia – 4-6 godzin**. 2. warstwa zużycie **ok. 100 g/m²**. **Czas schnięcia – 4-6 godzin**. **Czas klejenia 72 godziny od zagruntowania**."
-FULL_PU280_1W = "* Zalecamy wykonanie gruntowania wzmacniającego poprzez zagruntowanie powierzchni jastrychu gruntówką poliuretanową **WAKOL PU 280**. Aplikować wałkiem. Podczas aplikacji nie zostawiać kałuż tj. zbierać nadmiar niewchłoniętej gruntówki. Zużycie **ok. 150 g/m²**. **Czas schnięcia – jedna godzina**."
-FULL_PU280_BARRIER = "* Z uwagi na podwyższoną wilgotność zalecamy stworzenie **bariery przeciwwilgociowej** poprzez zagruntowanie powierzchni jastrychu gruntówką poliuretanową **WAKOL PU 280**. Aplikować wałkiem. Podczas aplikacji nie zostawiać kałuż tj. zbierać nadmiar niewchłoniętej gruntówki. 1. warstwa nałożona wałkiem **150 g/m²**. **Czas schnięcia – jedna godzina**. 2. warstwa **100 g/m²** - **czas schnięcia – jedna godzina**. **Czas do klejenia: 72 godziny od zagruntowania**."
-FULL_PU280_BARRIER_PLYTA = "* Z uwagi na grubość płyty fundamentowej zalecamy stworzenie **bariery przeciwwilgociowej** poprzez zagruntowanie powierzchni podłoża gruntówką poliuretanową **WAKOL PU 280**. Aplikować wałkiem. Podczas aplikacji nie zostawiać kałuż tj. zbierać nadmiar niewchłoniętej gruntówki. 1. warstwa nałożona wałkiem **150 g/m²**. **Czas schnięcia – jedna godzina**. 2. warstwa **100 g/m²** - **czas schnięcia – jedna godzina**. **Czas do klejenia: 72 godziny od zagruntowania**."
+FULL_PU280_1W = "* Zalecamy wykonanie gruntowania wzmacniającego poprzez zagruntowanie powierzchni jastrychu gruntówką poliuretanową **{PRODUCTS['PU 280 (1W)']['name']}**. Aplikować wałkiem. Podczas aplikacji nie zostawiać kałuż tj. zbierać nadmiar niewchłoniętej gruntówki. Zużycie **ok. 150 g/m²**. **Czas schnięcia – jedna godzina**."
+FULL_PU280_BARRIER = "* Z uwagi na podwyższoną wilgotność zalecamy stworzenie **bariery przeciwwilgociowej** poprzez zagruntowanie powierzchni jastrychu gruntówką poliuretanową **{PRODUCTS['PU 280 (1W)']['name']}**. Aplikować wałkiem. Podczas aplikacji nie zostawiać kałuż tj. zbierać nadmiar niewchłoniętej gruntówki. 1. warstwa nałożona wałkiem **150 g/m²**. **Czas schnięcia – jedna godzina**. 2. warstwa **100 g/m²** - **czas schnięcia – jedna godzina**. **Czas do klejenia: 72 godziny od zagruntowania**."
+FULL_PU280_BARRIER_PLYTA = "* Z uwagi na grubość płyty fundamentowej zalecamy stworzenie **bariery przeciwwilgociowej** poprzez zagruntowanie powierzchni podłoża gruntówką poliuretanową **{PRODUCTS['PU 280 (1W)']['name']}**. Aplikować wałkiem. Podczas aplikacji nie zostawiać kałuż tj. zbierać nadmiar niewchłoniętej gruntówki. 1. warstwa nałożona wałkiem **150 g/m²**. **Czas schnięcia – jedna godzina**. 2. warstwa **100 g/m²** - **czas schnięcia – jedna godzina**. **Czas do klejenia: 72 godziny od zagruntowania**."
 FULL_D3004 = "* Zagruntować podłoże koncentratem gruntówki dyspersyjnej **WAKOL D 3004**. Proporcje mieszania: 1 część **WAKOL D 3004** + 2 części wody. **Czas schnięcia**: na jastrychach cementowych i betonie po optycznym wyschnięciu **ok. 30 min**. Sposób nanoszenia: wałek do gruntowania microfazer. Zużycie: **ok. 50 g/m²** koncentratu."
 FULL_Z625 = "* Wylać masę wyrównawczą **WAKOL Z 625** - wymieszać ją w czystym naczyniu z zimną wodą w proporcji 6,00 – 6,25 litrów wody na 25 kg masy. Mieszać unikając tworzenia się grudek. Prędkość obrotowa mieszadła może wynosić max. 600 obrotów na minutę. Wymieszaną masę nanosić w żądanej grubości na podłoże przy pomocy szpachli, łaty lub rakli. Przed pracą należy zwrócić uwagę na obecność wypełnień fug przy ścianach. Zużycie **ok. 1,6 kg/m²/mm**. **Możliwość chodzenia po 2 godzinach**. **Możliwość klejenia podłóg drewnianych przy warstwie do 5 mm – po 6 godzinach**, przy warstwie do 10 mm – po 12 godzinach, przy warstwie 30 mm – po 24 godzinach."
 FULL_Z675 = "* Wylać masę wyrównawczą **WAKOL Z 675** - wymieszać ją w czystym naczyniu z zimną wodą w proporcji 6,0 – 6,5 litrów wody na 25 kg masy. Mieszać unikając tworzenia się grudek. Prędkość obrotowa mieszadła może wynosić max. 600 obrotów na minutę. Wymieszaną masę nanosić w żądanej grubości na podłoże przy pomocy szpachli, łaty lub rakli. Przed pracą należy zwrócić uwagę na obecność wypełnień fug przy ścianach. Zużycie **ok. 1,6 kg/m²/mm**. **Możliwość chodzenia po 2-3 godzinach**. **Możliwość klejenia podłóg po ok. 24 godzinach przy grubości warstwy do 3 mm**, przy większych grubościach czas schnięcia ulega wydłużeniu."
@@ -129,7 +129,7 @@ PRODUCTS_WAKOL = {
     'MS 230 (B11 cement)': {'name': 'WAKOL MS 230 (klej)', 'usage': 1150, 'sizes': [18], 'text': "", 'price': 15.00},
     'MS 230 (B5 masa)': {'name': 'WAKOL MS 230 (klej)', 'usage': 900, 'sizes': [18], 'text': "", 'price': 15.00},
     'MS 260': {'name': 'WAKOL MS 260 (klej)', 'usage': 1350, 'sizes': [18], 'text': "", 'price': 13.46},
-    'D 3318': {'name': 'WAKOL D 3318 (klej)', 'usage': 350, 'sizes': [13], 'text': "", 'price': 17.60},
+    'D 3318': {'name': '{PRODUCTS['D 3318']['name']} (klej)', 'usage': 350, 'sizes': [13], 'text': "", 'price': 17.60},
     'Z 645': {'name': 'WAKOL Z 645 (masa naprawcza)', 'usage': 1.6, 'sizes': [25], 'text': "", 'price': 4.26},
     'Z 645 (bruzdowane)': {'name': 'WAKOL Z 645 (masa szpachlowa)', 'usage': 2000, 'sizes': [25], 'text': "", 'price': 4.26},
     'Z 625': {'name': 'WAKOL Z 625 (masa samorozlewna)', 'usage_per_mm': 1.6, 'sizes': [25], 'text': FULL_Z625, 'price': 4.09},
@@ -139,8 +139,8 @@ PRODUCTS_WAKOL = {
     'AR 150': {'name': 'WAKOL AR 150 (mata kompensacyjna)', 'usage': 1000, 'sizes': [50], 'text': "", 'price': 8.06},
     'EM 140': {'name': 'WAKOL EM 140 (włóknina odsprzęgająca)', 'usage': 1000, 'sizes': [50], 'text': "", 'price': 17.67},
     'D 3060': {'name': 'WAKOL D 3060 (plastyfikator)', 'usage': 1000, 'sizes': [10], 'text': "", 'price': 26.00},
-    'PU 280 (RP)': {'name': 'WAKOL PU 280 (grunt dla RP)', 'usage': 200, 'sizes': [11, 5], 'text': "* Zalecamy zagruntowanie całej powierzchni podłoża gruntówką wzmacniającą **WAKOL PU 280**. Aplikować wałkiem. Nie zostawiać kałuż tj. zbierać nadmiar niewchłoniętej gruntówki. Zużycie ok. 200 g/m². Czas schnięcia 1 godzina. Czas do montażu – 72 godziny.", 'price': 54.27},
-    'Płyta RP': {'name': 'WAKOL RP 704 (płyta odprzęgająca)', 'usage': 1000, 'sizes': [1], 'unit': 'szt', 'text': "* Na tak przygotowane podłoże zalecamy przyklejenie płyty odprzęgającej o grubości 4 mm **WAKOL RP 704**. Należy przyklejać klejem 2K PU (**WAKOL PU 225**). Płytę odprzęgającą po ułożeniu należy docisnąć. Płytę można docinać używając noża trapezowego. Można układać parkiet, jeśli tylko klejona płyta nie przesuwa się w trakcie chodzenia po niej.", 'price': 22.05},
+    'PU 280 (RP)': {'name': 'WAKOL PU 280 (grunt dla RP)', 'usage': 200, 'sizes': [11, 5], 'text': "* Zalecamy zagruntowanie całej powierzchni podłoża gruntówką wzmacniającą **{PRODUCTS['PU 280 (1W)']['name']}**. Aplikować wałkiem. Nie zostawiać kałuż tj. zbierać nadmiar niewchłoniętej gruntówki. Zużycie ok. 200 g/m². Czas schnięcia 1 godzina. Czas do montażu – 72 godziny.", 'price': 54.27},
+    'Płyta RP': {'name': 'WAKOL RP 704 (płyta odprzęgająca)', 'usage': 1000, 'sizes': [1], 'unit': 'szt', 'text': "* Na tak przygotowane podłoże zalecamy przyklejenie płyty odprzęgającej o grubości 4 mm **WAKOL RP 704**. Należy przyklejać klejem 2K PU (**{PRODUCTS['PU 225']['name']}**). Płytę odprzęgającą po ułożeniu należy docisnąć. Płytę można docinać używając noża trapezowego. Można układać parkiet, jeśli tylko klejona płyta nie przesuwa się w trakcie chodzenia po niej.", 'price': 22.05},
     'PS 205': {'name': 'WAKOL PS 205 (żywica lana)', 'sizes': [1], 'unit': 'kpl.', 'text': "", 'price': 48.40}
 }
 
@@ -673,19 +673,19 @@ def generate_report_deska_warstwowa(dane, rep):
 
     rep.write("**c) klejenie okładziny:**")
     if dane['substrate'] == "płytki ceramiczne" and dane['needs_levelling'] == "NIE":
-        rep.write(f"Klejenie {nazwa_okladziny} należy przeprowadzić przy użyciu dwuskładnikowego kleju poliuretanowego **WAKOL PU 225** (szpachla B11, zużycie: 1250 g/m²).")
+        rep.write(f"Klejenie {nazwa_okladziny} należy przeprowadzić przy użyciu dwuskładnikowego kleju poliuretanowego **{PRODUCTS['PU 225']['name']}** (szpachla B11, zużycie: 1250 g/m²).")
         write_and_track(dane, rep, 'PU 225')
     elif dane['substrate'] == "płyta fundamentowa" and dane['needs_levelling'] == "NIE":
-        rep.write(f"Klejenie {nazwa_okladziny} należy przeprowadzić przy użyciu kleju polimerowego twardo-elastycznego **WAKOL MS 260** (szpachla B13, zużycie: 1350 g/m²).")
+        rep.write(f"Klejenie {nazwa_okladziny} należy przeprowadzić przy użyciu kleju polimerowego twardo-elastycznego **{PRODUCTS['MS 260']['name']}** (szpachla B13, zużycie: 1350 g/m²).")
         write_and_track(dane, rep, 'MS 260')
     elif dane['substrate'] == "jastrych anhydrytowy" and dane['strength_val'] == 1:
-        rep.write(f"Klejenie {nazwa_okladziny} należy przeprowadzić przy użyciu kleju do parkietu **WAKOL MS 230** (szpachla B13, zużycie: 1350 g/m²).")
+        rep.write(f"Klejenie {nazwa_okladziny} należy przeprowadzić przy użyciu kleju do parkietu **{PRODUCTS['MS 230']['name']}** (szpachla B13, zużycie: 1350 g/m²).")
         write_and_track(dane, rep, 'MS 230')
     elif dane.get('klej_typ') == "bezprzesuwny":
-        rep.write(f"Klejenie {nazwa_okladziny} należy przeprowadzić przy użyciu kleju do parkietu **WAKOL PU 225** (szpachla B11, zużycie: 1250 g/m²).")
+        rep.write(f"Klejenie {nazwa_okladziny} należy przeprowadzić przy użyciu kleju do parkietu **{PRODUCTS['PU 225']['name']}** (szpachla B11, zużycie: 1250 g/m²).")
         write_and_track(dane, rep, 'PU 225')
     else:
-        rep.write(f"Klejenie {nazwa_okladziny} należy przeprowadzić przy użyciu kleju do parkietu **WAKOL MS 230** (szpachla B13, zużycie: 1350 g/m²).")
+        rep.write(f"Klejenie {nazwa_okladziny} należy przeprowadzić przy użyciu kleju do parkietu **{PRODUCTS['MS 230']['name']}** (szpachla B13, zużycie: 1350 g/m²).")
         write_and_track(dane, rep, 'MS 230')
         
     render_potrzebne_materialy(dane, rep)
@@ -729,16 +729,16 @@ def generate_report_deska_lita(dane, rep):
 
     rep.write("**c) klejenie okładziny:**")
     if dane['substrate'] == "płytki ceramiczne" and dane['needs_levelling'] == "NIE":
-        rep.write(f"Klejenie podłogi z deski litej należy przeprowadzić przy użyciu dwuskładnikowego kleju poliuretanowego **WAKOL PU 225** (szpachla B11, zużycie: 1250 g/m²).")
+        rep.write(f"Klejenie podłogi z deski litej należy przeprowadzić przy użyciu dwuskładnikowego kleju poliuretanowego **{PRODUCTS['PU 225']['name']}** (szpachla B11, zużycie: 1250 g/m²).")
         write_and_track(dane, rep, 'PU 225')
     elif dane['substrate'] == "płyta fundamentowa" and dane['needs_levelling'] == "NIE":
-        rep.write("Klejenie podłogi z deski litej należy przeprowadzić przy użyciu kleju polimerowego twardo-elastycznego **WAKOL MS 260** (szpachla B13, zużycie: 1350 g/m²).")
+        rep.write(f"Klejenie podłogi z deski litej należy przeprowadzić przy użyciu kleju polimerowego twardo-elastycznego **{PRODUCTS['MS 260']['name']}** (szpachla B13, zużycie: 1350 g/m²).")
         write_and_track(dane, rep, 'MS 260')
     elif dane.get('klej_typ') == "bezprzesuwny":
-        rep.write("Klejenie podłogi z deski litej należy przeprowadzić przy użyciu kleju **WAKOL PU 225** (szpachla B11, zużycie: 1250 g/m²).")
+        rep.write(f"Klejenie podłogi z deski litej należy przeprowadzić przy użyciu kleju **{PRODUCTS['PU 225']['name']}** (szpachla B11, zużycie: 1250 g/m²).")
         write_and_track(dane, rep, 'PU 225')
     else:
-        rep.write("Klejenie podłogi z deski litej należy przeprowadzić przy użyciu kleju polimerowego twardo-elastycznego **WAKOL MS 260** (szpachla B13, zużycie: 1350 g/m²).")
+        rep.write(f"Klejenie podłogi z deski litej należy przeprowadzić przy użyciu kleju polimerowego twardo-elastycznego **{PRODUCTS['MS 260']['name']}** (szpachla B13, zużycie: 1350 g/m²).")
         write_and_track(dane, rep, 'MS 260')
     render_potrzebne_materialy(dane, rep)
 
@@ -755,7 +755,7 @@ def generate_report_lvt_cienkie(dane, rep):
         rep.write("* Szlif podłoża w celu uzyskania gładkiej powierzchni.")
         rep.write("* Dokładne odkurzenie powierzchni odkurzaczem przemysłowym.")
         rep.write("**b) klejenie okładziny:**")
-        rep.write("Klejenie podłogi winylowej (LVT) należy przeprowadzić przy użyciu kleju WAKOL D 3318 (szpachla TKB A2, zużycie: 350 g/m²). · Czas wstępnego odparowania: ok. 5 - 10 minut. · Czas układania: ok. 10 minut")
+        rep.write(f"Klejenie podłogi winylowej (LVT) należy przeprowadzić przy użyciu kleju {PRODUCTS['D 3318']['name']} (szpachla TKB A2, zużycie: 350 g/m²). · Czas wstępnego odparowania: ok. 5 - 10 minut. · Czas układania: ok. 10 minut")
         write_and_track(dane, rep, 'D 3318')
         render_potrzebne_materialy(dane, rep)
         return
@@ -792,7 +792,7 @@ def generate_report_lvt_cienkie(dane, rep):
     rep.write("* Po wyschnięciu masy samorozlewnej zalecamy szlif podłoża w celu uzyskania gładkiej powierzchni oraz dokładne odkurzenie.")
 
     rep.write("**c) klejenie okładziny:**")
-    rep.write("Klejenie podłogi winylowej (LVT) należy przeprowadzić przy użyciu kleju WAKOL D 3318 (szpachla TKB A2, zużycie: 350 g/m²). · Czas wstępnego odparowania: ok. 5 - 10 minut. · Czas układania: ok. 10 minut")
+    rep.write(f"Klejenie podłogi winylowej (LVT) należy przeprowadzić przy użyciu kleju {PRODUCTS['D 3318']['name']} (szpachla TKB A2, zużycie: 350 g/m²). · Czas wstępnego odparowania: ok. 5 - 10 minut. · Czas układania: ok. 10 minut")
     write_and_track(dane, rep, 'D 3318')
     render_potrzebne_materialy(dane, rep)
 
@@ -875,19 +875,19 @@ def generate_report_lvt_grube(dane, rep):
     if bottom_type == "Winyl na piankowym spodzie":
         rep.write("**Brak możliwości klejenia.** Możliwość montażu okładziny jedynie na pływająco.")
     elif dane['substrate'] == "płytki ceramiczne" and dane['needs_levelling'] == "NIE":
-        rep.write(f"Klejenie podłogi LVT ({bottom_type}) należy przeprowadzić przy użyciu dwuskładnikowego kleju poliuretanowego **WAKOL PU 225** (szpachla B11, zużycie: 1250 g/m²).")
+        rep.write(f"Klejenie podłogi LVT ({bottom_type}) należy przeprowadzić przy użyciu dwuskładnikowego kleju poliuretanowego **{PRODUCTS['PU 225']['name']}** (szpachla B11, zużycie: 1250 g/m²).")
         write_and_track(dane, rep, 'PU 225')
     elif dane['substrate'] == "płyta fundamentowa" and dane['needs_levelling'] == "NIE":
-        rep.write(f"Klejenie podłogi LVT ({bottom_type}) należy przeprowadzić przy użyciu kleju polimerowego twardo-elastycznego **WAKOL MS 260** (szpachla B13, zużycie: 1350 g/m²).")
+        rep.write(f"Klejenie podłogi LVT ({bottom_type}) należy przeprowadzić przy użyciu kleju polimerowego twardo-elastycznego **{PRODUCTS['MS 260']['name']}** (szpachla B13, zużycie: 1350 g/m²).")
         write_and_track(dane, rep, 'MS 260')
     elif dane['needs_levelling'] == "TAK" or dane['substrate'] == "masa samorozlewna":
-        rep.write(f"Klejenie podłogi LVT ({bottom_type}) na masie samorozlewnej należy przeprowadzić przy użyciu kleju **WAKOL MS 230** (szpachla B5, zużycie: 900 g/m²).")
+        rep.write(f"Klejenie podłogi LVT ({bottom_type}) na masie samorozlewnej należy przeprowadzić przy użyciu kleju **{PRODUCTS['MS 230']['name']}** (szpachla B5, zużycie: 900 g/m²).")
         write_and_track(dane, rep, 'MS 230 (B5 masa)')
     elif dane['substrate'] == "jastrych cementowy":
-        rep.write(f"Klejenie podłogi LVT ({bottom_type}) na jastrychu cementowym należy przeprowadzić przy użyciu kleju **WAKOL MS 230** (szpachla B11, zużycie: 1150 g/m²).")
+        rep.write(f"Klejenie podłogi LVT ({bottom_type}) na jastrychu cementowym należy przeprowadzić przy użyciu kleju **{PRODUCTS['MS 230']['name']}** (szpachla B11, zużycie: 1150 g/m²).")
         write_and_track(dane, rep, 'MS 230 (B11 cement)')
     else:
-        rep.write(f"Klejenie podłogi LVT ({bottom_type}) należy przeprowadzić przy użyciu kleju **WAKOL MS 230** (szpachla B13, zużycie: 1350 g/m²).")
+        rep.write(f"Klejenie podłogi LVT ({bottom_type}) należy przeprowadzić przy użyciu kleju **{PRODUCTS['MS 230']['name']}** (szpachla B13, zużycie: 1350 g/m²).")
         write_and_track(dane, rep, 'MS 230')
     render_potrzebne_materialy(dane, rep)
 
@@ -908,7 +908,7 @@ def generate_report_pcv_w_rolce(dane, rep):
         rep.write("* Szlif podłoża w celu uzyskania gładkiej powierzchni.")
         rep.write("* Dokładne odkurzenie powierzchni odkurzaczem przemysłowym.")
         rep.write("**b) klejenie okładziny PCV:**")
-        rep.write("Klejenie wykładziny PCV w rolce należy przeprowadzić przy użyciu kleju WAKOL D 3307 (szpachla TKB A2, zużycie: 300 – 330 g/m²). · Czas wstępnego odparowania: ok. 10 - 20 minut. · Czas układania: ok. 15 - 20 minut")
+        rep.write(f"Klejenie wykładziny PCV w rolce należy przeprowadzić przy użyciu kleju {PRODUCTS['D 3307']['name']} (szpachla TKB A2, zużycie: 300 – 330 g/m²). · Czas wstępnego odparowania: ok. 10 - 20 minut. · Czas układania: ok. 15 - 20 minut")
         render_potrzebne_materialy(dane, rep)
         return
 
@@ -944,7 +944,7 @@ def generate_report_pcv_w_rolce(dane, rep):
     rep.write("* Po wyschnięciu masy samorozlewnej zalecamy szlif podłoża w celu uzyskania gładkiej powierzchni oraz dokładne odkurzenie.")
 
     rep.write("**c) klejenie okładziny PCV:**")
-    rep.write("Klejenie wykładziny PCV w rolce należy przeprowadzić przy użyciu kleju WAKOL D 3307 (szpachla TKB A2, zużycie: 300 – 330 g/m²). · Czas wstępnego odparowania: ok. 10 - 20 minut. · Czas układania: ok. 15 - 20 minut")
+    rep.write(f"Klejenie wykładziny PCV w rolce należy przeprowadzić przy użyciu kleju {PRODUCTS['D 3307']['name']} (szpachla TKB A2, zużycie: 300 – 330 g/m²). · Czas wstępnego odparowania: ok. 10 - 20 minut. · Czas układania: ok. 15 - 20 minut")
     render_potrzebne_materialy(dane, rep)
 
 # --- SEKCJA: WYKŁADZINA DYWANOWA ---
@@ -964,7 +964,7 @@ def generate_report_wykladzina_dywanowa(dane, rep):
         rep.write("* Szlif podłoża w celu uzyskania gładkiej powierzchni.")
         rep.write("* Dokładne odkurzenie powierzchni odkurzaczem przemysłowym.")
         rep.write("**b) klejenie wykładziny tekstylnej:**")
-        rep.write("Klejenie wykładziny tekstylnej należy przeprowadzić przy użyciu kleju WAKOL D 3308 (szpachla TKB B1 400-450 g/m²). · Czas wstępnego odparowania: ok. 5-10 minut. · Czas otwarty kleju ok. 10-15 minut")
+        rep.write(f"Klejenie wykładziny tekstylnej należy przeprowadzić przy użyciu kleju {PRODUCTS['D 3308']['name']} (szpachla TKB B1 400-450 g/m²). · Czas wstępnego odparowania: ok. 5-10 minut. · Czas otwarty kleju ok. 10-15 minut")
         render_potrzebne_materialy(dane, rep)
         return
 
@@ -1000,7 +1000,7 @@ def generate_report_wykladzina_dywanowa(dane, rep):
     rep.write("* Po wyschnięciu masy samorozlewnej zalecamy szlif podłoża w celu uzyskania gładkiej powierzchni oraz dokładne odkurzenie.")
 
     rep.write("**c) klejenie wykładziny tekstylnej:**")
-    rep.write("Klejenie wykładziny tekstylnej należy przeprowadzić przy użyciu kleju WAKOL D 3308 (szpachla TKB B1 400-450 g/m²). · Czas wstępnego odparowania: ok. 5-10 minut. · Czas otwarty kleju ok. 10-15 minut")
+    rep.write(f"Klejenie wykładziny tekstylnej należy przeprowadzić przy użyciu kleju {PRODUCTS['D 3308']['name']} (szpachla TKB B1 400-450 g/m²). · Czas wstępnego odparowania: ok. 5-10 minut. · Czas otwarty kleju ok. 10-15 minut")
     render_potrzebne_materialy(dane, rep)
 
 # ==========================================
