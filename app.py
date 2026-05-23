@@ -49,7 +49,7 @@ FULL_Z625 = "* Wylać masę wyrównawczą **WAKOL Z 625** - wymieszać ją w czy
 FULL_Z675 = "* Wylać masę wyrównawczą **WAKOL Z 675** - wymieszać ją w czystym naczyniu z zimną wodą w proporcji 6,0 – 6,5 litrów wody na 25 kg masy. Mieszać unikając tworzenia się grudek. Prędkość obrotowa mieszadła może wynosić max. 600 obrotów na minutę. Wymieszaną masę nanosić w żądanej grubości na podłoże przy pomocy szpachli, łaty lub rakli. Przed pracą należy zwrócić uwagę na obecność wypełnień fug przy ścianach. Zużycie **ok. 1,6 kg/m²/mm**. **Możliwość chodzenia po 2-3 godzinach**. **Możliwość klejenia podłóg po ok. 24 godzinach przy grubości warstwy do 3 mm**, przy większych grubościach czas schnięcia ulega wydłużeniu."
 FULL_Z635 = "* Następnie na podłoże wylać masę wyrównawczą **WAKOL Z 635** - wymieszać ją w czystym naczyniu z zimną wodą w proporcji 6,25 litrów wody na 25 kg masy. Mieszać unikając tworzenia się grudek. Prędkość obrotowa mieszadła może wynosić max. 600 obrotów na minutę. Wymieszaną masę nanosić w żądanej grubości na podłoże przy pomocy szpachli, łaty lub rakli. Przed pracą należy zwrócić uwagę na obecność wypełnień fug przy ścianach. Zużycie **ok. 1,6 kg/m²/mm**. **Możliwość chodzenia po 2,5 godzinach**. **Możliwość klejenia podłóg drewnianych przy warstwie do 5 mm – po 24 godzinach**, przy warstwie do 10 mm – po 72 godzinach."
 FULL_D3055 = "* Zalecamy zagruntowanie całej powierzchni jastrychu gruntówką dyspersyjną **WAKOL D 3055** - aplikacja wałkiem **ok. 150 g/m²**. **Czas schnięcia ok. 30 min**."
-FULL_EM140 = "* Na zagruntowaną i wyschniętą powierzchnię przykleić matę flizelinową **WAKOL EM 140** przy użyciu kleju dwuskładnikowego poliuretanowego **WAKOL PU 225** (szpachla B11, zużycie: 1250 g/m²). Matę dociskać równomiernie wałkiem do podłoża."
+FULL_EM140 = "* Na zagruntowaną i wyschniętą powierzchnię przykleić matę flizelinową **WAKOL EM 140** przy użyciu kleju dwuskładnikowego poliuretanowego **WAKOL PU 225** (szpachla B11, zużycie: 1250 g/m²). Matę dociskać równomiernie wałkiem do podłoża. Montaż okładziny można rozpocząć w momencie, gdy mata jest stabilnie związana z podkładem."
 
 def insert_header():
     logo_wakol = "https://www.wakol.com/fileadmin/templates/images/wakol_logo.png"
@@ -105,8 +105,12 @@ def render_wspolne_dane_optyczne(dane, rep):
     rep.write(f"**b) badanie wytrzymałości:**\n{tests_str}")
     
     if dane.get('moisture') is not None:
-        moisture_status = "POZYTYWNY" if dane['moisture'] <= dane['limit'] else "NEGATYWNY"
-        rep.write(f"**c) badanie wilgotności:** Wynik badania wilgotności metodą CM: **{dane['moisture']} % CM** (Norma: {dane['limit']} % CM) — **Wynik: {moisture_status}**")
+        if isinstance(dane['moisture'], str):
+            moisture_status = "POZYTYWNY" if dane['moisture'] == "sucha" else "NEGATYWNY"
+            rep.write(f"**c) badanie wilgotności:** Ocena wilgotności masy samorozlewnej: **{dane['moisture'].upper()}** — **Wynik: {moisture_status}**")
+        else:
+            moisture_status = "POZYTYWNY" if dane['moisture'] <= dane['limit'] else "NEGATYWNY"
+            rep.write(f"**c) badanie wilgotności:** Wynik badania wilgotności metodą CM: **{dane['moisture']} % CM** (Norma: {dane['limit']} % CM) — **Wynik: {moisture_status}**")
     else:
         rep.write("**c) badanie wilgotności:** Nie dotyczy — podłoże drewniane / ceramiczne.")
 
@@ -162,7 +166,7 @@ _M_PRIMER_G_PRO = "* Zagruntować podłoże koncentratem gruntówki dyspersyjnej
 _M_ECO_PRIM_T_PLUS = "* Zalecamy zagruntowanie całej powierzchni jastrychu gruntówką dyspersyjną **MAPEI Eco Prim T Plus** - aplikacja wałkiem **ok. 150 g/m²**. **Czas schnięcia ok. 1 godziny**."
 _M_PLANOLIT_115 = "* Wylać masę wyrównawczą **MAPEI Planolit 115** - wymieszać ją w czystym naczyniu z zimną wodą w proporcji 5,75-6 litrów wody na 23 kg masy. Mieszać unikając tworzenia się grudek. Prędkość obrotowa mieszadła może wynosić max. 600 obrotów na minutę. Wymieszaną masę nanosić w żądanej grubości na podłoże przy pomocy szpachli, łaty lub rakli. Przed pracą należy zwrócić uwagę na obecność wypełnień fug przy ścianach. Zużycie **ok. 1,6 kg/m²/mm**. **Czas schnięcia 3mm - 24 godziny**."
 _M_ULTRAPLAN_RENOVATION = "* Wylać masę wyrównawczą **MAPEI Ultraplan Renovation** – wymieszać ją w czystym naczyniu z zimną wodą w proporcji 4,5 litrów wody na 23 kg masy. Mieszać unikając tworzenia się grudek. Prędkość obrotowa mieszadła może wynosić max. 600 obrotów na minutę. Wymieszaną masę nanosić w żądanej grubości na podłoże przy pomocy szpachli, łaty lub rakli. Przed pracą należy zwrócić uwagę na obecność wypełnień fug przy ścianach. Zużycie **ok. 1,6 kg/m²/mm**. **Czas schnięcia 3mm - 24 godziny**."
-_M_MAPETEX_VLIES = "* Na zagruntowaną i wyschniętą powierzchnię przykleić matę flizelinową **Mapetex Vlies** przy użyciu kleju dwuskładnikowego poliuretanowego **Mapei Ultrabond ECO P909 2K** (szpachla B11, zużycie: 1250 g/m²). Matę dociskać równomiernie wałkiem do podłoża."
+_M_MAPETEX_VLIES = "* Na zagruntowaną i wyschniętą powierzchnię przykleić matę flizelinową **Mapetex Vlies** przy użyciu kleju dwuskładnikowego poliuretanowego **Mapei Ultrabond ECO P909 2K** (szpachla B11, zużycie: 1250 g/m²). Matę dociskać równomiernie wałkiem do podłoża. Montaż okładziny można rozpocząć w momencie, gdy mata jest stabilnie związana z podkładem."
 _M_ULTRAPLAN_MAXI = "* Wylać masę wyrównawczą **MAPEI Ultraplan Maxi** – wymieszać ją w czystym naczyniu z zimną wodą w proporcji 4,75- 5,0 litrów wody na 23 kg masy. Mieszać unikając tworzenia się grudek. Prędkość obrotowa mieszadła może wynosić max. 600 obrotów na minutę. Wymieszaną masę nanosić w żądanej grubości na podłoże przy pomocy szpachli, łaty lub rakli. Przed pracą należy zwrócić uwagę na obecność wypełnień fug przy ścianach. Zużycie **ok. 1,7 kg/m²/mm**. **Czas schnięcia 3mm - 24 godziny**."
 
 PRODUCTS_MAPEI = {
@@ -200,7 +204,7 @@ PRODUCTS_MAPEI.update({
     'AR 150':                {'name': 'Mapei MAPETHERM NET 150 (siatka zbrojeniowa)', 'usage': 1000, 'sizes': [50],    'text': "",                         'price': 0.0},
     'EM 140':                {'name': 'Mapei Mapetex Vlies (mata flizelinowa)',       'usage': 1000, 'sizes': [50], 'unit': 'm²', 'text': _M_MAPETEX_VLIES, 'price': 0.0},
 })
-_U_MULTIMOL = "* Na zagruntowaną i wyschniętą powierzchnię przykleić matę flizelinową **Uzin Multimol** przy użyciu kleju dwuskładnikowego poliuretanowego **Uzin MK 90** (szpachla B11, zużycie: 1250 g/m²). Matę dociskać równomiernie wałkiem do podłoża."
+_U_MULTIMOL = "* Na zagruntowaną i wyschniętą powierzchnię przykleić matę flizelinową **Uzin Multimol** przy użyciu kleju dwuskładnikowego poliuretanowego **Uzin MK 90** (szpachla B11, zużycie: 1250 g/m²). Matę dociskać równomiernie wałkiem do podłoża. Montaż okładziny można rozpocząć w momencie, gdy mata jest stabilnie związana z podkładem."
 _U_PE280 = "* Zaaplikować mostek sczepny **Uzin PE 280** równomiernie za pomocą wałka. Zużycie wynosi **ok. 150 g/m²**. **Czas schnięcia 45 minut.**"
 _U_PE350 = "* Zagruntować podłoże gruntówką dyspersyjną **Uzin PE 350** - aplikacja wałkiem **ok. 150 g/m²**. **Czas schnięcia: 30–60 minut.**"
 _U_NC170 = "* Wylać masę wyrównawczą **Uzin NC 170 LevelStar** - wymieszać ją w czystym naczyniu z zimną wodą (ok. 6,5 litra na worek 25 kg). Mieszać unikając tworzenia się grudek. Prędkość obrotowa mieszadła może wynosić max. 600 obrotów na minutę. Wymieszaną masę nanosić w żądanej grubości na podłoże przy pomocy szpachli, łaty lub rakli. Przed pracą należy zwrócić uwagę na obecność wypełnień fug przy ścianach. Zużycie **ok. 1,5 kg/m²/mm**. **Możliwość klejenia podłóg drewnianych: przy warstwie do 5 mm – po 15 godzinach, przy warstwie do 10 mm – po 24 godzinach, przy warstwie do 20 mm – po 72 godzinach.**"
@@ -768,6 +772,9 @@ def generate_report_deska_warstwowa(dane, rep):
     elif dane['substrate'] == "jastrych anhydrytowy" and dane['strength_val'] == 1:
         rep.write(f"Klejenie okładziny należy przeprowadzić przy użyciu kleju do parkietu **{PRODUCTS['MS 230']['name']}** (szpachla B13, zużycie: 1350 g/m²).")
         write_and_track(dane, rep, 'MS 230')
+    elif dane['substrate'] == "masa samorozlewna" and dane['strength_val'] == 3:
+        rep.write(f"Z uwagi na umiarkowanie słabą wytrzymałość masy, dedykowanym klejem jest klej elastyczny. Klejenie okładziny należy przeprowadzić przy użyciu kleju do parkietu **{PRODUCTS['MS 230']['name']}** (szpachla B13, zużycie: 1350 g/m²).")
+        write_and_track(dane, rep, 'MS 230')
     elif dane.get('klej_typ') == "bezprzesuwny":
         rep.write(f"Klejenie okładziny należy przeprowadzić przy użyciu kleju do parkietu **{PRODUCTS['PU 225']['name']}** (szpachla B11, zużycie: 1250 g/m²).")
         write_and_track(dane, rep, 'PU 225')
@@ -820,6 +827,9 @@ def generate_report_deska_lita(dane, rep):
         write_and_track(dane, rep, 'PU 225')
     elif dane['substrate'] == "płyta fundamentowa" and dane['needs_levelling'] == "NIE":
         rep.write(f"Klejenie okładziny należy przeprowadzić przy użyciu kleju polimerowego twardo-elastycznego **{PRODUCTS['MS 260']['name']}** (szpachla B13, zużycie: 1350 g/m²).")
+        write_and_track(dane, rep, 'MS 260')
+    elif dane['substrate'] == "masa samorozlewna" and dane['strength_val'] == 3:
+        rep.write(f"Z uwagi na umiarkowanie słabą wytrzymałość masy, dedykowanym klejem jest klej twardo-elastyczny. Klejenie okładziny należy przeprowadzić przy użyciu kleju polimerowego twardo-elastycznego **{PRODUCTS['MS 260']['name']}** (szpachla B13, zużycie: 1350 g/m²).")
         write_and_track(dane, rep, 'MS 260')
     elif dane.get('klej_typ') == "bezprzesuwny":
         rep.write(f"Klejenie okładziny należy przeprowadzić przy użyciu kleju **{PRODUCTS['PU 225']['name']}** (szpachla B11, zużycie: 1250 g/m²).")
@@ -1778,17 +1788,26 @@ if _substrate_no_moisture:
     moisture = None
 elif substrate == "płyta fundamentowa":
     moisture = st.number_input("3. Poziom wilgoci podłoża (%)", format="%.1f", value=None)
+elif substrate == "masa samorozlewna":
+    moisture = st.radio("3. Ocena wilgotności masy samorozlewnej:", ["sucha", "mokra"], horizontal=True)
 else:
     moisture = st.number_input("3. Poziom wilgoci podłoża (CM %)", format="%.1f", value=None)
 
 decision_after_cure = None
 needs_drying_action = False
 
-if moisture is not None and moisture > limit:
+is_moisture_high = False
+if moisture is not None:
+    if isinstance(moisture, str):
+        is_moisture_high = (moisture == "mokra")
+    else:
+        is_moisture_high = (moisture > limit)
+
+if is_moisture_high:
     needs_drying_action = True
     opt_dry = "przeprowadzenie procesu wygrzewania" if (heating_exists == "TAK" and heating_curing_done == "NIE") else "dalsze osuszanie"
     if substrate == "płyta fundamentowa":
-        if moisture > barrier_max:
+        if isinstance(moisture, (int, float)) and moisture > barrier_max:
             st.warning(f"Podłoże jest zbyt wilgotne. Konieczność doprowadzenia do poziomu wilgoci max. {barrier_max}% przed wykonaniem bariery przeciwwilgociowej.")
             decision_after_cure = "osuszanie przed barierą"
         else:
@@ -1804,10 +1823,10 @@ if moisture is not None and moisture > limit:
         else:
             decision_after_cure = opt_dry
     elif substrate == "masa samorozlewna":
-        st.info(f"Dla masy samorozlewnej nie ma możliwości wykonania bariery przeciwwilgociowej. Konieczność doprowadzenia do normatywnego poziomu wilgoci ({limit}% CM) poprzez dalsze osuszanie.")
+        st.info("Dla masy samorozlewnej nie ma możliwości wykonania bariery przeciwwilgociowej. Konieczność doprowadzenia masy do stanu suchego poprzez dalsze osuszanie.")
         decision_after_cure = "dalsze osuszanie"
     else:
-        if moisture <= barrier_max:
+        if isinstance(moisture, (int, float)) and moisture <= barrier_max:
             decision_after_cure = st.radio("Postępowanie z podwyższoną wilgocią:", ["Wykonanie bariery przeciwwilgociowej", opt_dry], horizontal=True)
             needs_drying_action = (decision_after_cure != "Wykonanie bariery przeciwwilgociowej")
         else:
@@ -1984,8 +2003,8 @@ dane_protokolu = {
     "moisture": moisture,
     "limit": limit,
     "curing_not_done": (heating_exists == "TAK" and heating_curing_done == "NIE"),
-    "is_moisture_neg": (moisture is not None and moisture > limit),
-    "norm_val_bracket": f"({limit}% CM)",
+    "is_moisture_neg": is_moisture_high,
+    "norm_val_bracket": f"({limit}% CM)" if substrate != "masa samorozlewna" else "(stan: sucha)",
     "decision_after_cure": decision_after_cure,
     "needs_drying_action": needs_drying_action,
     "test_hammer": test_hammer,
