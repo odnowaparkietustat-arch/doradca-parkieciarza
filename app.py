@@ -41,14 +41,15 @@ class ReportBuilder:
 FULL_PS275 = "* Zalecamy aplikację gruntówki wzmacniającej **WAKOL PS 275** w dwóch warstwach – grubym wałkiem sznurkowym, zużycie w sumie **ok. 700 g/m²**. Każda z warstw po **350 g/m²**, aplikowane po sobie w odstępie jednej godziny. Aplikując gruntówkę **WAKOL PS 275** należy zwrócić uwagę, aby dobrze wchłaniała się w podłoże i unikać powstawania kałuż na powierzchni jastrychu. Po nałożeniu drugiej warstwy gruntówki w razie potrzeby wykonać posypkę z piasku kwarcowego. **Po 7 dniach schnięcia** powierzchnię należy **przeszlifować papierem o gradacji 24 – 40** usuwając przyklejony do powierzchni piasek kwarcowy i dokładnie odkurzyć."
 FULL_PU235_1W = "* Zalecamy wykonanie gruntowania wzmacniającego poprzez zagruntowanie powierzchni jastrychu gruntówką poliuretanową **WAKOL PU 235**. Aplikować wałkiem. Podczas aplikacji nie zostawiać kałuż tj. zbierać nadmiar niewchłoniętej gruntówki. Zużycie **ok. 150 g/m²**. **Czas schnięcia – 4-6 godzin**."
 FULL_PU235_BARRIER = "* Zalecamy wykonanie **bariery przeciwwilgociowej** poprzez dwukrotne zagruntowanie gruntówką wzmacniającą **WAKOL PU 235**. Podczas aplikacji nie zostawiać kałuż tj. zbierać nadmiar niewchłoniętej gruntówki. 1. warstwa nałożona wałkiem **ok. 150 g/m²**. **Czas schnięcia – 4-6 godzin**. 2. warstwa zużycie **ok. 100 g/m²**. **Czas schnięcia – 4-6 godzin**. **Czas klejenia 72 godziny od zagruntowania**."
-FULL_PU280_1W = "* Zalecamy wykonanie gruntowania wzmacniającego poprzez zagruntowanie powierzchni jastrychu gruntówką poliuretanową **{PRODUCTS['PU 280 (1W)']['name']}**. Aplikować wałkiem. Podczas aplikacji nie zostawiać kałuż tj. zbierać nadmiar niewchłoniętej gruntówki. Zużycie **ok. 150 g/m²**. **Czas schnięcia – jedna godzina**."
-FULL_PU280_BARRIER = "* Z uwagi na podwyższoną wilgotność zalecamy stworzenie **bariery przeciwwilgociowej** poprzez zagruntowanie powierzchni jastrychu gruntówką poliuretanową **{PRODUCTS['PU 280 (1W)']['name']}**. Aplikować wałkiem. Podczas aplikacji nie zostawiać kałuż tj. zbierać nadmiar niewchłoniętej gruntówki. 1. warstwa nałożona wałkiem **150 g/m²**. **Czas schnięcia – jedna godzina**. 2. warstwa **100 g/m²** - **czas schnięcia – jedna godzina**. **Czas do klejenia: 72 godziny od zagruntowania**."
-FULL_PU280_BARRIER_PLYTA = "* Z uwagi na grubość płyty fundamentowej zalecamy stworzenie **bariery przeciwwilgociowej** poprzez zagruntowanie powierzchni podłoża gruntówką poliuretanową **{PRODUCTS['PU 280 (1W)']['name']}**. Aplikować wałkiem. Podczas aplikacji nie zostawiać kałuż tj. zbierać nadmiar niewchłoniętej gruntówki. 1. warstwa nałożona wałkiem **150 g/m²**. **Czas schnięcia – jedna godzina**. 2. warstwa **100 g/m²** - **czas schnięcia – jedna godzina**. **Czas do klejenia: 72 godziny od zagruntowania**."
+FULL_PU280_1W = "* Zalecamy wykonanie gruntowania wzmacniającego poprzez zagruntowanie powierzchni jastrychu gruntówką poliuretanową **WAKOL PU 280**. Aplikować wałkiem. Podczas aplikacji nie zostawiać kałuż tj. zbierać nadmiar niewchłoniętej gruntówki. Zużycie **ok. 150 g/m²**. **Czas schnięcia – jedna godzina**."
+FULL_PU280_BARRIER = "* Z uwagi na podwyższoną wilgotność zalecamy stworzenie **bariery przeciwwilgociowej** poprzez zagruntowanie powierzchni jastrychu gruntówką poliuretanową **WAKOL PU 280**. Aplikować wałkiem. Podczas aplikacji nie zostawiać kałuż tj. zbierać nadmiar niewchłoniętej gruntówki. 1. warstwa nałożona wałkiem **150 g/m²**. **Czas schnięcia – jedna godzina**. 2. warstwa **100 g/m²** - **czas schnięcia – jedna godzina**. **Czas do klejenia: 72 godziny od zagruntowania**."
+FULL_PU280_BARRIER_PLYTA = "* Z uwagi na grubość płyty fundamentowej zalecamy stworzenie **bariery przeciwwilgociowej** poprzez zagruntowanie powierzchni podłoża gruntówką poliuretanową **WAKOL PU 280**. Aplikować wałkiem. Podczas aplikacji nie zostawiać kałuż tj. zbierać nadmiar niewchłoniętej gruntówki. 1. warstwa nałożona wałkiem **150 g/m²**. **Czas schnięcia – jedna godzina**. 2. warstwa **100 g/m²** - **czas schnięcia – jedna godzina**. **Czas do klejenia: 72 godziny od zagruntowania**."
 FULL_D3004 = "* Zagruntować podłoże koncentratem gruntówki dyspersyjnej **WAKOL D 3004**. Proporcje mieszania: 1 część **WAKOL D 3004** + 2 części wody. **Czas schnięcia**: na jastrychach cementowych i betonie po optycznym wyschnięciu **ok. 30 min**. Sposób nanoszenia: wałek do gruntowania microfazer. Zużycie: **ok. 50 g/m²** koncentratu."
 FULL_Z625 = "* Wylać masę wyrównawczą **WAKOL Z 625** - wymieszać ją w czystym naczyniu z zimną wodą w proporcji 6,00 – 6,25 litrów wody na 25 kg masy. Mieszać unikając tworzenia się grudek. Prędkość obrotowa mieszadła może wynosić max. 600 obrotów na minutę. Wymieszaną masę nanosić w żądanej grubości na podłoże przy pomocy szpachli, łaty lub rakli. Przed pracą należy zwrócić uwagę na obecność wypełnień fug przy ścianach. Zużycie **ok. 1,6 kg/m²/mm**. **Możliwość chodzenia po 2 godzinach**. **Możliwość klejenia podłóg drewnianych przy warstwie do 5 mm – po 6 godzinach**, przy warstwie do 10 mm – po 12 godzinach, przy warstwie 30 mm – po 24 godzinach."
 FULL_Z675 = "* Wylać masę wyrównawczą **WAKOL Z 675** - wymieszać ją w czystym naczyniu z zimną wodą w proporcji 6,0 – 6,5 litrów wody na 25 kg masy. Mieszać unikając tworzenia się grudek. Prędkość obrotowa mieszadła może wynosić max. 600 obrotów na minutę. Wymieszaną masę nanosić w żądanej grubości na podłoże przy pomocy szpachli, łaty lub rakli. Przed pracą należy zwrócić uwagę na obecność wypełnień fug przy ścianach. Zużycie **ok. 1,6 kg/m²/mm**. **Możliwość chodzenia po 2-3 godzinach**. **Możliwość klejenia podłóg po ok. 24 godzinach przy grubości warstwy do 3 mm**, przy większych grubościach czas schnięcia ulega wydłużeniu."
 FULL_Z635 = "* Następnie na podłoże wylać masę wyrównawczą **WAKOL Z 635** - wymieszać ją w czystym naczyniu z zimną wodą w proporcji 6,25 litrów wody na 25 kg masy. Mieszać unikając tworzenia się grudek. Prędkość obrotowa mieszadła może wynosić max. 600 obrotów na minutę. Wymieszaną masę nanosić w żądanej grubości na podłoże przy pomocy szpachli, łaty lub rakli. Przed pracą należy zwrócić uwagę na obecność wypełnień fug przy ścianach. Zużycie **ok. 1,6 kg/m²/mm**. **Możliwość chodzenia po 2,5 godzinach**. **Możliwość klejenia podłóg drewnianych przy warstwie do 5 mm – po 24 godzinach**, przy warstwie do 10 mm – po 72 godzinach."
 FULL_D3055 = "* Zalecamy zagruntowanie całej powierzchni jastrychu gruntówką dyspersyjną **WAKOL D 3055** - aplikacja wałkiem **ok. 150 g/m²**. **Czas schnięcia ok. 30 min**."
+FULL_EM140 = "* Na zagruntowaną i wyschniętą powierzchnię przykleić matę flizelinową **WAKOL EM 140** przy użyciu kleju dwuskładnikowego poliuretanowego **WAKOL PU 225** (szpachla B11, zużycie: 1250 g/m²). Matę dociskać równomiernie wałkiem do podłoża."
 
 def insert_header():
     logo_wakol = "https://www.wakol.com/fileadmin/templates/images/wakol_logo.png"
@@ -87,7 +88,8 @@ def render_wspolne_dane_optyczne(dane, rep):
     dodatkowe_txt = f" **{dane['dodatkowe_informacje']}**" if dane.get('dodatkowe_informacje') else ""
 
     area_txt = f" o powierzchni {dane['area_m2']} m²" if dane.get('area_m2') else ""
-    full_opt_report = f"Podłoże pod planowaną okładzinę ({dane['flooring_type']}) stanowi {dane['substrate']}{area_txt}{age_txt}.{dodatkowe_txt}{demolition_txt}{heat_txt}{curing_txt}{dil_txt}{klaw_txt}{pek_txt}{holes_txt}{level_txt} {vent_txt}{evenness_txt}"
+    masa_class_txt = f" (klasa wytrzymałości {dane['masa_class']})" if dane.get('masa_class') else ""
+    full_opt_report = f"Podłoże pod planowaną okładzinę ({dane['flooring_type']}) stanowi {dane['substrate']}{masa_class_txt}{area_txt}{age_txt}.{dodatkowe_txt}{demolition_txt}{heat_txt}{curing_txt}{dil_txt}{klaw_txt}{pek_txt}{holes_txt}{level_txt} {vent_txt}{evenness_txt}"
     rep.write(f"**a) oględziny optyczne:** {full_opt_report}")
     
     presso_valid = [str(p) for p in dane.get('presso_results', []) if p is not None]
@@ -129,6 +131,7 @@ PRODUCTS_WAKOL = {
     'MS 230 (B11 cement)': {'name': 'WAKOL MS 230 (klej)', 'usage': 1150, 'sizes': [18], 'text': "", 'price': 15.00},
     'MS 230 (B5 masa)': {'name': 'WAKOL MS 230 (klej)', 'usage': 900, 'sizes': [18], 'text': "", 'price': 15.00},
     'MS 260': {'name': 'WAKOL MS 260 (klej)', 'usage': 1350, 'sizes': [18], 'text': "", 'price': 13.46},
+    'MS 552': {'name': 'WAKOL MS 552 (klej do stref mokrych)', 'usage': 350, 'sizes': [13], 'text': "", 'price': 0.0},
     'D 3318': {'name': 'WAKOL D 3318 (klej)', 'usage': 350, 'sizes': [13], 'text': "", 'price': 17.60},
     'Z 645': {'name': 'WAKOL Z 645 (masa naprawcza)', 'usage': 1.6, 'sizes': [25], 'text': "", 'price': 4.26},
     'Z 645 (bruzdowane)': {'name': 'WAKOL Z 645 (masa szpachlowa)', 'usage': 2000, 'sizes': [25], 'text': "", 'price': 4.26},
@@ -137,22 +140,20 @@ PRODUCTS_WAKOL = {
     'Z 675': {'name': 'WAKOL Z 675 (masa samorozlewna)', 'usage_per_mm': 1.6, 'sizes': [25], 'text': FULL_Z675, 'price': 2.81},
     'D 3004 (bruzdowane)': {'name': 'WAKOL D 3004 (koncentrat)', 'usage': 75, 'sizes': [10, 5], 'text': "", 'price': 23.32},
     'AR 150': {'name': 'WAKOL AR 150 (mata kompensacyjna)', 'usage': 1000, 'sizes': [50], 'text': "", 'price': 8.06},
-    'EM 140': {'name': 'WAKOL EM 140 (włóknina odsprzęgająca)', 'usage': 1000, 'sizes': [50], 'text': "", 'price': 17.67},
+    'EM 140': {'name': 'WAKOL EM 140 (mata flizelinowa)', 'usage': 1000, 'sizes': [50], 'unit': 'm²', 'text': FULL_EM140, 'price': 17.67},
     'D 3060': {'name': 'WAKOL D 3060 (plastyfikator)', 'usage': 1000, 'sizes': [10], 'text': "", 'price': 26.00},
-    'PU 280 (RP)': {'name': 'WAKOL PU 280 (grunt dla RP)', 'usage': 200, 'sizes': [11, 5], 'text': "* Zalecamy zagruntowanie całej powierzchni podłoża gruntówką wzmacniającą **{PRODUCTS['PU 280 (1W)']['name']}**. Aplikować wałkiem. Nie zostawiać kałuż tj. zbierać nadmiar niewchłoniętej gruntówki. Zużycie ok. 200 g/m². Czas schnięcia 1 godzina. Czas do montażu – 72 godziny.", 'price': 54.27},
-    'Płyta RP': {'name': 'WAKOL RP 704 (płyta odprzęgająca)', 'usage': 1000, 'sizes': [1], 'unit': 'szt', 'text': "* Na tak przygotowane podłoże zalecamy przyklejenie płyty odprzęgającej o grubości 4 mm **WAKOL RP 704**. Należy przyklejać klejem 2K PU (**{PRODUCTS['PU 225']['name']}**). Płytę odprzęgającą po ułożeniu należy docisnąć. Płytę można docinać używając noża trapezowego. Można układać parkiet, jeśli tylko klejona płyta nie przesuwa się w trakcie chodzenia po niej.", 'price': 22.05},
-    'PS 205': {'name': 'WAKOL PS 205 (żywica lana)', 'sizes': [1], 'unit': 'kpl.', 'text': "", 'price': 48.40}
-}
-
-PRODUCTS_MAPEI = {
-    k: dict(v, name=v['name'].replace('WAKOL', 'Mapei'), text='', price=0.0)
-    for k, v in PRODUCTS_WAKOL.items()
+    'PU 280 (RP)': {'name': 'WAKOL PU 280 (grunt dla RP)', 'usage': 200, 'sizes': [11, 5], 'text': "* Zalecamy zagruntowanie całej powierzchni podłoża gruntówką wzmacniającą **WAKOL PU 280**. Aplikować wałkiem. Nie zostawiać kałuż tj. zbierać nadmiar niewchłoniętej gruntówki. Zużycie ok. 200 g/m². Czas schnięcia 1 godzina. Czas do montażu – 24 godziny.", 'price': 54.27},
+    'Płyta RP': {'name': 'WAKOL RP 704 (płyta odprzęgająca)', 'usage': 1000, 'sizes': [0.6], 'unit': 'm²', 'text': "* Na tak przygotowane podłoże zalecamy przyklejenie płyty odprzęgającej o grubości 4 mm **WAKOL RP 704**. Należy przyklejać klejem 2K PU (**WAKOL PU 225**). Płytę odprzęgającą po ułożeniu należy docisnąć. Płytę można docinać używając noża trapezowego. Można układać parkiet, jeśli tylko klejona płyta nie przesuwa się w trakcie chodzenia po niej.", 'price': 22.05},
+    'PS 205': {'name': 'WAKOL PS 205 (żywica lana)', 'sizes': [1], 'unit': 'kpl.', 'text': "", 'price': 48.40},
+    'D 3307': {'name': 'WAKOL D 3307 (klej do PCV)', 'usage': 315, 'sizes': [13], 'text': "", 'price': 0.0},
+    'D 3308': {'name': 'WAKOL D 3308 (klej do wykładziny)', 'usage': 425, 'sizes': [13], 'text': "", 'price': 0.0},
+    'Piasek kwarcowy': {'name': 'Piasek kwarcowy (worek 25 kg)', 'usage': 1.0, 'sizes': [25], 'text': "", 'price': 0.0},
 }
 
 _M_ECO_PU1K_1W = "* Zalecamy wykonanie gruntowania wzmacniającego poprzez zagruntowanie powierzchni jastrychu gruntówką poliuretanową **ECO PRIM PU 1K TURBO**. Aplikować wałkiem. Podczas aplikacji nie zostawiać kałuż tj. zbierać nadmiar niewchłoniętej gruntówki. Zużycie **ok. 200 g/m²**. **Czas schnięcia – 2 godziny**."
 _M_ECO_PU1K_BARRIER = "* Z uwagi na podwyższoną wilgotność zalecamy stworzenie **bariery przeciwwilgociowej** poprzez zagruntowanie powierzchni jastrychu gruntówką poliuretanową **ECO PRIM PU 1K TURBO**. Aplikować wałkiem. Podczas aplikacji nie zostawiać kałuż tj. zbierać nadmiar niewchłoniętej gruntówki. 1. warstwa nałożona wałkiem **200 g/m²**. **Czas schnięcia – 2 godziny**. 2. warstwa **150 g/m²** – **czas schnięcia – 2 godziny**. **Czas do klejenia: 72 godziny od zagruntowania**."
 _M_ECO_PU1K_BARRIER_PLYTA = "* Z uwagi na grubość płyty fundamentowej zalecamy stworzenie **bariery przeciwwilgociowej** poprzez zagruntowanie powierzchni podłoża gruntówką poliuretanową **ECO PRIM PU 1K TURBO**. Aplikować wałkiem. Podczas aplikacji nie zostawiać kałuż tj. zbierać nadmiar niewchłoniętej gruntówki. 1. warstwa nałożona wałkiem **200 g/m²**. **Czas schnięcia – 2 godziny**. 2. warstwa **150 g/m²** – **czas schnięcia – 2 godziny**. **Czas do klejenia: 72 godziny od zagruntowania**."
-_M_ECO_PU1K_RP = "* Zalecamy zagruntowanie całej powierzchni podłoża gruntówką poliuretanową **ECO PRIM PU 1K TURBO**. Aplikować wałkiem. Nie zostawiać kałuż tj. zbierać nadmiar niewchłoniętej gruntówki. Zużycie ok. 200 g/m². Czas schnięcia 2 godziny. Czas do montażu – 72 godziny."
+_M_ECO_PU1K_RP = "* Zalecamy zagruntowanie całej powierzchni podłoża gruntówką poliuretanową **ECO PRIM PU 1K TURBO**. Aplikować wałkiem. Nie zostawiać kałuż tj. zbierać nadmiar niewchłoniętej gruntówki. Zużycie ok. 200 g/m². Czas schnięcia 2 godziny. Czas do montażu – 24 godziny."
 _M_PROSFAS = "* Zalecamy aplikację gruntówki wzmacniającej **PROSFAS** wałkiem lub pędzlem. Zużycie **ok. 1,5 kg/m²**. Aplikując **PROSFAS** należy zwrócić uwagę, aby dobrze wchłaniał się w podłoże i unikać powstawania kałuż na powierzchni jastrychu. **Po 7 dniach schnięcia** powierzchnię należy **przeszlifować papierem o gradacji 24 – 40** i dokładnie odkurzyć."
 _M_ECO_PU1K_1W_S = "* Zalecamy wykonanie gruntowania wzmacniającego poprzez zagruntowanie powierzchni jastrychu gruntówką poliuretanową **ECO PRIM PU 1K**. Aplikować wałkiem. Podczas aplikacji nie zostawiać kałuż tj. zbierać nadmiar niewchłoniętej gruntówki. Zużycie **ok. 200 g/m²**. **Czas schnięcia – 24 godziny**."
 _M_ECO_PU1K_BARRIER_S = "* Zalecamy wykonanie **bariery przeciwwilgociowej** poprzez dwukrotne zagruntowanie gruntówką poliuretanową **ECO PRIM PU 1K**. Podczas aplikacji nie zostawiać kałuż tj. zbierać nadmiar niewchłoniętej gruntówki. 1. warstwa nałożona wałkiem **200 g/m²**. **Czas schnięcia – 24 godziny**. 2. warstwa zużycie **150 g/m²**. **Czas schnięcia – 24 godziny**. **Czas klejenia 72 godziny od zagruntowania**."
@@ -161,6 +162,7 @@ _M_PRIMER_G_PRO = "* Zagruntować podłoże koncentratem gruntówki dyspersyjnej
 _M_ECO_PRIM_T_PLUS = "* Zalecamy zagruntowanie całej powierzchni jastrychu gruntówką dyspersyjną **MAPEI Eco Prim T Plus** - aplikacja wałkiem **ok. 150 g/m²**. **Czas schnięcia ok. 1 godziny**."
 _M_PLANOLIT_115 = "* Wylać masę wyrównawczą **MAPEI Planolit 115** - wymieszać ją w czystym naczyniu z zimną wodą w proporcji 5,75-6 litrów wody na 23 kg masy. Mieszać unikając tworzenia się grudek. Prędkość obrotowa mieszadła może wynosić max. 600 obrotów na minutę. Wymieszaną masę nanosić w żądanej grubości na podłoże przy pomocy szpachli, łaty lub rakli. Przed pracą należy zwrócić uwagę na obecność wypełnień fug przy ścianach. Zużycie **ok. 1,6 kg/m²/mm**. **Czas schnięcia 3mm - 24 godziny**."
 _M_ULTRAPLAN_RENOVATION = "* Wylać masę wyrównawczą **MAPEI Ultraplan Renovation** – wymieszać ją w czystym naczyniu z zimną wodą w proporcji 4,5 litrów wody na 23 kg masy. Mieszać unikając tworzenia się grudek. Prędkość obrotowa mieszadła może wynosić max. 600 obrotów na minutę. Wymieszaną masę nanosić w żądanej grubości na podłoże przy pomocy szpachli, łaty lub rakli. Przed pracą należy zwrócić uwagę na obecność wypełnień fug przy ścianach. Zużycie **ok. 1,6 kg/m²/mm**. **Czas schnięcia 3mm - 24 godziny**."
+_M_MAPETEX_VLIES = "* Na zagruntowaną i wyschniętą powierzchnię przykleić matę flizelinową **Mapetex Vlies** przy użyciu kleju dwuskładnikowego poliuretanowego **Mapei Ultrabond ECO P909 2K** (szpachla B11, zużycie: 1250 g/m²). Matę dociskać równomiernie wałkiem do podłoża."
 _M_ULTRAPLAN_MAXI = "* Wylać masę wyrównawczą **MAPEI Ultraplan Maxi** – wymieszać ją w czystym naczyniu z zimną wodą w proporcji 4,75- 5,0 litrów wody na 23 kg masy. Mieszać unikając tworzenia się grudek. Prędkość obrotowa mieszadła może wynosić max. 600 obrotów na minutę. Wymieszaną masę nanosić w żądanej grubości na podłoże przy pomocy szpachli, łaty lub rakli. Przed pracą należy zwrócić uwagę na obecność wypełnień fug przy ścianach. Zużycie **ok. 1,7 kg/m²/mm**. **Czas schnięcia 3mm - 24 godziny**."
 
 PRODUCTS_MAPEI = {
@@ -169,49 +171,87 @@ PRODUCTS_MAPEI = {
 }
 
 PRODUCTS_MAPEI.update({
-    'PU 280 (1W)':          {'name': 'MAPEI ECO PRIM PU 1K TURBO (1 warstwa)', 'usage': 200, 'sizes': [10], 'text': _M_ECO_PU1K_1W,           'price': 0.0},
-    'PU 280 (Bariera)':     {'name': 'MAPEI ECO PRIM PU 1K TURBO (bariera)',    'usage': 350, 'sizes': [10], 'text': _M_ECO_PU1K_BARRIER,       'price': 0.0},
-    'PU 280 (Bariera Płyta)':{'name': 'MAPEI ECO PRIM PU 1K TURBO (bariera)',   'usage': 350, 'sizes': [10], 'text': _M_ECO_PU1K_BARRIER_PLYTA, 'price': 0.0},
-    'PU 280 (RP)':          {'name': 'MAPEI ECO PRIM PU 1K TURBO (grunt dla RP)','usage': 200, 'sizes': [10], 'text': _M_ECO_PU1K_RP,           'price': 0.0},
-    'PU 235 (1W)':          {'name': 'MAPEI ECO PRIM PU 1K (1 warstwa)', 'usage': 200, 'sizes': [10, 5], 'text': _M_ECO_PU1K_1W_S,      'price': 0.0},
-    'PU 235 (Bariera)':     {'name': 'MAPEI ECO PRIM PU 1K (bariera)',    'usage': 350, 'sizes': [10, 5], 'text': _M_ECO_PU1K_BARRIER_S, 'price': 0.0},
-    'PS 275':               {'name': 'MAPEI PROSFAS',                      'usage': 1500, 'sizes': [25],  'text': _M_PROSFAS,            'price': 0.0},
-    'D 3045':               {'name': 'MAPEI ECO PRIM GRIP PLUS',           'usage': 200,  'sizes': [10, 5, 1], 'text': _M_ECO_GRIP,     'price': 0.0},
-    'D 3004':               {'name': 'MAPEI Primer G Pro',                 'usage': 100,  'sizes': [20, 10, 5, 1], 'unit': 'L', 'text': _M_PRIMER_G_PRO, 'price': 0.0},
-    'D 3004 (bruzdowane)':  {'name': 'MAPEI Primer G Pro (koncentrat)', 'usage': 100,  'sizes': [20, 10, 5, 1], 'unit': 'L', 'text': "", 'price': 0.0},
-    'D 3055':               {'name': 'MAPEI Eco Prim T Plus',              'usage': 150,  'sizes': [20, 5], 'text': _M_ECO_PRIM_T_PLUS, 'price': 0.0},
-    'Z 675':                {'name': 'MAPEI Planolit 115 (masa samorozlewna)', 'usage_per_mm': 1.6, 'sizes': [23], 'text': _M_PLANOLIT_115, 'price': 0.0},
-    'Z 635':                {'name': 'MAPEI Ultraplan Renovation (masa samorozlewna)', 'usage_per_mm': 1.6, 'sizes': [23], 'text': _M_ULTRAPLAN_RENOVATION, 'price': 0.0},
-    'Z 625':                {'name': 'MAPEI Ultraplan Maxi (masa samorozlewna)', 'usage_per_mm': 1.7, 'sizes': [23], 'text': _M_ULTRAPLAN_MAXI, 'price': 0.0},
-    'Z 645':                {'name': 'MAPEI Nivo Rapid (masa naprawcza)',  'usage': 1.6,  'sizes': [25], 'text': "", 'price': 0.0},
-    'Z 645 (bruzdowane)':   {'name': 'MAPEI Nivo Rapid (masa szpachlowa)','usage': 2000, 'sizes': [25], 'text': "", 'price': 0.0},
-    'D 3060':               {'name': 'MAPEI Latex Plus (plastyfikator)',   'usage': 1000, 'sizes': [10], 'unit': 'kg', 'text': "", 'price': 0.0},
-    'PU 225':               {'name': 'MAPEI Ultrabond ECO P909 2K (klej)', 'usage': 1250, 'sizes': [10], 'text': "", 'price': 0.0},
-    'MS 260':               {'name': 'MAPEI Ultrabond S965 1K (klej)',     'usage': 1350, 'sizes': [15], 'text': "", 'price': 0.0},
-    'MS 230':               {'name': 'MAPEI Ultrabond ECO S948 1K (klej)', 'usage': 1350, 'sizes': [15], 'text': "", 'price': 0.0},
-    'MS 230 (B11 cement)':  {'name': 'MAPEI Ultrabond ECO S948 1K (klej)', 'usage': 1150, 'sizes': [15], 'text': "", 'price': 0.0},
-    'MS 230 (B5 masa)':     {'name': 'MAPEI Ultrabond ECO S948 1K (klej)', 'usage': 900,  'sizes': [15], 'text': "", 'price': 0.0},
-    'PS 205':               {'name': 'MAPEI Epo Grip (żywica lana)',      'sizes': [10, 2], 'unit': 'kg', 'text': "", 'price': 0.0},
-    'AR 150':               {'name': 'MAPEI MAPETHERM NET 150 (siatka zbrojeniowa)', 'usage': 1000, 'sizes': [50], 'text': "", 'price': 0.0},
+    'PU 280 (1W)':           {'name': 'Mapei ECO PRIM PU 1K TURBO (1 warstwa)', 'usage': 200,  'sizes': [10],          'text': _M_ECO_PU1K_1W,           'price': 0.0},
+    'PU 280 (Bariera)':      {'name': 'Mapei ECO PRIM PU 1K TURBO (bariera)',   'usage': 350,  'sizes': [10],          'text': _M_ECO_PU1K_BARRIER,       'price': 0.0},
+    'PU 280 (Bariera Płyta)':{'name': 'Mapei ECO PRIM PU 1K TURBO (bariera)',   'usage': 350,  'sizes': [10],          'text': _M_ECO_PU1K_BARRIER_PLYTA, 'price': 0.0},
+    'PU 280 (RP)':           {'name': 'Mapei ECO PRIM PU 1K TURBO (grunt dla RP)','usage': 200,'sizes': [10],          'text': _M_ECO_PU1K_RP,            'price': 0.0},
+    'PU 235 (1W)':           {'name': 'Mapei ECO PRIM PU 1K (1 warstwa)',       'usage': 200,  'sizes': [10, 5],       'text': _M_ECO_PU1K_1W_S,          'price': 0.0},
+    'PU 235 (Bariera)':      {'name': 'Mapei ECO PRIM PU 1K (bariera)',         'usage': 350,  'sizes': [10, 5],       'text': _M_ECO_PU1K_BARRIER_S,     'price': 0.0},
+    'PS 275':                {'name': 'Mapei PROSFAS',                           'usage': 1500, 'sizes': [25],          'text': _M_PROSFAS,                 'price': 0.0},
+    'D 3045':                {'name': 'Mapei ECO PRIM GRIP PLUS',               'usage': 200,  'sizes': [10, 5, 1],    'text': _M_ECO_GRIP,                'price': 0.0},
+    'D 3004':                {'name': 'Mapei Primer G Pro',                      'usage': 100,  'sizes': [20, 10, 5, 1],'unit': 'L', 'text': _M_PRIMER_G_PRO, 'price': 0.0},
+    'D 3004 (bruzdowane)':   {'name': 'Mapei Primer G Pro (koncentrat)',         'usage': 100,  'sizes': [20, 10, 5, 1],'unit': 'L', 'text': "",             'price': 0.0},
+    'D 3055':                {'name': 'Mapei Eco Prim T Plus',                   'usage': 150,  'sizes': [20, 5],       'text': _M_ECO_PRIM_T_PLUS,         'price': 0.0},
+    'Z 675':                 {'name': 'Mapei Planolit 115 (masa samorozlewna)',  'usage_per_mm': 1.6, 'sizes': [23],    'text': _M_PLANOLIT_115,            'price': 0.0},
+    'Z 635':                 {'name': 'Mapei Ultraplan Renovation (masa samorozlewna)', 'usage_per_mm': 1.6, 'sizes': [23], 'text': _M_ULTRAPLAN_RENOVATION, 'price': 0.0},
+    'Z 625':                 {'name': 'Mapei Ultraplan Maxi (masa samorozlewna)', 'usage_per_mm': 1.7, 'sizes': [23],  'text': _M_ULTRAPLAN_MAXI,          'price': 0.0},
+    'Z 645':                 {'name': 'Mapei Nivo Rapid (masa naprawcza)',       'usage': 1.6,  'sizes': [25],          'text': "",                         'price': 0.0},
+    'Z 645 (bruzdowane)':    {'name': 'Mapei Nivo Rapid (masa szpachlowa)',      'usage': 2000, 'sizes': [25],          'text': "",                         'price': 0.0},
+    'D 3060':                {'name': 'Mapei Latex Plus (plastyfikator)',         'usage': 1000, 'sizes': [10], 'unit': 'kg', 'text': "",                   'price': 0.0},
+    'PU 225':                {'name': 'Mapei Ultrabond ECO P909 2K (klej)',      'usage': 1250, 'sizes': [10],          'text': "",                         'price': 0.0},
+    'MS 260':                {'name': 'Mapei Ultrabond S965 1K (klej)',          'usage': 1350, 'sizes': [15],          'text': "",                         'price': 0.0},
+    'MS 230':                {'name': 'Mapei Ultrabond ECO S948 1K (klej)',      'usage': 1350, 'sizes': [15],          'text': "",                         'price': 0.0},
+    'MS 230 (B11 cement)':   {'name': 'Mapei Ultrabond ECO S948 1K (klej)',      'usage': 1150, 'sizes': [15],          'text': "",                         'price': 0.0},
+    'MS 230 (B5 masa)':      {'name': 'Mapei Ultrabond ECO S948 1K (klej)',      'usage': 900,  'sizes': [15],          'text': "",                         'price': 0.0},
+    'MS 552':                {'name': 'Mapei Ultrabond ECO MS 4LVT (klej)',      'usage': 350,  'sizes': [7],           'text': "",                         'price': 0.0},
+    'D 3318':                {'name': 'Mapei Ultrabond ECO 4 LVT (klej)',        'usage': 300,  'sizes': [14, 4],       'text': "",                         'price': 0.0},
+    'D 3308':                {'name': 'Mapei Rollcoll (klej do wykładziny)',     'usage': 400,  'sizes': [16, 5, 1],    'text': "",                         'price': 0.0},
+    'PS 205':                {'name': 'Mapei Epo Grip (żywica lana)',            'sizes': [10, 2], 'unit': 'kg', 'text': "",                               'price': 0.0},
+    'AR 150':                {'name': 'Mapei MAPETHERM NET 150 (siatka zbrojeniowa)', 'usage': 1000, 'sizes': [50],    'text': "",                         'price': 0.0},
+    'EM 140':                {'name': 'Mapei Mapetex Vlies (mata flizelinowa)',       'usage': 1000, 'sizes': [50], 'unit': 'm²', 'text': _M_MAPETEX_VLIES, 'price': 0.0},
 })
+_U_MULTIMOL = "* Na zagruntowaną i wyschniętą powierzchnię przykleić matę flizelinową **Uzin Multimol** przy użyciu kleju dwuskładnikowego poliuretanowego **Uzin MK 90** (szpachla B11, zużycie: 1250 g/m²). Matę dociskać równomiernie wałkiem do podłoża."
+_U_PE280 = "* Zaaplikować mostek sczepny **Uzin PE 280** równomiernie za pomocą wałka. Zużycie wynosi **ok. 150 g/m²**. **Czas schnięcia 45 minut.**"
+_U_PE350 = "* Zagruntować podłoże gruntówką dyspersyjną **Uzin PE 350** - aplikacja wałkiem **ok. 150 g/m²**. **Czas schnięcia: 30–60 minut.**"
+_U_NC170 = "* Wylać masę wyrównawczą **Uzin NC 170 LevelStar** - wymieszać ją w czystym naczyniu z zimną wodą (ok. 6,5 litra na worek 25 kg). Mieszać unikając tworzenia się grudek. Prędkość obrotowa mieszadła może wynosić max. 600 obrotów na minutę. Wymieszaną masę nanosić w żądanej grubości na podłoże przy pomocy szpachli, łaty lub rakli. Przed pracą należy zwrócić uwagę na obecność wypełnień fug przy ścianach. Zużycie **ok. 1,5 kg/m²/mm**. **Możliwość klejenia podłóg drewnianych: przy warstwie do 5 mm – po 15 godzinach, przy warstwie do 10 mm – po 24 godzinach, przy warstwie do 20 mm – po 72 godzinach.**"
+_U_NC150 = "* Wylać masę wyrównawczą **Uzin NC 150** - wymieszać ją w czystym naczyniu z zimną wodą zgodnie z instrukcją producenta. Mieszać unikając tworzenia się grudek. Prędkość obrotowa mieszadła może wynosić max. 600 obrotów na minutę. Wymieszaną masę nanosić w żądanej grubości (maks. 10 mm) na podłoże przy pomocy szpachli, łaty lub rakli. Przed pracą należy zwrócić uwagę na obecność wypełnień fug przy ścianach. Zużycie **ok. 1,5 kg/m²/mm**. **Możliwość klejenia podłóg: przy warstwie do 3 mm – po 24 godzinach, przy warstwie do 5 mm – po 48 godzinach.**"
+_U_NC146 = "* Wylać masę wyrównawczą **Uzin NC 146** - wymieszać ją w czystym naczyniu z zimną wodą zgodnie z instrukcją producenta. Mieszać unikając tworzenia się grudek. Prędkość obrotowa mieszadła może wynosić max. 600 obrotów na minutę. Wymieszaną masę nanosić w żądanej grubości (maks. 8 mm) na podłoże przy pomocy szpachli, łaty lub rakli. Przed pracą należy zwrócić uwagę na obecność wypełnień fug przy ścianach. Zużycie **ok. 1,6 kg/m²/mm**. **Możliwość klejenia podłóg po ok. 72 godzinach (3 dobach) przy grubości warstwy do 8 mm.**"
+_U_PE460 ="* Zalecamy aplikację gruntówki wzmacniającej **Uzin PE 460** w dwóch warstwach – grubym wałkiem sznurkowym, zużycie w sumie **ok. 600 g/m²**. Każda z warstw po **300 g/m²**, aplikowane po sobie w odstępie jednej godziny. Aplikując gruntówkę **Uzin PE 460** należy zwrócić uwagę, aby dobrze wchłaniała się w podłoże i unikać powstawania kałuż na powierzchni jastrychu. Po nałożeniu drugiej warstwy gruntówki w razie potrzeby wykonać posypkę z piasku kwarcowego. **Po 5 dniach schnięcia** powierzchnię należy **przeszlifować papierem o gradacji 24 – 40** usuwając przyklejony do powierzchni piasek kwarcowy i dokładnie odkurzyć."
+_U_PE390 ="* Zalecamy zagruntowanie całej powierzchni jastrychu gruntówką dyspersyjną **Uzin PE 390** - aplikacja wałkiem **ok. 150 g/m²**. **Czas schnięcia ok. 60 minut**."
+_U_PE412_1W ="* Zalecamy wykonanie gruntowania wzmacniającego poprzez zagruntowanie powierzchni jastrychu gruntówką poliuretanową **Uzin PE 412**. Aplikować wałkiem. Podczas aplikacji nie zostawiać kałuż tj. zbierać nadmiar niewchłoniętej gruntówki. Zużycie **ok. 150 g/m²**. **Czas schnięcia – 12 godzin**."
+_U_PE412_BARRIER = "* Zalecamy wykonanie **bariery przeciwwilgociowej** poprzez dwukrotne zagruntowanie gruntówką poliuretanową **Uzin PE 412**. Podczas aplikacji nie zostawiać kałuż tj. zbierać nadmiar niewchłoniętej gruntówki. 1. warstwa nałożona wałkiem **ok. 150 g/m²**. **Czas schnięcia – 12 godzin**. 2. warstwa zużycie **ok. 100 g/m²**. **Czas schnięcia – 12 godzin**. **Czas klejenia 72 godziny od zagruntowania**."
+_U_PE414_1W ="* Zalecamy wykonanie gruntowania wzmacniającego poprzez zagruntowanie powierzchni jastrychu gruntówką poliuretanową **Uzin PE 414 BiTurbo**. Aplikować wałkiem. Podczas aplikacji nie zostawiać kałuż tj. zbierać nadmiar niewchłoniętej gruntówki. Zużycie **ok. 150 g/m²**. **Czas schnięcia – jedna godzina**."
+_U_PE414_BARRIER = "* Z uwagi na podwyższoną wilgotność zalecamy stworzenie **bariery przeciwwilgociowej** poprzez zagruntowanie powierzchni jastrychu gruntówką poliuretanową **Uzin PE 414 BiTurbo**. Aplikować wałkiem. Podczas aplikacji nie zostawiać kałuż tj. zbierać nadmiar niewchłoniętej gruntówki. 1. warstwa nałożona wałkiem **150 g/m²**. **Czas schnięcia – jedna godzina**. 2. warstwa **100 g/m²** - **czas schnięcia – jedna godzina**. **Czas do klejenia: 72 godziny od zagruntowania**."
+_U_PE414_BARRIER_PLYTA = "* Z uwagi na grubość płyty fundamentowej zalecamy stworzenie **bariery przeciwwilgociowej** poprzez zagruntowanie powierzchni podłoża gruntówką poliuretanową **Uzin PE 414 BiTurbo**. Aplikować wałkiem. Podczas aplikacji nie zostawiać kałuż tj. zbierać nadmiar niewchłoniętej gruntówki. 1. warstwa nałożona wałkiem **150 g/m²**. **Czas schnięcia – jedna godzina**. 2. warstwa **100 g/m²** - **czas schnięcia – jedna godzina**. **Czas do klejenia: 72 godziny od zagruntowania**."
+_U_PE414_RP = "* Zalecamy zagruntowanie całej powierzchni podłoża gruntówką poliuretanową **Uzin PE 414 BiTurbo**. Aplikować wałkiem. Nie zostawiać kałuż tj. zbierać nadmiar niewchłoniętej gruntówki. Zużycie ok. 200 g/m². Czas schnięcia 1 godzina. Czas do montażu – 24 godziny."
+_U_PLYTA_RP = "* Na tak przygotowane podłoże zalecamy przyklejenie płyty odprzęgającej o grubości 4 mm **Uzin Multimol Top 4**. Należy przyklejać klejem 2K PU (**Uzin MK 90**). Płytę odprzęgającą po ułożeniu należy docisnąć. Płytę można docinać używając noża trapezowego. Można układać parkiet, jeśli tylko klejona płyta nie przesuwa się w trakcie chodzenia po niej."
 
-_M_PROSFAS = "* Zalecamy aplikację gruntówki wzmacniającej **PROSFAS** wałkiem lub pędzlem. Zużycie **ok. 1,5 kg/m²**. Aplikując **PROSFAS** należy zwrócić uwagę, aby dobrze wchłaniał się w podłoże i unikać powstawania kałuż na powierzchni jastrychu. **Po 7 dniach schnięcia** powierzchnię należy **przeszlifować papierem o gradacji 24 – 40** i dokładnie odkurzyć."
-
-_M_ECO_PU1K_1W_S = "* Zalecamy wykonanie gruntowania wzmacniającego poprzez zagruntowanie powierzchni jastrychu gruntówką poliuretanową **ECO PRIM PU 1K**. Aplikować wałkiem. Podczas aplikacji nie zostawiać kałuż tj. zbierać nadmiar niewchłoniętej gruntówki. Zużycie **ok. 200 g/m²**. **Czas schnięcia – 24 godziny**."
-_M_ECO_PU1K_BARRIER_S = "* Zalecamy wykonanie **bariery przeciwwilgociowej** poprzez dwukrotne zagruntowanie gruntówką poliuretanową **ECO PRIM PU 1K**. Podczas aplikacji nie zostawiać kałuż tj. zbierać nadmiar niewchłoniętej gruntówki. 1. warstwa nałożona wałkiem **200 g/m²**. **Czas schnięcia – 24 godziny**. 2. warstwa zużycie **150 g/m²**. **Czas schnięcia – 24 godziny**. **Czas klejenia 72 godziny od zagruntowania**."
-
-_M_ECO_GRIP = "* Zalecamy zaaplikowanie mostka sczepnego **ECO PRIM GRIP PLUS**. Aplikować równomiernie wałkiem. Zużycie wynosi **ok. 200 g/m²**. **Czas schnięcia 1 godzina**."
-
-PRODUCTS_MAPEI.update({
-    'PU 235 (1W)':      {'name': 'Mapei ECO PRIM PU 1K (1 warstwa)', 'usage': 200, 'sizes': [10, 5], 'text': _M_ECO_PU1K_1W_S,      'price': 0.0},
-    'PU 235 (Bariera)': {'name': 'Mapei ECO PRIM PU 1K (bariera)',    'usage': 350, 'sizes': [10, 5], 'text': _M_ECO_PU1K_BARRIER_S, 'price': 0.0},
-    'PS 275':           {'name': 'Mapei PROSFAS',                      'usage': 1500, 'sizes': [25],  'text': _M_PROSFAS,            'price': 0.0},
-    'D 3045':           {'name': 'Mapei ECO PRIM GRIP PLUS',           'usage': 200,  'sizes': [10, 5, 1], 'text': _M_ECO_GRIP,     'price': 0.0},
-})
 PRODUCTS_UZIN = {
     k: dict(v, name=v['name'].replace('WAKOL', 'Uzin'), text='', price=0.0)
     for k, v in PRODUCTS_WAKOL.items()
 }
+
+PRODUCTS_UZIN.update({
+    'PU 280 (1W)':           {'name': 'Uzin PE 414 BiTurbo (1 warstwa)', 'usage': 150, 'sizes': [11, 5], 'text': _U_PE414_1W,           'price': 0.0},
+    'PU 280 (Bariera)':      {'name': 'Uzin PE 414 BiTurbo (bariera)',   'usage': 250, 'sizes': [11, 5], 'text': _U_PE414_BARRIER,       'price': 0.0},
+    'PU 280 (Bariera Płyta)':{'name': 'Uzin PE 414 BiTurbo (bariera)',   'usage': 250, 'sizes': [11, 5], 'text': _U_PE414_BARRIER_PLYTA, 'price': 0.0},
+    'PU 280 (RP)':           {'name': 'Uzin PE 414 BiTurbo (grunt dla RP)', 'usage': 200, 'sizes': [11, 5], 'text': _U_PE414_RP,        'price': 0.0},
+    'PU 235 (1W)':           {'name': 'Uzin PE 412 (1 warstwa)',            'usage': 150, 'sizes': [11],    'text': _U_PE412_1W,         'price': 0.0},
+    'PU 235 (Bariera)':      {'name': 'Uzin PE 412 (bariera)',              'usage': 250, 'sizes': [11],    'text': _U_PE412_BARRIER,    'price': 0.0},
+    'PS 275':                {'name': 'Uzin PE 460',                        'usage': 600,  'sizes': [11],    'text': _U_PE460,           'price': 0.0},
+    'Z 645':                 {'name': 'Uzin NC 182 (masa naprawcza)',        'usage': 1.6,  'sizes': [25],    'text': "",                 'price': 0.0},
+    'Z 645 (bruzdowane)':    {'name': 'Uzin NC 182 (masa szpachlowa)',       'usage': 2000, 'sizes': [25],    'text': "",                 'price': 0.0},
+    'D 3055':                {'name': 'Uzin PE 390',                        'usage': 150,  'sizes': [10],    'text': _U_PE390,         'price': 0.0},
+    'MS 230':                {'name': 'Uzin MK 140 (klej)',                 'usage': 1350, 'sizes': [18],    'text': "",                'price': 0.0},
+    'MS 230 (B11 cement)':   {'name': 'Uzin MK 140 (klej)',                 'usage': 1150, 'sizes': [18],    'text': "",                'price': 0.0},
+    'MS 230 (B5 masa)':      {'name': 'Uzin MK 140 (klej)',                 'usage': 900,  'sizes': [18],    'text': "",                'price': 0.0},
+    'MS 260':                {'name': 'Uzin MK 200 (klej)',                 'usage': 1350, 'sizes': [18],    'text': "",                'price': 0.0},
+    'PU 225':                {'name': 'Uzin MK 90 (klej)',                  'usage': 1250, 'sizes': [10],    'text': "",                'price': 0.0},
+    'MS 552':                {'name': 'Uzin KE 68 (klej do stref mokrych)', 'usage': 350,  'sizes': [8.5],   'text': "",                'price': 0.0},
+    'D 3318':                {'name': 'Uzin KE 66 (klej)',                  'usage': 350,  'sizes': [14, 6], 'text': "",                'price': 0.0},
+    'D 3307':                {'name': 'Uzin KE 418 (klej do PCV)',          'usage': 315,  'sizes': [14, 6], 'text': "",                'price': 0.0},
+    'D 3308':                {'name': 'Uzin KE 418 (klej do wykładziny)',   'usage': 315,  'sizes': [14, 6], 'text': "",                'price': 0.0},
+    'Z 675':                 {'name': 'Uzin NC 146 (masa samorozlewna)',     'usage_per_mm': 1.6, 'sizes': [25], 'text': _U_NC146,          'price': 0.0},
+    'Z 635':                 {'name': 'Uzin NC 150 (masa samorozlewna)',     'usage_per_mm': 1.5, 'sizes': [25], 'text': _U_NC150,          'price': 0.0},
+    'Z 625':                 {'name': 'Uzin NC 170 LevelStar (masa samorozlewna)', 'usage_per_mm': 1.5, 'sizes': [25], 'text': _U_NC170,     'price': 0.0},
+    'D 3004':                {'name': 'Uzin PE 350',                               'usage': 150,        'sizes': [10],   'text': _U_PE350,      'price': 0.0},
+    'D 3004 (bruzdowane)':   {'name': 'Uzin PE 350 (koncentrat)',                  'usage': 150,        'sizes': [10],   'text': _U_PE350,      'price': 0.0},
+    'D 3045':                {'name': 'Uzin PE 280 (mostek sczepny)',              'usage': 150,        'sizes': [12, 5, 1],'text': _U_PE280,   'price': 0.0},
+    'PS 205':                {'name': 'Uzin KR 516 (żywica lana)',                 'sizes': [1],        'unit': 'kpl.', 'text': "", 'price': 0.0},
+    'Płyta RP':              {'name': 'Uzin Multimol Top 4 (płyta odprzęgająca)',  'usage': 1000,       'sizes': [0.6], 'unit': 'm²', 'text': _U_PLYTA_RP, 'price': 0.0},
+    'AR 150':                {'name': 'Uzin RM (siatka zbrojąca)',                 'usage': 1000,       'sizes': [50], 'text': "", 'price': 0.0},
+    'EM 140':                {'name': 'Uzin Multimol (mata flizelinowa)',          'usage': 1000,       'sizes': [50], 'unit': 'm²', 'text': _U_MULTIMOL, 'price': 0.0},
+})
 
 PRODUCTS = PRODUCTS_WAKOL
 
@@ -338,19 +378,30 @@ def render_potrzebne_materialy(dane, rep):
     rep.write("\n**Wariant 1: Kosztorys materiałowy – rzeczywiste zużycie (Netto)**")
     total1 = 0.0
     for m in dane['materials']:
-        if m.get('price_per_unit', 0) <= 0: continue
-        line, cost = _kosztorys_line_v1(m)
-        rep.write(line)
-        total1 += cost
+        if m.get('price_per_unit', 0) > 0:
+            line, cost = _kosztorys_line_v1(m)
+            rep.write(line)
+            total1 += cost
+        else:
+            unit = m.get('unit', 'kg')
+            pkg_size = m.get('pkg_size', 1)
+            kg = m['kg']
+            real_p = kg / pkg_size if pkg_size else kg
+            real_str = str(int(real_p)) if real_p == int(real_p) else f"{real_p:.1f}".replace('.', ',')
+            rep.write(f"- {m['name']}: {kg:.2f} {unit} ({real_str} opak. po {pkg_size} {unit}) — cena do ustalenia")
     rep.write(f"**RAZEM NETTO (Wariant 1): {total1:.2f} PLN**")
 
     rep.write("\n**Wariant 2: Kosztorys materiałowy – pełne opakowania (Netto)**")
     total2 = 0.0
     for m in dane['materials']:
-        if m.get('price_per_unit', 0) <= 0: continue
-        line, cost = _kosztorys_line_v2(m)
-        rep.write(line)
-        total2 += cost
+        if m.get('price_per_unit', 0) > 0:
+            line, cost = _kosztorys_line_v2(m)
+            rep.write(line)
+            total2 += cost
+        else:
+            unit = m.get('unit', 'kg')
+            combo = m.get('combo', f"{m['bought_qty']} {unit}")
+            rep.write(f"- {m['name']}: {combo} — cena do ustalenia")
     rep.write(f"**RAZEM NETTO (Wariant 2): {total2:.2f} PLN**")
 
 def render_wspolne_zalecenia_podloze(dane, rep):
@@ -373,7 +424,7 @@ def render_wspolne_zalecenia_podloze(dane, rep):
         rep.write("* **Szlif podłoża** w celu wyrównania i oczyszczenia powierzchni płyty OSB.")
         rep.write("* Sprawdzenie i dokręcenie wkrętów mocujących płyty OSB (łby wkrętów muszą być zagłębione w powierzchni).")
     else:
-        rep.write("* **Szlif podłoża** w celu uzyskania porowatej i chłonnej powierzchni!")
+        rep.write("* **Szlif podłoża** w celu usunięcia słabej frakcji i uzyskania porowatej i chłonnej powierzchni.")
         
     rep.write("* Dokładne odkurzenie powierzchni odkurzaczem przemysłowym.")
     
@@ -439,20 +490,31 @@ def render_wspolne_zalecenia_podloze(dane, rep):
             kg_z645 = area_h * thick_mm * 1.6
 
         firma_is_mapei = (dane.get('firma') == "Mapei")
+        firma_is_uzin = (dane.get('firma') == "Uzin")
         if dane.get('holes_depth') and dane['holes_depth'] >= 1.0:
             if kg_z645 is not None: kg_z645 /= 2.0
             if firma_is_mapei:
                 rep.write(f"* Ubytki zaszpachlować masą **{PRODUCTS['Z 645']['name']}** wymieszaną z piaskiem kwarcowym (dodatek 30%). Czas schnięcia przed klejeniem 12 godzin.")
+            elif firma_is_uzin:
+                depth = dane.get('holes_depth', 0)
+                if depth > 3.0:
+                    rep.write(f"* ⚠️ Głębokość ubytków ({depth} cm) przekracza maksymalną grubość warstwy **Uzin NC 182** (3 cm). Wymagane warstwowe wypełnienie.")
+                rep.write(f"* Ubytki zaszpachlować masą **{PRODUCTS['Z 645']['name']}** wymieszaną z piaskiem kwarcowym w proporcji 1:1 (maks. grubość warstwy: 3 cm). **Czas schnięcia przed klejeniem: 1,5 godziny.**")
             else:
-                rep.write(f"* Ubytki zaszpachlować masą **{PRODUCTS['Z 645']['name']}** wymieszaną z piaskiem kwarcowym w proporcji 1:1  – czas schnięcia 1 godzina.")
+                rep.write(f"* Ubytki zaszpachlować masą **{PRODUCTS['Z 645']['name']}** wymieszaną z piaskiem kwarcowym w proporcji 1:1 – czas schnięcia 1 godzina.")
         else:
             if firma_is_mapei:
                 rep.write(f"* Ubytki zaszpachlować masą szpachlową **{PRODUCTS['Z 645']['name']}** z dodatkiem plastyfikatora **{PRODUCTS['D 3060']['name']}** (8 kg na 25 kg masy). Czas schnięcia min. 3h.")
+            elif firma_is_uzin:
+                rep.write(f"* Ubytki zaszpachlować masą szpachlową **{PRODUCTS['Z 645']['name']}**. Czas schnięcia przed klejeniem: **1,5 godziny**.")
             else:
                 rep.write(f"* Ubytki zaszpachlować masą szpachlową **{PRODUCTS['Z 645']['name']}** z dodatkiem plastyfikatora **{PRODUCTS['D 3060']['name']}** (7 litrów na 25 kg masy). Czas schnięcia min. 3h. W razie potrzeby użyć siatki zbrojeniowej {PRODUCTS['AR 150']['name']}.")
         
+        _add_sand = dane.get('holes_depth') and dane['holes_depth'] >= 1.0
         if kg_z645 is not None:
             write_and_track(dane, rep, 'Z 645', custom_kg=kg_z645)
+            if _add_sand:
+                write_and_track(dane, rep, 'Piasek kwarcowy', custom_kg=kg_z645)
 
     if dane.get('local_leveling') == "TAK" and dane.get('local_leveling_kg'):
         details = dane.get('local_leveling_details', '')
@@ -547,6 +609,13 @@ def render_chemia_deska_warstwowa(dane, rep):
     if dane['substrate'] in ["płytki ceramiczne", "podłoże drewniane (parkiet, deska)", "podłoże z płyty OSB"]:
         return False
 
+    if dane['substrate'] == "masa samorozlewna" and dane['strength_val'] in [1, 2]:
+        rep.write("**UWAGA: Z uwagi na niską wytrzymałość masy samopoziomującej, jedyną opcją montażu jest zagruntowanie podłoża, przyklejenie maty flizelinowej, a następnie montaż okładziny na flizelinę.**")
+        write_and_track(dane, rep, 'PU 280 (1W)')
+        write_and_track(dane, rep, 'EM 140', custom_kg=dane.get('area_m2') or 0)
+        write_and_track(dane, rep, 'PU 225')
+        return False
+
     if dane['decision_after_cure'] in ["Wykonanie bariery przeciwwilgociowej", "osuszanie przed barierą"]:
         if dane['substrate'] == "płyta fundamentowa":
             write_and_track(dane, rep, 'PU 280 (Bariera Płyta)')
@@ -569,7 +638,8 @@ def render_chemia_deska_warstwowa(dane, rep):
                 if dane['substrate'] == "jastrych anhydrytowy": write_and_track(dane, rep, 'PU 235 (1W)')
                 else:
                     write_and_track(dane, rep, 'PS 275')
-                    write_and_track(dane, rep, 'PU 280 (1W)')
+                    if dane.get('firma') != 'Mapei':
+                        write_and_track(dane, rep, 'PU 280 (1W)')
         else:
             if dane['strength_val'] == 1:
                 if dane['substrate'] == "jastrych anhydrytowy": write_and_track(dane, rep, 'PU 235 (1W)')
@@ -586,6 +656,13 @@ def render_chemia_deska_lita(dane, rep):
         return True
 
     if dane['substrate'] in ["płytki ceramiczne", "podłoże drewniane (parkiet, deska)", "podłoże z płyty OSB"]:
+        return False
+
+    if dane['substrate'] == "masa samorozlewna" and dane['strength_val'] in [1, 2]:
+        rep.write("**UWAGA: Z uwagi na niską wytrzymałość masy samopoziomującej, jedyną opcją montażu jest zagruntowanie podłoża, przyklejenie maty flizelinowej, a następnie montaż okładziny na flizelinę.**")
+        write_and_track(dane, rep, 'PU 280 (1W)')
+        write_and_track(dane, rep, 'EM 140', custom_kg=dane.get('area_m2') or 0)
+        write_and_track(dane, rep, 'PU 225')
         return False
 
     if dane['decision_after_cure'] in ["Wykonanie bariery przeciwwilgociowej", "osuszanie przed barierą"]:
@@ -671,23 +748,33 @@ def generate_report_deska_warstwowa(dane, rep):
                 write_and_track(dane, rep, 'D 3060', custom_kg=(kg_z645_mesh / 25.0) * ratio)
         write_and_track(dane, rep, 'Z 635')
 
+    _is_lity_parkiet = dane['flooring_type'] == "lity parkiet (maks. 8 cm x 60 cm)"
+    _is_mozaika = dane['flooring_type'] == "mozaika drewniana (min. 16 mm grubości, maks. 20 cm długości)"
+    _uzin = dane.get('firma') == "Uzin"
+
     rep.write("**c) klejenie okładziny:**")
-    if dane['substrate'] == "płytki ceramiczne" and dane['needs_levelling'] == "NIE":
-        rep.write(f"Klejenie {nazwa_okladziny} należy przeprowadzić przy użyciu dwuskładnikowego kleju poliuretanowego **{PRODUCTS['PU 225']['name']}** (szpachla B11, zużycie: 1250 g/m²).")
+    if _uzin and _is_lity_parkiet:
+        rep.write(f"Klejenie okładziny należy przeprowadzić przy użyciu kleju **{PRODUCTS['MS 260']['name']}** (szpachla B13, zużycie: 1350 g/m²).")
+        write_and_track(dane, rep, 'MS 260')
+    elif _uzin and _is_mozaika:
+        rep.write(f"Klejenie okładziny należy przeprowadzić przy użyciu kleju **{PRODUCTS['MS 260']['name']}** (szpachla B13, zużycie: 1350 g/m²).")
+        write_and_track(dane, rep, 'MS 260')
+    elif dane['substrate'] == "płytki ceramiczne" and dane['needs_levelling'] == "NIE":
+        rep.write(f"Klejenie okładziny należy przeprowadzić przy użyciu dwuskładnikowego kleju poliuretanowego **{PRODUCTS['PU 225']['name']}** (szpachla B11, zużycie: 1250 g/m²).")
         write_and_track(dane, rep, 'PU 225')
     elif dane['substrate'] == "płyta fundamentowa" and dane['needs_levelling'] == "NIE":
-        rep.write(f"Klejenie {nazwa_okladziny} należy przeprowadzić przy użyciu kleju polimerowego twardo-elastycznego **{PRODUCTS['MS 260']['name']}** (szpachla B13, zużycie: 1350 g/m²).")
+        rep.write(f"Klejenie okładziny należy przeprowadzić przy użyciu kleju polimerowego twardo-elastycznego **{PRODUCTS['MS 260']['name']}** (szpachla B13, zużycie: 1350 g/m²).")
         write_and_track(dane, rep, 'MS 260')
     elif dane['substrate'] == "jastrych anhydrytowy" and dane['strength_val'] == 1:
-        rep.write(f"Klejenie {nazwa_okladziny} należy przeprowadzić przy użyciu kleju do parkietu **{PRODUCTS['MS 230']['name']}** (szpachla B13, zużycie: 1350 g/m²).")
+        rep.write(f"Klejenie okładziny należy przeprowadzić przy użyciu kleju do parkietu **{PRODUCTS['MS 230']['name']}** (szpachla B13, zużycie: 1350 g/m²).")
         write_and_track(dane, rep, 'MS 230')
     elif dane.get('klej_typ') == "bezprzesuwny":
-        rep.write(f"Klejenie {nazwa_okladziny} należy przeprowadzić przy użyciu kleju do parkietu **{PRODUCTS['PU 225']['name']}** (szpachla B11, zużycie: 1250 g/m²).")
+        rep.write(f"Klejenie okładziny należy przeprowadzić przy użyciu kleju do parkietu **{PRODUCTS['PU 225']['name']}** (szpachla B11, zużycie: 1250 g/m²).")
         write_and_track(dane, rep, 'PU 225')
     else:
-        rep.write(f"Klejenie {nazwa_okladziny} należy przeprowadzić przy użyciu kleju do parkietu **{PRODUCTS['MS 230']['name']}** (szpachla B13, zużycie: 1350 g/m²).")
+        rep.write(f"Klejenie okładziny należy przeprowadzić przy użyciu kleju do parkietu **{PRODUCTS['MS 230']['name']}** (szpachla B13, zużycie: 1350 g/m²).")
         write_and_track(dane, rep, 'MS 230')
-        
+
     render_potrzebne_materialy(dane, rep)
 
 # --- SEKCJA: DESKA LITA ---
@@ -729,16 +816,16 @@ def generate_report_deska_lita(dane, rep):
 
     rep.write("**c) klejenie okładziny:**")
     if dane['substrate'] == "płytki ceramiczne" and dane['needs_levelling'] == "NIE":
-        rep.write(f"Klejenie podłogi z deski litej należy przeprowadzić przy użyciu dwuskładnikowego kleju poliuretanowego **{PRODUCTS['PU 225']['name']}** (szpachla B11, zużycie: 1250 g/m²).")
+        rep.write(f"Klejenie okładziny należy przeprowadzić przy użyciu dwuskładnikowego kleju poliuretanowego **{PRODUCTS['PU 225']['name']}** (szpachla B11, zużycie: 1250 g/m²).")
         write_and_track(dane, rep, 'PU 225')
     elif dane['substrate'] == "płyta fundamentowa" and dane['needs_levelling'] == "NIE":
-        rep.write(f"Klejenie podłogi z deski litej należy przeprowadzić przy użyciu kleju polimerowego twardo-elastycznego **{PRODUCTS['MS 260']['name']}** (szpachla B13, zużycie: 1350 g/m²).")
+        rep.write(f"Klejenie okładziny należy przeprowadzić przy użyciu kleju polimerowego twardo-elastycznego **{PRODUCTS['MS 260']['name']}** (szpachla B13, zużycie: 1350 g/m²).")
         write_and_track(dane, rep, 'MS 260')
     elif dane.get('klej_typ') == "bezprzesuwny":
-        rep.write(f"Klejenie podłogi z deski litej należy przeprowadzić przy użyciu kleju **{PRODUCTS['PU 225']['name']}** (szpachla B11, zużycie: 1250 g/m²).")
+        rep.write(f"Klejenie okładziny należy przeprowadzić przy użyciu kleju **{PRODUCTS['PU 225']['name']}** (szpachla B11, zużycie: 1250 g/m²).")
         write_and_track(dane, rep, 'PU 225')
     else:
-        rep.write(f"Klejenie podłogi z deski litej należy przeprowadzić przy użyciu kleju polimerowego twardo-elastycznego **{PRODUCTS['MS 260']['name']}** (szpachla B13, zużycie: 1350 g/m²).")
+        rep.write(f"Klejenie okładziny należy przeprowadzić przy użyciu kleju polimerowego twardo-elastycznego **{PRODUCTS['MS 260']['name']}** (szpachla B13, zużycie: 1350 g/m²).")
         write_and_track(dane, rep, 'MS 260')
     render_potrzebne_materialy(dane, rep)
 
@@ -755,7 +842,7 @@ def generate_report_lvt_cienkie(dane, rep):
         rep.write("* Szlif podłoża w celu uzyskania gładkiej powierzchni.")
         rep.write("* Dokładne odkurzenie powierzchni odkurzaczem przemysłowym.")
         rep.write("**b) klejenie okładziny:**")
-        rep.write(f"Klejenie podłogi winylowej (LVT) należy przeprowadzić przy użyciu kleju {PRODUCTS['D 3318']['name']} (szpachla TKB A2, zużycie: 350 g/m²). · Czas wstępnego odparowania: ok. 5 - 10 minut. · Czas układania: ok. 10 minut")
+        rep.write(f"Klejenie okładziny należy przeprowadzić przy użyciu kleju {PRODUCTS['D 3318']['name']} (szpachla TKB A2, zużycie: 350 g/m²). · Czas wstępnego odparowania: ok. 5 - 10 minut. · Czas układania: ok. 10 minut")
         write_and_track(dane, rep, 'D 3318')
         render_potrzebne_materialy(dane, rep)
         return
@@ -792,7 +879,7 @@ def generate_report_lvt_cienkie(dane, rep):
     rep.write("* Po wyschnięciu masy samorozlewnej zalecamy szlif podłoża w celu uzyskania gładkiej powierzchni oraz dokładne odkurzenie.")
 
     rep.write("**c) klejenie okładziny:**")
-    rep.write(f"Klejenie podłogi winylowej (LVT) należy przeprowadzić przy użyciu kleju {PRODUCTS['D 3318']['name']} (szpachla TKB A2, zużycie: 350 g/m²). · Czas wstępnego odparowania: ok. 5 - 10 minut. · Czas układania: ok. 10 minut")
+    rep.write(f"Klejenie okładziny należy przeprowadzić przy użyciu kleju {PRODUCTS['D 3318']['name']} (szpachla TKB A2, zużycie: 350 g/m²). · Czas wstępnego odparowania: ok. 5 - 10 minut. · Czas układania: ok. 10 minut")
     write_and_track(dane, rep, 'D 3318')
     render_potrzebne_materialy(dane, rep)
 
@@ -803,6 +890,13 @@ def render_chemia_lvt_grube(dane, rep):
         return True
 
     if dane['substrate'] in ["płytki ceramiczne", "podłoże drewniane (parkiet, deska)", "podłoże z płyty OSB"]:
+        return False
+
+    if dane['substrate'] == "masa samorozlewna" and dane['strength_val'] in [1, 2]:
+        rep.write("**UWAGA: Z uwagi na niską wytrzymałość masy samopoziomującej, jedyną opcją montażu jest zagruntowanie podłoża, przyklejenie maty flizelinowej, a następnie montaż okładziny na flizelinę.**")
+        write_and_track(dane, rep, 'PU 280 (1W)')
+        write_and_track(dane, rep, 'EM 140', custom_kg=dane.get('area_m2') or 0)
+        write_and_track(dane, rep, 'PU 225')
         return False
 
     if dane['decision_after_cure'] in ["Wykonanie bariery przeciwwilgociowej", "osuszanie przed barierą"]:
@@ -827,7 +921,8 @@ def render_chemia_lvt_grube(dane, rep):
                 if dane['substrate'] == "jastrych anhydrytowy": write_and_track(dane, rep, 'PU 235 (1W)')
                 else:
                     write_and_track(dane, rep, 'PS 275')
-                    write_and_track(dane, rep, 'PU 280 (1W)')
+                    if dane.get('firma') != 'Mapei':
+                        write_and_track(dane, rep, 'PU 280 (1W)')
         else:
             if dane['strength_val'] in [3, 4, 5]:
                 write_and_track(dane, rep, 'D 3055')
@@ -875,19 +970,19 @@ def generate_report_lvt_grube(dane, rep):
     if bottom_type == "Winyl na piankowym spodzie":
         rep.write("**Brak możliwości klejenia.** Możliwość montażu okładziny jedynie na pływająco.")
     elif dane['substrate'] == "płytki ceramiczne" and dane['needs_levelling'] == "NIE":
-        rep.write(f"Klejenie podłogi LVT ({bottom_type}) należy przeprowadzić przy użyciu dwuskładnikowego kleju poliuretanowego **{PRODUCTS['PU 225']['name']}** (szpachla B11, zużycie: 1250 g/m²).")
+        rep.write(f"Klejenie okładziny należy przeprowadzić przy użyciu dwuskładnikowego kleju poliuretanowego **{PRODUCTS['PU 225']['name']}** (szpachla B11, zużycie: 1250 g/m²).")
         write_and_track(dane, rep, 'PU 225')
     elif dane['substrate'] == "płyta fundamentowa" and dane['needs_levelling'] == "NIE":
-        rep.write(f"Klejenie podłogi LVT ({bottom_type}) należy przeprowadzić przy użyciu kleju polimerowego twardo-elastycznego **{PRODUCTS['MS 260']['name']}** (szpachla B13, zużycie: 1350 g/m²).")
+        rep.write(f"Klejenie okładziny należy przeprowadzić przy użyciu kleju polimerowego twardo-elastycznego **{PRODUCTS['MS 260']['name']}** (szpachla B13, zużycie: 1350 g/m²).")
         write_and_track(dane, rep, 'MS 260')
     elif dane['needs_levelling'] == "TAK" or dane['substrate'] == "masa samorozlewna":
-        rep.write(f"Klejenie podłogi LVT ({bottom_type}) na masie samorozlewnej należy przeprowadzić przy użyciu kleju **{PRODUCTS['MS 230']['name']}** (szpachla B5, zużycie: 900 g/m²).")
+        rep.write(f"Klejenie okładziny należy przeprowadzić przy użyciu kleju **{PRODUCTS['MS 230']['name']}** (szpachla B5, zużycie: 900 g/m²).")
         write_and_track(dane, rep, 'MS 230 (B5 masa)')
     elif dane['substrate'] == "jastrych cementowy":
-        rep.write(f"Klejenie podłogi LVT ({bottom_type}) na jastrychu cementowym należy przeprowadzić przy użyciu kleju **{PRODUCTS['MS 230']['name']}** (szpachla B11, zużycie: 1150 g/m²).")
+        rep.write(f"Klejenie okładziny należy przeprowadzić przy użyciu kleju **{PRODUCTS['MS 230']['name']}** (szpachla B11, zużycie: 1150 g/m²).")
         write_and_track(dane, rep, 'MS 230 (B11 cement)')
     else:
-        rep.write(f"Klejenie podłogi LVT ({bottom_type}) należy przeprowadzić przy użyciu kleju **{PRODUCTS['MS 230']['name']}** (szpachla B13, zużycie: 1350 g/m²).")
+        rep.write(f"Klejenie okładziny należy przeprowadzić przy użyciu kleju **{PRODUCTS['MS 230']['name']}** (szpachla B13, zużycie: 1350 g/m²).")
         write_and_track(dane, rep, 'MS 230')
     render_potrzebne_materialy(dane, rep)
 
@@ -908,7 +1003,7 @@ def generate_report_pcv_w_rolce(dane, rep):
         rep.write("* Szlif podłoża w celu uzyskania gładkiej powierzchni.")
         rep.write("* Dokładne odkurzenie powierzchni odkurzaczem przemysłowym.")
         rep.write("**b) klejenie okładziny PCV:**")
-        rep.write(f"Klejenie wykładziny PCV w rolce należy przeprowadzić przy użyciu kleju {PRODUCTS['D 3307']['name']} (szpachla TKB A2, zużycie: 300 – 330 g/m²). · Czas wstępnego odparowania: ok. 10 - 20 minut. · Czas układania: ok. 15 - 20 minut")
+        rep.write(f"Klejenie okładziny należy przeprowadzić przy użyciu kleju {PRODUCTS['D 3307']['name']} (szpachla TKB A2, zużycie: 300 – 330 g/m²). · Czas wstępnego odparowania: ok. 10 - 20 minut. · Czas układania: ok. 15 - 20 minut")
         render_potrzebne_materialy(dane, rep)
         return
 
@@ -944,7 +1039,7 @@ def generate_report_pcv_w_rolce(dane, rep):
     rep.write("* Po wyschnięciu masy samorozlewnej zalecamy szlif podłoża w celu uzyskania gładkiej powierzchni oraz dokładne odkurzenie.")
 
     rep.write("**c) klejenie okładziny PCV:**")
-    rep.write(f"Klejenie wykładziny PCV w rolce należy przeprowadzić przy użyciu kleju {PRODUCTS['D 3307']['name']} (szpachla TKB A2, zużycie: 300 – 330 g/m²). · Czas wstępnego odparowania: ok. 10 - 20 minut. · Czas układania: ok. 15 - 20 minut")
+    rep.write(f"Klejenie okładziny należy przeprowadzić przy użyciu kleju {PRODUCTS['D 3307']['name']} (szpachla TKB A2, zużycie: 300 – 330 g/m²). · Czas wstępnego odparowania: ok. 10 - 20 minut. · Czas układania: ok. 15 - 20 minut")
     render_potrzebne_materialy(dane, rep)
 
 # --- SEKCJA: WYKŁADZINA DYWANOWA ---
@@ -964,7 +1059,7 @@ def generate_report_wykladzina_dywanowa(dane, rep):
         rep.write("* Szlif podłoża w celu uzyskania gładkiej powierzchni.")
         rep.write("* Dokładne odkurzenie powierzchni odkurzaczem przemysłowym.")
         rep.write("**b) klejenie wykładziny tekstylnej:**")
-        rep.write(f"Klejenie wykładziny tekstylnej należy przeprowadzić przy użyciu kleju {PRODUCTS['D 3308']['name']} (szpachla TKB B1 400-450 g/m²). · Czas wstępnego odparowania: ok. 5-10 minut. · Czas otwarty kleju ok. 10-15 minut")
+        rep.write(f"Klejenie okładziny należy przeprowadzić przy użyciu kleju {PRODUCTS['D 3308']['name']} (szpachla TKB B1 400-450 g/m²). · Czas wstępnego odparowania: ok. 5-10 minut. · Czas otwarty kleju ok. 10-15 minut")
         render_potrzebne_materialy(dane, rep)
         return
 
@@ -1000,7 +1095,7 @@ def generate_report_wykladzina_dywanowa(dane, rep):
     rep.write("* Po wyschnięciu masy samorozlewnej zalecamy szlif podłoża w celu uzyskania gładkiej powierzchni oraz dokładne odkurzenie.")
 
     rep.write("**c) klejenie wykładziny tekstylnej:**")
-    rep.write(f"Klejenie wykładziny tekstylnej należy przeprowadzić przy użyciu kleju {PRODUCTS['D 3308']['name']} (szpachla TKB B1 400-450 g/m²). · Czas wstępnego odparowania: ok. 5-10 minut. · Czas otwarty kleju ok. 10-15 minut")
+    rep.write(f"Klejenie okładziny należy przeprowadzić przy użyciu kleju {PRODUCTS['D 3308']['name']} (szpachla TKB B1 400-450 g/m²). · Czas wstępnego odparowania: ok. 5-10 minut. · Czas otwarty kleju ok. 10-15 minut")
     render_potrzebne_materialy(dane, rep)
 
 # ==========================================
@@ -1553,7 +1648,7 @@ def render_wersja_pro(nazwa_klienta, miejscowosc, adres, autor, data_badania):
             safe_adres = adres.replace(' ', '_').replace('/', '_').replace('.', '')
             data_str = data_badania.strftime('%d-%m-%Y')
             safe_klient = nazwa_klienta.replace(' ', '_').replace('/', '_')
-            base_filename = f"Protokol_PRO_Wakol_{safe_klient}_{safe_adres}_{data_str}"
+            base_filename = f"{safe_adres}_Protokol_PRO_Wakol_{safe_klient}_{data_str}"
             
             with col_d1:
                 docx_file = generate_docx(rep.get_markdown(), data_badania.strftime('%d.%m.%Y'), autor, None)
@@ -1610,6 +1705,10 @@ elif flooring_type == "lvt grube z twardym rdzeniem":
 st.markdown(f"### Wywiad Techniczny dla: **{flooring_type.upper()}**")
 
 substrate = st.selectbox("1. Rodzaj podłoża", ["jastrych cementowy", "jastrych anhydrytowy", "płyta fundamentowa", "podłoże drewniane (parkiet, deska)", "podłoże z płyty OSB", "płytki ceramiczne", "masa samorozlewna"])
+
+masa_class = None
+if substrate == "masa samorozlewna":
+    masa_class = st.selectbox("1a. Wytrzymałość masy:", ["C15", "C20", "C25", "C30", "C35", "C40"])
 
 _force_levelling = False
 _force_holes = False
@@ -1704,6 +1803,9 @@ if moisture is not None and moisture > limit:
             decision_after_cure = "kolejny proces wygrzewania"
         else:
             decision_after_cure = opt_dry
+    elif substrate == "masa samorozlewna":
+        st.info(f"Dla masy samorozlewnej nie ma możliwości wykonania bariery przeciwwilgociowej. Konieczność doprowadzenia do normatywnego poziomu wilgoci ({limit}% CM) poprzez dalsze osuszanie.")
+        decision_after_cure = "dalsze osuszanie"
     else:
         if moisture <= barrier_max:
             decision_after_cure = st.radio("Postępowanie z podwyższoną wilgocią:", ["Wykonanie bariery przeciwwilgociowej", opt_dry], horizontal=True)
@@ -1847,6 +1949,7 @@ dane_protokolu = {
     "firma": firma,
     "flooring_type": flooring_type,
     "substrate": substrate,
+    "masa_class": masa_class,
     "area_m2": area_m2,
     "klej_typ": klej_typ,
     "lvt_bottom_type": lvt_bottom_type,
@@ -1994,7 +2097,7 @@ if st.button(f"GENERUJ PROTOKÓŁ OGLĘDZIN DLA: {flooring_type.upper()}", type=
             safe_adres = adres.replace(' ', '_').replace('/', '_').replace('.', '')
             data_str = data_badania.strftime('%d-%m-%Y')
             safe_klient = nazwa_klienta.replace(' ', '_').replace('/', '_')
-            base_filename = f"Protokol_Wakol_{safe_klient}_{safe_adres}_{data_str}"
+            base_filename = f"{safe_adres}_Protokol_{firma}_{safe_klient}_{data_str}"
             
             with col_d1:
                 docx_file = generate_docx(rep.get_markdown(), data_badania.strftime('%d.%m.%Y'), autor, dane_protokolu.get('images'))
