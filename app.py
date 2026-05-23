@@ -460,7 +460,7 @@ def render_wspolne_zalecenia_podloze(dane, rep):
     elif dane['needs_drying_action']:
         if dane['decision_after_cure'] == "osuszanie przed barierą":
             rep.write(f"Po doprowadzeniu poziomu wilgoci do max. **{dane.get('barrier_max', '2.8')}%** zalecamy:")
-        elif dane['decision_after_cure'] == "kolejny proces wygrzewania":
+        elif dane['decision_after_cure'] in ["kolejny proces wygrzewania", "przeprowadzenie kolejnego, krótkiego procesu wygrzewania"]:
             rep.write(f"Po doprowadzeniu do normatywnego poziomu wilgoci **{dane['norm_val_bracket']}** poprzez przeprowadzenie kolejnego procesu wygrzewania zalecamy:")
         else:
             rep.write(f"Po doprowadzeniu do normatywnego poziomu wilgoci **{dane['norm_val_bracket']}** zalecamy:")
@@ -1805,7 +1805,14 @@ if moisture is not None:
 
 if is_moisture_high:
     needs_drying_action = True
-    opt_dry = "przeprowadzenie procesu wygrzewania" if (heating_exists == "TAK" and heating_curing_done == "NIE") else "dalsze osuszanie"
+    if heating_exists == "TAK":
+        if heating_curing_done == "NIE":
+            opt_dry = "przeprowadzenie procesu wygrzewania"
+        else:
+            opt_dry = "przeprowadzenie kolejnego, krótkiego procesu wygrzewania"
+    else:
+        opt_dry = "dalsze osuszanie"
+        
     if substrate == "płyta fundamentowa":
         if isinstance(moisture, (int, float)) and moisture > barrier_max:
             st.warning(f"Podłoże jest zbyt wilgotne. Konieczność doprowadzenia do poziomu wilgoci max. {barrier_max}% przed wykonaniem bariery przeciwwilgociowej.")
@@ -1815,16 +1822,13 @@ if is_moisture_high:
             needs_drying_action = False
     elif h_type == "bruzdowane":
         st.warning(f"Podłoże jest zbyt wilgotne. Konieczność doprowadzenia do normatywnego poziomu wilgoci ({limit}% CM) przed przystąpieniem do dalszych prac.")
-        decision_after_cure = "dalsze osuszanie"
+        decision_after_cure = opt_dry
     elif substrate == "jastrych anhydrytowy":
         st.info(f"Dla jastrychu anhydrytowego nie ma możliwości wykonania bariery przeciwwilgociowej. Konieczność doprowadzenia do normatywnego poziomu wilgoci ({limit}% CM).")
-        if heating_exists == "TAK" and heating_curing_done == "TAK":
-            decision_after_cure = "kolejny proces wygrzewania"
-        else:
-            decision_after_cure = opt_dry
+        decision_after_cure = opt_dry
     elif substrate == "masa samorozlewna":
-        st.info("Dla masy samorozlewnej nie ma możliwości wykonania bariery przeciwwilgociowej. Konieczność doprowadzenia masy do stanu suchego poprzez dalsze osuszanie.")
-        decision_after_cure = "dalsze osuszanie"
+        st.info("Dla masy samorozlewnej nie ma możliwości wykonania bariery przeciwwilgociowej. Konieczność doprowadzenia masy do stanu suchego.")
+        decision_after_cure = opt_dry
     else:
         if isinstance(moisture, (int, float)) and moisture <= barrier_max:
             decision_after_cure = st.radio("Postępowanie z podwyższoną wilgocią:", ["Wykonanie bariery przeciwwilgociowej", opt_dry], horizontal=True)
