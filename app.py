@@ -191,8 +191,8 @@ PRODUCTS_MAPEI.update({
     'Z 625':                 {'name': 'Mapei Ultraplan Maxi (masa samorozlewna)', 'usage_per_mm': 1.7, 'sizes': [23],  'text': _M_ULTRAPLAN_MAXI,          'price': 0.0},
     'Z 645':                 {'name': 'Mapei Nivo Rapid (masa naprawcza)',       'usage': 1.6,  'sizes': [25],          'text': "",                         'price': 0.0},
     'Z 645 (bruzdowane)':    {'name': 'Mapei Nivo Rapid (masa szpachlowa)',      'usage': 2000, 'sizes': [25],          'text': "",                         'price': 0.0},
-    'D 3060':                {'name': 'Mapei Latex Plus (plastyfikator)',         'usage': 1000, 'sizes': [10], 'unit': 'kg', 'text': "",                   'price': 0.0},
-    'PU 225':                {'name': 'Mapei Ultrabond ECO P909 2K (klej)',      'usage': 1250, 'sizes': [10],          'text': "",                         'price': 0.0},
+    'D 3060':                {'name': 'Mapei Latex Plus (plastyfikator)',         'usage': 1000, 'sizes': [10, 6, 1.5], 'unit': 'kg', 'text': "",                   'price': 0.0},
+    'PU 225':                {'name': 'Mapei Ultrabond ECO P909 2K (klej)',      'usage': 1250, 'sizes': [10, 5],          'text': "",                         'price': 0.0},
     'MS 260':                {'name': 'Mapei Ultrabond S965 1K (klej)',          'usage': 1350, 'sizes': [15],          'text': "",                         'price': 0.0},
     'MS 230':                {'name': 'Mapei Ultrabond ECO S948 1K (klej)',      'usage': 1350, 'sizes': [15],          'text': "",                         'price': 0.0},
     'MS 230 (B11 cement)':   {'name': 'Mapei Ultrabond ECO S948 1K (klej)',      'usage': 1150, 'sizes': [15],          'text': "",                         'price': 0.0},
@@ -226,20 +226,20 @@ PRODUCTS_UZIN = {
 }
 
 PRODUCTS_UZIN.update({
-    'PU 280 (1W)':           {'name': 'Uzin PE 414 BiTurbo (1 warstwa)', 'usage': 150, 'sizes': [11, 5], 'text': _U_PE414_1W,           'price': 0.0},
-    'PU 280 (Bariera)':      {'name': 'Uzin PE 414 BiTurbo (bariera)',   'usage': 250, 'sizes': [11, 5], 'text': _U_PE414_BARRIER,       'price': 0.0},
-    'PU 280 (Bariera Płyta)':{'name': 'Uzin PE 414 BiTurbo (bariera)',   'usage': 250, 'sizes': [11, 5], 'text': _U_PE414_BARRIER_PLYTA, 'price': 0.0},
-    'PU 280 (RP)':           {'name': 'Uzin PE 414 BiTurbo (grunt dla RP)', 'usage': 200, 'sizes': [11, 5], 'text': _U_PE414_RP,        'price': 0.0},
-    'PU 235 (1W)':           {'name': 'Uzin PE 412 (1 warstwa)',            'usage': 150, 'sizes': [11],    'text': _U_PE412_1W,         'price': 0.0},
-    'PU 235 (Bariera)':      {'name': 'Uzin PE 412 (bariera)',              'usage': 250, 'sizes': [11],    'text': _U_PE412_BARRIER,    'price': 0.0},
-    'PS 275':                {'name': 'Uzin PE 460',                        'usage': 600,  'sizes': [11],    'text': _U_PE460,           'price': 0.0},
+    'PU 280 (1W)':           {'name': 'Uzin PE 414 BiTurbo (1 warstwa)', 'usage': 150, 'sizes': [12, 6, 0.9], 'text': _U_PE414_1W,           'price': 0.0},
+    'PU 280 (Bariera)':      {'name': 'Uzin PE 414 BiTurbo (bariera)',   'usage': 250, 'sizes': [12, 6, 0.9], 'text': _U_PE414_BARRIER,       'price': 0.0},
+    'PU 280 (Bariera Płyta)':{'name': 'Uzin PE 414 BiTurbo (bariera)',   'usage': 250, 'sizes': [12, 6, 0.9], 'text': _U_PE414_BARRIER_PLYTA, 'price': 0.0},
+    'PU 280 (RP)':           {'name': 'Uzin PE 414 BiTurbo (grunt dla RP)', 'usage': 200, 'sizes': [12, 6, 0.9], 'text': _U_PE414_RP,        'price': 0.0},
+    'PU 235 (1W)':           {'name': 'Uzin PE 412 (1 warstwa)',            'usage': 150, 'sizes': [12],    'text': _U_PE412_1W,         'price': 0.0},
+    'PU 235 (Bariera)':      {'name': 'Uzin PE 412 (bariera)',              'usage': 250, 'sizes': [12],    'text': _U_PE412_BARRIER,    'price': 0.0},
+    'PS 275':                {'name': 'Uzin PE 460',                        'usage': 600,  'sizes': [10, 5, 0.75],    'text': _U_PE460,           'price': 0.0},
     'Z 645':                 {'name': 'Uzin NC 182 (masa naprawcza)',        'usage': 1.6,  'sizes': [25],    'text': "",                 'price': 0.0},
     'Z 645 (bruzdowane)':    {'name': 'Uzin NC 182 (masa szpachlowa)',       'usage': 2000, 'sizes': [25],    'text': "",                 'price': 0.0},
     'D 3055':                {'name': 'Uzin PE 390',                        'usage': 150,  'sizes': [10],    'text': _U_PE390,         'price': 0.0},
-    'MS 230':                {'name': 'Uzin MK 140 (klej)',                 'usage': 1350, 'sizes': [18],    'text': "",                'price': 0.0},
-    'MS 230 (B11 cement)':   {'name': 'Uzin MK 140 (klej)',                 'usage': 1150, 'sizes': [18],    'text': "",                'price': 0.0},
-    'MS 230 (B5 masa)':      {'name': 'Uzin MK 140 (klej)',                 'usage': 900,  'sizes': [18],    'text': "",                'price': 0.0},
-    'MS 260':                {'name': 'Uzin MK 200 (klej)',                 'usage': 1350, 'sizes': [18],    'text': "",                'price': 0.0},
+    'MS 230':                {'name': 'Uzin MK 140 (klej)',                 'usage': 1350, 'sizes': [16, 12],    'text': "",                'price': 0.0},
+    'MS 230 (B11 cement)':   {'name': 'Uzin MK 140 (klej)',                 'usage': 1150, 'sizes': [16, 12],    'text': "",                'price': 0.0},
+    'MS 230 (B5 masa)':      {'name': 'Uzin MK 140 (klej)',                 'usage': 900,  'sizes': [16, 12],    'text': "",                'price': 0.0},
+    'MS 260':                {'name': 'Uzin MK 200 (klej)',                 'usage': 1350, 'sizes': [16],    'text': "",                'price': 0.0},
     'PU 225':                {'name': 'Uzin MK 90 (klej)',                  'usage': 1250, 'sizes': [10],    'text': "",                'price': 0.0},
     'MS 552':                {'name': 'Uzin KE 68 (klej do stref mokrych)', 'usage': 350,  'sizes': [8.5],   'text': "",                'price': 0.0},
     'D 3318':                {'name': 'Uzin KE 66 (klej)',                  'usage': 350,  'sizes': [14, 6], 'text': "",                'price': 0.0},
@@ -527,12 +527,15 @@ def render_wspolne_zalecenia_podloze(dane, rep):
         
         if firma_is_mapei:
             rep.write(f"* Miejscowe wyrównanie podłoża{details} masą szpachlową **{PRODUCTS['Z 645']['name']}** z dodatkiem plastyfikatora **{PRODUCTS['D 3060']['name']}** ({ratio} kg na 25 kg masy). Czas schnięcia min. 3h.")
+        elif dane.get('firma') == "Uzin":
+            rep.write(f"* Miejscowe wyrównanie podłoża{details} masą szpachlową **{PRODUCTS['Z 645']['name']}**. Czas schnięcia przed klejeniem: **1,5 godziny**.")
         else:
             rep.write(f"* Miejscowe wyrównanie podłoża{details} masą szpachlową **{PRODUCTS['Z 645']['name']}** z dodatkiem plastyfikatora **{PRODUCTS['D 3060']['name']}** ({ratio} litrów na 25 kg masy). Czas schnięcia min. 3h.")
             
         write_and_track(dane, rep, 'Z 645 (bruzdowane)', custom_kg=dane['local_leveling_kg'])
-        bags_local = dane['local_leveling_kg'] / 25.0
-        write_and_track(dane, rep, 'D 3060', custom_kg=bags_local * ratio)
+        if dane.get('firma') != "Uzin":
+            bags_local = dane['local_leveling_kg'] / 25.0
+            write_and_track(dane, rep, 'D 3060', custom_kg=bags_local * ratio)
 
     if dane['heating_exists'] == "TAK" and dane['h_type'] == "bruzdowane":
         if dane['bruzdowane_wybor'] == "masa samorozlewna":
@@ -547,6 +550,8 @@ def render_wspolne_zalecenia_podloze(dane, rep):
             
             if firma_is_mapei:
                 rep.write(f"* Na tak przygotowane podłoże należy rozłożyć matę zbrojeniową **{PRODUCTS['AR 150']['name']}** i zaszpachlować ją masą szpachlową **{PRODUCTS['Z 645']['name']}** z dodatkiem plastyfikatora **{PRODUCTS['D 3060']['name']}** ({ratio} kg na 25 kg masy). Czas schnięcia min. 3h.")
+            elif dane.get('firma') == "Uzin":
+                rep.write(f"* Na tak przygotowane podłoże należy rozłożyć matę zbrojeniową **{PRODUCTS['AR 150']['name']}** i zaszpachlować ją masą szpachlową **{PRODUCTS['Z 645']['name']}**. Czas schnięcia przed klejeniem: **1,5 godziny**.")
             else:
                 rep.write(f"* Na tak przygotowane podłoże należy rozłożyć matę zbrojeniową **{PRODUCTS['AR 150']['name']}** i zaszpachlować ją masą szpachlową **{PRODUCTS['Z 645']['name']}** z dodatkiem plastyfikatora **{PRODUCTS['D 3060']['name']}** ({ratio} litrów na 25 kg masy). Czas schnięcia min. 3h.")
             
@@ -555,8 +560,9 @@ def render_wspolne_zalecenia_podloze(dane, rep):
                 write_and_track(dane, rep, 'AR 150', custom_kg=area)
                 kg_z645_bruzdowane = area * 2.0
                 write_and_track(dane, rep, 'Z 645 (bruzdowane)', custom_kg=kg_z645_bruzdowane)
-                bags_z645 = math.ceil(kg_z645_bruzdowane / 25.0)
-                write_and_track(dane, rep, 'D 3060', custom_kg=bags_z645 * ratio)
+                if dane.get('firma') != "Uzin":
+                    bags_z645 = math.ceil(kg_z645_bruzdowane / 25.0)
+                    write_and_track(dane, rep, 'D 3060', custom_kg=bags_z645 * ratio)
             write_and_track(dane, rep, 'Z 635', custom_kg=area * 5 * 1.5)
         elif dane['bruzdowane_wybor'] == "płyta RP":
             area = dane.get('area_m2') or 0
@@ -742,6 +748,8 @@ def generate_report_deska_warstwowa(dane, rep):
             
             if firma_is_mapei:
                 rep.write(f"* Na przygotowane podłoże należy rozłożyć matę zbrojeniową **{PRODUCTS['AR 150']['name']}** i zaszpachlować ją masą szpachlową **{PRODUCTS['Z 645']['name']}** z dodatkiem plastyfikatora **{PRODUCTS['D 3060']['name']}** ({ratio} kg na 25 kg masy). Czas schnięcia min. 3h.")
+            elif dane.get('firma') == "Uzin":
+                rep.write(f"* Na przygotowane podłoże należy rozłożyć matę zbrojeniową **{PRODUCTS['AR 150']['name']}** i zaszpachlować ją masą szpachlową **{PRODUCTS['Z 645']['name']}**. Czas schnięcia przed klejeniem: **1,5 godziny**.")
             else:
                 rep.write(f"* Na przygotowane podłoże należy rozłożyć matę zbrojeniową **{PRODUCTS['AR 150']['name']}** i zaszpachlować ją masą szpachlową **{PRODUCTS['Z 645']['name']}** z dodatkiem plastyfikatora **{PRODUCTS['D 3060']['name']}** ({ratio} litrów na 25 kg masy). Czas schnięcia min. 3h.")
                 
@@ -749,7 +757,8 @@ def generate_report_deska_warstwowa(dane, rep):
                 write_and_track(dane, rep, 'AR 150', custom_kg=area)
                 kg_z645_mesh = area * 2.0
                 write_and_track(dane, rep, 'Z 645 (bruzdowane)', custom_kg=kg_z645_mesh)
-                write_and_track(dane, rep, 'D 3060', custom_kg=(kg_z645_mesh / 25.0) * ratio)
+                if dane.get('firma') != "Uzin":
+                    write_and_track(dane, rep, 'D 3060', custom_kg=(kg_z645_mesh / 25.0) * ratio)
         write_and_track(dane, rep, 'Z 635')
 
     _is_lity_parkiet = dane['flooring_type'] == "lity parkiet (maks. 8 cm x 60 cm)"
@@ -811,6 +820,8 @@ def generate_report_deska_lita(dane, rep):
             
             if firma_is_mapei:
                 rep.write(f"* Na przygotowane podłoże należy rozłożyć matę zbrojeniową **{PRODUCTS['AR 150']['name']}** i zaszpachlować ją masą szpachlową **{PRODUCTS['Z 645']['name']}** z dodatkiem plastyfikatora **{PRODUCTS['D 3060']['name']}** ({ratio} kg na 25 kg masy). Czas schnięcia min. 3h.")
+            elif dane.get('firma') == "Uzin":
+                rep.write(f"* Na przygotowane podłoże należy rozłożyć matę zbrojeniową **{PRODUCTS['AR 150']['name']}** i zaszpachlować ją masą szpachlową **{PRODUCTS['Z 645']['name']}**. Czas schnięcia przed klejeniem: **1,5 godziny**.")
             else:
                 rep.write(f"* Na przygotowane podłoże należy rozłożyć matę zbrojeniową **{PRODUCTS['AR 150']['name']}** i zaszpachlować ją masą szpachlową **{PRODUCTS['Z 645']['name']}** z dodatkiem plastyfikatora **{PRODUCTS['D 3060']['name']}** ({ratio} litrów na 25 kg masy). Czas schnięcia min. 3h.")
                 
@@ -818,7 +829,8 @@ def generate_report_deska_lita(dane, rep):
                 write_and_track(dane, rep, 'AR 150', custom_kg=area)
                 kg_z645_mesh = area * 2.0
                 write_and_track(dane, rep, 'Z 645 (bruzdowane)', custom_kg=kg_z645_mesh)
-                write_and_track(dane, rep, 'D 3060', custom_kg=(kg_z645_mesh / 25.0) * ratio)
+                if dane.get('firma') != "Uzin":
+                    write_and_track(dane, rep, 'D 3060', custom_kg=(kg_z645_mesh / 25.0) * ratio)
         write_and_track(dane, rep, 'Z 625')
 
     rep.write("**c) klejenie okładziny:**")
@@ -876,6 +888,8 @@ def generate_report_lvt_cienkie(dane, rep):
             
             if firma_is_mapei:
                 rep.write(f"* Na przygotowane podłoże należy rozłożyć matę zbrojeniową **{PRODUCTS['AR 150']['name']}** i zaszpachlować ją masą szpachlową **{PRODUCTS['Z 645']['name']}** z dodatkiem plastyfikatora **{PRODUCTS['D 3060']['name']}** ({ratio} kg na 25 kg masy). Czas schnięcia min. 3h.")
+            elif dane.get('firma') == "Uzin":
+                rep.write(f"* Na przygotowane podłoże należy rozłożyć matę zbrojeniową **{PRODUCTS['AR 150']['name']}** i zaszpachlować ją masą szpachlową **{PRODUCTS['Z 645']['name']}**. Czas schnięcia przed klejeniem: **1,5 godziny**.")
             else:
                 rep.write(f"* Na przygotowane podłoże należy rozłożyć matę zbrojeniową **{PRODUCTS['AR 150']['name']}** i zaszpachlować ją masą szpachlową **{PRODUCTS['Z 645']['name']}** z dodatkiem plastyfikatora **{PRODUCTS['D 3060']['name']}** ({ratio} litrów na 25 kg masy). Czas schnięcia min. 3h.")
                 
@@ -883,7 +897,8 @@ def generate_report_lvt_cienkie(dane, rep):
                 write_and_track(dane, rep, 'AR 150', custom_kg=area)
                 kg_z645_mesh = area * 2.0
                 write_and_track(dane, rep, 'Z 645 (bruzdowane)', custom_kg=kg_z645_mesh)
-                write_and_track(dane, rep, 'D 3060', custom_kg=(kg_z645_mesh / 25.0) * ratio)
+                if dane.get('firma') != "Uzin":
+                    write_and_track(dane, rep, 'D 3060', custom_kg=(kg_z645_mesh / 25.0) * ratio)
         write_and_track(dane, rep, 'Z 675')
 
     rep.write("* Po wyschnięciu masy samorozlewnej zalecamy szlif podłoża w celu uzyskania gładkiej powierzchni oraz dokładne odkurzenie.")
@@ -965,6 +980,8 @@ def generate_report_lvt_grube(dane, rep):
             
             if firma_is_mapei:
                 rep.write(f"* Na przygotowane podłoże należy rozłożyć matę zbrojeniową **{PRODUCTS['AR 150']['name']}** i zaszpachlować ją masą szpachlową **{PRODUCTS['Z 645']['name']}** z dodatkiem plastyfikatora **{PRODUCTS['D 3060']['name']}** ({ratio} kg na 25 kg masy). Czas schnięcia min. 3h.")
+            elif dane.get('firma') == "Uzin":
+                rep.write(f"* Na przygotowane podłoże należy rozłożyć matę zbrojeniową **{PRODUCTS['AR 150']['name']}** i zaszpachlować ją masą szpachlową **{PRODUCTS['Z 645']['name']}**. Czas schnięcia przed klejeniem: **1,5 godziny**.")
             else:
                 rep.write(f"* Na przygotowane podłoże należy rozłożyć matę zbrojeniową **{PRODUCTS['AR 150']['name']}** i zaszpachlować ją masą szpachlową **{PRODUCTS['Z 645']['name']}** z dodatkiem plastyfikatora **{PRODUCTS['D 3060']['name']}** ({ratio} litrów na 25 kg masy). Czas schnięcia min. 3h.")
                 
@@ -972,7 +989,8 @@ def generate_report_lvt_grube(dane, rep):
                 write_and_track(dane, rep, 'AR 150', custom_kg=area)
                 kg_z645_mesh = area * 2.0
                 write_and_track(dane, rep, 'Z 645 (bruzdowane)', custom_kg=kg_z645_mesh)
-                write_and_track(dane, rep, 'D 3060', custom_kg=(kg_z645_mesh / 25.0) * ratio)
+                if dane.get('firma') != "Uzin":
+                    write_and_track(dane, rep, 'D 3060', custom_kg=(kg_z645_mesh / 25.0) * ratio)
         write_and_track(dane, rep, 'Z 675')
 
     rep.write("**c) klejenie okładziny:**")
@@ -1036,6 +1054,8 @@ def generate_report_pcv_w_rolce(dane, rep):
             
             if firma_is_mapei:
                 rep.write(f"* Na przygotowane podłoże należy rozłożyć matę zbrojeniową **{PRODUCTS['AR 150']['name']}** i zaszpachlować ją masą szpachlową **{PRODUCTS['Z 645']['name']}** z dodatkiem plastyfikatora **{PRODUCTS['D 3060']['name']}** ({ratio} kg na 25 kg masy). Czas schnięcia min. 3h.")
+            elif dane.get('firma') == "Uzin":
+                rep.write(f"* Na przygotowane podłoże należy rozłożyć matę zbrojeniową **{PRODUCTS['AR 150']['name']}** i zaszpachlować ją masą szpachlową **{PRODUCTS['Z 645']['name']}**. Czas schnięcia przed klejeniem: **1,5 godziny**.")
             else:
                 rep.write(f"* Na przygotowane podłoże należy rozłożyć matę zbrojeniową **{PRODUCTS['AR 150']['name']}** i zaszpachlować ją masą szpachlową **{PRODUCTS['Z 645']['name']}** z dodatkiem plastyfikatora **{PRODUCTS['D 3060']['name']}** ({ratio} litrów na 25 kg masy). Czas schnięcia min. 3h.")
                 
@@ -1043,7 +1063,8 @@ def generate_report_pcv_w_rolce(dane, rep):
                 write_and_track(dane, rep, 'AR 150', custom_kg=area)
                 kg_z645_mesh = area * 2.0
                 write_and_track(dane, rep, 'Z 645 (bruzdowane)', custom_kg=kg_z645_mesh)
-                write_and_track(dane, rep, 'D 3060', custom_kg=(kg_z645_mesh / 25.0) * ratio)
+                if dane.get('firma') != "Uzin":
+                    write_and_track(dane, rep, 'D 3060', custom_kg=(kg_z645_mesh / 25.0) * ratio)
         write_and_track(dane, rep, 'Z 675')
 
     rep.write("* Po wyschnięciu masy samorozlewnej zalecamy szlif podłoża w celu uzyskania gładkiej powierzchni oraz dokładne odkurzenie.")
@@ -1092,6 +1113,8 @@ def generate_report_wykladzina_dywanowa(dane, rep):
             
             if firma_is_mapei:
                 rep.write(f"* Na przygotowane podłoże należy rozłożyć matę zbrojeniową **{PRODUCTS['AR 150']['name']}** i zaszpachlować ją masą szpachlową **{PRODUCTS['Z 645']['name']}** z dodatkiem plastyfikatora **{PRODUCTS['D 3060']['name']}** ({ratio} kg na 25 kg masy). Czas schnięcia min. 3h.")
+            elif dane.get('firma') == "Uzin":
+                rep.write(f"* Na przygotowane podłoże należy rozłożyć matę zbrojeniową **{PRODUCTS['AR 150']['name']}** i zaszpachlować ją masą szpachlową **{PRODUCTS['Z 645']['name']}**. Czas schnięcia przed klejeniem: **1,5 godziny**.")
             else:
                 rep.write(f"* Na przygotowane podłoże należy rozłożyć matę zbrojeniową **{PRODUCTS['AR 150']['name']}** i zaszpachlować ją masą szpachlową **{PRODUCTS['Z 645']['name']}** z dodatkiem plastyfikatora **{PRODUCTS['D 3060']['name']}** ({ratio} litrów na 25 kg masy). Czas schnięcia min. 3h.")
                 
@@ -1099,7 +1122,8 @@ def generate_report_wykladzina_dywanowa(dane, rep):
                 write_and_track(dane, rep, 'AR 150', custom_kg=area)
                 kg_z645_mesh = area * 2.0
                 write_and_track(dane, rep, 'Z 645 (bruzdowane)', custom_kg=kg_z645_mesh)
-                write_and_track(dane, rep, 'D 3060', custom_kg=(kg_z645_mesh / 25.0) * ratio)
+                if dane.get('firma') != "Uzin":
+                    write_and_track(dane, rep, 'D 3060', custom_kg=(kg_z645_mesh / 25.0) * ratio)
         write_and_track(dane, rep, 'Z 675')
 
     rep.write("* Po wyschnięciu masy samorozlewnej zalecamy szlif podłoża w celu uzyskania gładkiej powierzchni oraz dokładne odkurzenie.")
