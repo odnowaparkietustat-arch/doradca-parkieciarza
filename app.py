@@ -74,7 +74,10 @@ def insert_header():
 def render_wspolne_dane_optyczne(dane, rep):
     age_txt = f" w wieku {dane['substrate_age_val']} miesięcy" if dane['substrate_age_val'] else ""
     heat_txt = f" Została zainstalowana {dane['heating_info']}." if dane['heating_exists'] == "TAK" else " Brak instalacji ogrzewania podłogowego."
-    curing_txt = " Został przeprowadzony proces wygrzewania zgodnie z protokołem." if dane['heating_curing_done'] == "TAK" else " Nie został przeprowadzony proces wygrzewania podłoża." if dane['heating_exists'] == "TAK" else ""
+    if dane['heating_exists'] == "TAK" and dane.get('h_type') != "bruzdowane":
+        curing_txt = " Został przeprowadzony proces wygrzewania zgodnie z protokołem." if dane.get('heating_curing_done') == "TAK" else " Nie został przeprowadzony proces wygrzewania podłoża."
+    else:
+        curing_txt = ""
     dil_txt = " Dylatacje zachowane prawidłowo." if dane['dilatations_obw_ok'] == "TAK" else " **Dylatacje obwodowe nie zachowane prawidłowo.**"
     klaw_m = dane.get('klaw_meters') or 0
     pek_m = dane.get('pek_meters') or 0
@@ -135,7 +138,7 @@ PRODUCTS_WAKOL = {
     'MS 230 (B11 cement)': {'name': 'WAKOL MS 230 (klej)', 'usage': 1150, 'sizes': [18], 'text': "", 'price': 15.00},
     'MS 230 (B5 masa)': {'name': 'WAKOL MS 230 (klej)', 'usage': 900, 'sizes': [18], 'text': "", 'price': 15.00},
     'MS 260': {'name': 'WAKOL MS 260 (klej)', 'usage': 1350, 'sizes': [18], 'text': "", 'price': 13.46},
-    'MS 552': {'name': 'WAKOL MS 552 (klej do stref mokrych)', 'usage': 350, 'sizes': [13], 'text': "", 'price': 0.0},
+    'MS 552': {'name': 'WAKOL MS 552 (klej do stref mokrych)', 'usage': 350, 'sizes': [13], 'text': "", 'price': 62.87},
     'D 3318': {'name': 'WAKOL D 3318 (klej)', 'usage': 350, 'sizes': [13], 'text': "", 'price': 17.60},
     'Z 645': {'name': 'WAKOL Z 645 (masa naprawcza)', 'usage': 1.6, 'sizes': [25], 'text': "", 'price': 4.26},
     'Z 645 (bruzdowane)': {'name': 'WAKOL Z 645 (masa szpachlowa)', 'usage': 2000, 'sizes': [25], 'text': "", 'price': 4.26},
@@ -149,9 +152,9 @@ PRODUCTS_WAKOL = {
     'PU 280 (RP)': {'name': 'WAKOL PU 280 (grunt dla RP)', 'usage': 200, 'sizes': [11, 5], 'text': "* Zalecamy zagruntowanie całej powierzchni podłoża gruntówką wzmacniającą **WAKOL PU 280**. Aplikować wałkiem. Nie zostawiać kałuż tj. zbierać nadmiar niewchłoniętej gruntówki. Zużycie ok. 200 g/m². Czas schnięcia 1 godzina. Czas do montażu – 24 godziny.", 'price': 54.27},
     'Płyta RP': {'name': 'WAKOL RP 704 (płyta odprzęgająca)', 'usage': 1000, 'sizes': [0.6], 'unit': 'm²', 'text': "* Na tak przygotowane podłoże zalecamy przyklejenie płyty odprzęgającej o grubości 4 mm **WAKOL RP 704**. Należy przyklejać klejem 2K PU (**WAKOL PU 225**). Płytę odprzęgającą po ułożeniu należy docisnąć. Płytę można docinać używając noża trapezowego. Można układać parkiet, jeśli tylko klejona płyta nie przesuwa się w trakcie chodzenia po niej.", 'price': 22.05},
     'PS 205': {'name': 'WAKOL PS 205 (żywica lana)', 'sizes': [1], 'unit': 'kpl.', 'text': "", 'price': 48.40},
-    'D 3307': {'name': 'WAKOL D 3307 (klej do PCV)', 'usage': 315, 'sizes': [13], 'text': "", 'price': 0.0},
-    'D 3308': {'name': 'WAKOL D 3308 (klej do wykładziny)', 'usage': 425, 'sizes': [13], 'text': "", 'price': 0.0},
-    'Piasek kwarcowy': {'name': 'Piasek kwarcowy (worek 25 kg)', 'usage': 1.0, 'sizes': [25], 'text': "", 'price': 0.0},
+    'D 3307': {'name': 'WAKOL D 3307 (klej do PCV)', 'usage': 315, 'sizes': [13], 'text': "", 'price': 18.29},
+    'D 3308': {'name': 'WAKOL D 3308 (klej do wykładziny)', 'usage': 425, 'sizes': [13], 'text': "", 'price': 38.91},
+    'Piasek kwarcowy': {'name': 'Piasek kwarcowy (worek 25 kg)', 'usage': 1.0, 'sizes': [25], 'text': "", 'price': 4.41},
 }
 
 _M_ECO_PU1K_1W = "* Zalecamy wykonanie gruntowania wzmacniającego poprzez zagruntowanie powierzchni jastrychu gruntówką poliuretanową **ECO PRIM PU 1K TURBO**. Aplikować wałkiem. Podczas aplikacji nie zostawiać kałuż tj. zbierać nadmiar niewchłoniętej gruntówki. Zużycie **ok. 200 g/m²**. **Czas schnięcia – 2 godziny**."
@@ -175,34 +178,34 @@ PRODUCTS_MAPEI = {
 }
 
 PRODUCTS_MAPEI.update({
-    'PU 280 (1W)':           {'name': 'Mapei ECO PRIM PU 1K TURBO (1 warstwa)', 'usage': 200,  'sizes': [10],          'text': _M_ECO_PU1K_1W,           'price': 0.0},
-    'PU 280 (Bariera)':      {'name': 'Mapei ECO PRIM PU 1K TURBO (bariera)',   'usage': 350,  'sizes': [10],          'text': _M_ECO_PU1K_BARRIER,       'price': 0.0},
-    'PU 280 (Bariera Płyta)':{'name': 'Mapei ECO PRIM PU 1K TURBO (bariera)',   'usage': 350,  'sizes': [10],          'text': _M_ECO_PU1K_BARRIER_PLYTA, 'price': 0.0},
-    'PU 280 (RP)':           {'name': 'Mapei ECO PRIM PU 1K TURBO (grunt dla RP)','usage': 200,'sizes': [10],          'text': _M_ECO_PU1K_RP,            'price': 0.0},
-    'PU 235 (1W)':           {'name': 'Mapei ECO PRIM PU 1K (1 warstwa)',       'usage': 200,  'sizes': [10, 5],       'text': _M_ECO_PU1K_1W_S,          'price': 0.0},
-    'PU 235 (Bariera)':      {'name': 'Mapei ECO PRIM PU 1K (bariera)',         'usage': 350,  'sizes': [10, 5],       'text': _M_ECO_PU1K_BARRIER_S,     'price': 0.0},
-    'PS 275':                {'name': 'Mapei PROSFAS',                           'usage': 1500, 'sizes': [25],          'text': _M_PROSFAS,                 'price': 0.0},
-    'D 3045':                {'name': 'Mapei ECO PRIM GRIP PLUS',               'usage': 200,  'sizes': [10, 5, 1],    'text': _M_ECO_GRIP,                'price': 0.0},
-    'D 3004':                {'name': 'Mapei Primer G Pro',                      'usage': 100,  'sizes': [20, 10, 5, 1],'unit': 'L', 'text': _M_PRIMER_G_PRO, 'price': 0.0},
-    'D 3004 (bruzdowane)':   {'name': 'Mapei Primer G Pro (koncentrat)',         'usage': 100,  'sizes': [20, 10, 5, 1],'unit': 'L', 'text': "",             'price': 0.0},
-    'D 3055':                {'name': 'Mapei Eco Prim T Plus',                   'usage': 150,  'sizes': [20, 5],       'text': _M_ECO_PRIM_T_PLUS,         'price': 0.0},
-    'Z 675':                 {'name': 'Mapei Planolit 115 (masa samorozlewna)',  'usage_per_mm': 1.6, 'sizes': [23],    'text': _M_PLANOLIT_115,            'price': 0.0},
-    'Z 635':                 {'name': 'Mapei Ultraplan Renovation (masa samorozlewna)', 'usage_per_mm': 1.6, 'sizes': [23], 'text': _M_ULTRAPLAN_RENOVATION, 'price': 0.0},
-    'Z 625':                 {'name': 'Mapei Ultraplan Maxi (masa samorozlewna)', 'usage_per_mm': 1.7, 'sizes': [23],  'text': _M_ULTRAPLAN_MAXI,          'price': 0.0},
-    'Z 645':                 {'name': 'Mapei Nivo Rapid (masa naprawcza)',       'usage': 1.6,  'sizes': [25],          'text': "",                         'price': 0.0},
-    'Z 645 (bruzdowane)':    {'name': 'Mapei Nivo Rapid (masa szpachlowa)',      'usage': 2000, 'sizes': [25],          'text': "",                         'price': 0.0},
-    'D 3060':                {'name': 'Mapei Latex Plus (plastyfikator)',         'usage': 1000, 'sizes': [10, 6, 1.5], 'unit': 'kg', 'text': "",                   'price': 0.0},
-    'PU 225':                {'name': 'Mapei Ultrabond ECO P909 2K (klej)',      'usage': 1250, 'sizes': [10, 5],          'text': "",                         'price': 0.0},
-    'MS 260':                {'name': 'Mapei Ultrabond S965 1K (klej)',          'usage': 1350, 'sizes': [15],          'text': "",                         'price': 0.0},
-    'MS 230':                {'name': 'Mapei Ultrabond ECO S948 1K (klej)',      'usage': 1350, 'sizes': [15],          'text': "",                         'price': 0.0},
-    'MS 230 (B11 cement)':   {'name': 'Mapei Ultrabond ECO S948 1K (klej)',      'usage': 1150, 'sizes': [15],          'text': "",                         'price': 0.0},
-    'MS 230 (B5 masa)':      {'name': 'Mapei Ultrabond ECO S948 1K (klej)',      'usage': 900,  'sizes': [15],          'text': "",                         'price': 0.0},
-    'MS 552':                {'name': 'Mapei Ultrabond ECO MS 4LVT (klej)',      'usage': 350,  'sizes': [7],           'text': "",                         'price': 0.0},
-    'D 3318':                {'name': 'Mapei Ultrabond ECO 4 LVT (klej)',        'usage': 300,  'sizes': [14, 4],       'text': "",                         'price': 0.0},
-    'D 3308':                {'name': 'Mapei Rollcoll (klej do wykładziny)',     'usage': 400,  'sizes': [16, 5, 1],    'text': "",                         'price': 0.0},
-    'PS 205':                {'name': 'Mapei Epo Grip (żywica lana)',            'sizes': [10, 2], 'unit': 'kg', 'text': "",                               'price': 0.0},
-    'AR 150':                {'name': 'Mapei MAPETHERM NET 150 (siatka zbrojeniowa)', 'usage': 1000, 'sizes': [50],    'text': "",                         'price': 0.0},
-    'EM 140':                {'name': 'Mapei Mapetex Vlies (mata flizelinowa)',       'usage': 1000, 'sizes': [50], 'unit': 'm²', 'text': _M_MAPETEX_VLIES, 'price': 0.0},
+    'PU 280 (1W)':           {'name': 'Mapei ECO PRIM PU 1K TURBO (1 warstwa)', 'usage': 200,  'sizes': [10],          'text': _M_ECO_PU1K_1W,           'price': 53.66},
+    'PU 280 (Bariera)':      {'name': 'Mapei ECO PRIM PU 1K TURBO (bariera)',   'usage': 350,  'sizes': [10],          'text': _M_ECO_PU1K_BARRIER,       'price': 53.66},
+    'PU 280 (Bariera Płyta)':{'name': 'Mapei ECO PRIM PU 1K TURBO (bariera)',   'usage': 350,  'sizes': [10],          'text': _M_ECO_PU1K_BARRIER_PLYTA, 'price': 53.66},
+    'PU 280 (RP)':           {'name': 'Mapei ECO PRIM PU 1K TURBO (grunt dla RP)','usage': 200,'sizes': [10],          'text': _M_ECO_PU1K_RP,            'price': 53.66},
+    'PU 235 (1W)':           {'name': 'Mapei ECO PRIM PU 1K (1 warstwa)',       'usage': 200,  'sizes': [10, 5],       'text': _M_ECO_PU1K_1W_S,          'price': 51.95},
+    'PU 235 (Bariera)':      {'name': 'Mapei ECO PRIM PU 1K (bariera)',         'usage': 350,  'sizes': [10, 5],       'text': _M_ECO_PU1K_BARRIER_S,     'price': 51.95},
+    'PS 275':                {'name': 'Mapei PROSFAS',                           'usage': 1500, 'sizes': [25],          'text': _M_PROSFAS,                 'price': 8.46},
+    'D 3045':                {'name': 'Mapei ECO PRIM GRIP PLUS',               'usage': 200,  'sizes': [10, 5, 1],    'text': _M_ECO_GRIP,                'price': 14.63},
+    'D 3004':                {'name': 'Mapei Primer G Pro',                      'usage': 100,  'sizes': [20, 10, 5, 1],'unit': 'L', 'text': _M_PRIMER_G_PRO, 'price': 10.98},
+    'D 3004 (bruzdowane)':   {'name': 'Mapei Primer G Pro (koncentrat)',         'usage': 100,  'sizes': [20, 10, 5, 1],'unit': 'L', 'text': "",             'price': 10.98},
+    'D 3055':                {'name': 'Mapei Eco Prim T Plus',                   'usage': 150,  'sizes': [20, 5],       'text': _M_ECO_PRIM_T_PLUS,         'price': 29.68},
+    'Z 675':                 {'name': 'Mapei Planolit 115 (masa samorozlewna)',  'usage_per_mm': 1.6, 'sizes': [23],    'text': _M_PLANOLIT_115,            'price': 2.12},
+    'Z 635':                 {'name': 'Mapei Ultraplan Renovation (masa samorozlewna)', 'usage_per_mm': 1.6, 'sizes': [23], 'text': _M_ULTRAPLAN_RENOVATION, 'price': 2.30},
+    'Z 625':                 {'name': 'Mapei Ultraplan Maxi (masa samorozlewna)', 'usage_per_mm': 1.7, 'sizes': [25],  'text': _M_ULTRAPLAN_MAXI,          'price': 2.93},
+    'Z 645':                 {'name': 'Mapei Nivo Rapid (masa naprawcza)',       'usage': 1.6,  'sizes': [25],          'text': "",                         'price': 5.14},
+    'Z 645 (bruzdowane)':    {'name': 'Mapei Nivo Rapid (masa szpachlowa)',      'usage': 2000, 'sizes': [25],          'text': "",                         'price': 5.14},
+    'D 3060':                {'name': 'Mapei Latex Plus (plastyfikator)',         'usage': 1000, 'sizes': [10, 6, 1.5], 'unit': 'kg', 'text': "",                   'price': 28.46},
+    'PU 225':                {'name': 'Mapei Ultrabond ECO P909 2K (klej)',      'usage': 1250, 'sizes': [10, 5],          'text': "",                         'price': 17.89},
+    'MS 260':                {'name': 'Mapei Ultrabond S965 1K (klej)',          'usage': 1350, 'sizes': [15],          'text': "",                         'price': 54.20},
+    'MS 230':                {'name': 'Mapei Ultrabond ECO S948 1K (klej)',      'usage': 1350, 'sizes': [15],          'text': "",                         'price': 29.27},
+    'MS 230 (B11 cement)':   {'name': 'Mapei Ultrabond ECO S948 1K (klej)',      'usage': 1150, 'sizes': [15],          'text': "",                         'price': 29.27},
+    'MS 230 (B5 masa)':      {'name': 'Mapei Ultrabond ECO S948 1K (klej)',      'usage': 900,  'sizes': [15],          'text': "",                         'price': 29.27},
+    'MS 552':                {'name': 'Mapei Ultrabond ECO MS 4LVT (klej)',      'usage': 350,  'sizes': [7],           'text': "",                         'price': 42.39},
+    'D 3318':                {'name': 'Mapei Ultrabond ECO 4 LVT (klej)',        'usage': 300,  'sizes': [14, 4],       'text': "",                         'price': 18.58},
+    'D 3308':                {'name': 'Mapei Rollcoll (klej do wykładziny)',     'usage': 400,  'sizes': [16, 5, 1],    'text': "",                         'price': 22.44},
+    'PS 205':                {'name': 'Mapei Epo Grip (żywica lana)',            'sizes': [10, 2], 'unit': 'kg', 'text': "",                               'price': 77.24},
+    'AR 150':                {'name': 'Mapei MAPETHERM NET 150 (siatka zbrojeniowa)', 'usage': 1000, 'sizes': [50],    'text': "",                         'price': 3.55},
+    'EM 140':                {'name': 'Mapei Mapetex Vlies (mata flizelinowa)',       'usage': 1000, 'sizes': [50], 'unit': 'm²', 'text': _M_MAPETEX_VLIES, 'price': 17.07},
 })
 _U_MULTIMOL = "* Na zagruntowaną i wyschniętą powierzchnię przykleić matę flizelinową **Uzin Multimol** przy użyciu kleju dwuskładnikowego poliuretanowego **Uzin MK 90** (szpachla B11, zużycie: 1250 g/m²). Matę dociskać równomiernie wałkiem do podłoża. Montaż okładziny można rozpocząć w momencie, gdy mata jest stabilnie związana z podkładem."
 _U_PE280 = "* Zaaplikować mostek sczepny **Uzin PE 280** równomiernie za pomocą wałka. Zużycie wynosi **ok. 150 g/m²**. **Czas schnięcia 45 minut.**"
@@ -226,35 +229,35 @@ PRODUCTS_UZIN = {
 }
 
 PRODUCTS_UZIN.update({
-    'PU 280 (1W)':           {'name': 'Uzin PE 414 BiTurbo (1 warstwa)', 'usage': 150, 'sizes': [12, 6, 0.9], 'text': _U_PE414_1W,           'price': 0.0},
-    'PU 280 (Bariera)':      {'name': 'Uzin PE 414 BiTurbo (bariera)',   'usage': 250, 'sizes': [12, 6, 0.9], 'text': _U_PE414_BARRIER,       'price': 0.0},
-    'PU 280 (Bariera Płyta)':{'name': 'Uzin PE 414 BiTurbo (bariera)',   'usage': 250, 'sizes': [12, 6, 0.9], 'text': _U_PE414_BARRIER_PLYTA, 'price': 0.0},
-    'PU 280 (RP)':           {'name': 'Uzin PE 414 BiTurbo (grunt dla RP)', 'usage': 200, 'sizes': [12, 6, 0.9], 'text': _U_PE414_RP,        'price': 0.0},
-    'PU 235 (1W)':           {'name': 'Uzin PE 412 (1 warstwa)',            'usage': 150, 'sizes': [12],    'text': _U_PE412_1W,         'price': 0.0},
-    'PU 235 (Bariera)':      {'name': 'Uzin PE 412 (bariera)',              'usage': 250, 'sizes': [12],    'text': _U_PE412_BARRIER,    'price': 0.0},
-    'PS 275':                {'name': 'Uzin PE 460',                        'usage': 600,  'sizes': [10, 5, 0.75],    'text': _U_PE460,           'price': 0.0},
-    'Z 645':                 {'name': 'Uzin NC 182 (masa naprawcza)',        'usage': 1.6,  'sizes': [25],    'text': "",                 'price': 0.0},
-    'Z 645 (bruzdowane)':    {'name': 'Uzin NC 182 (masa szpachlowa)',       'usage': 2000, 'sizes': [25],    'text': "",                 'price': 0.0},
-    'D 3055':                {'name': 'Uzin PE 390',                        'usage': 150,  'sizes': [10],    'text': _U_PE390,         'price': 0.0},
-    'MS 230':                {'name': 'Uzin MK 140 (klej)',                 'usage': 1350, 'sizes': [16, 12],    'text': "",                'price': 0.0},
-    'MS 230 (B11 cement)':   {'name': 'Uzin MK 140 (klej)',                 'usage': 1150, 'sizes': [16, 12],    'text': "",                'price': 0.0},
-    'MS 230 (B5 masa)':      {'name': 'Uzin MK 140 (klej)',                 'usage': 900,  'sizes': [16, 12],    'text': "",                'price': 0.0},
-    'MS 260':                {'name': 'Uzin MK 200 (klej)',                 'usage': 1350, 'sizes': [16],    'text': "",                'price': 0.0},
-    'PU 225':                {'name': 'Uzin MK 90 (klej)',                  'usage': 1250, 'sizes': [10],    'text': "",                'price': 0.0},
-    'MS 552':                {'name': 'Uzin KE 68 (klej do stref mokrych)', 'usage': 350,  'sizes': [8.5],   'text': "",                'price': 0.0},
-    'D 3318':                {'name': 'Uzin KE 66 (klej)',                  'usage': 350,  'sizes': [14, 6], 'text': "",                'price': 0.0},
-    'D 3307':                {'name': 'Uzin KE 418 (klej do PCV)',          'usage': 315,  'sizes': [14, 6], 'text': "",                'price': 0.0},
-    'D 3308':                {'name': 'Uzin KE 418 (klej do wykładziny)',   'usage': 315,  'sizes': [14, 6], 'text': "",                'price': 0.0},
-    'Z 675':                 {'name': 'Uzin NC 146 (masa samorozlewna)',     'usage_per_mm': 1.6, 'sizes': [25], 'text': _U_NC146,          'price': 0.0},
-    'Z 635':                 {'name': 'Uzin NC 150 (masa samorozlewna)',     'usage_per_mm': 1.5, 'sizes': [25], 'text': _U_NC150,          'price': 0.0},
-    'Z 625':                 {'name': 'Uzin NC 170 LevelStar (masa samorozlewna)', 'usage_per_mm': 1.5, 'sizes': [25], 'text': _U_NC170,     'price': 0.0},
-    'D 3004':                {'name': 'Uzin PE 350',                               'usage': 150,        'sizes': [10],   'text': _U_PE350,      'price': 0.0},
-    'D 3004 (bruzdowane)':   {'name': 'Uzin PE 350 (koncentrat)',                  'usage': 150,        'sizes': [10],   'text': _U_PE350,      'price': 0.0},
-    'D 3045':                {'name': 'Uzin PE 280 (mostek sczepny)',              'usage': 150,        'sizes': [12, 5, 1],'text': _U_PE280,   'price': 0.0},
-    'PS 205':                {'name': 'Uzin KR 516 (żywica lana)',                 'sizes': [1],        'unit': 'kpl.', 'text': "", 'price': 0.0},
-    'Płyta RP':              {'name': 'Uzin Multimol Top 4 (płyta odprzęgająca)',  'usage': 1000,       'sizes': [0.6], 'unit': 'm²', 'text': _U_PLYTA_RP, 'price': 0.0},
-    'AR 150':                {'name': 'Uzin RM (siatka zbrojąca)',                 'usage': 1000,       'sizes': [50], 'text': "", 'price': 0.0},
-    'EM 140':                {'name': 'Uzin Multimol (mata flizelinowa)',          'usage': 1000,       'sizes': [50], 'unit': 'm²', 'text': _U_MULTIMOL, 'price': 0.0},
+    'PU 280 (1W)':           {'name': 'Uzin PE 414 BiTurbo (1 warstwa)', 'usage': 150, 'sizes': [12, 6, 0.9], 'text': _U_PE414_1W,           'price': 76.56},
+    'PU 280 (Bariera)':      {'name': 'Uzin PE 414 BiTurbo (bariera)',   'usage': 250, 'sizes': [12, 6, 0.9], 'text': _U_PE414_BARRIER,       'price': 76.56},
+    'PU 280 (Bariera Płyta)':{'name': 'Uzin PE 414 BiTurbo (bariera)',   'usage': 250, 'sizes': [12, 6, 0.9], 'text': _U_PE414_BARRIER_PLYTA, 'price': 76.56},
+    'PU 280 (RP)':           {'name': 'Uzin PE 414 BiTurbo (grunt dla RP)', 'usage': 200, 'sizes': [12, 6, 0.9], 'text': _U_PE414_RP,        'price': 76.56},
+    'PU 235 (1W)':           {'name': 'Uzin PE 412 (1 warstwa)',            'usage': 150, 'sizes': [12],    'text': _U_PE412_1W,         'price': 84.06},
+    'PU 235 (Bariera)':      {'name': 'Uzin PE 412 (bariera)',              'usage': 250, 'sizes': [12],    'text': _U_PE412_BARRIER,    'price': 84.06},
+    'PS 275':                {'name': 'Uzin PE 460',                        'usage': 600,  'sizes': [10, 5, 0.75],    'text': _U_PE460,           'price': 142.28},
+    'Z 645':                 {'name': 'Uzin NC 182 (masa naprawcza)',        'usage': 1.6,  'sizes': [20],    'text': "",                 'price': 5.28},
+    'Z 645 (bruzdowane)':    {'name': 'Uzin NC 182 (masa szpachlowa)',       'usage': 2000, 'sizes': [20],    'text': "",                 'price': 5.28},
+    'D 3055':                {'name': 'Uzin PE 390',                        'usage': 150,  'sizes': [10],    'text': _U_PE390,         'price': 24.39},
+    'MS 230':                {'name': 'Uzin MK 140 (klej)',                 'usage': 1350, 'sizes': [16, 12],    'text': "",                'price': 21.85},
+    'MS 230 (B11 cement)':   {'name': 'Uzin MK 140 (klej)',                 'usage': 1150, 'sizes': [16, 12],    'text': "",                'price': 21.85},
+    'MS 230 (B5 masa)':      {'name': 'Uzin MK 140 (klej)',                 'usage': 900,  'sizes': [16, 12],    'text': "",                'price': 21.85},
+    'MS 260':                {'name': 'Uzin MK 200 (klej)',                 'usage': 1350, 'sizes': [16],    'text': "",                'price': 25.91},
+    'PU 225':                {'name': 'Uzin MK 90 (klej)',                  'usage': 1250, 'sizes': [10],    'text': "",                'price': 19.51},
+    'MS 552':                {'name': 'Uzin KE 68 (klej do stref mokrych)', 'usage': 350,  'sizes': [8.5],   'text': "",                'price': 76.52},
+    'D 3318':                {'name': 'Uzin KE 66 (klej)',                  'usage': 350,  'sizes': [14, 6], 'text': "",                'price': 23.81},
+    'D 3307':                {'name': 'Uzin KE 418 (klej do PCV)',          'usage': 315,  'sizes': [14, 6], 'text': "",                'price': 21.78},
+    'D 3308':                {'name': 'Uzin KE 418 (klej do wykładziny)',   'usage': 315,  'sizes': [14, 6], 'text': "",                'price': 21.78},
+    'Z 675':                 {'name': 'Uzin NC 146 (masa samorozlewna)',     'usage_per_mm': 1.6, 'sizes': [25], 'text': _U_NC146,          'price': 4.23},
+    'Z 635':                 {'name': 'Uzin NC 150 (masa samorozlewna)',     'usage_per_mm': 1.5, 'sizes': [25], 'text': _U_NC150,          'price': 3.90},
+    'Z 625':                 {'name': 'Uzin NC 170 LevelStar (masa samorozlewna)', 'usage_per_mm': 1.5, 'sizes': [25], 'text': _U_NC170,     'price': 7.48},
+    'D 3004':                {'name': 'Uzin PE 350',                               'usage': 150,        'sizes': [10],   'text': _U_PE350,      'price': 22.76},
+    'D 3004 (bruzdowane)':   {'name': 'Uzin PE 350 (koncentrat)',                  'usage': 150,        'sizes': [10],   'text': _U_PE350,      'price': 22.76},
+    'D 3045':                {'name': 'Uzin PE 280 (mostek sczepny)',              'usage': 150,        'sizes': [12, 5, 1],'text': _U_PE280,   'price': 31.78},
+    'PS 205':                {'name': 'Uzin KR 516 (żywica lana)',                 'sizes': [1],        'unit': 'kpl.', 'text': "", 'price': 73.17},
+    'Płyta RP':              {'name': 'Uzin Multimol Top 4 (płyta odprzęgająca)',  'usage': 1000,       'sizes': [0.6], 'unit': 'm²', 'text': _U_PLYTA_RP, 'price': 82.93},
+    'AR 150':                {'name': 'Uzin RM (siatka zbrojąca)',                 'usage': 1000,       'sizes': [50], 'text': "", 'price': 12.20},
+    'EM 140':                {'name': 'Uzin Multimol (mata flizelinowa)',          'usage': 1000,       'sizes': [50], 'unit': 'm²', 'text': _U_MULTIMOL, 'price': 27.64},
 })
 
 PRODUCTS = PRODUCTS_WAKOL
@@ -842,6 +845,12 @@ def generate_report_deska_lita(dane, rep):
         write_and_track(dane, rep, 'MS 260')
     elif dane['substrate'] == "masa samorozlewna" and dane['strength_val'] == 3:
         rep.write(f"Z uwagi na umiarkowanie słabą wytrzymałość masy, dedykowanym klejem jest klej twardo-elastyczny. Klejenie okładziny należy przeprowadzić przy użyciu kleju polimerowego twardo-elastycznego **{PRODUCTS['MS 260']['name']}** (szpachla B13, zużycie: 1350 g/m²).")
+        write_and_track(dane, rep, 'MS 260')
+    elif dane['strength_val'] in [1, 2]:
+        rep.write(f"Z uwagi na niską wytrzymałość podłoża (po jego wzmocnieniu), klejenie okładziny należy przeprowadzić przy użyciu kleju polimerowego twardo-elastycznego **{PRODUCTS['MS 260']['name']}** (szpachla B13, zużycie: 1350 g/m²). Użycie kleju poliuretanowego (PU 225) jest tu niedozwolone.")
+        write_and_track(dane, rep, 'MS 260')
+    elif dane['strength_val'] == 3 and dane.get('heating_exists') == "TAK":
+        rep.write(f"Z uwagi na ogrzewanie podłogowe oraz umiarkowanie słabą wytrzymałość podłoża, klejenie okładziny należy przeprowadzić przy użyciu kleju polimerowego twardo-elastycznego **{PRODUCTS['MS 260']['name']}** (szpachla B13, zużycie: 1350 g/m²). Użycie kleju poliuretanowego (PU 225) jest dopuszczalne dopiero od podłoża umiarkowanie mocnego.")
         write_and_track(dane, rep, 'MS 260')
     elif dane.get('klej_typ') == "bezprzesuwny":
         rep.write(f"Klejenie okładziny należy przeprowadzić przy użyciu kleju **{PRODUCTS['PU 225']['name']}** (szpachla B11, zużycie: 1250 g/m²).")
@@ -1790,14 +1799,14 @@ if heating_exists == "TAK":
         st.write("❓ Czy został przeprowadzony proces wygrzewania zgodnie z protokołem?")
         heating_curing_done = st.radio("Proces wygrzewania:", ["TAK", "NIE"], index=1, horizontal=True)
     else:
-        heating_curing_done = "TAK"
+        heating_curing_done = "NIE DOTYCZY"
     mapping = {"wodne klasyczne": "instalacja ogrzewania podłogowego wodna, klasyczna", "bruzdowane": "instalacja ogrzewania podłogowego wodna, bruzdowana", "w suchej zabudowie": "instalacja ogrzewania podłogowego wodna, w suchej zabudowie", "elektryczne (powierzchniowe)": "instalacja ogrzewania podłogowego elektryczna, powierzchniowa", "elektryczne (głębokie)": "instalacja ogrzewania podłogowego elektryczna, umieszczona głęboko w podłożu", "płyta fundamentowa grzewcza": "ogrzewanie realizowane poprzez płytę fundamentową grzewczą"}
     heating_info = mapping.get(h_type, h_type)
 
 # --- LOGIKA NORM I BARIER ---
 if substrate == "płyta fundamentowa":
     limit = 1.5 if heating_exists == "TAK" else 1.8
-    barrier_max = 2.8
+    barrier_max = 3.0
 elif substrate == "jastrych anhydrytowy":
     limit = 0.3 if heating_exists == "TAK" else 0.5
     barrier_max = 2.5 if heating_exists == "TAK" else 3.5
@@ -1806,12 +1815,14 @@ else:
     barrier_max = 2.5 if heating_exists == "TAK" else 3.5
 
 # --- WILGOTNOŚĆ PODŁOŻA + DECYZJA (zaraz po ogrzewaniu) ---
+emissions_test = None
 _substrate_no_moisture = substrate in ["podłoże drewniane (parkiet, deska)", "podłoże z płyty OSB", "płytki ceramiczne"]
 if _substrate_no_moisture:
     st.info("3. Poziom wilgoci podłoża — nie dotyczy tego rodzaju podłoża.")
     moisture = None
 elif substrate == "płyta fundamentowa":
     moisture = st.number_input("3. Poziom wilgoci podłoża (%)", format="%.1f", value=None)
+    emissions_test = st.radio("3a. Badanie emisyjności (Higrometr/KRL):", ["pozytywny", "negatywny"], horizontal=True)
 elif substrate == "masa samorozlewna":
     moisture = st.radio("3. Ocena wilgotności masy samorozlewnej:", ["sucha", "mokra"], horizontal=True)
 else:
@@ -1830,7 +1841,9 @@ if moisture is not None:
 if is_moisture_high:
     needs_drying_action = True
     if heating_exists == "TAK":
-        if heating_curing_done == "NIE":
+        if h_type == "bruzdowane":
+            opt_dry = "zapewnienie podłożu odpowiednich warunków do schnięcia"
+        elif heating_curing_done == "NIE":
             opt_dry = "przeprowadzenie procesu wygrzewania"
         else:
             opt_dry = "przeprowadzenie kolejnego, krótkiego procesu wygrzewania"
@@ -1838,9 +1851,14 @@ if is_moisture_high:
         opt_dry = "dalsze osuszanie"
         
     if substrate == "płyta fundamentowa":
-        if isinstance(moisture, (int, float)) and moisture > barrier_max:
+        if emissions_test == "negatywny":
+            st.warning("Wynik badania emisyjności jest negatywny. Konieczność dalszego osuszania przed wykonaniem bariery przeciwwilgociowej.")
+            decision_after_cure = "osuszanie przed barierą"
+            needs_drying_action = True
+        elif isinstance(moisture, (int, float)) and moisture > barrier_max:
             st.warning(f"Podłoże jest zbyt wilgotne. Konieczność doprowadzenia do poziomu wilgoci max. {barrier_max}% przed wykonaniem bariery przeciwwilgociowej.")
             decision_after_cure = "osuszanie przed barierą"
+            needs_drying_action = True
         else:
             decision_after_cure = "Wykonanie bariery przeciwwilgociowej"
             needs_drying_action = False
@@ -1855,13 +1873,18 @@ if is_moisture_high:
         decision_after_cure = opt_dry
     else:
         if isinstance(moisture, (int, float)) and moisture <= barrier_max:
-            decision_after_cure = st.radio("Postępowanie z podwyższoną wilgocią:", ["Wykonanie bariery przeciwwilgociowej", opt_dry], horizontal=True)
+            decision_after_cure = st.radio("Postępowanie z podwyższoną wilgocią:", [opt_dry, "Wykonanie bariery przeciwwilgociowej"], horizontal=True)
             needs_drying_action = (decision_after_cure != "Wykonanie bariery przeciwwilgociowej")
         else:
             decision_after_cure = opt_dry
 else:
     if substrate == "płyta fundamentowa":
-        decision_after_cure = "Wykonanie bariery przeciwwilgociowej"
+        if emissions_test == "negatywny":
+            st.warning("Wynik badania emisyjności jest negatywny. Konieczność dalszego osuszania przed wykonaniem bariery przeciwwilgociowej.")
+            decision_after_cure = "osuszanie przed barierą"
+            needs_drying_action = True
+        else:
+            decision_after_cure = "Wykonanie bariery przeciwwilgociowej"
 
 st.write("4. Czy są ubytki bądź zdegradowane fragmenty wymagające wypełnienia masą naprawczą?")
 hole_details = ""
@@ -2055,8 +2078,22 @@ dane_protokolu = {
 
 # --- GENEROWANIE PROTOKOŁU W ZALEŻNOŚCI OD WYBRANEJ OKŁADZINY ---
 if st.button(f"GENERUJ PROTOKÓŁ OGLĘDZIN DLA: {flooring_type.upper()}", type="primary", use_container_width=True):
+    masa_error = ""
+    if substrate == "masa samorozlewna" and masa_class:
+        class_val = int(masa_class.replace("C", ""))
+        if flooring_type == "deska lita" and class_val < 30:
+            masa_error = "⚠️ **Błąd technologiczny:** Aby kleić deskę litą na masie samorozlewnej, wymagana jest wytrzymałość minimum C30."
+        elif flooring_type in ["deska warstwowa", "podłoga laminowana", "lvt grube z twardym rdzeniem", "lity parkiet (maks. 8 cm x 60 cm)", "mozaika drewniana (min. 16 mm grubości, maks. 20 cm długości)"] and class_val < 25:
+            masa_error = "⚠️ **Błąd technologiczny:** Klejenie tej okładziny na masie samorozlewnej wymaga wytrzymałości minimum C25."
+        elif flooring_type in ["pcv w rolce", "lvt cienkie"] and class_val < 20:
+            masa_error = "⚠️ **Błąd technologiczny:** Aby kleić okładziny winylowe/PVC na masie samorozlewnej, wymagana jest wytrzymałość minimum C20."
+
     if moisture is None and not _substrate_no_moisture:
         st.error("Proszę podać wilgotność podłoża!")
+    elif masa_error:
+        st.error(masa_error)
+    elif decision_after_cure == "Wykonanie bariery przeciwwilgociowej" and strength_val == 1:
+        st.error("⚠️ **Błąd technologiczny:** Jeśli podłoże jest bardzo słabe, **nie można** wykonać bariery przeciwwilgociowej (niezależnie od tego, czy wylewamy masę, czy kleimy bezpośrednio). Musisz doprowadzić jastrych do normatywnego poziomu wilgoci, żeby móc go zagruntować i wzmocnić. Zmień opcję w sekcji 'Postępowanie z podwyższoną wilgocią' na osuszanie.")
     else:
         st.divider()
         insert_header()
