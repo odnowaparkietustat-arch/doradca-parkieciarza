@@ -27,17 +27,6 @@ components.html("""
 const doc = window.parent.document;
 const parentWin = window.parent;
 
-function triggerReactChange(element, value) {
-    try {
-        const nativeInputValueSetter = Object.getOwnPropertyDescriptor(parentWin.HTMLInputElement.prototype, "value").set;
-        nativeInputValueSetter.call(element, value);
-        const ev = new parentWin.Event('input', { bubbles: true });
-        element.dispatchEvent(ev);
-    } catch (e) {
-        console.error("Error triggering React change:", e);
-    }
-}
-
 function setupInputs() {
     const allInputs = doc.querySelectorAll('input[data-testid="stTextInput-input"], input[data-testid="stNumberInput-input"], input[type="text"], input[type="number"]');
     const uniqueInputs = Array.from(new Set(allInputs));
@@ -46,19 +35,12 @@ function setupInputs() {
         if (input.dataset.fleeceSetup) return;
         input.dataset.fleeceSetup = "true";
         
-        // Zapisanie wartości domyślnej i wyczyszczenie pola po kliknięciu
+        // Zaznaczenie tekstu przy skupieniu (pozwala na natychmiastowe nadpisanie bez usuwania)
         input.addEventListener('focus', () => {
-            input.dataset.defaultValue = input.value;
-            input.value = '';
-        });
-        
-        // Przywrócenie wartości domyślnej przy wyjściu z pustego pola, lub przesłanie nowej
-        input.addEventListener('blur', () => {
-            if (input.value === '') {
-                input.value = input.dataset.defaultValue;
-                triggerReactChange(input, input.dataset.defaultValue);
-            } else {
-                triggerReactChange(input, input.value);
+            try {
+                input.select();
+            } catch (e) {
+                // bezpieczny fallback
             }
         });
         
@@ -66,11 +48,15 @@ function setupInputs() {
         input.addEventListener('keydown', (e) => {
             if (e.key === 'Enter') {
                 e.preventDefault();
-                const currentInputs = Array.from(new Set(doc.querySelectorAll('input[data-testid="stTextInput-input"], input[data-testid="stNumberInput-input"], input[type="text"], input[type="number"]')));
-                const nextIdx = currentInputs.indexOf(input) + 1;
-                if (nextIdx < currentInputs.length) {
-                    currentInputs[nextIdx].focus();
-                }
+                input.blur(); // Wymusza natychmiastowy zapis i wysyłkę wartości do React / Streamlit
+                
+                setTimeout(() => {
+                    const currentInputs = Array.from(new Set(doc.querySelectorAll('input[data-testid="stTextInput-input"], input[data-testid="stNumberInput-input"], input[type="text"], input[type="number"]')));
+                    const nextIdx = currentInputs.indexOf(input) + 1;
+                    if (nextIdx < currentInputs.length) {
+                        currentInputs[nextIdx].focus();
+                    }
+                }, 50); // Opóźnienie 50ms na przetworzenie zdarzenia blur przez Streamlit
             }
         });
     });
@@ -146,7 +132,10 @@ def render_wspolne_dane_optyczne(dane, rep):
     holes_txt = f" **Zlokalizowano ubytki wymagające wypełnienia masą naprawczą{dane['hole_details']}.**" if dane['holes'] == "TAK" else ""
     demolition_txt = " **Podłoże wymaga demontażu przed przystąpieniem do dalszych prac.**" if dane.get('requires_demolition') else ""
     level_txt = f" **Podłoże wymaga wyrównania masą wyrównawczą o planowanej grubości {dane['leveling_thickness']} milimetrów.**" if dane['needs_levelling'] == "TAK" else ""
-    vent_txt = f" Rodzaj zastosowanej wentylacji: wentylacja {dane['ventilation_type'].lower()}."
+    if dane.get('ventilation_type'):
+        vent_txt = f" Rodzaj zastosowanej wentylacji: wentylacja {dane['ventilation_type'].lower()}."
+    else:
+        vent_txt = ""
     evenness_txt = " Nie badano równości podłoża." if dane['needs_levelling'] == "NIE" else ""
     dodatkowe_txt = f" **{dane['dodatkowe_informacje']}**" if dane.get('dodatkowe_informacje') else ""
 
@@ -1334,6 +1323,15 @@ def _add_docx_footer(doc):
     def make_tab_row(left, center, right, is_title=False):
         p = OxmlElement('w:p')
         pPr = OxmlElement('w:pPr')
+        
+        # Usuń domyślne odstępy akapitu w stopce
+        spacing_el = OxmlElement('w:spacing')
+        spacing_el.set(qn('w:before'), '0')
+        spacing_el.set(qn('w:after'), '0')
+        spacing_el.set(qn('w:line'), '240')
+        spacing_el.set(qn('w:lineRule'), 'auto')
+        pPr.append(spacing_el)
+        
         tabs_el = OxmlElement('w:tabs')
         for val, pos in [('center', TAB_C), ('right', TAB_R)]:
             t = OxmlElement('w:tab')
@@ -1406,6 +1404,8 @@ def _add_docx_header(doc, data_badania_str='', autor_str=''):
     # Lewa komórka: logo
     para_logo = left_cell.paragraphs[0]
     para_logo.alignment = WD_ALIGN_PARAGRAPH.LEFT
+    para_logo.paragraph_format.space_before = Pt(0)
+    para_logo.paragraph_format.space_after = Pt(0)
     if os.path.exists('loba_wakol_logo.png'):
         try:
             para_logo.add_run().add_picture('loba_wakol_logo.png', width=Inches(3.5))
@@ -1422,9 +1422,15 @@ def _add_docx_header(doc, data_badania_str='', autor_str=''):
         ('tel.: +48 22 436 24 20  |  fax: +48 22 436 24 21', False, 9),
         ('biuro@loba-wakol.pl', False, 9),
     ]
+    para = right_cell.paragraphs[0]
+    para.alignment = WD_ALIGN_PARAGRAPH.RIGHT
+    para.paragraph_format.space_before = Pt(0)
+    para.paragraph_format.space_after = Pt(0)
+    para.paragraph_format.line_spacing = 1.0
+    
     for i, (text, bold, size) in enumerate(info_lines):
-        para = right_cell.paragraphs[0] if i == 0 else right_cell.add_paragraph()
-        para.alignment = WD_ALIGN_PARAGRAPH.RIGHT
+        if i > 0:
+            para.add_run('\n')
         run = para.add_run(text)
         run.bold = bold
         run.font.size = Pt(size)
@@ -2129,7 +2135,7 @@ if cracks_pek == "TAK":
     img_pek = st.file_uploader("Zdjęcia pęknięć:", accept_multiple_files=True, type=["png", "jpg", "jpeg"], key="img_pek")
 
 st.write("8. Rodzaj wentylacji")
-ventilation_type = st.radio("Wentylacja:", ["Grawitacyjna", "Mechaniczna"], horizontal=True)
+ventilation_type = st.radio("Wentylacja:", ["Grawitacyjna", "Mechaniczna"], index=None, horizontal=True)
 
 dodatkowe_informacje = st.text_area("Dodatkowe informacje z oględzin (opcjonalnie):", placeholder="Wpisz inne zaobserwowane uwagi do protokołu...")
 img_dodatkowe = st.file_uploader("Zdjęcia - dodatkowe informacje:", accept_multiple_files=True, type=["png", "jpg", "jpeg"], key="img_dod")
