@@ -226,11 +226,13 @@ PRODUCTS_WAKOL = {
     'EM 140': {'name': 'WAKOL EM 140 (mata flizelinowa)', 'usage': 1000, 'sizes': [50], 'unit': 'm²', 'text': FULL_EM140, 'price': 17.67},
     'D 3060': {'name': 'WAKOL D 3060 (plastyfikator)', 'usage': 1000, 'sizes': [10], 'text': "", 'price': 26.00},
     'PU 280 (RP)': {'name': 'WAKOL PU 280 (grunt dla RP)', 'usage': 200, 'sizes': [11, 5], 'text': "* Zalecamy zagruntowanie całej powierzchni podłoża gruntówką wzmacniającą **WAKOL PU 280**. Aplikować wałkiem. Nie zostawiać kałuż tj. zbierać nadmiar niewchłoniętej gruntówki. Zużycie ok. 200 g/m². Czas schnięcia 1 godzina. Czas do montażu – 24 godziny.", 'price': 54.27},
-    'Płyta RP': {'name': 'WAKOL RP 704 (płyta odprzęgająca)', 'usage': 1000, 'sizes': [0.6], 'unit': 'm²', 'text': "* Na tak przygotowane podłoże zalecamy przyklejenie płyty odprzęgającej o grubości 4 mm **WAKOL RP 704**. Należy przyklejać klejem 2K PU (**WAKOL PU 225**). Płytę odprzęgającą po ułożeniu należy docisnąć. Płytę można docinać używając noża trapezowego. Można układać parkiet, jeśli tylko klejona płyta nie przesuwa się w trakcie chodzenia po niej.", 'price': 22.05},
+    'Płyta poliestrowa': {'name': 'WAKOL RP 704 (płyta poliestrowa)', 'usage': 1000, 'sizes': [0.6], 'unit': 'm²', 'text': "* Na tak przygotowane podłoże zalecamy przyklejenie płyty poliestrowej o grubości 4 mm **WAKOL RP 704**. Należy przyklejać klejem 2K PU (**WAKOL PU 225**). Płytę poliestrową po ułożeniu należy docisnąć. Płytę można docinać używając noża trapezowego. Można układać parkiet, jeśli tylko klejona płyta nie przesuwa się w trakcie chodzenia po niej.", 'price': 22.05},
     'PS 205': {'name': 'WAKOL PS 205 (żywica lana)', 'sizes': [1], 'unit': 'kpl.', 'text': "", 'price': 48.40},
     'D 3307': {'name': 'WAKOL D 3307 (klej do PCV)', 'usage': 315, 'sizes': [13], 'text': "", 'price': 18.29},
     'D 3308': {'name': 'WAKOL D 3308 (klej do wykładziny)', 'usage': 425, 'sizes': [13], 'text': "", 'price': 38.91},
     'Piasek kwarcowy': {'name': 'Piasek kwarcowy (worek 25 kg)', 'usage': 1.0, 'sizes': [25], 'text': "", 'price': 4.41},
+    'KR 417': {'name': 'Uzin KR 417 (żywica do zalewania rur)', 'usage': 2000, 'sizes': [8], 'text': '', 'price': 71.00},
+    'RR 201': {'name': 'Uzin RR 201 (mata zbrojąca)', 'usage': 1000, 'sizes': [60], 'unit': 'm²', 'text': '', 'price': 36.59},
 }
 
 _M_ECO_PU1K_1W = "* Zalecamy wykonanie gruntowania wzmacniającego poprzez zagruntowanie powierzchni jastrychu gruntówką poliuretanową **ECO PRIM PU 1K TURBO**. Aplikować wałkiem. Podczas aplikacji nie zostawiać kałuż tj. zbierać nadmiar niewchłoniętej gruntówki. Zużycie **ok. 200 g/m²**. **Czas schnięcia – 2 godziny**."
@@ -297,7 +299,7 @@ _U_PE414_1W ="* Zalecamy wykonanie gruntowania wzmacniającego poprzez zagruntow
 _U_PE414_BARRIER = "* Z uwagi na podwyższoną wilgotność zalecamy stworzenie **bariery przeciwwilgociowej** poprzez zagruntowanie powierzchni jastrychu gruntówką poliuretanową **Uzin PE 414 BiTurbo**. Aplikować wałkiem. Podczas aplikacji nie zostawiać kałuż tj. zbierać nadmiar niewchłoniętej gruntówki. 1. warstwa nałożona wałkiem **150 g/m²**. **Czas schnięcia – jedna godzina**. 2. warstwa **100 g/m²** - **czas schnięcia – jedna godzina**. **Czas do klejenia: 72 godziny od zagruntowania**."
 _U_PE414_BARRIER_PLYTA = "* Z uwagi na grubość płyty fundamentowej zalecamy stworzenie **bariery przeciwwilgociowej** poprzez zagruntowanie powierzchni podłoża gruntówką poliuretanową **Uzin PE 414 BiTurbo**. Aplikować wałkiem. Podczas aplikacji nie zostawiać kałuż tj. zbierać nadmiar niewchłoniętej gruntówki. 1. warstwa nałożona wałkiem **150 g/m²**. **Czas schnięcia – jedna godzina**. 2. warstwa **100 g/m²** - **czas schnięcia – jedna godzina**. **Czas do klejenia: 72 godziny od zagruntowania**."
 _U_PE414_RP = "* Zalecamy zagruntowanie całej powierzchni podłoża gruntówką poliuretanową **Uzin PE 414 BiTurbo**. Aplikować wałkiem. Nie zostawiać kałuż tj. zbierać nadmiar niewchłoniętej gruntówki. Zużycie ok. 200 g/m². Czas schnięcia 1 godzina. Czas do montażu – 24 godziny."
-_U_PLYTA_RP = "* Na tak przygotowane podłoże zalecamy przyklejenie płyty odprzęgającej o grubości 4 mm **Uzin Multimol Top 4**. Należy przyklejać klejem 2K PU (**Uzin MK 90**). Płytę odprzęgającą po ułożeniu należy docisnąć. Płytę można docinać używając noża trapezowego. Można układać parkiet, jeśli tylko klejona płyta nie przesuwa się w trakcie chodzenia po niej."
+_U_PLYTA_RP = "* Na tak przygotowane podłoże zalecamy przyklejenie płyty poliestrowej o grubości 4 mm **Uzin Multimol Top 4**. Należy przyklejać klejem 2K PU (**Uzin MK 90**). Płytę poliestrową po ułożeniu należy docisnąć. Płytę można docinać używając noża trapezowego. Można układać parkiet, jeśli tylko klejona płyta nie przesuwa się w trakcie chodzenia po niej."
 
 PRODUCTS_UZIN = {
     k: dict(v, name=v['name'].replace('WAKOL', 'Uzin'), text='', price=0.0)
@@ -331,9 +333,11 @@ PRODUCTS_UZIN.update({
     'D 3004 (bruzdowane)':   {'name': 'Uzin PE 350 (koncentrat)',                  'usage': 150,        'sizes': [10],   'text': _U_PE350,      'price': 22.76},
     'D 3045':                {'name': 'Uzin PE 280 (mostek sczepny)',              'usage': 150,        'sizes': [12, 5, 1],'text': _U_PE280,   'price': 31.78},
     'PS 205':                {'name': 'Uzin KR 516 (żywica lana)',                 'sizes': [1],        'unit': 'kpl.', 'text': "", 'price': 73.17},
-    'Płyta RP':              {'name': 'Uzin Multimol Top 4 (płyta odprzęgająca)',  'usage': 1000,       'sizes': [0.6], 'unit': 'm²', 'text': _U_PLYTA_RP, 'price': 82.93},
+    'Płyta poliestrowa':              {'name': 'Uzin Multimol Top 4 (płyta poliestrowa)',  'usage': 1000,       'sizes': [0.6], 'unit': 'm²', 'text': _U_PLYTA_RP, 'price': 82.93},
     'AR 150':                {'name': 'Uzin RM (siatka zbrojąca)',                 'usage': 1000,       'sizes': [50], 'text': "", 'price': 12.20},
     'EM 140':                {'name': 'Uzin Multimol (mata flizelinowa)',          'usage': 1000,       'sizes': [50], 'unit': 'm²', 'text': _U_MULTIMOL, 'price': 27.64},
+    'KR 417':                {'name': 'Uzin KR 417 (żywica do zalewania rur)',     'usage': 2000,       'sizes': [8],  'unit': 'kg', 'text': '', 'price': 71.00},
+    'RR 201':                {'name': 'Uzin RR 201 (mata zbrojąca)',               'usage': 1000,       'sizes': [60], 'unit': 'm²', 'text': '', 'price': 36.59},
 })
 
 PRODUCTS = PRODUCTS_WAKOL
@@ -609,6 +613,8 @@ def render_wspolne_zalecenia_podloze(dane, rep):
         rep.write("* **Szlif podłoża** w celu usunięcia słabej frakcji i uzyskania porowatej i chłonnej powierzchni.")
         
     rep.write("* Dokładne odkurzenie powierzchni odkurzaczem przemysłowym.")
+    if dane['substrate'] == "strefy mokre":
+        rep.write("* **Wykonanie pasma uszczelniającego.**")
     
     if dane['curing_not_done']:
         if dane['is_moisture_neg']:
@@ -731,41 +737,65 @@ def render_wspolne_zalecenia_podloze(dane, rep):
 
     if dane['heating_exists'] == "TAK" and dane['h_type'] == "bruzdowane":
         if dane['bruzdowane_wybor'] == "masa samorozlewna":
-            firma_is_mapei = (dane.get('firma') == "Mapei")
-            ratio = 8.0 if firma_is_mapei else 7.0
-            
-            if firma_is_mapei:
-                rep.write(f"* Podłoże zagruntować koncentratem gruntówki dyspersyjnej **{PRODUCTS['D 3004']['name']}**. Proporcje mieszania: 1 część koncentratu + 1 część wody; Czas schnięcia: 1h. Sposób nanoszenia: wałek do gruntowania. Zużycie: ok. 100 g/m² koncentratu.")
+            if dane.get('firma') == "Uzin":
+                rep.write("* Rowki po frezowaniu i ułożeniu rur należy dokładnie odkurzyć, a następnie zalać dwuskładnikową żywicą epoksydową **Uzin KR 417** zmieszaną z pyłem z frezowania lub suchym piaskiem kwarcowym (zużycie płynnej żywicy ok. 1,5 - 2,5 kg/m²).")
+                rep.write(f"* Całą powierzchnię zagruntować błyskawicznym gruntem sczepnym **{PRODUCTS['D 3045']['name']}** (zużycie ok. 100 - 150 g/m²).")
+                rep.write(f"* Na przygotowanym podłożu należy rozłożyć matę zbrojącą z włókna szklanego **Uzin RR 201** na całej powierzchni z zachowaniem zakładów 5 cm.")
+                rep.write(f"* Na rozłożonej macie wylać cementową masę samopoziomującą premium **{PRODUCTS['Z 625']['name']}** o grubości min. 5 mm (zużycie suchej mieszanki ok. 7,5 kg/m²).")
+                
+                area = dane.get('area_m2') or 0
+                if area > 0:
+                    write_and_track(dane, rep, 'KR 417')
+                    write_and_track(dane, rep, 'D 3045')
+                    write_and_track(dane, rep, 'RR 201')
+                    write_and_track(dane, rep, 'Z 625', custom_kg=area * 5 * 1.5)
             else:
-                rep.write(f"* Podłoże zagruntować koncentratem gruntówki dyspersyjnej **{PRODUCTS['D 3004']['name']}**. Proporcje mieszania: 1 część koncentratu + 1 część wody; Czas schnięcia: 1h. Sposób nanoszenia: wałek do gruntowania microfazer. Zużycie: ok. 75 g/m² koncentratu.")
-            write_and_track(dane, rep, 'D 3004 (bruzdowane)')
-            
-            if firma_is_mapei:
-                rep.write(f"* Na tak przygotowane podłoże należy rozłożyć matę zbrojeniową **{PRODUCTS['AR 150']['name']}** i zaszpachlować ją masą szpachlową **{PRODUCTS['Z 645']['name']}** z dodatkiem plastyfikatora **{PRODUCTS['D 3060']['name']}** ({ratio} kg na 25 kg masy). Czas schnięcia min. 3h.")
-            elif dane.get('firma') == "Uzin":
-                rep.write(f"* Na tak przygotowane podłoże należy rozłożyć matę zbrojeniową **{PRODUCTS['AR 150']['name']}** i zaszpachlować ją masą szpachlową **{PRODUCTS['Z 645']['name']}**. Czas schnięcia przed klejeniem: **1,5 godziny**.")
-            else:
-                rep.write(f"* Na tak przygotowane podłoże należy rozłożyć matę zbrojeniową **{PRODUCTS['AR 150']['name']}** i zaszpachlować ją masą szpachlową **{PRODUCTS['Z 645']['name']}** z dodatkiem plastyfikatora **{PRODUCTS['D 3060']['name']}** ({ratio} litrów na 25 kg masy). Czas schnięcia min. 3h.")
-            
-            area = dane.get('area_m2') or 0
-            if area > 0:
-                write_and_track(dane, rep, 'AR 150', custom_kg=area)
-                kg_z645_bruzdowane = area * 2.0
-                write_and_track(dane, rep, 'Z 645 (bruzdowane)', custom_kg=kg_z645_bruzdowane)
-                if dane.get('firma') != "Uzin":
+                firma_is_mapei = (dane.get('firma') == "Mapei")
+                ratio = 8.0 if firma_is_mapei else 7.0
+                
+                if firma_is_mapei:
+                    rep.write(f"* Podłoże zagruntować koncentratem gruntówki dyspersyjnej **{PRODUCTS['D 3004']['name']}**. Proporcje mieszania: 1 część koncentratu + 1 część wody; Czas schnięcia: 1h. Sposób nanoszenia: wałek do gruntowania. Zużycie: ok. 100 g/m² koncentratu.")
+                else:
+                    rep.write(f"* Podłoże zagruntować koncentratem gruntówki dyspersyjnej **{PRODUCTS['D 3004']['name']}**. Proporcje mieszania: 1 część koncentratu + 1 część wody; Czas schnięcia: 1h. Sposób nanoszenia: wałek do gruntowania microfazer. Zużycie: ok. 75 g/m² koncentratu.")
+                write_and_track(dane, rep, 'D 3004 (bruzdowane)')
+                
+                if firma_is_mapei:
+                    rep.write(f"* Na tak przygotowane podłoże należy rozłożyć matę zbrojeniową **{PRODUCTS['AR 150']['name']}** i zaszpachlować ją masą szpachlową **{PRODUCTS['Z 645']['name']}** z dodatkiem plastyfikatora **{PRODUCTS['D 3060']['name']}** ({ratio} kg na 25 kg masy). Czas schnięcia min. 3h.")
+                else:
+                    rep.write(f"* Na tak przygotowane podłoże należy rozłożyć matę zbrojeniową **{PRODUCTS['AR 150']['name']}** i zaszpachlować ją masą szpachlową **{PRODUCTS['Z 645']['name']}** z dodatkiem plastyfikatora **{PRODUCTS['D 3060']['name']}** ({ratio} litrów na 25 kg masy). Czas schnięcia min. 3h.")
+                
+                area = dane.get('area_m2') or 0
+                if area > 0:
+                    write_and_track(dane, rep, 'AR 150', custom_kg=area)
+                    kg_z645_bruzdowane = area * 2.0
+                    write_and_track(dane, rep, 'Z 645 (bruzdowane)', custom_kg=kg_z645_bruzdowane)
                     bags_z645 = math.ceil(kg_z645_bruzdowane / 25.0)
                     write_and_track(dane, rep, 'D 3060', custom_kg=bags_z645 * ratio)
-            write_and_track(dane, rep, 'Z 635', custom_kg=area * 5 * 1.5)
-        elif dane['bruzdowane_wybor'] == "płyta RP":
+                write_and_track(dane, rep, 'Z 635', custom_kg=area * 5 * 1.5)
+        elif dane['bruzdowane_wybor'] == "płyta poliestrowa":
             area = dane.get('area_m2') or 0
             write_and_track(dane, rep, 'PU 280 (RP)')
-            write_and_track(dane, rep, 'Płyta RP', custom_kg=math.ceil(area / 0.6) if area > 0 else 0)
+            write_and_track(dane, rep, 'Płyta poliestrowa', custom_kg=math.ceil(area / 0.6) if area > 0 else 0)
             write_and_track(dane, rep, 'PU 225')
+
+    if dane['substrate'] == "strefy mokre":
+        is_wood = dane['flooring_type'] in ["deska warstwowa", "lity parkiet (maks. 8 cm x 60 cm)", "mozaika drewniana (min. 16 mm grubości, maks. 20 cm długości)", "deska lita"]
+        if is_wood:
+            rep.write("* W strefie mokrej przy montażu podłogi drewnianej nie stosujemy mas wyrównawczych – klejenie należy przeprowadzić bezpośrednio do pasma uszczelniającego.")
+        else:
+            z625_name = PRODUCTS['Z 625']['name']
+            rep.write(f"* Po wykonaniu pasma uszczelniającego zalecamy wylać masę wyrównawczą **{z625_name}** już bez gruntowania.")
+            area = dane.get('area_m2') or 0
+            thick = dane.get('leveling_thickness') or 3
+            if area > 0:
+                write_and_track(dane, rep, 'Z 625', custom_kg=area * thick * PRODUCTS['Z 625'].get('usage_per_mm', 1.6))
 
 def render_wspolna_chemia(dane, rep):
     used_d3004 = False
     if dane.get('h_type') == "bruzdowane" and dane.get('bruzdowane_wybor'):
         return True # Pomijamy standardową chemię, obsłużona w naprawie podłoża
+    if dane['substrate'] == "strefy mokre":
+        return True
 
     if dane['substrate'] in ["płytki ceramiczne", "podłoże drewniane (parkiet, deska)", "podłoże z płyty OSB"]:
         return False
@@ -806,6 +836,8 @@ def render_wspolna_chemia(dane, rep):
 def render_chemia_deska_warstwowa(dane, rep):
     used_d3004 = False
     if dane.get('h_type') == "bruzdowane" and dane.get('bruzdowane_wybor'):
+        return True
+    if dane['substrate'] == "strefy mokre":
         return True
 
     if dane['substrate'] in ["płytki ceramiczne", "podłoże drewniane (parkiet, deska)", "podłoże z płyty OSB"]:
@@ -855,6 +887,8 @@ def render_chemia_deska_warstwowa(dane, rep):
 def render_chemia_deska_lita(dane, rep):
     used_d3004 = False
     if dane.get('h_type') == "bruzdowane" and dane.get('bruzdowane_wybor'):
+        return True
+    if dane['substrate'] == "strefy mokre":
         return True
 
     if dane['substrate'] in ["płytki ceramiczne", "podłoże drewniane (parkiet, deska)", "podłoże z płyty OSB"]:
@@ -927,7 +961,7 @@ def generate_report_deska_warstwowa(dane, rep):
     render_miejscowa_flizelina(dane, rep)
     render_szpachlowanie_po_gruntowaniu(dane, rep)
 
-    if dane['needs_levelling'] == "TAK" and dane.get('bruzdowane_wybor') != "masa samorozlewna":
+    if dane['needs_levelling'] == "TAK" and dane.get('bruzdowane_wybor') != "masa samorozlewna" and dane['substrate'] != "strefy mokre":
         _pu_applied = any(k in dane.get('written_texts', set()) for k in ['PU 280 (1W)', 'PU 280 (Bariera)', 'PU 280 (Bariera Płyta)', 'PU 235 (1W)', 'PU 235 (Bariera)'])
         _skip_d3045 = dane.get('leveling_mesh') == "z siatką" and _pu_applied
         if not used_d3004 and not _skip_d3045:
@@ -961,7 +995,10 @@ def generate_report_deska_warstwowa(dane, rep):
     _uzin = dane.get('firma') == "Uzin"
 
     rep.write("**c) klejenie okładziny:**")
-    if _uzin and _is_lity_parkiet:
+    if dane['substrate'] == "strefy mokre":
+        rep.write(f"Klejenie okładziny należy przeprowadzić przy użyciu kleju **{PRODUCTS['MS 260']['name']}** (szpachla B13, zużycie: 1350 g/m²) bezpośrednio do pasma uszczelniającego.")
+        write_and_track(dane, rep, 'MS 260')
+    elif _uzin and _is_lity_parkiet:
         rep.write(f"Klejenie okładziny należy przeprowadzić przy użyciu kleju **{PRODUCTS['MS 260']['name']}** (szpachla B13, zużycie: 1350 g/m²).")
         write_and_track(dane, rep, 'MS 260')
     elif _uzin and _is_mozaika:
@@ -1002,7 +1039,7 @@ def generate_report_deska_lita(dane, rep):
     render_miejscowa_flizelina(dane, rep)
     render_szpachlowanie_po_gruntowaniu(dane, rep)
 
-    if dane['needs_levelling'] == "TAK" and dane.get('bruzdowane_wybor') != "masa samorozlewna":
+    if dane['needs_levelling'] == "TAK" and dane.get('bruzdowane_wybor') != "masa samorozlewna" and dane['substrate'] != "strefy mokre":
         _pu_applied = any(k in dane.get('written_texts', set()) for k in ['PU 280 (1W)', 'PU 280 (Bariera)', 'PU 280 (Bariera Płyta)', 'PU 235 (1W)', 'PU 235 (Bariera)'])
         _skip_d3045 = dane.get('leveling_mesh') == "z siatką" and _pu_applied
         if not used_d3004 and not _skip_d3045:
@@ -1032,7 +1069,10 @@ def generate_report_deska_lita(dane, rep):
         write_and_track(dane, rep, 'Z 625')
 
     rep.write("**c) klejenie okładziny:**")
-    if dane['substrate'] == "płytki ceramiczne" and dane['needs_levelling'] == "NIE":
+    if dane['substrate'] == "strefy mokre":
+        rep.write(f"Klejenie okładziny należy przeprowadzić przy użyciu kleju **{PRODUCTS['MS 260']['name']}** (szpachla B13, zużycie: 1350 g/m²) bezpośrednio do pasma uszczelniającego.")
+        write_and_track(dane, rep, 'MS 260')
+    elif dane['substrate'] == "płytki ceramiczne" and dane['needs_levelling'] == "NIE":
         rep.write(f"Klejenie okładziny należy przeprowadzić przy użyciu dwuskładnikowego kleju poliuretanowego **{PRODUCTS['PU 225']['name']}** (szpachla B11, zużycie: 1250 g/m²).")
         write_and_track(dane, rep, 'PU 225')
     elif dane['substrate'] == "płyta fundamentowa" and dane['needs_levelling'] == "NIE":
@@ -1068,8 +1108,12 @@ def generate_report_lvt_cienkie(dane, rep):
         rep.write("* Szlif podłoża w celu uzyskania gładkiej powierzchni.")
         rep.write("* Dokładne odkurzenie powierzchni odkurzaczem przemysłowym.")
         rep.write("**b) klejenie okładziny:**")
-        rep.write(f"Klejenie okładziny należy przeprowadzić przy użyciu kleju {PRODUCTS['D 3318']['name']} (szpachla TKB A2, zużycie: 350 g/m²). · Czas wstępnego odparowania: ok. 5 - 10 minut. · Czas układania: ok. 10 minut")
-        write_and_track(dane, rep, 'D 3318')
+        if dane['substrate'] == "strefy mokre":
+            rep.write(f"Klejenie okładziny należy przeprowadzić przy użyciu kleju do stref mokrych **{PRODUCTS['MS 552']['name']}** (zużycie: 350 g/m²).")
+            write_and_track(dane, rep, 'MS 552')
+        else:
+            rep.write(f"Klejenie okładziny należy przeprowadzić przy użyciu kleju {PRODUCTS['D 3318']['name']} (szpachla TKB A2, zużycie: 350 g/m²). · Czas wstępnego odparowania: ok. 5 - 10 minut. · Czas układania: ok. 10 minut")
+            write_and_track(dane, rep, 'D 3318')
         render_potrzebne_materialy(dane, rep)
         return
 
@@ -1079,7 +1123,7 @@ def generate_report_lvt_cienkie(dane, rep):
     render_miejscowa_flizelina(dane, rep)
     render_szpachlowanie_po_gruntowaniu(dane, rep)
 
-    if dane.get('bruzdowane_wybor') != "masa samorozlewna":
+    if dane.get('bruzdowane_wybor') != "masa samorozlewna" and dane['substrate'] != "strefy mokre":
         _pu_applied = any(k in dane.get('written_texts', set()) for k in ['PU 280 (1W)', 'PU 280 (Bariera)', 'PU 280 (Bariera Płyta)', 'PU 235 (1W)', 'PU 235 (Bariera)'])
         _skip_d3045 = dane.get('leveling_mesh') == "z siatką" and _pu_applied
         if not used_d3004 and not _skip_d3045:
@@ -1111,14 +1155,20 @@ def generate_report_lvt_cienkie(dane, rep):
     rep.write("* Po wyschnięciu masy samorozlewnej zalecamy szlif podłoża w celu uzyskania gładkiej powierzchni oraz dokładne odkurzenie.")
 
     rep.write("**c) klejenie okładziny:**")
-    rep.write(f"Klejenie okładziny należy przeprowadzić przy użyciu kleju {PRODUCTS['D 3318']['name']} (szpachla TKB A2, zużycie: 350 g/m²). · Czas wstępnego odparowania: ok. 5 - 10 minut. · Czas układania: ok. 10 minut")
-    write_and_track(dane, rep, 'D 3318')
+    if dane['substrate'] == "strefy mokre":
+        rep.write(f"Klejenie okładziny należy przeprowadzić przy użyciu kleju do stref mokrych **{PRODUCTS['MS 552']['name']}** (zużycie: 350 g/m²).")
+        write_and_track(dane, rep, 'MS 552')
+    else:
+        rep.write(f"Klejenie okładziny należy przeprowadzić przy użyciu kleju {PRODUCTS['D 3318']['name']} (szpachla TKB A2, zużycie: 350 g/m²). · Czas wstępnego odparowania: ok. 5 - 10 minut. · Czas układania: ok. 10 minut")
+        write_and_track(dane, rep, 'D 3318')
     render_potrzebne_materialy(dane, rep)
 
 # --- SEKCJA: LVT GRUBE ---
 def render_chemia_lvt_grube(dane, rep):
     used_d3004 = False
     if dane.get('h_type') == "bruzdowane" and dane.get('bruzdowane_wybor'):
+        return True
+    if dane['substrate'] == "strefy mokre":
         return True
 
     if dane['substrate'] in ["płytki ceramiczne", "podłoże drewniane (parkiet, deska)", "podłoże z płyty OSB"]:
@@ -1174,7 +1224,7 @@ def generate_report_lvt_grube(dane, rep):
     render_miejscowa_flizelina(dane, rep)
     render_szpachlowanie_po_gruntowaniu(dane, rep)
 
-    if dane['needs_levelling'] == "TAK" and dane.get('bruzdowane_wybor') != "masa samorozlewna":
+    if dane['needs_levelling'] == "TAK" and dane.get('bruzdowane_wybor') != "masa samorozlewna" and dane['substrate'] != "strefy mokre":
         _pu_applied = any(k in dane.get('written_texts', set()) for k in ['PU 280 (1W)', 'PU 280 (Bariera)', 'PU 280 (Bariera Płyta)', 'PU 235 (1W)', 'PU 235 (Bariera)'])
         _skip_d3045 = dane.get('leveling_mesh') == "z siatką" and _pu_applied
         if not used_d3004 and not _skip_d3045:
@@ -1205,7 +1255,10 @@ def generate_report_lvt_grube(dane, rep):
 
     rep.write("**c) klejenie okładziny:**")
     bottom_type = dane.get('lvt_bottom_type', '')
-    if bottom_type == "Winyl na piankowym spodzie":
+    if dane['substrate'] == "strefy mokre":
+        rep.write(f"Klejenie okładziny należy przeprowadzić przy użyciu kleju do stref mokrych **{PRODUCTS['MS 552']['name']}** (zużycie: 350 g/m²).")
+        write_and_track(dane, rep, 'MS 552')
+    elif bottom_type == "Winyl na piankowym spodzie":
         rep.write("**Brak możliwości klejenia.** Możliwość montażu okładziny jedynie na pływająco.")
     elif dane['substrate'] == "płytki ceramiczne" and dane['needs_levelling'] == "NIE":
         rep.write(f"Klejenie okładziny należy przeprowadzić przy użyciu dwuskładnikowego kleju poliuretanowego **{PRODUCTS['PU 225']['name']}** (szpachla B11, zużycie: 1250 g/m²).")
@@ -1241,8 +1294,12 @@ def generate_report_pcv_w_rolce(dane, rep):
         rep.write("* Szlif podłoża w celu uzyskania gładkiej powierzchni.")
         rep.write("* Dokładne odkurzenie powierzchni odkurzaczem przemysłowym.")
         rep.write("**b) klejenie okładziny PCV:**")
-        rep.write(f"Klejenie okładziny należy przeprowadzić przy użyciu kleju {PRODUCTS['D 3307']['name']} (szpachla TKB A2, zużycie: 300 – 330 g/m²). · Czas wstępnego odparowania: ok. 10 - 20 minut. · Czas układania: ok. 15 - 20 minut")
-        write_and_track(dane, rep, 'D 3307')
+        if dane['substrate'] == "strefy mokre":
+            rep.write(f"Klejenie okładziny należy przeprowadzić przy użyciu kleju do stref mokrych **{PRODUCTS['MS 552']['name']}** (zużycie: 350 g/m²).")
+            write_and_track(dane, rep, 'MS 552')
+        else:
+            rep.write(f"Klejenie okładziny należy przeprowadzić przy użyciu kleju {PRODUCTS['D 3307']['name']} (szpachla TKB A2, zużycie: 300 – 330 g/m²). · Czas wstępnego odparowania: ok. 10 - 20 minut. · Czas układania: ok. 15 - 20 minut")
+            write_and_track(dane, rep, 'D 3307')
         render_potrzebne_materialy(dane, rep)
         return
 
@@ -1252,7 +1309,7 @@ def generate_report_pcv_w_rolce(dane, rep):
     render_miejscowa_flizelina(dane, rep)
     render_szpachlowanie_po_gruntowaniu(dane, rep)
 
-    if dane['needs_levelling'] == "TAK" and dane.get('bruzdowane_wybor') != "masa samorozlewna":
+    if dane['needs_levelling'] == "TAK" and dane.get('bruzdowane_wybor') != "masa samorozlewna" and dane['substrate'] != "strefy mokre":
         _pu_applied = any(k in dane.get('written_texts', set()) for k in ['PU 280 (1W)', 'PU 280 (Bariera)', 'PU 280 (Bariera Płyta)', 'PU 235 (1W)', 'PU 235 (Bariera)'])
         _skip_d3045 = dane.get('leveling_mesh') == "z siatką" and _pu_applied
         if not used_d3004 and not _skip_d3045:
@@ -1284,8 +1341,12 @@ def generate_report_pcv_w_rolce(dane, rep):
     rep.write("* Po wyschnięciu masy samorozlewnej zalecamy szlif podłoża w celu uzyskania gładkiej powierzchni oraz dokładne odkurzenie.")
 
     rep.write("**c) klejenie okładziny PCV:**")
-    rep.write(f"Klejenie okładziny należy przeprowadzić przy użyciu kleju {PRODUCTS['D 3307']['name']} (szpachla TKB A2, zużycie: 300 – 330 g/m²). · Czas wstępnego odparowania: ok. 10 - 20 minut. · Czas układania: ok. 15 - 20 minut")
-    write_and_track(dane, rep, 'D 3307')
+    if dane['substrate'] == "strefy mokre":
+        rep.write(f"Klejenie okładziny należy przeprowadzić przy użyciu kleju do stref mokrych **{PRODUCTS['MS 552']['name']}** (zużycie: 350 g/m²).")
+        write_and_track(dane, rep, 'MS 552')
+    else:
+        rep.write(f"Klejenie okładziny należy przeprowadzić przy użyciu kleju {PRODUCTS['D 3307']['name']} (szpachla TKB A2, zużycie: 300 – 330 g/m²). · Czas wstępnego odparowania: ok. 10 - 20 minut. · Czas układania: ok. 15 - 20 minut")
+        write_and_track(dane, rep, 'D 3307')
     render_potrzebne_materialy(dane, rep)
 
 # --- SEKCJA: WYKŁADZINA DYWANOWA ---
@@ -1305,8 +1366,12 @@ def generate_report_wykladzina_dywanowa(dane, rep):
         rep.write("* Szlif podłoża w celu uzyskania gładkiej powierzchni.")
         rep.write("* Dokładne odkurzenie powierzchni odkurzaczem przemysłowym.")
         rep.write("**b) klejenie wykładziny tekstylnej:**")
-        rep.write(f"Klejenie okładziny należy przeprowadzić przy użyciu kleju {PRODUCTS['D 3308']['name']} (szpachla TKB B1 400-450 g/m²). · Czas wstępnego odparowania: ok. 5-10 minut. · Czas otwarty kleju ok. 10-15 minut")
-        write_and_track(dane, rep, 'D 3308')
+        if dane['substrate'] == "strefy mokre":
+            rep.write(f"Klejenie okładziny należy przeprowadzić przy użyciu kleju do stref mokrych **{PRODUCTS['MS 552']['name']}** (zużycie: 350 g/m²).")
+            write_and_track(dane, rep, 'MS 552')
+        else:
+            rep.write(f"Klejenie okładziny należy przeprowadzić przy użyciu kleju {PRODUCTS['D 3308']['name']} (szpachla TKB B1 400-450 g/m²). · Czas wstępnego odparowania: ok. 5-10 minut. · Czas otwarty kleju ok. 10-15 minut")
+            write_and_track(dane, rep, 'D 3308')
         render_potrzebne_materialy(dane, rep)
         return
 
@@ -1316,7 +1381,7 @@ def generate_report_wykladzina_dywanowa(dane, rep):
     render_miejscowa_flizelina(dane, rep)
     render_szpachlowanie_po_gruntowaniu(dane, rep)
 
-    if dane['needs_levelling'] == "TAK" and dane.get('bruzdowane_wybor') != "masa samorozlewna":
+    if dane['needs_levelling'] == "TAK" and dane.get('bruzdowane_wybor') != "masa samorozlewna" and dane['substrate'] != "strefy mokre":
         _pu_applied = any(k in dane.get('written_texts', set()) for k in ['PU 280 (1W)', 'PU 280 (Bariera)', 'PU 280 (Bariera Płyta)', 'PU 235 (1W)', 'PU 235 (Bariera)'])
         _skip_d3045 = dane.get('leveling_mesh') == "z siatką" and _pu_applied
         if not used_d3004 and not _skip_d3045:
@@ -1348,8 +1413,12 @@ def generate_report_wykladzina_dywanowa(dane, rep):
     rep.write("* Po wyschnięciu masy samorozlewnej zalecamy szlif podłoża w celu uzyskania gładkiej powierzchni oraz dokładne odkurzenie.")
 
     rep.write("**c) klejenie wykładziny tekstylnej:**")
-    rep.write(f"Klejenie okładziny należy przeprowadzić przy użyciu kleju {PRODUCTS['D 3308']['name']} (szpachla TKB B1 400-450 g/m²). · Czas wstępnego odparowania: ok. 5-10 minut. · Czas otwarty kleju ok. 10-15 minut")
-    write_and_track(dane, rep, 'D 3308')
+    if dane['substrate'] == "strefy mokre":
+        rep.write(f"Klejenie okładziny należy przeprowadzić przy użyciu kleju do stref mokrych **{PRODUCTS['MS 552']['name']}** (zużycie: 350 g/m²).")
+        write_and_track(dane, rep, 'MS 552')
+    else:
+        rep.write(f"Klejenie okładziny należy przeprowadzić przy użyciu kleju {PRODUCTS['D 3308']['name']} (szpachla TKB B1 400-450 g/m²). · Czas wstępnego odparowania: ok. 5-10 minut. · Czas otwarty kleju ok. 10-15 minut")
+        write_and_track(dane, rep, 'D 3308')
     render_potrzebne_materialy(dane, rep)
 
 # ==========================================
@@ -1853,7 +1922,7 @@ def render_wersja_pro(nazwa_klienta, miejscowosc, adres, autor, data_badania):
         if prod_key != "BRAK":
             if "AR 150" in prod_key or "EM 140" in prod_key:
                 pro_label = "m²"
-            elif "Płyta RP" in prod_key:
+            elif "Płyta poliestrowa" in prod_key:
                 pro_label = "szt"
 
         with col2:
@@ -1976,7 +2045,7 @@ elif flooring_type == "lvt grube z twardym rdzeniem":
 
 st.markdown(f"### Wywiad Techniczny dla: **{flooring_type.upper()}**")
 
-substrate = st.selectbox("1. Rodzaj podłoża", ["jastrych cementowy", "jastrych anhydrytowy", "płyta fundamentowa", "podłoże drewniane (parkiet, deska)", "podłoże z płyty OSB", "płytki ceramiczne", "masa samorozlewna"])
+substrate = st.selectbox("1. Rodzaj podłoża", ["jastrych cementowy", "jastrych anhydrytowy", "płyta fundamentowa", "podłoże drewniane (parkiet, deska)", "podłoże z płyty OSB", "płytki ceramiczne", "masa samorozlewna", "strefy mokre"])
 
 masa_class = None
 if substrate == "masa samorozlewna":
@@ -2021,8 +2090,11 @@ if heating_exists == "TAK":
         if flooring_type == "lvt cienkie":
             bruzdowane_wybor = "masa samorozlewna"
             st.info("Przy LVT cienkim i ogrzewaniu bruzdowanym wymagana jest masa samorozlewna — technologia ustawiona automatycznie.")
+        elif firma == "Uzin":
+            bruzdowane_wybor = "masa samorozlewna"
+            st.info("Dla marki Uzin technologia przygotowania podłoża (zalanie bruzd KR 417, mata zbrojąca RR 201 i masa samopoziomująca NC 170) jest określona jednoznacznie.")
         else:
-            bruzdowane_wybor = st.radio("Wybierz technologię (ogrzewanie bruzdowane):", ["masa samorozlewna", "płyta RP"], horizontal=True)
+            bruzdowane_wybor = st.radio("Wybierz technologię (ogrzewanie bruzdowane):", ["masa samorozlewna", "płyta poliestrowa"], horizontal=True)
         
     if h_type != "bruzdowane":
         st.write("❓ Czy został przeprowadzony proces wygrzewania zgodnie z protokołem?")
