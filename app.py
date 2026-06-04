@@ -95,7 +95,7 @@ FULL_Z625 = "* Wylać masę wyrównawczą **WAKOL Z 625** - wymieszać ją w czy
 FULL_Z675 = "* Wylać masę wyrównawczą **WAKOL Z 675** - wymieszać ją w czystym naczyniu z zimną wodą w proporcji 6,0 – 6,5 litrów wody na 25 kg masy. Mieszać unikając tworzenia się grudek. Prędkość obrotowa mieszadła może wynosić max. 600 obrotów na minutę. Wymieszaną masę nanosić w żądanej grubości na podłoże przy pomocy szpachli, łaty lub rakli. Przed pracą należy zwrócić uwagę na obecność wypełnień fug przy ścianach. Zużycie **ok. 1,6 kg/m²/mm**. **Możliwość chodzenia po 2-3 godzinach**. **Możliwość klejenia podłóg po ok. 24 godzinach przy grubości warstwy do 3 mm**, przy większych grubościach czas schnięcia ulega wydłużeniu."
 FULL_Z635 = "* Następnie na podłoże wylać masę wyrównawczą **WAKOL Z 635** - wymieszać ją w czystym naczyniu z zimną wodą w proporcji 6,25 litrów wody na 25 kg masy. Mieszać unikając tworzenia się grudek. Prędkość obrotowa mieszadła może wynosić max. 600 obrotów na minutę. Wymieszaną masę nanosić w żądanej grubości na podłoże przy pomocy szpachli, łaty lub rakli. Przed pracą należy zwrócić uwagę na obecność wypełnień fug przy ścianach. Zużycie **ok. 1,6 kg/m²/mm**. **Możliwość chodzenia po 2,5 godzinach**. **Możliwość klejenia podłóg drewnianych przy warstwie do 5 mm – po 24 godzinach**, przy warstwie do 10 mm – po 72 godzinach."
 FULL_D3055 = "* Zalecamy zagruntowanie całej powierzchni jastrychu gruntówką dyspersyjną **WAKOL D 3055** - aplikacja wałkiem **ok. 150 g/m²**. **Czas schnięcia ok. 30 min**."
-FULL_EM140 = "* Na zagruntowaną i wyschniętą powierzchnię przykleić matę flizelinową **WAKOL EM 140** przy użyciu kleju dwuskładnikowego poliuretanowego **WAKOL PU 225** (szpachla B11, zużycie: 1250 g/m²). Matę dociskać równomiernie wałkiem do podłoża. Montaż okładziny można rozpocząć w momencie, gdy mata jest stabilnie związana z podkładem."
+FULL_EM140 = "* Na zagruntowaną i wyschniętą powierzchnię przykleić matę flizelinową **WAKOL EM 140** przy użyciu kleju poliuretanowego (szpachla B11, zużycie: 1250 g/m²). Matę dociskać równomiernie wałkiem do podłoża. Montaż okładziny można rozpocząć w momencie, gdy mata jest stabilnie związana z podkładem."
 
 def insert_header():
     logo_wakol = "https://www.wakol.com/fileadmin/templates/images/wakol_logo.png"
@@ -245,7 +245,7 @@ _M_PRIMER_G_PRO = "* Zagruntować podłoże koncentratem gruntówki dyspersyjnej
 _M_ECO_PRIM_T_PLUS = "* Zalecamy zagruntowanie całej powierzchni jastrychu gruntówką dyspersyjną **MAPEI Eco Prim T Plus** - aplikacja wałkiem **ok. 150 g/m²**. **Czas schnięcia ok. 1 godziny**."
 _M_PLANOLIT_115 = "* Wylać masę wyrównawczą **MAPEI Planolit 115** - wymieszać ją w czystym naczyniu z zimną wodą w proporcji 5,75-6 litrów wody na 23 kg masy. Mieszać unikając tworzenia się grudek. Prędkość obrotowa mieszadła może wynosić max. 600 obrotów na minutę. Wymieszaną masę nanosić w żądanej grubości na podłoże przy pomocy szpachli, łaty lub rakli. Przed pracą należy zwrócić uwagę na obecność wypełnień fug przy ścianach. Zużycie **ok. 1,6 kg/m²/mm**. **Czas schnięcia 3mm - 24 godziny**."
 _M_ULTRAPLAN_RENOVATION = "* Wylać masę wyrównawczą **MAPEI Ultraplan Renovation** – wymieszać ją w czystym naczyniu z zimną wodą w proporcji 4,5 litrów wody na 23 kg masy. Mieszać unikając tworzenia się grudek. Prędkość obrotowa mieszadła może wynosić max. 600 obrotów na minutę. Wymieszaną masę nanosić w żądanej grubości na podłoże przy pomocy szpachli, łaty lub rakli. Przed pracą należy zwrócić uwagę na obecność wypełnień fug przy ścianach. Zużycie **ok. 1,6 kg/m²/mm**. **Czas schnięcia 3mm - 24 godziny**."
-_M_MAPETEX_VLIES = "* Na zagruntowaną i wyschniętą powierzchnię przykleić matę flizelinową **Mapetex Vlies** przy użyciu kleju dwuskładnikowego poliuretanowego **Mapei Ultrabond ECO P909 2K** (szpachla B11, zużycie: 1250 g/m²). Matę dociskać równomiernie wałkiem do podłoża. Montaż okładziny można rozpocząć w momencie, gdy mata jest stabilnie związana z podkładem."
+_M_MAPETEX_VLIES = "* Na zagruntowaną i wyschniętą powierzchnię przykleić matę flizelinową **Mapetex Vlies** przy użyciu kleju poliuretanowego (szpachla B11, zużycie: 1250 g/m²). Matę dociskać równomiernie wałkiem do podłoża. Montaż okładziny można rozpocząć w momencie, gdy mata jest stabilnie związana z podkładem."
 _M_ULTRAPLAN_MAXI = "* Wylać masę wyrównawczą **MAPEI Ultraplan Maxi** – wymieszać ją w czystym naczyniu z zimną wodą w proporcji 4,75- 5,0 litrów wody na 23 kg masy. Mieszać unikając tworzenia się grudek. Prędkość obrotowa mieszadła może wynosić max. 600 obrotów na minutę. Wymieszaną masę nanosić w żądanej grubości na podłoże przy pomocy szpachli, łaty lub rakli. Przed pracą należy zwrócić uwagę na obecność wypełnień fug przy ścianach. Zużycie **ok. 1,7 kg/m²/mm**. **Czas schnięcia 3mm - 24 godziny**."
 
 PRODUCTS_MAPEI = {
@@ -283,7 +283,7 @@ PRODUCTS_MAPEI.update({
     'AR 150':                {'name': 'Mapei MAPETHERM NET 150 (siatka zbrojeniowa)', 'usage': 1000, 'sizes': [50],    'text': "",                         'price': 3.55},
     'EM 140':                {'name': 'Mapei Mapetex Vlies (mata flizelinowa)',       'usage': 1000, 'sizes': [50], 'unit': 'm²', 'text': _M_MAPETEX_VLIES, 'price': 17.07},
 })
-_U_MULTIMOL = "* Na zagruntowaną i wyschniętą powierzchnię przykleić matę flizelinową **Uzin Multimol** przy użyciu kleju dwuskładnikowego poliuretanowego **Uzin MK 90** (szpachla B11, zużycie: 1250 g/m²). Matę dociskać równomiernie wałkiem do podłoża. Montaż okładziny można rozpocząć w momencie, gdy mata jest stabilnie związana z podkładem."
+_U_MULTIMOL = "* Na zagruntowaną i wyschniętą powierzchnię przykleić matę flizelinową **Uzin Multimol** przy użyciu kleju poliuretanowego (szpachla B11, zużycie: 1250 g/m²). Matę dociskać równomiernie wałkiem do podłoża. Montaż okładziny można rozpocząć w momencie, gdy mata jest stabilnie związana z podkładem."
 _U_PE280 = "* Zaaplikować mostek sczepny **Uzin PE 280** równomiernie za pomocą wałka. Zużycie wynosi **ok. 150 g/m²**. **Czas schnięcia 45 minut.**"
 _U_PE350 = "* Zagruntować podłoże gruntówką dyspersyjną **Uzin PE 350** - aplikacja wałkiem **ok. 150 g/m²**. **Czas schnięcia: 30–60 minut.**"
 _U_NC170 = "* Wylać masę wyrównawczą **Uzin NC 170 LevelStar** - wymieszać ją w czystym naczyniu z zimną wodą (ok. 6,5 litra na worek 25 kg). Mieszać unikając tworzenia się grudek. Prędkość obrotowa mieszadła może wynosić max. 600 obrotów na minutę. Wymieszaną masę nanosić w żądanej grubości na podłoże przy pomocy szpachli, łaty lub rakli. Przed pracą należy zwrócić uwagę na obecność wypełnień fug przy ścianach. Zużycie **ok. 1,5 kg/m²/mm**. **Możliwość klejenia podłóg drewnianych: przy warstwie do 5 mm – po 15 godzinach, przy warstwie do 10 mm – po 24 godzinach, przy warstwie do 20 mm – po 72 godzinach.**"
@@ -507,7 +507,7 @@ def render_calosc_flizelina(dane, rep):
     if dane.get('whole_fleece') == "TAK":
         write_and_track(dane, rep, 'EM 140')
         write_and_track(dane, rep, 'PU 225')
-        rep.write("*(Uwaga: Ze względu na technologię montażu z użyciem maty flizelinowej, zużycie kleju wzrasta dwukrotnie — pierwsza operacja klejenia to montaż maty do podłoża, druga to klejenie okładziny do maty).*")
+        rep.write("*(Uwaga: Ze względu na technologię montażu z użyciem maty flizelinowej, należy osobno uwzględnić zużycie kleju poliuretanowego pod matę oraz osobno kleju do przyklejenia okładziny).*")
 
 def render_miejscowa_flizelina(dane, rep):
     if dane.get('local_fleece') == "TAK" and dane.get('local_fleece_m2'):
@@ -516,8 +516,8 @@ def render_miejscowa_flizelina(dane, rep):
         reason_str = f" z powodu: **{reason}**" if reason else ""
         fleece_name = PRODUCTS['EM 140']['name']
         glue_name = PRODUCTS['PU 225']['name']
-        rep.write(f"* Na zagruntowaną powierzchnię należy miejscowo wkleić matę flizelinową **{fleece_name}** w ilości **{m2} m²**{reason_str} przy użyciu kleju dwuskładnikowego poliuretanowego **{glue_name}** (zużycie: 1250 g/m²).")
-        rep.write("*(Uwaga: W miejscu klejenia maty flizelinowej zużycie kleju zwiększa się dwukrotnie — wymagana jest warstwa kleju pod matę oraz warstwa kleju pod okładzinę).*")
+        rep.write(f"* Na zagruntowaną powierzchnię należy miejscowo wkleić matę flizelinową **{fleece_name}** w ilości **{m2} m²**{reason_str} przy użyciu kleju poliuretanowego (zużycie: 1250 g/m²).")
+        rep.write("*(Uwaga: W miejscu klejenia maty flizelinowej należy osobno uwzględnić zużycie kleju poliuretanowego pod matę oraz osobno kleju do przyklejenia okładziny).*")
         
         if 'written_texts' not in dane:
             dane['written_texts'] = set()
