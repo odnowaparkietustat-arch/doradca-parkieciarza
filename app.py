@@ -132,6 +132,33 @@ def render_wspolne_dane_optyczne(dane, rep):
     holes_txt = f" **Zlokalizowano ubytki wymagające wypełnienia masą naprawczą{dane['hole_details']}.**" if dane['holes'] == "TAK" else ""
     demolition_txt = " **Podłoże wymaga demontażu przed przystąpieniem do dalszych prac.**" if dane.get('requires_demolition') else ""
     level_txt = f" **Podłoże wymaga wyrównania masą wyrównawczą o planowanej grubości {dane['leveling_thickness']} milimetrów.**" if dane['needs_levelling'] == "TAK" else ""
+    
+    # Dodatkowe informacje zaznaczone w wywiadzie
+    local_leveling_val = dane.get('local_leveling_kg')
+    if dane.get('local_leveling') == "TAK":
+        if local_leveling_val:
+            local_level_txt = f" **Podłoże wymaga miejscowego wyrównania masą szpachlową ({local_leveling_val} kg).**"
+        else:
+            local_level_txt = " **Podłoże wymaga miejscowego wyrównania masą szpachlową.**"
+    else:
+        local_level_txt = ""
+        
+    if dane.get('whole_fleece') == "TAK":
+        whole_fleece_txt = " **Całość podłoża wymaga uzbrojenia matą flizelinową.**"
+    else:
+        whole_fleece_txt = ""
+        
+    if dane.get('local_fleece') == "TAK":
+        lf_m2 = dane.get('local_fleece_m2') or 0
+        reason_f = dane.get('local_fleece_reason', '')
+        reason_f_str = f" z powodu: **{reason_f}**" if reason_f else ""
+        local_fleece_txt = f" **Podłoże wymaga miejscowego uzbrojenia matą flizelinową w ilości {lf_m2} m²{reason_f_str}.**"
+    else:
+        local_fleece_txt = ""
+        
+    residues_txt = " **Na podłożu występują pozostałości starych spoin klejowych.**" if dane.get('has_adhesive_residues') else ""
+    already_levelled_txt = " **Podłoże zostało już wcześniej wyrównane.**" if dane.get('already_levelled') == "TAK" else ""
+
     if dane.get('ventilation_type'):
         vent_txt = f" Rodzaj zastosowanej wentylacji: wentylacja {dane['ventilation_type'].lower()}."
     else:
@@ -141,7 +168,7 @@ def render_wspolne_dane_optyczne(dane, rep):
 
     area_txt = f" o powierzchni {dane['area_m2']} m²" if dane.get('area_m2') else ""
     masa_class_txt = f" (klasa wytrzymałości {dane['masa_class']})" if dane.get('masa_class') else ""
-    full_opt_report = f"Podłoże pod planowaną okładzinę ({dane['flooring_type']}) stanowi {dane['substrate']}{masa_class_txt}{area_txt}{age_txt}.{dodatkowe_txt}{demolition_txt}{heat_txt}{curing_txt}{dil_txt}{klaw_txt}{pek_txt}{holes_txt}{level_txt} {vent_txt}{evenness_txt}"
+    full_opt_report = f"Podłoże pod planowaną okładzinę ({dane['flooring_type']}) stanowi {dane['substrate']}{masa_class_txt}{area_txt}{age_txt}.{dodatkowe_txt}{demolition_txt}{heat_txt}{curing_txt}{dil_txt}{klaw_txt}{pek_txt}{holes_txt}{level_txt}{local_level_txt}{whole_fleece_txt}{local_fleece_txt}{residues_txt}{already_levelled_txt} {vent_txt}{evenness_txt}"
     rep.write(f"**a) oględziny optyczne:** {full_opt_report}")
     
     presso_valid = [str(p) for p in dane.get('presso_results', []) if p is not None]
@@ -348,7 +375,23 @@ def write_and_track(dane, rep, prod_key, custom_kg=None):
 
     if prod_key not in dane['written_texts']:
         if prod['text']:
-            rep.write(prod['text'])
+            text_to_write = prod['text']
+            if dane.get('substrate') == "jastrych anhydrytowy":
+                if prod_key in ['D 3004', 'D 3004 (bruzdowane)']:
+                    if "WAKOL D 3004" in text_to_write:
+                        text_to_write = text_to_write.replace("na jastrychach cementowych i betonie po optycznym wyschnięciu **ok. 30 min**", "na jastrychu anhydrytowym **2 godziny**")
+                    elif "MAPEI Primer G Pro" in text_to_write:
+                        text_to_write = text_to_write.replace("**Czas schnięcia 1 godzina**", "**Czas schnięcia: 2 godziny**")
+                    elif "Uzin PE 350" in text_to_write:
+                        text_to_write = text_to_write.replace("**Czas schnięcia: 30–60 minut.**", "**Czas schnięcia: 2 godziny.**")
+                elif prod_key == 'D 3055':
+                    if "WAKOL D 3055" in text_to_write:
+                        text_to_write = text_to_write.replace("**Czas schnięcia ok. 30 min**", "**Czas schnięcia: 2 godziny**")
+                    elif "MAPEI Eco Prim T Plus" in text_to_write:
+                        text_to_write = text_to_write.replace("**Czas schnięcia ok. 1 godziny**", "**Czas schnięcia: 2 godziny**")
+                    elif "Uzin PE 390" in text_to_write:
+                        text_to_write = text_to_write.replace("**Czas schnięcia ok. 60 minut**", "**Czas schnięcia: 2 godziny**")
+            rep.write(text_to_write)
         dane['written_texts'].add(prod_key)
 
     if 'materials' not in dane:
@@ -460,19 +503,28 @@ def render_potrzebne_materialy(dane, rep):
             rep.write(f"- {m['name']}: {combo} — cena do ustalenia")
     rep.write(f"**RAZEM NETTO (Wariant 2): {total2:.2f} PLN**")
 
+def render_calosc_flizelina(dane, rep):
+    if dane.get('whole_fleece') == "TAK":
+        write_and_track(dane, rep, 'EM 140')
+        write_and_track(dane, rep, 'PU 225')
+        rep.write("*(Uwaga: Ze względu na technologię montażu z użyciem maty flizelinowej, zużycie kleju wzrasta dwukrotnie — pierwsza operacja klejenia to montaż maty do podłoża, druga to klejenie okładziny do maty).*")
+
 def render_miejscowa_flizelina(dane, rep):
     if dane.get('local_fleece') == "TAK" and dane.get('local_fleece_m2'):
         m2 = dane['local_fleece_m2']
         reason = dane.get('local_fleece_reason', '')
         reason_str = f" z powodu: **{reason}**" if reason else ""
         fleece_name = PRODUCTS['EM 140']['name']
-        rep.write(f"* Na zagruntowaną powierzchnię należy miejscowo wkleić matę flizelinową **{fleece_name}** w ilości **{m2} m²**{reason_str}.")
+        glue_name = PRODUCTS['PU 225']['name']
+        rep.write(f"* Na zagruntowaną powierzchnię należy miejscowo wkleić matę flizelinową **{fleece_name}** w ilości **{m2} m²**{reason_str} przy użyciu kleju dwuskładnikowego poliuretanowego **{glue_name}** (zużycie: 1250 g/m²).")
+        rep.write("*(Uwaga: W miejscu klejenia maty flizelinowej zużycie kleju zwiększa się dwukrotnie — wymagana jest warstwa kleju pod matę oraz warstwa kleju pod okładzinę).*")
         
         if 'written_texts' not in dane:
             dane['written_texts'] = set()
         dane['written_texts'].add('EM 140')
         
         write_and_track(dane, rep, 'EM 140', custom_kg=m2)
+        write_and_track(dane, rep, 'PU 225', custom_kg=m2 * 1.25)
 
 def render_szpachlowanie_po_gruntowaniu(dane, rep):
     delay_patching = (dane.get('strength_val') == 1 and dane.get('needs_levelling') == "NIE")
@@ -493,11 +545,17 @@ def render_szpachlowanie_po_gruntowaniu(dane, rep):
         firma_is_uzin = (dane.get('firma') == "Uzin")
         
         if firma_is_mapei:
-            rep.write(f"* Na zagruntowane podłoże: ubytki zaszpachlować masą szpachlową **{PRODUCTS['Z 645']['name']}** z dodatkiem plastyfikatora **{PRODUCTS['D 3060']['name']}** (8 kg na 25 kg masy). Czas schnięcia min. 3h.")
+            if dane.get('whole_fleece') == "TAK":
+                rep.write(f"* Na zagruntowane podłoże: ubytki zaszpachlować masą szpachlową **{PRODUCTS['Z 645']['name']}** (bez plastyfikatora). Czas schnięcia min. 3h.")
+            else:
+                rep.write(f"* Na zagruntowane podłoże: ubytki zaszpachlować masą szpachlową **{PRODUCTS['Z 645']['name']}** z dodatkiem plastyfikatora **{PRODUCTS['D 3060']['name']}** (8 kg na 25 kg masy). Czas schnięcia min. 3h.")
         elif firma_is_uzin:
             rep.write(f"* Na zagruntowane podłoże: ubytki zaszpachlować masą szpachlową **{PRODUCTS['Z 645']['name']}**. Czas schnięcia przed klejeniem: **1,5 godziny**.")
         else:
-            rep.write(f"* Na zagruntowane podłoże: ubytki zaszpachlować masą szpachlową **{PRODUCTS['Z 645']['name']}** z dodatkiem plastyfikatora **{PRODUCTS['D 3060']['name']}** (7 litrów na 25 kg masy). Czas schnięcia min. 3h.")
+            if dane.get('whole_fleece') == "TAK":
+                rep.write(f"* Na zagruntowane podłoże: ubytki zaszpachlować masą szpachlową **{PRODUCTS['Z 645']['name']}** (bez plastyfikatora). Czas schnięcia min. 3h.")
+            else:
+                rep.write(f"* Na zagruntowane podłoże: ubytki zaszpachlować masą szpachlową **{PRODUCTS['Z 645']['name']}** z dodatkiem plastyfikatora **{PRODUCTS['D 3060']['name']}** (7 litrów na 25 kg masy). Czas schnięcia min. 3h.")
             
         _add_sand = dane.get('holes_depth') and dane['holes_depth'] >= 1.0
         if kg_z645 is not None:
@@ -511,14 +569,20 @@ def render_szpachlowanie_po_gruntowaniu(dane, rep):
         ratio = 8.0 if firma_is_mapei else 7.0
         
         if firma_is_mapei:
-            rep.write(f"* Na zagruntowane podłoże: miejscowe wyrównanie podłoża{details} masą szpachlową **{PRODUCTS['Z 645']['name']}** z dodatkiem plastyfikatora **{PRODUCTS['D 3060']['name']}** ({ratio} kg na 25 kg masy). Czas schnięcia min. 3h.")
+            if dane.get('whole_fleece') == "TAK":
+                rep.write(f"* Na zagruntowane podłoże: miejscowe wyrównanie podłoża{details} masą szpachlową **{PRODUCTS['Z 645']['name']}** (bez plastyfikatora). Czas schnięcia min. 3h.")
+            else:
+                rep.write(f"* Na zagruntowane podłoże: miejscowe wyrównanie podłoża{details} masą szpachlową **{PRODUCTS['Z 645']['name']}** z dodatkiem plastyfikatora **{PRODUCTS['D 3060']['name']}** ({ratio} kg na 25 kg masy). Czas schnięcia min. 3h.")
         elif dane.get('firma') == "Uzin":
             rep.write(f"* Na zagruntowane podłoże: miejscowe wyrównanie podłoża{details} masą szpachlową **{PRODUCTS['Z 645']['name']}**. Czas schnięcia przed klejeniem: **1,5 godziny**.")
         else:
-            rep.write(f"* Na zagruntowane podłoże: miejscowe wyrównanie podłoża{details} masą szpachlową **{PRODUCTS['Z 645']['name']}** z dodatkiem plastyfikatora **{PRODUCTS['D 3060']['name']}** ({ratio} litrów na 25 kg masy). Czas schnięcia min. 3h.")
+            if dane.get('whole_fleece') == "TAK":
+                rep.write(f"* Na zagruntowane podłoże: miejscowe wyrównanie podłoża{details} masą szpachlową **{PRODUCTS['Z 645']['name']}** (bez plastyfikatora). Czas schnięcia min. 3h.")
+            else:
+                rep.write(f"* Na zagruntowane podłoże: miejscowe wyrównanie podłoża{details} masą szpachlową **{PRODUCTS['Z 645']['name']}** z dodatkiem plastyfikatora **{PRODUCTS['D 3060']['name']}** ({ratio} litrów na 25 kg masy). Czas schnięcia min. 3h.")
             
         write_and_track(dane, rep, 'Z 645 (bruzdowane)', custom_kg=dane['local_leveling_kg'])
-        if dane.get('firma') != "Uzin":
+        if dane.get('firma') != "Uzin" and dane.get('whole_fleece') != "TAK":
             bags_local = dane['local_leveling_kg'] / 25.0
             write_and_track(dane, rep, 'D 3060', custom_kg=bags_local * ratio)
 
@@ -624,11 +688,17 @@ def render_wspolne_zalecenia_podloze(dane, rep):
                 rep.write(f"* Ubytki zaszpachlować masą **{PRODUCTS['Z 645']['name']}** wymieszaną z piaskiem kwarcowym w proporcji 1:1 – czas schnięcia 1 godzina.")
         else:
             if firma_is_mapei:
-                rep.write(f"* Ubytki zaszpachlować masą szpachlową **{PRODUCTS['Z 645']['name']}** z dodatkiem plastyfikatora **{PRODUCTS['D 3060']['name']}** (8 kg na 25 kg masy). Czas schnięcia min. 3h.")
+                if dane.get('whole_fleece') == "TAK":
+                    rep.write(f"* Ubytki zaszpachlować masą szpachlową **{PRODUCTS['Z 645']['name']}** (bez plastyfikatora). Czas schnięcia min. 3h.")
+                else:
+                    rep.write(f"* Ubytki zaszpachlować masą szpachlową **{PRODUCTS['Z 645']['name']}** z dodatkiem plastyfikatora **{PRODUCTS['D 3060']['name']}** (8 kg na 25 kg masy). Czas schnięcia min. 3h.")
             elif firma_is_uzin:
                 rep.write(f"* Ubytki zaszpachlować masą szpachlową **{PRODUCTS['Z 645']['name']}**. Czas schnięcia przed klejeniem: **1,5 godziny**.")
             else:
-                rep.write(f"* Ubytki zaszpachlować masą szpachlową **{PRODUCTS['Z 645']['name']}** z dodatkiem plastyfikatora **{PRODUCTS['D 3060']['name']}** (7 litrów na 25 kg masy). Czas schnięcia min. 3h. W razie potrzeby użyć siatki zbrojeniowej {PRODUCTS['AR 150']['name']}.")
+                if dane.get('whole_fleece') == "TAK":
+                    rep.write(f"* Ubytki zaszpachlować masą szpachlową **{PRODUCTS['Z 645']['name']}** (bez plastyfikatora). Czas schnięcia min. 3h. W razie potrzeby użyć siatki zbrojeniowej {PRODUCTS['AR 150']['name']}.")
+                else:
+                    rep.write(f"* Ubytki zaszpachlować masą szpachlową **{PRODUCTS['Z 645']['name']}** z dodatkiem plastyfikatora **{PRODUCTS['D 3060']['name']}** (7 litrów na 25 kg masy). Czas schnięcia min. 3h. W razie potrzeby użyć siatki zbrojeniowej {PRODUCTS['AR 150']['name']}.")
         
         _add_sand = dane.get('holes_depth') and dane['holes_depth'] >= 1.0
         if kg_z645 is not None:
@@ -642,14 +712,20 @@ def render_wspolne_zalecenia_podloze(dane, rep):
         ratio = 8.0 if firma_is_mapei else 7.0
         
         if firma_is_mapei:
-            rep.write(f"* Miejscowe wyrównanie podłoża{details} masą szpachlową **{PRODUCTS['Z 645']['name']}** z dodatkiem plastyfikatora **{PRODUCTS['D 3060']['name']}** ({ratio} kg na 25 kg masy). Czas schnięcia min. 3h.")
+            if dane.get('whole_fleece') == "TAK":
+                rep.write(f"* Miejscowe wyrównanie podłoża{details} masą szpachlową **{PRODUCTS['Z 645']['name']}** (bez plastyfikatora). Czas schnięcia min. 3h.")
+            else:
+                rep.write(f"* Miejscowe wyrównanie podłoża{details} masą szpachlową **{PRODUCTS['Z 645']['name']}** z dodatkiem plastyfikatora **{PRODUCTS['D 3060']['name']}** ({ratio} kg na 25 kg masy). Czas schnięcia min. 3h.")
         elif dane.get('firma') == "Uzin":
             rep.write(f"* Miejscowe wyrównanie podłoża{details} masą szpachlową **{PRODUCTS['Z 645']['name']}**. Czas schnięcia przed klejeniem: **1,5 godziny**.")
         else:
-            rep.write(f"* Miejscowe wyrównanie podłoża{details} masą szpachlową **{PRODUCTS['Z 645']['name']}** z dodatkiem plastyfikatora **{PRODUCTS['D 3060']['name']}** ({ratio} litrów na 25 kg masy). Czas schnięcia min. 3h.")
+            if dane.get('whole_fleece') == "TAK":
+                rep.write(f"* Miejscowe wyrównanie podłoża{details} masą szpachlową **{PRODUCTS['Z 645']['name']}** (bez plastyfikatora). Czas schnięcia min. 3h.")
+            else:
+                rep.write(f"* Miejscowe wyrównanie podłoża{details} masą szpachlową **{PRODUCTS['Z 645']['name']}** z dodatkiem plastyfikatora **{PRODUCTS['D 3060']['name']}** ({ratio} litrów na 25 kg masy). Czas schnięcia min. 3h.")
             
         write_and_track(dane, rep, 'Z 645 (bruzdowane)', custom_kg=dane['local_leveling_kg'])
-        if dane.get('firma') != "Uzin":
+        if dane.get('firma') != "Uzin" and dane.get('whole_fleece') != "TAK":
             bags_local = dane['local_leveling_kg'] / 25.0
             write_and_track(dane, rep, 'D 3060', custom_kg=bags_local * ratio)
 
@@ -847,6 +923,7 @@ def generate_report_deska_warstwowa(dane, rep):
     
     render_wspolne_zalecenia_podloze(dane, rep)
     used_d3004 = render_chemia_deska_warstwowa(dane, rep)
+    render_calosc_flizelina(dane, rep)
     render_miejscowa_flizelina(dane, rep)
     render_szpachlowanie_po_gruntowaniu(dane, rep)
 
@@ -921,6 +998,7 @@ def generate_report_deska_lita(dane, rep):
     rep.markdown("#### **II. Zalecenia techniczne (Deska Lita)**")
     render_wspolne_zalecenia_podloze(dane, rep)
     used_d3004 = render_chemia_deska_lita(dane, rep)
+    render_calosc_flizelina(dane, rep)
     render_miejscowa_flizelina(dane, rep)
     render_szpachlowanie_po_gruntowaniu(dane, rep)
 
@@ -997,6 +1075,7 @@ def generate_report_lvt_cienkie(dane, rep):
 
     render_wspolne_zalecenia_podloze(dane, rep)
     used_d3004 = render_wspolna_chemia(dane, rep)
+    render_calosc_flizelina(dane, rep)
     render_miejscowa_flizelina(dane, rep)
     render_szpachlowanie_po_gruntowaniu(dane, rep)
 
@@ -1091,6 +1170,7 @@ def generate_report_lvt_grube(dane, rep):
     rep.markdown("#### **II. Zalecenia techniczne (LVT Grube z twardym rdzeniem)**")
     render_wspolne_zalecenia_podloze(dane, rep)
     used_d3004 = render_chemia_lvt_grube(dane, rep)
+    render_calosc_flizelina(dane, rep)
     render_miejscowa_flizelina(dane, rep)
     render_szpachlowanie_po_gruntowaniu(dane, rep)
 
@@ -1162,11 +1242,13 @@ def generate_report_pcv_w_rolce(dane, rep):
         rep.write("* Dokładne odkurzenie powierzchni odkurzaczem przemysłowym.")
         rep.write("**b) klejenie okładziny PCV:**")
         rep.write(f"Klejenie okładziny należy przeprowadzić przy użyciu kleju {PRODUCTS['D 3307']['name']} (szpachla TKB A2, zużycie: 300 – 330 g/m²). · Czas wstępnego odparowania: ok. 10 - 20 minut. · Czas układania: ok. 15 - 20 minut")
+        write_and_track(dane, rep, 'D 3307')
         render_potrzebne_materialy(dane, rep)
         return
 
     render_wspolne_zalecenia_podloze(dane, rep)
     used_d3004 = render_wspolna_chemia(dane, rep)
+    render_calosc_flizelina(dane, rep)
     render_miejscowa_flizelina(dane, rep)
     render_szpachlowanie_po_gruntowaniu(dane, rep)
 
@@ -1203,6 +1285,7 @@ def generate_report_pcv_w_rolce(dane, rep):
 
     rep.write("**c) klejenie okładziny PCV:**")
     rep.write(f"Klejenie okładziny należy przeprowadzić przy użyciu kleju {PRODUCTS['D 3307']['name']} (szpachla TKB A2, zużycie: 300 – 330 g/m²). · Czas wstępnego odparowania: ok. 10 - 20 minut. · Czas układania: ok. 15 - 20 minut")
+    write_and_track(dane, rep, 'D 3307')
     render_potrzebne_materialy(dane, rep)
 
 # --- SEKCJA: WYKŁADZINA DYWANOWA ---
@@ -1223,11 +1306,13 @@ def generate_report_wykladzina_dywanowa(dane, rep):
         rep.write("* Dokładne odkurzenie powierzchni odkurzaczem przemysłowym.")
         rep.write("**b) klejenie wykładziny tekstylnej:**")
         rep.write(f"Klejenie okładziny należy przeprowadzić przy użyciu kleju {PRODUCTS['D 3308']['name']} (szpachla TKB B1 400-450 g/m²). · Czas wstępnego odparowania: ok. 5-10 minut. · Czas otwarty kleju ok. 10-15 minut")
+        write_and_track(dane, rep, 'D 3308')
         render_potrzebne_materialy(dane, rep)
         return
 
     render_wspolne_zalecenia_podloze(dane, rep)
     used_d3004 = render_wspolna_chemia(dane, rep)
+    render_calosc_flizelina(dane, rep)
     render_miejscowa_flizelina(dane, rep)
     render_szpachlowanie_po_gruntowaniu(dane, rep)
 
@@ -1264,6 +1349,7 @@ def generate_report_wykladzina_dywanowa(dane, rep):
 
     rep.write("**c) klejenie wykładziny tekstylnej:**")
     rep.write(f"Klejenie okładziny należy przeprowadzić przy użyciu kleju {PRODUCTS['D 3308']['name']} (szpachla TKB B1 400-450 g/m²). · Czas wstępnego odparowania: ok. 5-10 minut. · Czas otwarty kleju ok. 10-15 minut")
+    write_and_track(dane, rep, 'D 3308')
     render_potrzebne_materialy(dane, rep)
 
 # ==========================================
@@ -2038,33 +2124,38 @@ if _force_holes:
     holes = "TAK"
     st.info("ℹ️ Ubytki po skuciu płytek ceramicznych — podaj wymiary:")
     col_h1, col_h2, col_h3 = st.columns(3)
-    with col_h1: h_depth = st.number_input("Grubość ubytków (cm)", min_value=0.1, value=None, key="h_depth_f")
+    with col_h1: h_depth = st.number_input("Głębokość ubytków (cm)", min_value=0.1, value=None, key="h_depth_f")
     with col_h2: h_width = st.number_input("Szerokość ubytków (cm)", min_value=0.1, value=None, key="h_width_f")
     with col_h3: h_length = st.number_input("Długość ubytków (m)", min_value=0.01, value=None, key="h_length_f")
-    if h_depth and h_width and h_length: hole_details = f" o wymiarach ok. {h_length} m x {h_width} cm i grubości {h_depth} cm"
+    if h_depth and h_width and h_length: hole_details = f" o wymiarach ok. {h_length} m x {h_width} cm i głębokości {h_depth} cm"
     holes_depth = h_depth
     img_holes = st.file_uploader("Zdjęcia ubytków po skuciu:", accept_multiple_files=True, type=["png", "jpg", "jpeg"], key="img_holes_f")
 else:
     holes = st.radio("Ubytki:", ["TAK", "NIE"], index=1, horizontal=True)
     if holes == "TAK":
         col_h1, col_h2, col_h3 = st.columns(3)
-        with col_h1: h_depth = st.number_input("Grubość (cm)", min_value=0.1, value=None)
+        with col_h1: h_depth = st.number_input("Głębokość (cm)", min_value=0.1, value=None)
         with col_h2: h_width = st.number_input("Szerokość (cm)", min_value=0.1, value=None)
         with col_h3: h_length = st.number_input("Długość (m)", min_value=0.01, value=None)
-        if h_depth and h_width and h_length: hole_details = f" o wymiarach ok. {h_length} m x {h_width} cm i grubości {h_depth} cm"
+        if h_depth and h_width and h_length: hole_details = f" o wymiarach ok. {h_length} m x {h_width} cm i głębokości {h_depth} cm"
         holes_depth = h_depth
         img_holes = st.file_uploader("Zdjęcia ubytków:", accept_multiple_files=True, type=["png", "jpg", "jpeg"], key="img_holes")
 
-st.write("4a. Czy wymagane jest miejscowe uzbrojenie podłoża flizeliną?")
-local_fleece = st.radio("Miejscowe uzbrojenie flizeliną:", ["TAK", "NIE"], index=1, horizontal=True, key="local_fl")
+st.write("Czy całość podłoża wymaga uzbrojenia matą flizelinową?")
+whole_fleece = st.radio("Uzbrojenie flizeliną na całej powierzchni:", ["TAK", "NIE"], index=1, horizontal=True, key="whole_fl")
+
+local_fleece = "NIE"
 local_fleece_m2 = 0.0
 local_fleece_reason = ""
-if local_fleece == "TAK":
-    col_lf1, col_lf2 = st.columns(2)
-    with col_lf1:
-        local_fleece_m2 = st.number_input("Powierzchnia uzbrojenia (m²):", min_value=0.01, step=0.1, value=None, key="lf_m2")
-    with col_lf2:
-        local_fleece_reason = st.text_input("Przyczyna / cel uzbrojenia:", value="", key="lf_reason")
+if whole_fleece == "NIE":
+    st.write("4a. Czy wymagane jest miejscowe uzbrojenie podłoża flizeliną?")
+    local_fleece = st.radio("Miejscowe uzbrojenie flizeliną:", ["TAK", "NIE"], index=1, horizontal=True, key="local_fl")
+    if local_fleece == "TAK":
+        col_lf1, col_lf2 = st.columns(2)
+        with col_lf1:
+            local_fleece_m2 = st.number_input("Powierzchnia uzbrojenia (m²):", min_value=0.01, step=0.1, value=None, key="lf_m2")
+        with col_lf2:
+            local_fleece_reason = st.text_input("Przyczyna / cel uzbrojenia:", value="", key="lf_reason")
 
 st.write("3b. Czy wymagane jest miejscowe wyrównanie masą szpachlową?")
 local_leveling = st.radio("Miejscowe wyrównanie:", ["TAK", "NIE"], index=1, horizontal=True, key="local_lev")
@@ -2193,6 +2284,7 @@ dane_protokolu = {
     "local_leveling": local_leveling,
     "local_leveling_kg": local_leveling_kg,
     "local_leveling_details": local_leveling_details,
+    "whole_fleece": whole_fleece,
     "local_fleece": local_fleece,
     "local_fleece_m2": local_fleece_m2,
     "local_fleece_reason": local_fleece_reason,
