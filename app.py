@@ -21,6 +21,66 @@ except ImportError:
 # ==========================================
 st.set_page_config(page_title="Ekspert Parkieciarski WAKOL", layout="wide")
 
+import streamlit.components.v1 as components
+components.html("""
+<script>
+const doc = window.parent.document;
+const parentWin = window.parent;
+
+function triggerReactChange(element, value) {
+    try {
+        const nativeInputValueSetter = Object.getOwnPropertyDescriptor(parentWin.HTMLInputElement.prototype, "value").set;
+        nativeInputValueSetter.call(element, value);
+        const ev = new parentWin.Event('input', { bubbles: true });
+        element.dispatchEvent(ev);
+    } catch (e) {
+        console.error("Error triggering React change:", e);
+    }
+}
+
+function setupInputs() {
+    const allInputs = doc.querySelectorAll('input[data-testid="stTextInput-input"], input[data-testid="stNumberInput-input"], input[type="text"], input[type="number"]');
+    const uniqueInputs = Array.from(new Set(allInputs));
+    
+    uniqueInputs.forEach((input) => {
+        if (input.dataset.fleeceSetup) return;
+        input.dataset.fleeceSetup = "true";
+        
+        // Zapisanie wartości domyślnej i wyczyszczenie pola po kliknięciu
+        input.addEventListener('focus', () => {
+            input.dataset.defaultValue = input.value;
+            input.value = '';
+        });
+        
+        // Przywrócenie wartości domyślnej przy wyjściu z pustego pola, lub przesłanie nowej
+        input.addEventListener('blur', () => {
+            if (input.value === '') {
+                input.value = input.dataset.defaultValue;
+                triggerReactChange(input, input.dataset.defaultValue);
+            } else {
+                triggerReactChange(input, input.value);
+            }
+        });
+        
+        // Przenoszenie focusu na następne pole po kliknięciu ENTER
+        input.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                const currentInputs = Array.from(new Set(doc.querySelectorAll('input[data-testid="stTextInput-input"], input[data-testid="stNumberInput-input"], input[type="text"], input[type="number"]')));
+                const nextIdx = currentInputs.indexOf(input) + 1;
+                if (nextIdx < currentInputs.length) {
+                    currentInputs[nextIdx].focus();
+                }
+            }
+        });
+    });
+}
+
+// Uruchamianie konfiguracji co 500ms ze względu na dynamiczne przeładowania Streamlit
+setInterval(setupInputs, 500);
+</script>
+""", height=0, width=0)
+
 class ReportBuilder:
     def __init__(self):
         self.md_lines = []
@@ -411,6 +471,68 @@ def render_potrzebne_materialy(dane, rep):
             rep.write(f"- {m['name']}: {combo} — cena do ustalenia")
     rep.write(f"**RAZEM NETTO (Wariant 2): {total2:.2f} PLN**")
 
+def render_miejscowa_flizelina(dane, rep):
+    if dane.get('local_fleece') == "TAK" and dane.get('local_fleece_m2'):
+        m2 = dane['local_fleece_m2']
+        reason = dane.get('local_fleece_reason', '')
+        reason_str = f" z powodu: **{reason}**" if reason else ""
+        fleece_name = PRODUCTS['EM 140']['name']
+        rep.write(f"* Na zagruntowaną powierzchnię należy miejscowo wkleić matę flizelinową **{fleece_name}** w ilości **{m2} m²**{reason_str}.")
+        
+        if 'written_texts' not in dane:
+            dane['written_texts'] = set()
+        dane['written_texts'].add('EM 140')
+        
+        write_and_track(dane, rep, 'EM 140', custom_kg=m2)
+
+def render_szpachlowanie_po_gruntowaniu(dane, rep):
+    delay_patching = (dane.get('strength_val') == 1 and dane.get('needs_levelling') == "NIE")
+    if not delay_patching:
+        return
+        
+    if dane.get('holes') == "TAK" or (dane.get('local_leveling') == "TAK" and dane.get('local_leveling_kg')):
+        rep.write("**c) naprawa podłoża (szpachlowanie po gruntowaniu wzmacniającym):**")
+        
+    if dane.get('holes') == "TAK":
+        kg_z645 = None
+        if dane.get('holes_width') and dane.get('holes_length') and dane.get('holes_depth'):
+            area_h = (dane['holes_width'] / 100.0) * dane['holes_length']
+            thick_mm = dane['holes_depth'] * 10.0
+            kg_z645 = area_h * thick_mm * 1.6
+            
+        firma_is_mapei = (dane.get('firma') == "Mapei")
+        firma_is_uzin = (dane.get('firma') == "Uzin")
+        
+        if firma_is_mapei:
+            rep.write(f"* Na zagruntowane podłoże: ubytki zaszpachlować masą szpachlową **{PRODUCTS['Z 645']['name']}** z dodatkiem plastyfikatora **{PRODUCTS['D 3060']['name']}** (8 kg na 25 kg masy). Czas schnięcia min. 3h.")
+        elif firma_is_uzin:
+            rep.write(f"* Na zagruntowane podłoże: ubytki zaszpachlować masą szpachlową **{PRODUCTS['Z 645']['name']}**. Czas schnięcia przed klejeniem: **1,5 godziny**.")
+        else:
+            rep.write(f"* Na zagruntowane podłoże: ubytki zaszpachlować masą szpachlową **{PRODUCTS['Z 645']['name']}** z dodatkiem plastyfikatora **{PRODUCTS['D 3060']['name']}** (7 litrów na 25 kg masy). Czas schnięcia min. 3h.")
+            
+        _add_sand = dane.get('holes_depth') and dane['holes_depth'] >= 1.0
+        if kg_z645 is not None:
+            write_and_track(dane, rep, 'Z 645', custom_kg=kg_z645)
+            if _add_sand:
+                write_and_track(dane, rep, 'Piasek kwarcowy', custom_kg=kg_z645)
+                
+    if dane.get('local_leveling') == "TAK" and dane.get('local_leveling_kg'):
+        details = dane.get('local_leveling_details', '')
+        firma_is_mapei = (dane.get('firma') == "Mapei")
+        ratio = 8.0 if firma_is_mapei else 7.0
+        
+        if firma_is_mapei:
+            rep.write(f"* Na zagruntowane podłoże: miejscowe wyrównanie podłoża{details} masą szpachlową **{PRODUCTS['Z 645']['name']}** z dodatkiem plastyfikatora **{PRODUCTS['D 3060']['name']}** ({ratio} kg na 25 kg masy). Czas schnięcia min. 3h.")
+        elif dane.get('firma') == "Uzin":
+            rep.write(f"* Na zagruntowane podłoże: miejscowe wyrównanie podłoża{details} masą szpachlową **{PRODUCTS['Z 645']['name']}**. Czas schnięcia przed klejeniem: **1,5 godziny**.")
+        else:
+            rep.write(f"* Na zagruntowane podłoże: miejscowe wyrównanie podłoża{details} masą szpachlową **{PRODUCTS['Z 645']['name']}** z dodatkiem plastyfikatora **{PRODUCTS['D 3060']['name']}** ({ratio} litrów na 25 kg masy). Czas schnięcia min. 3h.")
+            
+        write_and_track(dane, rep, 'Z 645 (bruzdowane)', custom_kg=dane['local_leveling_kg'])
+        if dane.get('firma') != "Uzin":
+            bags_local = dane['local_leveling_kg'] / 25.0
+            write_and_track(dane, rep, 'D 3060', custom_kg=bags_local * ratio)
+
 def render_wspolne_zalecenia_podloze(dane, rep):
     rep.write("**a) przygotowanie podłoża:**")
     if dane.get('requires_demolition'):
@@ -489,7 +611,9 @@ def render_wspolne_zalecenia_podloze(dane, rep):
             else:
                 write_and_track(dane, rep, 'PS 205', custom_kg=total_meters / 6.5)
 
-    if dane['holes'] == "TAK":
+    delay_patching = (dane.get('strength_val') == 1 and dane.get('needs_levelling') == "NIE")
+
+    if dane['holes'] == "TAK" and not delay_patching:
         kg_z645 = None
         if dane.get('holes_width') and dane.get('holes_length') and dane.get('holes_depth'):
             area_h = (dane['holes_width'] / 100.0) * dane['holes_length']
@@ -523,7 +647,7 @@ def render_wspolne_zalecenia_podloze(dane, rep):
             if _add_sand:
                 write_and_track(dane, rep, 'Piasek kwarcowy', custom_kg=kg_z645)
 
-    if dane.get('local_leveling') == "TAK" and dane.get('local_leveling_kg'):
+    if dane.get('local_leveling') == "TAK" and dane.get('local_leveling_kg') and not delay_patching:
         details = dane.get('local_leveling_details', '')
         firma_is_mapei = (dane.get('firma') == "Mapei")
         ratio = 8.0 if firma_is_mapei else 7.0
@@ -734,6 +858,8 @@ def generate_report_deska_warstwowa(dane, rep):
     
     render_wspolne_zalecenia_podloze(dane, rep)
     used_d3004 = render_chemia_deska_warstwowa(dane, rep)
+    render_miejscowa_flizelina(dane, rep)
+    render_szpachlowanie_po_gruntowaniu(dane, rep)
 
     if dane['needs_levelling'] == "TAK" and dane.get('bruzdowane_wybor') != "masa samorozlewna":
         _pu_applied = any(k in dane.get('written_texts', set()) for k in ['PU 280 (1W)', 'PU 280 (Bariera)', 'PU 280 (Bariera Płyta)', 'PU 235 (1W)', 'PU 235 (Bariera)'])
@@ -806,6 +932,8 @@ def generate_report_deska_lita(dane, rep):
     rep.markdown("#### **II. Zalecenia techniczne (Deska Lita)**")
     render_wspolne_zalecenia_podloze(dane, rep)
     used_d3004 = render_chemia_deska_lita(dane, rep)
+    render_miejscowa_flizelina(dane, rep)
+    render_szpachlowanie_po_gruntowaniu(dane, rep)
 
     if dane['needs_levelling'] == "TAK" and dane.get('bruzdowane_wybor') != "masa samorozlewna":
         _pu_applied = any(k in dane.get('written_texts', set()) for k in ['PU 280 (1W)', 'PU 280 (Bariera)', 'PU 280 (Bariera Płyta)', 'PU 235 (1W)', 'PU 235 (Bariera)'])
@@ -880,6 +1008,8 @@ def generate_report_lvt_cienkie(dane, rep):
 
     render_wspolne_zalecenia_podloze(dane, rep)
     used_d3004 = render_wspolna_chemia(dane, rep)
+    render_miejscowa_flizelina(dane, rep)
+    render_szpachlowanie_po_gruntowaniu(dane, rep)
 
     if dane.get('bruzdowane_wybor') != "masa samorozlewna":
         _pu_applied = any(k in dane.get('written_texts', set()) for k in ['PU 280 (1W)', 'PU 280 (Bariera)', 'PU 280 (Bariera Płyta)', 'PU 235 (1W)', 'PU 235 (Bariera)'])
@@ -972,6 +1102,8 @@ def generate_report_lvt_grube(dane, rep):
     rep.markdown("#### **II. Zalecenia techniczne (LVT Grube z twardym rdzeniem)**")
     render_wspolne_zalecenia_podloze(dane, rep)
     used_d3004 = render_chemia_lvt_grube(dane, rep)
+    render_miejscowa_flizelina(dane, rep)
+    render_szpachlowanie_po_gruntowaniu(dane, rep)
 
     if dane['needs_levelling'] == "TAK" and dane.get('bruzdowane_wybor') != "masa samorozlewna":
         _pu_applied = any(k in dane.get('written_texts', set()) for k in ['PU 280 (1W)', 'PU 280 (Bariera)', 'PU 280 (Bariera Płyta)', 'PU 235 (1W)', 'PU 235 (Bariera)'])
@@ -1046,6 +1178,8 @@ def generate_report_pcv_w_rolce(dane, rep):
 
     render_wspolne_zalecenia_podloze(dane, rep)
     used_d3004 = render_wspolna_chemia(dane, rep)
+    render_miejscowa_flizelina(dane, rep)
+    render_szpachlowanie_po_gruntowaniu(dane, rep)
 
     if dane['needs_levelling'] == "TAK" and dane.get('bruzdowane_wybor') != "masa samorozlewna":
         _pu_applied = any(k in dane.get('written_texts', set()) for k in ['PU 280 (1W)', 'PU 280 (Bariera)', 'PU 280 (Bariera Płyta)', 'PU 235 (1W)', 'PU 235 (Bariera)'])
@@ -1105,6 +1239,8 @@ def generate_report_wykladzina_dywanowa(dane, rep):
 
     render_wspolne_zalecenia_podloze(dane, rep)
     used_d3004 = render_wspolna_chemia(dane, rep)
+    render_miejscowa_flizelina(dane, rep)
+    render_szpachlowanie_po_gruntowaniu(dane, rep)
 
     if dane['needs_levelling'] == "TAK" and dane.get('bruzdowane_wybor') != "masa samorozlewna":
         _pu_applied = any(k in dane.get('written_texts', set()) for k in ['PU 280 (1W)', 'PU 280 (Bariera)', 'PU 280 (Bariera Płyta)', 'PU 235 (1W)', 'PU 235 (Bariera)'])
@@ -1689,9 +1825,10 @@ def render_wersja_pro(nazwa_klienta, miejscowosc, adres, autor, data_badania):
         if EXPORTS_READY:
             col_d1, col_d2 = st.columns(2)
             safe_adres = adres.replace(' ', '_').replace('/', '_').replace('.', '')
+            safe_miejscowosc = miejscowosc.replace(' ', '_').replace('/', '_').replace('.', '')
             data_str = data_badania.strftime('%d-%m-%Y')
             safe_klient = nazwa_klienta.replace(' ', '_').replace('/', '_')
-            base_filename = f"{safe_adres}_Protokol_PRO_Wakol_{safe_klient}_{data_str}"
+            base_filename = f"{safe_adres}_{safe_miejscowosc}_Protokol_PRO_Wakol_{safe_klient}_{data_str}"
             
             with col_d1:
                 docx_file = generate_docx(rep.get_markdown(), data_badania.strftime('%d.%m.%Y'), autor, None)
@@ -1912,6 +2049,17 @@ else:
         holes_depth = h_depth
         img_holes = st.file_uploader("Zdjęcia ubytków:", accept_multiple_files=True, type=["png", "jpg", "jpeg"], key="img_holes")
 
+st.write("4a. Czy wymagane jest miejscowe uzbrojenie podłoża flizeliną?")
+local_fleece = st.radio("Miejscowe uzbrojenie flizeliną:", ["TAK", "NIE"], index=1, horizontal=True, key="local_fl")
+local_fleece_m2 = 0.0
+local_fleece_reason = ""
+if local_fleece == "TAK":
+    col_lf1, col_lf2 = st.columns(2)
+    with col_lf1:
+        local_fleece_m2 = st.number_input("Powierzchnia uzbrojenia (m²):", min_value=0.01, step=0.1, value=None, key="lf_m2")
+    with col_lf2:
+        local_fleece_reason = st.text_input("Przyczyna / cel uzbrojenia:", value="", key="lf_reason")
+
 st.write("3b. Czy wymagane jest miejscowe wyrównanie masą szpachlową?")
 local_leveling = st.radio("Miejscowe wyrównanie:", ["TAK", "NIE"], index=1, horizontal=True, key="local_lev")
 local_leveling_kg = None
@@ -2039,6 +2187,9 @@ dane_protokolu = {
     "local_leveling": local_leveling,
     "local_leveling_kg": local_leveling_kg,
     "local_leveling_details": local_leveling_details,
+    "local_fleece": local_fleece,
+    "local_fleece_m2": local_fleece_m2,
+    "local_fleece_reason": local_fleece_reason,
     "dilatations_obw_ok": dilatations_obw_ok,
     "cracks_klaw": cracks_klaw,
     "klaw_meters": klaw_meters,
@@ -2179,9 +2330,10 @@ if st.button(f"GENERUJ PROTOKÓŁ OGLĘDZIN DLA: {flooring_type.upper()}", type=
             col_d1, col_d2 = st.columns(2)
             
             safe_adres = adres.replace(' ', '_').replace('/', '_').replace('.', '')
+            safe_miejscowosc = miejscowosc.replace(' ', '_').replace('/', '_').replace('.', '')
             data_str = data_badania.strftime('%d-%m-%Y')
             safe_klient = nazwa_klienta.replace(' ', '_').replace('/', '_')
-            base_filename = f"{safe_adres}_Protokol_{firma}_{safe_klient}_{data_str}"
+            base_filename = f"{safe_adres}_{safe_miejscowosc}_Protokol_{firma}_{safe_klient}_{data_str}"
             
             with col_d1:
                 docx_file = generate_docx(rep.get_markdown(), data_badania.strftime('%d.%m.%Y'), autor, dane_protokolu.get('images'))
