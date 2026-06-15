@@ -19,10 +19,12 @@ except ImportError:
 # ==========================================
 # 1. KONFIGURACJA STRONY I WSPÓLNE FUNKCJE
 # ==========================================
-st.set_page_config(page_title="Ekspert Parkieciarski WAKOL", layout="wide")
+if st.runtime.exists():
+    st.set_page_config(page_title="Ekspert Parkieciarski WAKOL", layout="wide")
 
-import streamlit.components.v1 as components
-components.html("""
+if st.runtime.exists():
+    import streamlit.components.v1 as components
+    components.html("""
 <script>
 const doc = window.parent.document;
 const parentWin = window.parent;
@@ -64,8 +66,94 @@ function setupInputs() {
 
 // Uruchamianie konfiguracji co 500ms ze względu na dynamiczne przeładowania Streamlit
 setInterval(setupInputs, 500);
+
+let activeValueElement = null;
+let originalValueText = "";
+
+// Zapisujemy oryginalną wartość przy kliknięciu w selectbox
+doc.addEventListener('mousedown', (e) => {
+    const selectContainer = e.target.closest('div[data-baseweb="select"]');
+    if (selectContainer) {
+        const divs = Array.from(selectContainer.querySelectorAll('div'));
+        // Szukamy najgłębszego diva z tekstem (który reprezentuje wybraną opcję)
+        const textDiv = divs.find(d => d.children.length === 0 && d.textContent.trim().length > 0);
+        if (textDiv) {
+            activeValueElement = textDiv;
+            originalValueText = textDiv.textContent.trim();
+        }
+    }
+}, true);
+
+// Podmieniamy tekst w selectboxie przy najechaniu na opcję w dropdownie
+doc.addEventListener('mouseover', (e) => {
+    const option = e.target.closest('[role="option"], [data-baseweb="option"]');
+    if (option && activeValueElement) {
+        const hoveredText = option.textContent.trim();
+        activeValueElement.textContent = hoveredText;
+    }
+}, true);
+
+// Przywracamy oryginalną wartość, jeśli kursor zjechał z opcji
+doc.addEventListener('mouseout', (e) => {
+    const option = e.target.closest('[role="option"], [data-baseweb="option"]');
+    if (option && activeValueElement) {
+        const related = e.relatedTarget;
+        if (!related || !related.closest('[role="option"], [data-baseweb="option"]')) {
+            activeValueElement.textContent = originalValueText;
+        }
+    }
+}, true);
+
+// Przywracamy przy kliknięciu poza selectbox / dropdown
+doc.addEventListener('click', (e) => {
+    const selectContainer = e.target.closest('div[data-baseweb="select"]');
+    const popover = e.target.closest('[data-testid="stVirtualDropdown"], [data-baseweb="popover"]');
+    if (!selectContainer && !popover) {
+        if (activeValueElement) {
+            activeValueElement.textContent = originalValueText;
+            activeValueElement = null;
+        }
+    }
+}, true);
+
+// Przywracamy przy wciśnięciu Escape
+doc.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && activeValueElement) {
+        activeValueElement.textContent = originalValueText;
+        activeValueElement = null;
+    }
+}, true);
+
+// Obsługa nawigacji strzałkami na klawiaturze w selectboxie
+doc.addEventListener('keydown', (e) => {
+    if ((e.key === 'ArrowDown' || e.key === 'ArrowUp') && activeValueElement) {
+        setTimeout(() => {
+            const selectContainer = doc.querySelector('div[data-baseweb="select"]');
+            if (!selectContainer) return;
+            const dropdown = doc.querySelector('[data-testid="stVirtualDropdown"], [data-baseweb="popover"]');
+            if (!dropdown) return;
+            
+            let activeOption = dropdown.querySelector('[aria-selected="true"]');
+            if (!activeOption) {
+                const combobox = selectContainer.querySelector('[role="combobox"]');
+                if (combobox) {
+                    const activeId = combobox.getAttribute('aria-activedescendant');
+                    if (activeId) {
+                        activeOption = dropdown.querySelector(`#${activeId}`);
+                    }
+                }
+            }
+            
+            if (activeOption) {
+                const activeText = activeOption.textContent.trim();
+                activeValueElement.textContent = activeText;
+                activeOption.scrollIntoView({ block: 'nearest', behavior: 'auto' });
+            }
+        }, 10);
+    }
+}, true);
 </script>
-""", height=0, width=0)
+    """, height=0, width=0)
 
 class ReportBuilder:
     def __init__(self):
@@ -91,10 +179,12 @@ FULL_PU280_1W = "* Zalecamy wykonanie gruntowania wzmacniającego poprzez zagrun
 FULL_PU280_BARRIER = "* Z uwagi na podwyższoną wilgotność zalecamy stworzenie **bariery przeciwwilgociowej** poprzez zagruntowanie powierzchni jastrychu gruntówką poliuretanową **WAKOL PU 280**. Aplikować wałkiem. Podczas aplikacji nie zostawiać kałuż tj. zbierać nadmiar niewchłoniętej gruntówki. 1. warstwa nałożona wałkiem **150 g/m²**. **Czas schnięcia – jedna godzina**. 2. warstwa **100 g/m²** - **czas schnięcia – jedna godzina**. **Czas do klejenia: 72 godziny od zagruntowania**."
 FULL_PU280_BARRIER_PLYTA = "* Z uwagi na grubość płyty fundamentowej zalecamy stworzenie **bariery przeciwwilgociowej** poprzez zagruntowanie powierzchni podłoża gruntówką poliuretanową **WAKOL PU 280**. Aplikować wałkiem. Podczas aplikacji nie zostawiać kałuż tj. zbierać nadmiar niewchłoniętej gruntówki. 1. warstwa nałożona wałkiem **150 g/m²**. **Czas schnięcia – jedna godzina**. 2. warstwa **100 g/m²** - **czas schnięcia – jedna godzina**. **Czas do klejenia: 72 godziny od zagruntowania**."
 FULL_D3004 = "* Zagruntować podłoże koncentratem gruntówki dyspersyjnej **WAKOL D 3004**. Proporcje mieszania: 1 część **WAKOL D 3004** + 2 części wody. **Czas schnięcia**: na jastrychach cementowych i betonie po optycznym wyschnięciu **ok. 30 min**. Sposób nanoszenia: wałek do gruntowania microfazer. Zużycie: **ok. 50 g/m²** koncentratu."
-FULL_Z625 = "* Wylać masę wyrównawczą **WAKOL Z 625** - wymieszać ją w czystym naczyniu z zimną wodą w proporcji 6,00 – 6,25 litrów wody na 25 kg masy. Mieszać unikając tworzenia się grudek. Prędkość obrotowa mieszadła może wynosić max. 600 obrotów na minutę. Wymieszaną masę nanosić w żądanej grubości na podłoże przy pomocy szpachli, łaty lub rakli. Przed pracą należy zwrócić uwagę na obecność wypełnień fug przy ścianach. Zużycie **ok. 1,6 kg/m²/mm**. **Możliwość chodzenia po 2 godzinach**. **Możliwość klejenia podłóg drewnianych przy warstwie do 5 mm – po 6 godzinach**, przy warstwie do 10 mm – po 12 godzinach, przy warstwie 30 mm – po 24 godzinach."
-FULL_Z675 = "* Wylać masę wyrównawczą **WAKOL Z 675** - wymieszać ją w czystym naczyniu z zimną wodą w proporcji 6,0 – 6,5 litrów wody na 25 kg masy. Mieszać unikając tworzenia się grudek. Prędkość obrotowa mieszadła może wynosić max. 600 obrotów na minutę. Wymieszaną masę nanosić w żądanej grubości na podłoże przy pomocy szpachli, łaty lub rakli. Przed pracą należy zwrócić uwagę na obecność wypełnień fug przy ścianach. Zużycie **ok. 1,6 kg/m²/mm**. **Możliwość chodzenia po 2-3 godzinach**. **Możliwość klejenia podłóg po ok. 24 godzinach przy grubości warstwy do 3 mm**, przy większych grubościach czas schnięcia ulega wydłużeniu."
-FULL_Z635 = "* Następnie na podłoże wylać masę wyrównawczą **WAKOL Z 635** - wymieszać ją w czystym naczyniu z zimną wodą w proporcji 6,25 litrów wody na 25 kg masy. Mieszać unikając tworzenia się grudek. Prędkość obrotowa mieszadła może wynosić max. 600 obrotów na minutę. Wymieszaną masę nanosić w żądanej grubości na podłoże przy pomocy szpachli, łaty lub rakli. Przed pracą należy zwrócić uwagę na obecność wypełnień fug przy ścianach. Zużycie **ok. 1,6 kg/m²/mm**. **Możliwość chodzenia po 2,5 godzinach**. **Możliwość klejenia podłóg drewnianych przy warstwie do 5 mm – po 24 godzinach**, przy warstwie do 10 mm – po 72 godzinach."
+FULL_Z625 = "* Wylać masę wyrównawczą **WAKOL Z 625** - wymieszać ją w czystym naczyniu z zimną wodą w proporcji 6,00 – 6,25 litrów wody na 25 kg masy. Mieszać unikając tworzenia się grudek. Prędkość obrotowa mieszadła może wynosić max. 600 obrotów na minutę. Wymieszaną masę nanosić w żądanej grubości na podłoże przy pomocy szpachli, łaty lub rakli. Przed pracą należy zwrócić uwagę na obecność wypełnień fug przy ścianach.\nZużycie ok. 1,5 kg/m²/ mm. Możliwość chodzenia po 2 godzinach. Możliwość klejenia podłóg drewnianych przy warstwie do 5 mm – po 6 godzinach, przy warstwie do 10 mm – po 12 godzinach, przy warstwie 30 mm – po 24 godzinach."
+FULL_Z675 = "* Wylać masę wyrównawczą **WAKOL Z 675** - wymieszać ją w czystym naczyniu z zimną wodą w proporcji ok. 6,0 – 6,5 litrów wody na 25 kg masy. Mieszać unikając tworzenia się grudek. Prędkość obrotowa mieszadła może wynosić max. 600 obrotów na minutę. Wymieszaną masę nanosić w żądanej grubości na podłoże przy pomocy szpachli, łaty lub rakli. Przed pracą należy zwrócić uwagę na obecność wypełnień fug przy ścianach.\nZużycie ok. 1,5 kg/m²/ mm. Możliwość chodzenia po 3 godzinach. Możliwość klejenia okładzin przy warstwie do 2 mm – po 24 godzinach, przy warstwie do 5 mm – po 48 godzinach, przy warstwie do 10 mm – po 72 godzinach."
+FULL_Z635 = "* Wylać masę wyrównawczą **WAKOL Z 635** - wymieszać ją w czystym naczyniu z zimną wodą w proporcji ok. 6,25 litrów wody na 25 kg masy. Mieszać unikając tworzenia się grudek. Prędkość obrotowa mieszadła może wynosić max. 600 obrotów na minutę. Wymieszaną masę nanosić w żądanej grubości na podłoże przy pomocy szpachli, łaty lub rakli. Przed pracą należy zwrócić uwagę na obecność wypełnień fug przy ścianach.\nZużycie ok. 1,5 kg/m²/ mm. Możliwość chodzenia po 2,5 godzinach. Możliwość klejenia podłóg drewnianych przy warstwie do 5 mm – po 24 godzinach, przy warstwie do 10 mm – po 72 godzinach."
 FULL_D3055 = "* Zalecamy zagruntowanie całej powierzchni jastrychu gruntówką dyspersyjną **WAKOL D 3055** - aplikacja wałkiem **ok. 150 g/m²**. **Czas schnięcia ok. 30 min**."
+FULL_D3080 = "* Z uwagi na podwyższoną wilgotność zalecamy stworzenie **bariery przeciwwilgociowej** poprzez dwukrotne zagruntowanie powierzchni jastrychu cementowego gruntówką dyspersyjną **WAKOL D 3080**. Aplikować za pomocą wałka, unikając powstawania kałuż. Pierwsza warstwa (rozcieńczona z wodą 1:1): zużycie ok. **60–75 g/m²** koncentratu, czas schnięcia min. **30 minut**. Druga warstwa (nierozcieńczona): zużycie ok. **100–120 g/m²**, czas schnięcia min. **2 godziny**. Wylewanie jastrychu wyrównawczego (masy samopoziomującej) należy przeprowadzić w ciągu 72 godzin od wyschnięcia drugiej warstwy. Bezpośrednie klejenie okładziny do gruntu WAKOL D 3080 jest niedozwolone."
+FULL_D3045 = "* Następnie należy zaaplikować specjalistyczny mostek sczepny za pomocą produktu **WAKOL D 3045**. Aplikować równomiernie za pomocą wałka. Zużycie wynosi **ok. 150 g/m²**. **Czas schnięcia 1 godzina**."
 FULL_EM140 = "* Na zagruntowaną i wyschniętą powierzchnię przykleić matę flizelinową **WAKOL EM 140** przy użyciu kleju poliuretanowego (szpachla B11, zużycie: 1250 g/m²). Matę dociskać równomiernie wałkiem do podłoża. Montaż okładziny można rozpocząć w momencie, gdy mata jest stabilnie związana z podkładem."
 
 def insert_header():
@@ -131,7 +221,13 @@ def render_wspolne_dane_optyczne(dane, rep):
     pek_txt = f" **Stwierdzono obecność pęknięć wymagających zespolenia ({pek_m} mb).**" if dane['cracks_pek'] == "TAK" else ""
     holes_txt = f" **Zlokalizowano ubytki wymagające wypełnienia masą naprawczą{dane['hole_details']}.**" if dane['holes'] == "TAK" else ""
     demolition_txt = " **Podłoże wymaga demontażu przed przystąpieniem do dalszych prac.**" if dane.get('requires_demolition') else ""
-    level_txt = f" **Podłoże wymaga wyrównania masą wyrównawczą o planowanej grubości {dane['leveling_thickness']} milimetrów.**" if dane['needs_levelling'] == "TAK" else ""
+    if dane['needs_levelling'] == "TAK":
+        if dane.get('leveling_thickness'):
+            level_txt = f" **Podłoże wymaga wyrównania masą wyrównawczą o planowanej grubości {dane['leveling_thickness']} milimetrów.**"
+        else:
+            level_txt = " **Podłoże wymaga wyrównania masą wyrównawczą.**"
+    else:
+        level_txt = ""
     
     # Dodatkowe informacje zaznaczone w wywiadzie
     local_leveling_val = dane.get('local_leveling_kg')
@@ -157,7 +253,7 @@ def render_wspolne_dane_optyczne(dane, rep):
         local_fleece_txt = ""
         
     residues_txt = " **Na podłożu występują pozostałości starych spoin klejowych.**" if dane.get('has_adhesive_residues') else ""
-    already_levelled_txt = " **Podłoże zostało już wcześniej wyrównane.**" if dane.get('already_levelled') == "TAK" else ""
+    already_levelled_txt = f" **Podłoże zostało już wyrównane (klasa wytrzymałości {dane['masa_class']}).**" if dane.get('already_levelled') == "TAK" else ""
 
     if dane.get('ventilation_type'):
         vent_txt = f" Rodzaj zastosowanej wentylacji: wentylacja {dane['ventilation_type'].lower()}."
@@ -167,8 +263,13 @@ def render_wspolne_dane_optyczne(dane, rep):
     dodatkowe_txt = f" **{dane['dodatkowe_informacje']}**" if dane.get('dodatkowe_informacje') else ""
 
     area_txt = f" o powierzchni {dane['area_m2']} m²" if dane.get('area_m2') else ""
-    masa_class_txt = f" (klasa wytrzymałości {dane['masa_class']})" if dane.get('masa_class') else ""
-    full_opt_report = f"Podłoże pod planowaną okładzinę ({dane['flooring_type']}) stanowi {dane['substrate']}{masa_class_txt}{area_txt}{age_txt}.{dodatkowe_txt}{demolition_txt}{heat_txt}{curing_txt}{dil_txt}{klaw_txt}{pek_txt}{holes_txt}{level_txt}{local_level_txt}{whole_fleece_txt}{local_fleece_txt}{residues_txt}{already_levelled_txt} {vent_txt}{evenness_txt}"
+    masa_class_txt = f" (klasa wytrzymałości {dane['masa_class']})" if dane.get('masa_class') and dane['substrate'] == "masa samorozlewna" else ""
+    
+    dry_joint_warning_txt = ""
+    if dane['substrate'] == "suchy jastrych (knauf, fermacell itp.)" and dane['flooring_type'] in ["lvt cienkie", "pcv w rolce", "wykładzina dywanowa"]:
+        dry_joint_warning_txt = " **Uwaga: Przy montażu cienkich okładzin na suchym jastrychu istnieje ryzyko wystąpienia efektu odznaczania się łączeń pomiędzy elementami. Sugeruje się konieczność wylania masy bądź co najmniej zaszpachlowania łączeń.**"
+
+    full_opt_report = f"Podłoże pod planowaną okładzinę ({dane['flooring_type']}) stanowi {dane['substrate']}{masa_class_txt}{area_txt}{age_txt}.{dodatkowe_txt}{demolition_txt}{heat_txt}{curing_txt}{dil_txt}{klaw_txt}{pek_txt}{holes_txt}{local_level_txt}{level_txt}{whole_fleece_txt}{local_fleece_txt}{residues_txt}{already_levelled_txt} {vent_txt}{evenness_txt}{dry_joint_warning_txt}"
     rep.write(f"**a) oględziny optyczne:** {full_opt_report}")
     
     presso_valid = [str(p) for p in dane.get('presso_results', []) if p is not None]
@@ -178,20 +279,30 @@ def render_wspolne_dane_optyczne(dane, rep):
     if dane.get('test_ripper'): tests_out.append(f"- Rysik: {dane['test_ripper']}")
     if dane.get('test_brush'): tests_out.append(f"- Szczotka: {dane['test_brush']}")
     if presso_valid: tests_out.append(f"- Wyniki PressoMess: {', '.join(presso_valid)} N/mm²")
-    tests_out.append(f"- Ocena ogólna: **{dane['strength_labels'][dane['strength_val']]}**")
+    if (dane.get('substrate') == "masa samorozlewna" or dane.get('already_levelled') == "TAK") and dane.get('masa_class'):
+        tests_out.append(f"- Klasa wytrzymałości: **{dane['masa_class']}**")
+    else:
+        tests_out.append(f"- Ocena ogólna: **{dane['strength_labels'][dane['strength_val']]}**")
     
     tests_str = "\n".join(tests_out)
     rep.write(f"**b) badanie wytrzymałości:**\n{tests_str}")
     
     if dane.get('moisture') is not None:
         if isinstance(dane['moisture'], str):
-            moisture_status = "POZYTYWNY" if dane['moisture'] == "sucha" else "NEGATYWNY"
+            moisture_status = "POZYTYWNY" if dane['moisture'] in ["sucha", "suche"] else "NEGATYWNY"
             rep.write(f"**c) badanie wilgotności:** Ocena wilgotności masy samorozlewnej: **{dane['moisture'].upper()}** — **Wynik: {moisture_status}**")
         else:
             moisture_status = "POZYTYWNY" if dane['moisture'] <= dane['limit'] else "NEGATYWNY"
             rep.write(f"**c) badanie wilgotności:** Wynik badania wilgotności metodą CM: **{dane['moisture']} % CM** (Norma: {dane['limit']} % CM) — **Wynik: {moisture_status}**")
     else:
-        rep.write("**c) badanie wilgotności:** Nie dotyczy — podłoże drewniane / ceramiczne.")
+        if dane['substrate'] in ["podłoże drewniane (parkiet, deska)", "podłoże z płyty OSB"]:
+            rep.write("**c) badanie wilgotności:** Nie dotyczy — podłoże drewniane.")
+        elif dane['substrate'] == "płytki ceramiczne":
+            rep.write("**c) badanie wilgotności:** Nie dotyczy — podłoże ceramiczne.")
+        elif dane['substrate'] == "suchy jastrych (knauf, fermacell itp.)":
+            rep.write("**c) badanie wilgotności:** Nie dotyczy — suchy jastrych.")
+        else:
+            rep.write("**c) badanie wilgotności:** Nie dotyczy.")
 
     klimat = []
     if dane.get('temp_air') is not None: klimat.append(f"Temperatura powietrza: {dane['temp_air']} °C")
@@ -207,7 +318,7 @@ PRODUCTS_WAKOL = {
     'PU 235 (Bariera)': {'name': 'WAKOL PU 235 (bariera)', 'usage': 250, 'sizes': [11], 'text': FULL_PU235_BARRIER, 'price': 50.60},
     'PS 275': {'name': 'WAKOL PS 275', 'usage': 700, 'sizes': [11], 'text': FULL_PS275, 'price': 19.08},
     'D 3004': {'name': 'WAKOL D 3004', 'usage': 50, 'sizes': [10, 5], 'text': FULL_D3004, 'price': 23.32},
-    'D 3045': {'name': 'WAKOL D 3045 (mostek sczepny)', 'usage': 150, 'sizes': [12, 6], 'text': "", 'price': 25.00},
+    'D 3045': {'name': 'WAKOL D 3045 (mostek sczepny)', 'usage': 150, 'sizes': [12, 6], 'text': FULL_D3045, 'price': 25.00},
     'D 3055': {'name': 'WAKOL D 3055', 'usage': 150, 'sizes': [10, 5], 'text': FULL_D3055, 'price': 16.96},
     'PU 225': {'name': 'WAKOL PU 225 (klej)', 'usage': 1250, 'sizes': [10], 'text': "", 'price': 13.55},
     'MS 230': {'name': 'WAKOL MS 230 (klej)', 'usage': 1350, 'sizes': [18], 'text': "", 'price': 15.00},
@@ -225,8 +336,10 @@ PRODUCTS_WAKOL = {
     'AR 150': {'name': 'WAKOL AR 150 (mata kompensacyjna)', 'usage': 1000, 'sizes': [50], 'text': "", 'price': 8.06},
     'EM 140': {'name': 'WAKOL EM 140 (mata flizelinowa)', 'usage': 1000, 'sizes': [50], 'unit': 'm²', 'text': FULL_EM140, 'price': 17.67},
     'D 3060': {'name': 'WAKOL D 3060 (plastyfikator)', 'usage': 1000, 'sizes': [10], 'text': "", 'price': 26.00},
+    'D 3080': {'name': 'WAKOL D 3080 (izolacja przeciwwilgociowa)', 'usage': 180, 'sizes': [11], 'text': FULL_D3080, 'price': 85.00},
     'PU 280 (RP)': {'name': 'WAKOL PU 280 (grunt dla RP)', 'usage': 200, 'sizes': [11, 5], 'text': "* Zalecamy zagruntowanie całej powierzchni podłoża gruntówką wzmacniającą **WAKOL PU 280**. Aplikować wałkiem. Nie zostawiać kałuż tj. zbierać nadmiar niewchłoniętej gruntówki. Zużycie ok. 200 g/m². Czas schnięcia 1 godzina. Czas do montażu – 24 godziny.", 'price': 54.27},
     'Płyta poliestrowa': {'name': 'WAKOL RP 704 (płyta poliestrowa)', 'usage': 1000, 'sizes': [0.6], 'unit': 'm²', 'text': "* Na tak przygotowane podłoże zalecamy przyklejenie płyty poliestrowej o grubości 4 mm **WAKOL RP 704**. Należy przyklejać klejem 2K PU (**WAKOL PU 225**). Płytę poliestrową po ułożeniu należy docisnąć. Płytę można docinać używając noża trapezowego. Można układać parkiet, jeśli tylko klejona płyta nie przesuwa się w trakcie chodzenia po niej.", 'price': 22.05},
+    'RP 104': {'name': 'WAKOL RP 104 (płyta odsprzęgająca)', 'usage': 1000, 'sizes': [0.6], 'unit': 'm²', 'text': "* Na tak przygotowane podłoże zalecamy przyklejenie płyty odsprzęgającej o grubości 9 mm **WAKOL RP 104**. Należy przyklejać klejem 2K PU (**WAKOL PU 225**). Płytę po ułożeniu należy docisnąć. Płytę można docinać używając noża trapezowego. Można układać deski, jeśli tylko klejona płyta nie przesuwa się w trakcie chodzenia po niej.", 'price': 22.05},
     'PS 205': {'name': 'WAKOL PS 205 (żywica lana)', 'sizes': [1], 'unit': 'kpl.', 'text': "", 'price': 48.40},
     'D 3307': {'name': 'WAKOL D 3307 (klej do PCV)', 'usage': 315, 'sizes': [13], 'text': "", 'price': 18.29},
     'D 3308': {'name': 'WAKOL D 3308 (klej do wykładziny)', 'usage': 425, 'sizes': [13], 'text': "", 'price': 38.91},
@@ -245,10 +358,10 @@ _M_ECO_PU1K_BARRIER_S = "* Zalecamy wykonanie **bariery przeciwwilgociowej** pop
 _M_ECO_GRIP = "* Zalecamy zaaplikowanie mostka sczepnego **ECO PRIM GRIP PLUS**. Aplikować równomiernie wałkiem. Zużycie wynosi **ok. 200 g/m²**. **Czas schnięcia 1 godzina**."
 _M_PRIMER_G_PRO = "* Zagruntować podłoże koncentratem gruntówki dyspersyjnej **MAPEI Primer G Pro**. Proporcje mieszania: 1 część koncentratu + 1 część wody. **Czas schnięcia 1 godzina**. Zużycie rozcieńczonej mikstury ok. 200 g/m², co daje zużycie koncentratu na poziomie **ok. 100 g/m²**."
 _M_ECO_PRIM_T_PLUS = "* Zalecamy zagruntowanie całej powierzchni jastrychu gruntówką dyspersyjną **MAPEI Eco Prim T Plus** - aplikacja wałkiem **ok. 150 g/m²**. **Czas schnięcia ok. 1 godziny**."
-_M_PLANOLIT_115 = "* Wylać masę wyrównawczą **MAPEI Planolit 115** - wymieszać ją w czystym naczyniu z zimną wodą w proporcji 5,75-6 litrów wody na 23 kg masy. Mieszać unikając tworzenia się grudek. Prędkość obrotowa mieszadła może wynosić max. 600 obrotów na minutę. Wymieszaną masę nanosić w żądanej grubości na podłoże przy pomocy szpachli, łaty lub rakli. Przed pracą należy zwrócić uwagę na obecność wypełnień fug przy ścianach. Zużycie **ok. 1,6 kg/m²/mm**. **Czas schnięcia 3mm - 24 godziny**."
-_M_ULTRAPLAN_RENOVATION = "* Wylać masę wyrównawczą **MAPEI Ultraplan Renovation** – wymieszać ją w czystym naczyniu z zimną wodą w proporcji 4,5 litrów wody na 23 kg masy. Mieszać unikając tworzenia się grudek. Prędkość obrotowa mieszadła może wynosić max. 600 obrotów na minutę. Wymieszaną masę nanosić w żądanej grubości na podłoże przy pomocy szpachli, łaty lub rakli. Przed pracą należy zwrócić uwagę na obecność wypełnień fug przy ścianach. Zużycie **ok. 1,6 kg/m²/mm**. **Czas schnięcia 3mm - 24 godziny**."
+_M_PLANOLIT_115 = "* Wylać masę wyrównawczą **MAPEI Planolit 115** - wymieszać ją w czystym naczyniu z zimną wodą w proporcji 5,75 – 6,00 litrów wody na 23 kg masy. Mieszać unikając tworzenia się grudek. Prędkość obrotowa mieszadła może wynosić max. 600 obrotów na minutę. Wymieszaną masę nanosić w żądanej grubości na podłoże przy pomocy szpachli, łaty lub rakli. Przed pracą należy zwrócić uwagę na obecność wypełnień fug przy ścianach.\nZużycie ok. 1,6 kg/m²/ mm. Możliwość chodzenia po 3 – 4 godzinach. Możliwość klejenia okładzin przy warstwie do 3 mm – po 24 godzinach, przy większych grubościach czas ten ulega wydłużeniu."
+_M_ULTRAPLAN_RENOVATION = "* Wylać masę wyrównawczą **MAPEI Ultraplan Renovation** - wymieszać ją w czystym naczyniu z zimną wodą w proporcji ok. 4,5 litrów wody na 23 kg masy. Mieszać unikając tworzenia się grudek. Prędkość obrotowa mieszadła może wynosić max. 600 obrotów na minutę. Wymieszaną masę nanosić w żądanej grubości na podłoże przy pomocy szpachli, łaty lub rakli. Przed pracą należy zwrócić uwagę na obecność wypełnień fug przy ścianach.\nZużycie ok. 1,6 kg/m²/ mm. Możliwość chodzenia po 4 – 5 godzinach. Możliwość klejenia podłóg przy warstwie do 3 mm – po 24 godzinach, przy warstwie do 10 mm – po 48 godzinach, przy warstwie do 30 mm – po 72 godzinach."
 _M_MAPETEX_VLIES = "* Na zagruntowaną i wyschniętą powierzchnię przykleić matę flizelinową **Mapetex Vlies** przy użyciu kleju poliuretanowego (szpachla B11, zużycie: 1250 g/m²). Matę dociskać równomiernie wałkiem do podłoża. Montaż okładziny można rozpocząć w momencie, gdy mata jest stabilnie związana z podkładem."
-_M_ULTRAPLAN_MAXI = "* Wylać masę wyrównawczą **MAPEI Ultraplan Maxi** – wymieszać ją w czystym naczyniu z zimną wodą w proporcji 4,75- 5,0 litrów wody na 23 kg masy. Mieszać unikając tworzenia się grudek. Prędkość obrotowa mieszadła może wynosić max. 600 obrotów na minutę. Wymieszaną masę nanosić w żądanej grubości na podłoże przy pomocy szpachli, łaty lub rakli. Przed pracą należy zwrócić uwagę na obecność wypełnień fug przy ścianach. Zużycie **ok. 1,7 kg/m²/mm**. **Czas schnięcia 3mm - 24 godziny**."
+_M_ULTRAPLAN_MAXI = "* Wylać masę wyrównawczą **MAPEI Ultraplan Maxi** - wymieszać ją w czystym naczyniu z zimną wodą w proporcji 4,75 – 5,00 litrów wody na 25 kg masy. Mieszać unikając tworzenia się grudek. Prędkość obrotowa mieszadła może wynosić max. 600 obrotów na minutę. Wymieszaną masę nanosić w żądanej grubości na podłoże przy pomocy szpachli, łaty lub rakli. Przed pracą należy zwrócić uwagę na obecność wypełnień fug przy ścianach.\nZużycie ok. 1,7 kg/m²/ mm. Możliwość chodzenia po 3 godzinach. Możliwość klejenia podłóg drewnianych przy warstwie do 5 mm – po 24 godzinach, przy warstwie do 10 mm – po 48 godzinach, przy warstwie do 30 mm – po 72 godzinach."
 
 PRODUCTS_MAPEI = {
     k: dict(v, name=v['name'].replace('WAKOL', 'Mapei'), text='', price=0.0)
@@ -274,7 +387,7 @@ PRODUCTS_MAPEI.update({
     'Z 645 (bruzdowane)':    {'name': 'Mapei Nivo Rapid (masa szpachlowa)',      'usage': 2000, 'sizes': [25],          'text': "",                         'price': 5.14},
     'D 3060':                {'name': 'Mapei Latex Plus (plastyfikator)',         'usage': 1000, 'sizes': [10, 6, 1.5], 'unit': 'kg', 'text': "",                   'price': 28.46},
     'PU 225':                {'name': 'Mapei Ultrabond ECO P909 2K (klej)',      'usage': 1250, 'sizes': [10, 5],          'text': "",                         'price': 17.89},
-    'MS 260':                {'name': 'Mapei Ultrabond S965 1K (klej)',          'usage': 1350, 'sizes': [15],          'text': "",                         'price': 54.20},
+    'MS 260':                {'name': 'Mapei Ultrabond Eco S955 1K (klej)',      'usage': 1350, 'sizes': [14],          'text': "",                         'price': 21.48},
     'MS 230':                {'name': 'Mapei Ultrabond ECO S948 1K (klej)',      'usage': 1350, 'sizes': [15],          'text': "",                         'price': 29.27},
     'MS 230 (B11 cement)':   {'name': 'Mapei Ultrabond ECO S948 1K (klej)',      'usage': 1150, 'sizes': [15],          'text': "",                         'price': 29.27},
     'MS 230 (B5 masa)':      {'name': 'Mapei Ultrabond ECO S948 1K (klej)',      'usage': 900,  'sizes': [15],          'text': "",                         'price': 29.27},
@@ -284,13 +397,14 @@ PRODUCTS_MAPEI.update({
     'PS 205':                {'name': 'Mapei Epo Grip (żywica lana)',            'sizes': [10, 2], 'unit': 'kg', 'text': "",                               'price': 77.24},
     'AR 150':                {'name': 'Mapei MAPETHERM NET 150 (siatka zbrojeniowa)', 'usage': 1000, 'sizes': [50],    'text': "",                         'price': 3.55},
     'EM 140':                {'name': 'Mapei Mapetex Vlies (mata flizelinowa)',       'usage': 1000, 'sizes': [50], 'unit': 'm²', 'text': _M_MAPETEX_VLIES, 'price': 17.07},
+    'RP 104':                {'name': 'Mapei RP 104 (płyta odsprzęgająca)',          'usage': 1000, 'sizes': [0.6], 'unit': 'm²', 'text': "* Na tak przygotowane podłoże zalecamy przyklejenie płyty odsprzęgającej **Mapei RP 104**. Należy przyklejać klejem 2K PU (**Mapei Ultrabond ECO P909 2K (klej)**). Płytę po ułożeniu należy docisnąć. Płytę można docinać używając noża trapezowego. Można układać deski, jeśli tylko klejona płyta nie przesuwa się w trakcie chodzenia po niej.", 'price': 22.05},
 })
 _U_MULTIMOL = "* Na zagruntowaną i wyschniętą powierzchnię przykleić matę flizelinową **Uzin Multimol** przy użyciu kleju poliuretanowego (szpachla B11, zużycie: 1250 g/m²). Matę dociskać równomiernie wałkiem do podłoża. Montaż okładziny można rozpocząć w momencie, gdy mata jest stabilnie związana z podkładem."
 _U_PE280 = "* Zaaplikować mostek sczepny **Uzin PE 280** równomiernie za pomocą wałka. Zużycie wynosi **ok. 150 g/m²**. **Czas schnięcia 45 minut.**"
 _U_PE350 = "* Zagruntować podłoże gruntówką dyspersyjną **Uzin PE 350** - aplikacja wałkiem **ok. 150 g/m²**. **Czas schnięcia: 30–60 minut.**"
-_U_NC170 = "* Wylać masę wyrównawczą **Uzin NC 170 LevelStar** - wymieszać ją w czystym naczyniu z zimną wodą (ok. 6,5 litra na worek 25 kg). Mieszać unikając tworzenia się grudek. Prędkość obrotowa mieszadła może wynosić max. 600 obrotów na minutę. Wymieszaną masę nanosić w żądanej grubości na podłoże przy pomocy szpachli, łaty lub rakli. Przed pracą należy zwrócić uwagę na obecność wypełnień fug przy ścianach. Zużycie **ok. 1,5 kg/m²/mm**. **Możliwość klejenia podłóg drewnianych: przy warstwie do 5 mm – po 15 godzinach, przy warstwie do 10 mm – po 24 godzinach, przy warstwie do 20 mm – po 72 godzinach.**"
-_U_NC150 = "* Wylać masę wyrównawczą **Uzin NC 150** - wymieszać ją w czystym naczyniu z zimną wodą zgodnie z instrukcją producenta. Mieszać unikając tworzenia się grudek. Prędkość obrotowa mieszadła może wynosić max. 600 obrotów na minutę. Wymieszaną masę nanosić w żądanej grubości (maks. 10 mm) na podłoże przy pomocy szpachli, łaty lub rakli. Przed pracą należy zwrócić uwagę na obecność wypełnień fug przy ścianach. Zużycie **ok. 1,5 kg/m²/mm**. **Możliwość klejenia podłóg: przy warstwie do 3 mm – po 24 godzinach, przy warstwie do 5 mm – po 48 godzinach.**"
-_U_NC146 = "* Wylać masę wyrównawczą **Uzin NC 146** - wymieszać ją w czystym naczyniu z zimną wodą zgodnie z instrukcją producenta. Mieszać unikając tworzenia się grudek. Prędkość obrotowa mieszadła może wynosić max. 600 obrotów na minutę. Wymieszaną masę nanosić w żądanej grubości (maks. 8 mm) na podłoże przy pomocy szpachli, łaty lub rakli. Przed pracą należy zwrócić uwagę na obecność wypełnień fug przy ścianach. Zużycie **ok. 1,6 kg/m²/mm**. **Możliwość klejenia podłóg po ok. 72 godzinach (3 dobach) przy grubości warstwy do 8 mm.**"
+_U_NC170 = "* Wylać masę wyrównawczą **Uzin NC 170 LevelStar** - wymieszać ją w czystym naczyniu z zimną wodą w proporcji ok. 6,5 litrów wody na 25 kg masy. Mieszać unikając tworzenia się grudek. Prędkość obrotowa mieszadła może wynosić max. 600 obrotów na minutę. Wymieszaną masę nanosić w żądanej grubości na podłoże przy pomocy szpachli, łaty lub rakli. Przed pracą należy zwrócić uwagę na obecność wypełnień fug przy ścianach.\nZużycie ok. 1,5 kg/m²/ mm. Możliwość chodzenia po 1,5 – 2 godzinach. Możliwość klejenia podłóg drewnianych przy warstwie do 5 mm – po 15 godzinach, przy warstwie do 10 mm – po 24 godzinach, przy warstwie do 20 mm – po 72 godzinach."
+_U_NC150 = "* Wylać masę wyrównawczą **Uzin NC 150** - wymieszać ją w czystym naczyniu z zimną wodą w proporcji 6,00 – 6,50 litrów wody na 25 kg masy. Mieszać unikając tworzenia się grudek. Prędkość obrotowa mieszadła może wynosić max. 600 obrotów na minutę. Wymieszaną masę nanosić w żądanej grubości na podłoże przy pomocy szpachli, łaty lub rakli. Przed pracą należy zwrócić uwagę na obecność wypełnień fug przy ścianach.\nZużycie ok. 1,5 kg/m²/ mm. Możliwość chodzenia po 2 – 3 godzinach. Możliwość klejenia podłóg przy warstwie do 3 mm – po 24 godzinach, przy warstwie do 5 mm – po 48 godzinach, przy warstwie do 10 mm – po 72 godzinach."
+_U_NC146 = "* Wylać masę wyrównawczą **Uzin NC 146** - wymieszać ją w czystym naczyniu z zimną wodą w proporcji 5,75 – 6,25 litrów wody na 25 kg masy. Mieszać unikając tworzenia się grudek. Prędkość obrotowa mieszadła może wynosić max. 600 obrotów na minutę. Wymieszaną masę nanosić w żądanej grubości na podłoże przy pomocy szpachli, łaty lub rakli. Przed pracą należy zwrócić uwagę na obecność wypełnień fug przy ścianach.\nZużycie ok. 1,5 kg/m²/ mm. Możliwość chodzenia po 3 – 5 godzinach. Możliwość klejenia okładzin przy warstwie do 3 mm – po 24 godzinach, przy warstwie do 5 mm – po 48 godzinach, przy warstwie do 8 mm – po 72 godzinach."
 _U_PE460 ="* Zalecamy aplikację gruntówki wzmacniającej **Uzin PE 460** w dwóch warstwach – grubym wałkiem sznurkowym, zużycie w sumie **ok. 600 g/m²**. Każda z warstw po **300 g/m²**, aplikowane po sobie w odstępie jednej godziny. Aplikując gruntówkę **Uzin PE 460** należy zwrócić uwagę, aby dobrze wchłaniała się w podłoże i unikać powstawania kałuż na powierzchni jastrychu. Po nałożeniu drugiej warstwy gruntówki w razie potrzeby wykonać posypkę z piasku kwarcowego. **Po 5 dniach schnięcia** powierzchnię należy **przeszlifować papierem o gradacji 24 – 40** usuwając przyklejony do powierzchni piasek kwarcowy i dokładnie odkurzyć."
 _U_PE390 ="* Zalecamy zagruntowanie całej powierzchni jastrychu gruntówką dyspersyjną **Uzin PE 390** - aplikacja wałkiem **ok. 150 g/m²**. **Czas schnięcia ok. 60 minut**."
 _U_PE412_1W ="* Zalecamy wykonanie gruntowania wzmacniającego poprzez zagruntowanie powierzchni jastrychu gruntówką poliuretanową **Uzin PE 412**. Aplikować wałkiem. Podczas aplikacji nie zostawiać kałuż tj. zbierać nadmiar niewchłoniętej gruntówki. Zużycie **ok. 150 g/m²**. **Czas schnięcia – 12 godzin**."
@@ -336,6 +450,7 @@ PRODUCTS_UZIN.update({
     'Płyta poliestrowa':              {'name': 'Uzin Multimol Top 4 (płyta poliestrowa)',  'usage': 1000,       'sizes': [0.6], 'unit': 'm²', 'text': _U_PLYTA_RP, 'price': 82.93},
     'AR 150':                {'name': 'Uzin RM (siatka zbrojąca)',                 'usage': 1000,       'sizes': [50], 'text': "", 'price': 12.20},
     'EM 140':                {'name': 'Uzin Multimol (mata flizelinowa)',          'usage': 1000,       'sizes': [50], 'unit': 'm²', 'text': _U_MULTIMOL, 'price': 27.64},
+    'RP 104':                {'name': 'Uzin Multimol Top 4 (płyta odsprzęgająca)',  'usage': 1000,       'sizes': [0.6], 'unit': 'm²', 'text': "* Na tak przygotowane podłoże zalecamy przyklejenie płyty odsprzęgającej **Uzin Multimol Top 4**. Należy przyklejać klejem 2K PU (**Uzin MK 90 (klej)**). Płytę po ułożeniu należy docisnąć. Płytę można docinać używając noża trapezowego. Można układać deski, jeśli tylko klejona płyta nie przesuwa się w trakcie chodzenia po niej.", 'price': 82.93},
     'KR 417':                {'name': 'Uzin KR 417 (żywica do zalewania rur)',     'usage': 2000,       'sizes': [8],  'unit': 'kg', 'text': '', 'price': 71.00},
     'RR 201':                {'name': 'Uzin RR 201 (mata zbrojąca)',               'usage': 1000,       'sizes': [60], 'unit': 'm²', 'text': '', 'price': 36.59},
 })
@@ -380,14 +495,14 @@ def write_and_track(dane, rep, prod_key, custom_kg=None):
     if prod_key not in dane['written_texts']:
         if prod['text']:
             text_to_write = prod['text']
-            if dane.get('substrate') == "jastrych anhydrytowy":
+            if dane.get('substrate') in ["jastrych anhydrytowy", "suchy jastrych (knauf, fermacell itp.)"]:
                 if prod_key in ['D 3004', 'D 3004 (bruzdowane)']:
                     if "WAKOL D 3004" in text_to_write:
-                        text_to_write = text_to_write.replace("na jastrychach cementowych i betonie po optycznym wyschnięciu **ok. 30 min**", "na jastrychu anhydrytowym **2 godziny**")
+                        text_to_write = text_to_write.replace("na jastrychach cementowych i betonie po optycznym wyschnięciu **ok. 30 min**", "na jastrychu anhydrytowym **60 minut**")
                     elif "MAPEI Primer G Pro" in text_to_write:
-                        text_to_write = text_to_write.replace("**Czas schnięcia 1 godzina**", "**Czas schnięcia: 2 godziny**")
+                        text_to_write = text_to_write.replace("**Czas schnięcia 1 godzina**", "**Czas schnięcia: 60 minut**")
                     elif "Uzin PE 350" in text_to_write:
-                        text_to_write = text_to_write.replace("**Czas schnięcia: 30–60 minut.**", "**Czas schnięcia: 2 godziny.**")
+                        text_to_write = text_to_write.replace("**Czas schnięcia: 30–60 minut.**", "**Czas schnięcia: 60 minut.**")
                 elif prod_key == 'D 3055':
                     if "WAKOL D 3055" in text_to_write:
                         text_to_write = text_to_write.replace("**Czas schnięcia ok. 30 min**", "**Czas schnięcia: 2 godziny**")
@@ -395,6 +510,9 @@ def write_and_track(dane, rep, prod_key, custom_kg=None):
                         text_to_write = text_to_write.replace("**Czas schnięcia ok. 1 godziny**", "**Czas schnięcia: 2 godziny**")
                     elif "Uzin PE 390" in text_to_write:
                         text_to_write = text_to_write.replace("**Czas schnięcia ok. 60 minut**", "**Czas schnięcia: 2 godziny**")
+            elif dane.get('substrate') == "strefy mokre" and prod_key == 'Z 625':
+                text_to_write = text_to_write.replace(" - wymieszać ją", " już bez gruntowania. Wymieszać ją")
+                text_to_write = text_to_write.replace("* Wylać masę wyrównawczą", "* Po wykonaniu pasma uszczelniającego zalecamy wylać masę wyrównawczą")
             rep.write(text_to_write)
         dane['written_texts'].add(prod_key)
 
@@ -508,12 +626,16 @@ def render_potrzebne_materialy(dane, rep):
     rep.write(f"**RAZEM NETTO (Wariant 2): {total2:.2f} PLN**")
 
 def render_calosc_flizelina(dane, rep):
+    if dane.get('substrate') == "suchy jastrych (knauf, fermacell itp.)" and dane.get('needs_levelling') == "TAK":
+        return
     if dane.get('whole_fleece') == "TAK":
         write_and_track(dane, rep, 'EM 140')
         write_and_track(dane, rep, 'PU 225')
         rep.write("*(Uwaga: Ze względu na technologię montażu z użyciem maty flizelinowej, należy osobno uwzględnić zużycie kleju poliuretanowego pod matę oraz osobno kleju do przyklejenia okładziny).*")
 
 def render_miejscowa_flizelina(dane, rep):
+    if dane.get('substrate') == "suchy jastrych (knauf, fermacell itp.)" and dane.get('needs_levelling') == "TAK":
+        return
     if dane.get('local_fleece') == "TAK" and dane.get('local_fleece_m2'):
         m2 = dane['local_fleece_m2']
         reason = dane.get('local_fleece_reason', '')
@@ -530,13 +652,69 @@ def render_miejscowa_flizelina(dane, rep):
         write_and_track(dane, rep, 'EM 140', custom_kg=m2)
         write_and_track(dane, rep, 'PU 225', custom_kg=m2 * 1.25)
 
+def render_szpachlowanie_laczen(dane, rep):
+    if dane.get('szpachlowanie_laczen') == "TAK":
+        rep.write("**b) szpachlowanie łączeń płyt suchego jastrychu:**")
+        firma_is_mapei = (dane.get('firma') == "Mapei")
+        if firma_is_mapei:
+            rep.write(f"* Podłoże zagruntować koncentratem gruntówki dyspersyjnej **{PRODUCTS['D 3004']['name']}**. Proporcje mieszania: 1 część koncentratu + 1 część wody; Czas schnięcia: 1h. Sposób nanoszenia: wałek do gruntowania. Zużycie: ok. 100 g/m² koncentratu.")
+        else:
+            rep.write(f"* Podłoże zagruntować koncentratem gruntówki dyspersyjnej **{PRODUCTS['D 3004']['name']}**. Proporcje mieszania: 1 część koncentratu + 1 część wody; Czas schnięcia: 1h. Sposób nanoszenia: wałek do gruntowania microfazer. Zużycie: ok. 75 g/m² koncentratu.")
+        write_and_track(dane, rep, 'D 3004 (bruzdowane)')
+        
+        firma_is_mapei = (dane.get('firma') == "Mapei")
+        ratio = 8.0 if firma_is_mapei else 7.0
+        
+        if firma_is_mapei:
+            rep.write(f"* Na zagruntowane łączenia płyt suchego jastrychu nanieść masę szpachlową **{PRODUCTS['Z 645']['name']}** z dodatkiem plastyfikatora **{PRODUCTS['D 3060']['name']}** ({ratio} kg na 25 kg masy) w ilości ok. 1 kg/m² na całą powierzchnię.")
+        elif dane.get('firma') == "Uzin":
+            rep.write(f"* Na zagruntowane łączenia płyt suchego jastrychu nanieść masę szpachlową **{PRODUCTS['Z 645']['name']}** w ilości ok. 1 kg/m² na całą powierzchnię.")
+        else:
+            rep.write(f"* Na zagruntowane łączenia płyt suchego jastrychu nanieść masę szpachlową **{PRODUCTS['Z 645']['name']}** z dodatkiem plastyfikatora **{PRODUCTS['D 3060']['name']}** ({ratio} litrów na 25 kg masy) w ilości ok. 1 kg/m² na całą powierzchnię.")
+            
+        area = dane.get('area_m2') or 0
+        if area > 0:
+            kg_z645 = area * 1.0
+            write_and_track(dane, rep, 'Z 645 (bruzdowane)', custom_kg=kg_z645)
+            if dane.get('firma') != "Uzin":
+                write_and_track(dane, rep, 'D 3060', custom_kg=(kg_z645 / 25.0) * ratio)
+
+def will_use_pu_primer(dane):
+    dec = dane.get('decision_after_cure') or ""
+    if "bariery" in dec or "barierą" in dec:
+        return True
+    if dane.get('has_adhesive_residues'):
+        return True
+    s_val = dane.get('strength_val')
+    sub = dane.get('substrate')
+    lev = dane.get('needs_levelling')
+    thick = dane.get('leveling_thickness') or 0
+    if s_val == 2:
+        return True
+    if s_val == 1:
+        if sub in ["jastrych anhydrytowy", "suchy jastrych (knauf, fermacell itp.)"]:
+            return True
+        elif dane.get('firma') != 'Mapei':
+            return True
+    if s_val in [3, 4] and lev == "NIE":
+        return True
+    if s_val == 3 and lev == "TAK" and sub in ["jastrych anhydrytowy", "suchy jastrych (knauf, fermacell itp.)"] and thick > 5:
+        return True
+    return False
+
 def render_szpachlowanie_po_gruntowaniu(dane, rep):
-    delay_patching = (dane.get('strength_val') == 1 and dane.get('needs_levelling') == "NIE")
+    if dane.get('szpachlowanie_po_gruntowaniu_printed'):
+        return
+    is_ps275 = (dane.get('strength_val') == 1 and dane.get('substrate') not in ["jastrych anhydrytowy", "suchy jastrych (knauf, fermacell itp.)"])
+    delay_patching = is_ps275
     if not delay_patching:
         return
+    dane['szpachlowanie_po_gruntowaniu_printed'] = True
         
-    if dane.get('holes') == "TAK" or (dane.get('local_leveling') == "TAK" and dane.get('local_leveling_kg')):
-        rep.write("**c) naprawa podłoża (szpachlowanie po gruntowaniu wzmacniającym):**")
+    has_lev = (dane.get('needs_levelling') == "TAK")
+    if not has_lev:
+        if dane.get('holes') == "TAK" or (dane.get('local_leveling') == "TAK" and dane.get('local_leveling_kg')):
+            rep.write("**c) naprawa podłoża (szpachlowanie po gruntowaniu wzmacniającym):**")
         
     if dane.get('holes') == "TAK":
         kg_z645 = None
@@ -548,18 +726,22 @@ def render_szpachlowanie_po_gruntowaniu(dane, rep):
         firma_is_mapei = (dane.get('firma') == "Mapei")
         firma_is_uzin = (dane.get('firma') == "Uzin")
         
+        is_ps275 = (dane.get('strength_val') == 1 and dane.get('substrate') not in ["jastrych anhydrytowy", "suchy jastrych (knauf, fermacell itp.)"])
+        skip_plasticizer = ((will_use_pu_primer(dane) and not is_ps275) or dane.get('whole_fleece') == "TAK")
+        pfx = "* " if has_lev else "* Na zagruntowane podłoże: "
+        w_ubytki = "Ubytki" if has_lev else "ubytki"
         if firma_is_mapei:
-            if dane.get('whole_fleece') == "TAK":
-                rep.write(f"* Na zagruntowane podłoże: ubytki zaszpachlować masą szpachlową **{PRODUCTS['Z 645']['name']}** (bez plastyfikatora). Czas schnięcia min. 3h.")
+            if skip_plasticizer:
+                rep.write(f"{pfx}{w_ubytki} zaszpachlować masą szpachlową **{PRODUCTS['Z 645']['name']}**. Czas schnięcia min. 1h.")
             else:
-                rep.write(f"* Na zagruntowane podłoże: ubytki zaszpachlować masą szpachlową **{PRODUCTS['Z 645']['name']}** z dodatkiem plastyfikatora **{PRODUCTS['D 3060']['name']}** (8 kg na 25 kg masy). Czas schnięcia min. 3h.")
+                rep.write(f"{pfx}{w_ubytki} zaszpachlować masą szpachlową **{PRODUCTS['Z 645']['name']}** z dodatkiem plastyfikatora **{PRODUCTS['D 3060']['name']}** (8 kg na 25 kg masy). Czas schnięcia min. 3h.")
         elif firma_is_uzin:
-            rep.write(f"* Na zagruntowane podłoże: ubytki zaszpachlować masą szpachlową **{PRODUCTS['Z 645']['name']}**. Czas schnięcia przed klejeniem: **1,5 godziny**.")
+            rep.write(f"{pfx}{w_ubytki} zaszpachlować masą szpachlową **{PRODUCTS['Z 645']['name']}**. Czas schnięcia przed klejeniem: **1,5 godziny**.")
         else:
-            if dane.get('whole_fleece') == "TAK":
-                rep.write(f"* Na zagruntowane podłoże: ubytki zaszpachlować masą szpachlową **{PRODUCTS['Z 645']['name']}** (bez plastyfikatora). Czas schnięcia min. 3h.")
+            if skip_plasticizer:
+                rep.write(f"{pfx}{w_ubytki} zaszpachlować masą szpachlową **{PRODUCTS['Z 645']['name']}**. Czas schnięcia min. 1h.")
             else:
-                rep.write(f"* Na zagruntowane podłoże: ubytki zaszpachlować masą szpachlową **{PRODUCTS['Z 645']['name']}** z dodatkiem plastyfikatora **{PRODUCTS['D 3060']['name']}** (7 litrów na 25 kg masy). Czas schnięcia min. 3h.")
+                rep.write(f"{pfx}{w_ubytki} zaszpachlować masą szpachlową **{PRODUCTS['Z 645']['name']}** z dodatkiem plastyfikatora **{PRODUCTS['D 3060']['name']}** (7 litrów na 25 kg masy). Czas schnięcia min. 3h.")
             
         _add_sand = dane.get('holes_depth') and dane['holes_depth'] >= 1.0
         if kg_z645 is not None:
@@ -572,26 +754,34 @@ def render_szpachlowanie_po_gruntowaniu(dane, rep):
         firma_is_mapei = (dane.get('firma') == "Mapei")
         ratio = 8.0 if firma_is_mapei else 7.0
         
+        is_ps275 = (dane.get('strength_val') == 1 and dane.get('substrate') not in ["jastrych anhydrytowy", "suchy jastrych (knauf, fermacell itp.)"])
+        skip_plasticizer = (dane.get('local_leveling_use_plasticizer') == "NIE" or (will_use_pu_primer(dane) and not is_ps275) or dane.get('whole_fleece') == "TAK")
+        pfx = "* " if has_lev else "* Na zagruntowane podłoże: "
+        w_miejscowe = "Miejscowe" if has_lev else "miejscowe"
         if firma_is_mapei:
-            if dane.get('whole_fleece') == "TAK":
-                rep.write(f"* Na zagruntowane podłoże: miejscowe wyrównanie podłoża{details} masą szpachlową **{PRODUCTS['Z 645']['name']}** (bez plastyfikatora). Czas schnięcia min. 3h.")
+            if skip_plasticizer:
+                rep.write(f"{pfx}{w_miejscowe} wyrównanie podłoża{details} masą szpachlową **{PRODUCTS['Z 645']['name']}**. Czas schnięcia min. 1h.")
             else:
-                rep.write(f"* Na zagruntowane podłoże: miejscowe wyrównanie podłoża{details} masą szpachlową **{PRODUCTS['Z 645']['name']}** z dodatkiem plastyfikatora **{PRODUCTS['D 3060']['name']}** ({ratio} kg na 25 kg masy). Czas schnięcia min. 3h.")
+                rep.write(f"{pfx}{w_miejscowe} wyrównanie podłoża{details} masą szpachlową **{PRODUCTS['Z 645']['name']}** z dodatkiem plastyfikatora **{PRODUCTS['D 3060']['name']}** ({ratio} kg na 25 kg masy). Czas schnięcia min. 3h.")
         elif dane.get('firma') == "Uzin":
-            rep.write(f"* Na zagruntowane podłoże: miejscowe wyrównanie podłoża{details} masą szpachlową **{PRODUCTS['Z 645']['name']}**. Czas schnięcia przed klejeniem: **1,5 godziny**.")
+            rep.write(f"{pfx}{w_miejscowe} wyrównanie podłoża{details} masą szpachlową **{PRODUCTS['Z 645']['name']}**. Czas schnięcia przed klejeniem: **1,5 godziny**.")
         else:
-            if dane.get('whole_fleece') == "TAK":
-                rep.write(f"* Na zagruntowane podłoże: miejscowe wyrównanie podłoża{details} masą szpachlową **{PRODUCTS['Z 645']['name']}** (bez plastyfikatora). Czas schnięcia min. 3h.")
+            if skip_plasticizer:
+                rep.write(f"{pfx}{w_miejscowe} wyrównanie podłoża{details} masą szpachlową **{PRODUCTS['Z 645']['name']}**. Czas schnięcia min. 1h.")
             else:
-                rep.write(f"* Na zagruntowane podłoże: miejscowe wyrównanie podłoża{details} masą szpachlową **{PRODUCTS['Z 645']['name']}** z dodatkiem plastyfikatora **{PRODUCTS['D 3060']['name']}** ({ratio} litrów na 25 kg masy). Czas schnięcia min. 3h.")
+                rep.write(f"{pfx}{w_miejscowe} wyrównanie podłoża{details} masą szpachlową **{PRODUCTS['Z 645']['name']}** z dodatkiem plastyfikatora **{PRODUCTS['D 3060']['name']}** ({ratio} litrów na 25 kg masy). Czas schnięcia min. 3h.")
             
         write_and_track(dane, rep, 'Z 645 (bruzdowane)', custom_kg=dane['local_leveling_kg'])
-        if dane.get('firma') != "Uzin" and dane.get('whole_fleece') != "TAK":
+        if dane.get('firma') != "Uzin" and not skip_plasticizer:
             bags_local = dane['local_leveling_kg'] / 25.0
             write_and_track(dane, rep, 'D 3060', custom_kg=bags_local * ratio)
 
 def render_wspolne_zalecenia_podloze(dane, rep):
     rep.write("**a) przygotowanie podłoża:**")
+    if dane.get('substrate') == "płyta fundamentowa" and dane.get('emissions_test') in ["negatywny", "nie badano"]:
+        rep.write("* Doprowadzenie do normatywnego poziomu wilgoci (badane metodą KRL).")
+    elif dane.get('already_levelled') == "TAK" and dane.get('moisture') == "ponadnormatywnie wilgotne":
+        rep.write("* Doprowadzenie do normatywnego poziomu wilgoci w masie poprzez zapewnienie odpowiednich warunków do schnięcia.")
     if dane.get('requires_demolition'):
         rep.write("* **Demontaż starej okładziny.**")
     if dane['dilatations_obw_ok'] == "NIE":
@@ -600,6 +790,8 @@ def render_wspolne_zalecenia_podloze(dane, rep):
         rep.write("* Rozbruzdowanie klawiszujących dylatacji pozornych.")
     if dane['cracks_pek'] == "TAK":
         rep.write("* Rozbruzdowanie pęknięć wymagających zespolenia.")
+    if dane.get('stabilize_elements') == "TAK":
+        rep.write("* Ustabilizowanie elementów jastrychu.")
     
     if dane['substrate'] == "płytki ceramiczne":
         rep.write("* Mechaniczne usunięcie szkliwa płytek poprzez szlif.")
@@ -609,12 +801,13 @@ def render_wspolne_zalecenia_podloze(dane, rep):
     elif dane['substrate'] == "podłoże z płyty OSB":
         rep.write("* **Szlif podłoża** w celu wyrównania i oczyszczenia powierzchni płyty OSB.")
         rep.write("* Sprawdzenie i dokręcenie wkrętów mocujących płyty OSB (łby wkrętów muszą być zagłębione w powierzchni).")
+    elif dane['substrate'] == "suchy jastrych (knauf, fermacell itp.)":
+        rep.write("* **Szlif podłoża** w celu oczyszczenia powierzchni suchego jastrychu.")
+        rep.write("* Sprawdzenie stabilności i prawidłowości montażu płyt suchego jastrychu (sklejenie, wkręty).")
     else:
         rep.write("* **Szlif podłoża** w celu usunięcia słabej frakcji i uzyskania porowatej i chłonnej powierzchni.")
         
     rep.write("* Dokładne odkurzenie powierzchni odkurzaczem przemysłowym.")
-    if dane['substrate'] == "strefy mokre":
-        rep.write("* **Wykonanie pasma uszczelniającego.**")
     
     if dane['curing_not_done']:
         if dane['is_moisture_neg']:
@@ -633,7 +826,11 @@ def render_wspolne_zalecenia_podloze(dane, rep):
             rep.write(f"* Zalecamy doprowadzenie do normatywnego poziomu wilgoci **{dane['norm_val_bracket']}** poprzez {dane['decision_after_cure']}.")
 
     rep.write("**b) naprawa i wzmocnienie podłoża:**")
-    if dane['curing_not_done']:
+    if dane.get('substrate') == "płyta fundamentowa" and dane.get('emissions_test') in ["negatywny", "nie badano"]:
+        rep.write("Po doprowadzeniu do normatywnego poziomu wilgoci (badane za pomocą metody KRL) zalecamy:")
+    elif dane.get('already_levelled') == "TAK" and dane.get('moisture') == "ponadnormatywnie wilgotne":
+        rep.write("Po doprowadzeniu do normatywnego poziomu wilgoci masy zalecamy:")
+    elif dane['curing_not_done']:
         if dane['is_moisture_neg']:
             if dane['decision_after_cure'] == "osuszanie przed barierą":
                 rep.write(f"Po doprowadzeniu poziomu wilgoci do max. **{dane.get('barrier_max', '2.8')}%** poprzez **przeprowadzenie procesu wygrzewania** zalecamy:")
@@ -650,7 +847,7 @@ def render_wspolne_zalecenia_podloze(dane, rep):
             rep.write(f"Po doprowadzeniu do normatywnego poziomu wilgoci **{dane['norm_val_bracket']}** zalecamy:")
     
     if dane['cracks_klaw'] == "TAK" or dane['cracks_pek'] == "TAK":
-        if dane['strength_val'] == 1 and dane['substrate'] != "jastrych anhydrytowy":
+        if dane['strength_val'] == 1 and dane['substrate'] not in ["jastrych anhydrytowy", "suchy jastrych (knauf, fermacell itp.)"]:
             write_and_track(dane, rep, 'PS 275')
         
         firma_is_mapei = (dane.get('firma') == "Mapei")
@@ -670,7 +867,8 @@ def render_wspolne_zalecenia_podloze(dane, rep):
             else:
                 write_and_track(dane, rep, 'PS 205', custom_kg=total_meters / 6.5)
 
-    delay_patching = (dane.get('strength_val') == 1 and dane.get('needs_levelling') == "NIE")
+    is_ps275 = (dane.get('strength_val') == 1 and dane.get('substrate') not in ["jastrych anhydrytowy", "suchy jastrych (knauf, fermacell itp.)"])
+    delay_patching = is_ps275
 
     if dane['holes'] == "TAK" and not delay_patching:
         kg_z645 = None
@@ -693,16 +891,17 @@ def render_wspolne_zalecenia_podloze(dane, rep):
             else:
                 rep.write(f"* Ubytki zaszpachlować masą **{PRODUCTS['Z 645']['name']}** wymieszaną z piaskiem kwarcowym w proporcji 1:1 – czas schnięcia 1 godzina.")
         else:
+            skip_plasticizer = ((will_use_pu_primer(dane) and not is_ps275) or dane.get('whole_fleece') == "TAK")
             if firma_is_mapei:
-                if dane.get('whole_fleece') == "TAK":
-                    rep.write(f"* Ubytki zaszpachlować masą szpachlową **{PRODUCTS['Z 645']['name']}** (bez plastyfikatora). Czas schnięcia min. 3h.")
+                if skip_plasticizer:
+                    rep.write(f"* Ubytki zaszpachlować masą szpachlową **{PRODUCTS['Z 645']['name']}**. Czas schnięcia min. 1h.")
                 else:
                     rep.write(f"* Ubytki zaszpachlować masą szpachlową **{PRODUCTS['Z 645']['name']}** z dodatkiem plastyfikatora **{PRODUCTS['D 3060']['name']}** (8 kg na 25 kg masy). Czas schnięcia min. 3h.")
             elif firma_is_uzin:
                 rep.write(f"* Ubytki zaszpachlować masą szpachlową **{PRODUCTS['Z 645']['name']}**. Czas schnięcia przed klejeniem: **1,5 godziny**.")
             else:
-                if dane.get('whole_fleece') == "TAK":
-                    rep.write(f"* Ubytki zaszpachlować masą szpachlową **{PRODUCTS['Z 645']['name']}** (bez plastyfikatora). Czas schnięcia min. 3h. W razie potrzeby użyć siatki zbrojeniowej {PRODUCTS['AR 150']['name']}.")
+                if skip_plasticizer:
+                    rep.write(f"* Ubytki zaszpachlować masą szpachlową **{PRODUCTS['Z 645']['name']}**. Czas schnięcia min. 1h. W razie potrzeby użyć siatki zbrojeniowej {PRODUCTS['AR 150']['name']}.")
                 else:
                     rep.write(f"* Ubytki zaszpachlować masą szpachlową **{PRODUCTS['Z 645']['name']}** z dodatkiem plastyfikatora **{PRODUCTS['D 3060']['name']}** (7 litrów na 25 kg masy). Czas schnięcia min. 3h. W razie potrzeby użyć siatki zbrojeniowej {PRODUCTS['AR 150']['name']}.")
         
@@ -717,21 +916,23 @@ def render_wspolne_zalecenia_podloze(dane, rep):
         firma_is_mapei = (dane.get('firma') == "Mapei")
         ratio = 8.0 if firma_is_mapei else 7.0
         
+        skip_plasticizer = (dane.get('local_leveling_use_plasticizer') == "NIE" or (will_use_pu_primer(dane) and not is_ps275) or dane.get('whole_fleece') == "TAK")
+        
         if firma_is_mapei:
-            if dane.get('whole_fleece') == "TAK":
-                rep.write(f"* Miejscowe wyrównanie podłoża{details} masą szpachlową **{PRODUCTS['Z 645']['name']}** (bez plastyfikatora). Czas schnięcia min. 3h.")
+            if skip_plasticizer:
+                rep.write(f"* Miejscowe wyrównanie podłoża{details} masą szpachlową **{PRODUCTS['Z 645']['name']}**. Czas schnięcia min. 1h.")
             else:
                 rep.write(f"* Miejscowe wyrównanie podłoża{details} masą szpachlową **{PRODUCTS['Z 645']['name']}** z dodatkiem plastyfikatora **{PRODUCTS['D 3060']['name']}** ({ratio} kg na 25 kg masy). Czas schnięcia min. 3h.")
         elif dane.get('firma') == "Uzin":
             rep.write(f"* Miejscowe wyrównanie podłoża{details} masą szpachlową **{PRODUCTS['Z 645']['name']}**. Czas schnięcia przed klejeniem: **1,5 godziny**.")
         else:
-            if dane.get('whole_fleece') == "TAK":
-                rep.write(f"* Miejscowe wyrównanie podłoża{details} masą szpachlową **{PRODUCTS['Z 645']['name']}** (bez plastyfikatora). Czas schnięcia min. 3h.")
+            if skip_plasticizer:
+                rep.write(f"* Miejscowe wyrównanie podłoża{details} masą szpachlową **{PRODUCTS['Z 645']['name']}**. Czas schnięcia min. 1h.")
             else:
                 rep.write(f"* Miejscowe wyrównanie podłoża{details} masą szpachlową **{PRODUCTS['Z 645']['name']}** z dodatkiem plastyfikatora **{PRODUCTS['D 3060']['name']}** ({ratio} litrów na 25 kg masy). Czas schnięcia min. 3h.")
             
         write_and_track(dane, rep, 'Z 645 (bruzdowane)', custom_kg=dane['local_leveling_kg'])
-        if dane.get('firma') != "Uzin" and dane.get('whole_fleece') != "TAK":
+        if dane.get('firma') != "Uzin" and not skip_plasticizer:
             bags_local = dane['local_leveling_kg'] / 25.0
             write_and_track(dane, rep, 'D 3060', custom_kg=bags_local * ratio)
 
@@ -778,31 +979,39 @@ def render_wspolne_zalecenia_podloze(dane, rep):
             write_and_track(dane, rep, 'Płyta poliestrowa', custom_kg=math.ceil(area / 0.6) if area > 0 else 0)
             write_and_track(dane, rep, 'PU 225')
 
+def render_strefy_mokre_po_gruntowce(dane, rep):
     if dane['substrate'] == "strefy mokre":
-        is_wood = dane['flooring_type'] in ["deska warstwowa", "lity parkiet (maks. 8 cm x 60 cm)", "mozaika drewniana (min. 16 mm grubości, maks. 20 cm długości)", "deska lita"]
-        if is_wood:
-            rep.write("* W strefie mokrej przy montażu podłogi drewnianej nie stosujemy mas wyrównawczych – klejenie należy przeprowadzić bezpośrednio do pasma uszczelniającego.")
-        else:
-            z625_name = PRODUCTS['Z 625']['name']
-            rep.write(f"* Po wykonaniu pasma uszczelniającego zalecamy wylać masę wyrównawczą **{z625_name}** już bez gruntowania.")
+        rep.write("* **Wykonanie pasma uszczelniającego.**")
+        if dane.get('needs_levelling') == "TAK":
             area = dane.get('area_m2') or 0
             thick = dane.get('leveling_thickness') or 3
-            if area > 0:
-                write_and_track(dane, rep, 'Z 625', custom_kg=area * thick * PRODUCTS['Z 625'].get('usage_per_mm', 1.6))
+            write_and_track(dane, rep, 'Z 625', custom_kg=area * thick * PRODUCTS['Z 625'].get('usage_per_mm', 1.6) if area > 0 else None)
 
 def render_wspolna_chemia(dane, rep):
     used_d3004 = False
+    if dane.get('szpachlowanie_laczen') == "TAK":
+        return False
     if dane.get('h_type') == "bruzdowane" and dane.get('bruzdowane_wybor'):
         return True # Pomijamy standardową chemię, obsłużona w naprawie podłoża
-    if dane['substrate'] == "strefy mokre":
-        return True
 
     if dane['substrate'] in ["płytki ceramiczne", "podłoże drewniane (parkiet, deska)", "podłoże z płyty OSB"]:
         return False
 
+    if dane['substrate'] == "suchy jastrych (knauf, fermacell itp.)" and dane.get('needs_levelling') == "NIE":
+        firma_is_mapei = (dane.get('firma') == "Mapei")
+        if firma_is_mapei:
+            rep.write(f"* Podłoże zagruntować koncentratem gruntówki dyspersyjnej **{PRODUCTS['D 3004']['name']}**. Proporcje mieszania: 1 część koncentratu + 1 część wody; Czas schnięcia: 1h. Sposób nanoszenia: wałek do gruntowania. Zużycie: ok. 100 g/m² koncentratu.")
+        else:
+            rep.write(f"* Podłoże zagruntować koncentratem gruntówki dyspersyjnej **{PRODUCTS['D 3004']['name']}**. Proporcje mieszania: 1 część koncentratu + 1 część wody; Czas schnięcia: 1h. Sposób nanoszenia: wałek do gruntowania microfazer. Zużycie: ok. 75 g/m² koncentratu.")
+        write_and_track(dane, rep, 'D 3004 (bruzdowane)')
+        used_d3004 = True
+        return used_d3004
+
     if dane['decision_after_cure'] in ["Wykonanie bariery przeciwwilgociowej", "osuszanie przed barierą"]:
         if dane['substrate'] == "płyta fundamentowa":
             write_and_track(dane, rep, 'PU 280 (Bariera Płyta)')
+        elif dane['substrate'] == "jastrych cementowy" and dane['needs_levelling'] == "TAK" and dane.get('firma') == "Wakol":
+            write_and_track(dane, rep, 'D 3080')
         elif dane['strength_val'] <= 2: write_and_track(dane, rep, 'PU 235 (Bariera)')
         else: write_and_track(dane, rep, 'PU 280 (Bariera)')
     elif not dane['decision_after_cure'] or "Wykonanie" not in str(dane['decision_after_cure']):
@@ -810,34 +1019,44 @@ def render_wspolna_chemia(dane, rep):
             write_and_track(dane, rep, 'PU 280 (1W)')
             return False
         if dane['needs_levelling'] == "TAK":
-            if dane['strength_val'] in [3, 4, 5]:
-                if dane['substrate'] == "jastrych anhydrytowy" and dane['leveling_thickness'] and dane['leveling_thickness'] > 5:
+            if dane['substrate'] == "suchy jastrych (knauf, fermacell itp.)":
+                firma_is_mapei = (dane.get('firma') == "Mapei")
+                if firma_is_mapei:
+                    rep.write(f"* Podłoże zagruntować koncentratem gruntówki dyspersyjnej **{PRODUCTS['D 3004']['name']}**. Proporcje mieszania: 1 część koncentratu + 1 część wody; Czas schnięcia: 1h. Sposób nanoszenia: wałek do gruntowania. Zużycie: ok. 100 g/m² koncentratu.")
+                else:
+                    rep.write(f"* Podłoże zagruntować koncentratem gruntówki dyspersyjnej **{PRODUCTS['D 3004']['name']}**. Proporcje mieszania: 1 część koncentratu + 1 część wody; Czas schnięcia: 1h. Sposób nanoszenia: wałek do gruntowania microfazer. Zużycie: ok. 75 g/m² koncentratu.")
+                write_and_track(dane, rep, 'D 3004 (bruzdowane)')
+                used_d3004 = True
+            elif dane['strength_val'] in [3, 4, 5]:
+                if dane['substrate'] in ["jastrych anhydrytowy", "suchy jastrych (knauf, fermacell itp.)"] and dane['leveling_thickness'] and dane['leveling_thickness'] > 5:
                     write_and_track(dane, rep, 'PU 280 (1W)')
                 else:
                     write_and_track(dane, rep, 'D 3004')
                     used_d3004 = True
             else:
                 if dane['strength_val'] == 1:
-                    if dane['substrate'] == "jastrych anhydrytowy": write_and_track(dane, rep, 'PU 235 (1W)')
+                    if dane['substrate'] in ["jastrych anhydrytowy", "suchy jastrych (knauf, fermacell itp.)"]: write_and_track(dane, rep, 'PU 235 (1W)')
                     else:
                         write_and_track(dane, rep, 'PS 275')
+                        render_szpachlowanie_po_gruntowaniu(dane, rep)
                         if dane.get('firma') != 'Mapei':
                             write_and_track(dane, rep, 'PU 280 (1W)')
                 elif dane['strength_val'] == 2: write_and_track(dane, rep, 'PU 280 (1W)')
         else:
             if dane['strength_val'] == 1:
-                if dane['substrate'] == "jastrych anhydrytowy": write_and_track(dane, rep, 'PU 235 (1W)')
+                if dane['substrate'] in ["jastrych anhydrytowy", "suchy jastrych (knauf, fermacell itp.)"]: write_and_track(dane, rep, 'PU 235 (1W)')
                 else:
                     write_and_track(dane, rep, 'PS 275')
+                    render_szpachlowanie_po_gruntowaniu(dane, rep)
             elif dane['strength_val'] == 2: write_and_track(dane, rep, 'PU 235 (1W)')
             elif dane['strength_val'] in [3, 4]: write_and_track(dane, rep, 'PU 280 (1W)')
     return used_d3004
 
 def render_chemia_deska_warstwowa(dane, rep):
     used_d3004 = False
+    if dane.get('szpachlowanie_laczen') == "TAK":
+        return False
     if dane.get('h_type') == "bruzdowane" and dane.get('bruzdowane_wybor'):
-        return True
-    if dane['substrate'] == "strefy mokre":
         return True
 
     if dane['substrate'] in ["płytki ceramiczne", "podłoże drewniane (parkiet, deska)", "podłoże z płyty OSB"]:
@@ -853,6 +1072,8 @@ def render_chemia_deska_warstwowa(dane, rep):
     if dane['decision_after_cure'] in ["Wykonanie bariery przeciwwilgociowej", "osuszanie przed barierą"]:
         if dane['substrate'] == "płyta fundamentowa":
             write_and_track(dane, rep, 'PU 280 (Bariera Płyta)')
+        elif dane['substrate'] == "jastrych cementowy" and dane['needs_levelling'] == "TAK" and dane.get('firma') == "Wakol":
+            write_and_track(dane, rep, 'D 3080')
         elif dane['strength_val'] <= 2: write_and_track(dane, rep, 'PU 235 (Bariera)')
         else: write_and_track(dane, rep, 'PU 280 (Bariera)')
     elif not dane['decision_after_cure'] or "Wykonanie" not in str(dane['decision_after_cure']) and "barierą" not in str(dane['decision_after_cure']):
@@ -860,8 +1081,16 @@ def render_chemia_deska_warstwowa(dane, rep):
             write_and_track(dane, rep, 'PU 280 (1W)')
             return False
         if dane['needs_levelling'] == "TAK":
-            if dane['strength_val'] in [3, 4, 5]:
-                if dane['substrate'] == "jastrych anhydrytowy" and dane['leveling_thickness'] and dane['leveling_thickness'] > 5:
+            if dane['substrate'] == "suchy jastrych (knauf, fermacell itp.)":
+                firma_is_mapei = (dane.get('firma') == "Mapei")
+                if firma_is_mapei:
+                    rep.write(f"* Podłoże zagruntować koncentratem gruntówki dyspersyjnej **{PRODUCTS['D 3004']['name']}**. Proporcje mieszania: 1 część koncentratu + 1 część wody; Czas schnięcia: 1h. Sposób nanoszenia: wałek do gruntowania. Zużycie: ok. 100 g/m² koncentratu.")
+                else:
+                    rep.write(f"* Podłoże zagruntować koncentratem gruntówki dyspersyjnej **{PRODUCTS['D 3004']['name']}**. Proporcje mieszania: 1 część koncentratu + 1 część wody; Czas schnięcia: 1h. Sposób nanoszenia: wałek do gruntowania microfazer. Zużycie: ok. 75 g/m² koncentratu.")
+                write_and_track(dane, rep, 'D 3004 (bruzdowane)')
+                used_d3004 = True
+            elif dane['strength_val'] in [3, 4, 5]:
+                if dane['substrate'] in ["jastrych anhydrytowy", "suchy jastrych (knauf, fermacell itp.)"] and dane['leveling_thickness'] and dane['leveling_thickness'] > 5:
                     write_and_track(dane, rep, 'PU 280 (1W)')
                 else:
                     write_and_track(dane, rep, 'D 3004')
@@ -869,16 +1098,20 @@ def render_chemia_deska_warstwowa(dane, rep):
             elif dane['strength_val'] == 2:
                 write_and_track(dane, rep, 'PU 280 (1W)')
             elif dane['strength_val'] == 1:
-                if dane['substrate'] == "jastrych anhydrytowy": write_and_track(dane, rep, 'PU 235 (1W)')
+                if dane['substrate'] in ["jastrych anhydrytowy", "suchy jastrych (knauf, fermacell itp.)"]: write_and_track(dane, rep, 'PU 235 (1W)')
                 else:
                     write_and_track(dane, rep, 'PS 275')
+                    render_szpachlowanie_po_gruntowaniu(dane, rep)
                     if dane.get('firma') != 'Mapei':
                         write_and_track(dane, rep, 'PU 280 (1W)')
         else:
-            if dane['strength_val'] == 1:
-                if dane['substrate'] == "jastrych anhydrytowy": write_and_track(dane, rep, 'PU 235 (1W)')
+            if dane['substrate'] == "suchy jastrych (knauf, fermacell itp.)":
+                write_and_track(dane, rep, 'PU 280 (1W)')
+            elif dane['strength_val'] == 1:
+                if dane['substrate'] in ["jastrych anhydrytowy", "suchy jastrych (knauf, fermacell itp.)"]: write_and_track(dane, rep, 'PU 235 (1W)')
                 else:
                     write_and_track(dane, rep, 'PS 275')
+                    render_szpachlowanie_po_gruntowaniu(dane, rep)
             elif dane['strength_val'] == 2: write_and_track(dane, rep, 'PU 235 (1W)')
             elif dane['strength_val'] == 3: write_and_track(dane, rep, 'PU 280 (1W)')
             elif dane['strength_val'] in [4, 5]: write_and_track(dane, rep, 'D 3055')
@@ -886,12 +1119,19 @@ def render_chemia_deska_warstwowa(dane, rep):
 
 def render_chemia_deska_lita(dane, rep):
     used_d3004 = False
+    if dane.get('szpachlowanie_laczen') == "TAK":
+        return False
     if dane.get('h_type') == "bruzdowane" and dane.get('bruzdowane_wybor'):
-        return True
-    if dane['substrate'] == "strefy mokre":
         return True
 
     if dane['substrate'] in ["płytki ceramiczne", "podłoże drewniane (parkiet, deska)", "podłoże z płyty OSB"]:
+        return False
+
+    if dane['substrate'] == "suchy jastrych (knauf, fermacell itp.)" and dane.get('needs_levelling') != "TAK":
+        area = dane.get('area_m2') or 0
+        write_and_track(dane, rep, 'PU 280 (RP)')
+        write_and_track(dane, rep, 'RP 104', custom_kg=math.ceil(area / 0.6) if area > 0 else 0)
+        write_and_track(dane, rep, 'PU 225')
         return False
 
     if dane['substrate'] == "masa samorozlewna" and dane['strength_val'] in [1, 2]:
@@ -904,6 +1144,8 @@ def render_chemia_deska_lita(dane, rep):
     if dane['decision_after_cure'] in ["Wykonanie bariery przeciwwilgociowej", "osuszanie przed barierą"]:
         if dane['substrate'] == "płyta fundamentowa":
             write_and_track(dane, rep, 'PU 280 (Bariera Płyta)')
+        elif dane['substrate'] == "jastrych cementowy" and dane['needs_levelling'] == "TAK" and dane.get('firma') == "Wakol":
+            write_and_track(dane, rep, 'D 3080')
         elif dane['strength_val'] <= 2: write_and_track(dane, rep, 'PU 235 (Bariera)')
         else: write_and_track(dane, rep, 'PU 280 (Bariera)')
     elif not dane['decision_after_cure'] or "Wykonanie" not in str(dane['decision_after_cure']) and "barierą" not in str(dane['decision_after_cure']):
@@ -911,25 +1153,35 @@ def render_chemia_deska_lita(dane, rep):
             write_and_track(dane, rep, 'PU 280 (1W)')
             return False
         if dane['needs_levelling'] == "TAK":
-            if dane['strength_val'] in [3, 4, 5]:
-                if dane['substrate'] == "jastrych anhydrytowy" and dane['leveling_thickness'] and dane['leveling_thickness'] > 5:
+            if dane['substrate'] == "suchy jastrych (knauf, fermacell itp.)":
+                firma_is_mapei = (dane.get('firma') == "Mapei")
+                if firma_is_mapei:
+                    rep.write(f"* Podłoże zagruntować koncentratem gruntówki dyspersyjnej **{PRODUCTS['D 3004']['name']}**. Proporcje mieszania: 1 część koncentratu + 1 część wody; Czas schnięcia: 1h. Sposób nanoszenia: wałek do gruntowania. Zużycie: ok. 100 g/m² koncentratu.")
+                else:
+                    rep.write(f"* Podłoże zagruntować koncentratem gruntówki dyspersyjnej **{PRODUCTS['D 3004']['name']}**. Proporcje mieszania: 1 część koncentratu + 1 część wody; Czas schnięcia: 1h. Sposób nanoszenia: wałek do gruntowania microfazer. Zużycie: ok. 75 g/m² koncentratu.")
+                write_and_track(dane, rep, 'D 3004 (bruzdowane)')
+                used_d3004 = True
+            elif dane['strength_val'] in [3, 4, 5]:
+                if dane['substrate'] in ["jastrych anhydrytowy", "suchy jastrych (knauf, fermacell itp.)"] and dane['leveling_thickness'] and dane['leveling_thickness'] > 5:
                     write_and_track(dane, rep, 'PU 280 (1W)')
                 else:
                     write_and_track(dane, rep, 'D 3004')
                     used_d3004 = True
             else:
                 if dane['strength_val'] == 1:
-                    if dane['substrate'] == "jastrych anhydrytowy": write_and_track(dane, rep, 'PU 235 (1W)')
+                    if dane['substrate'] in ["jastrych anhydrytowy", "suchy jastrych (knauf, fermacell itp.)"]: write_and_track(dane, rep, 'PU 235 (1W)')
                     else:
                         write_and_track(dane, rep, 'PS 275')
+                        render_szpachlowanie_po_gruntowaniu(dane, rep)
                         if dane.get('firma') != 'Mapei':
                             write_and_track(dane, rep, 'PU 280 (1W)')
                 elif dane['strength_val'] == 2: write_and_track(dane, rep, 'PU 280 (1W)')
         else:
             if dane['strength_val'] == 1:
-                if dane['substrate'] == "jastrych anhydrytowy": write_and_track(dane, rep, 'PU 235 (1W)')
+                if dane['substrate'] in ["jastrych anhydrytowy", "suchy jastrych (knauf, fermacell itp.)"]: write_and_track(dane, rep, 'PU 235 (1W)')
                 else:
                     write_and_track(dane, rep, 'PS 275')
+                    render_szpachlowanie_po_gruntowaniu(dane, rep)
             elif dane['strength_val'] == 2: write_and_track(dane, rep, 'PU 235 (1W)')
             elif dane['strength_val'] in [3, 4]: write_and_track(dane, rep, 'PU 280 (1W)')
             elif dane['strength_val'] == 5: write_and_track(dane, rep, 'D 3055')
@@ -941,10 +1193,10 @@ def generate_report_deska_warstwowa(dane, rep):
     
     if dane['flooring_type'] == "deska warstwowa":
         nazwa_okladziny, tytul_sekcji = "podłogę drewnianą", "Deska Warstwowa"
-    elif dane['flooring_type'] == "lity parkiet (maks. 8 cm x 60 cm)":
-        nazwa_okladziny, tytul_sekcji = "lity parkiet", "Lity Parkiet (maks. 8 cm x 60 cm)"
-    elif dane['flooring_type'] == "mozaika drewniana (min. 16 mm grubości, maks. 20 cm długości)":
-        nazwa_okladziny, tytul_sekcji = "mozaikę drewnianą", "Mozaika Drewniana (min. 16 mm, maks. 20 cm)"
+    elif dane['flooring_type'] == "lity parkiet":
+        nazwa_okladziny, tytul_sekcji = "lity parkiet", "Lity Parkiet"
+    elif dane['flooring_type'] == "mozaika drewniana":
+        nazwa_okladziny, tytul_sekcji = "mozaikę drewnianą", "Mozaika Drewniana"
     else:
         nazwa_okladziny, tytul_sekcji = "podłogę laminowaną", "Podłoga laminowana"
     
@@ -957,19 +1209,17 @@ def generate_report_deska_warstwowa(dane, rep):
     
     render_wspolne_zalecenia_podloze(dane, rep)
     used_d3004 = render_chemia_deska_warstwowa(dane, rep)
+    render_szpachlowanie_laczen(dane, rep)
+    render_strefy_mokre_po_gruntowce(dane, rep)
     render_calosc_flizelina(dane, rep)
     render_miejscowa_flizelina(dane, rep)
     render_szpachlowanie_po_gruntowaniu(dane, rep)
 
     if dane['needs_levelling'] == "TAK" and dane.get('bruzdowane_wybor') != "masa samorozlewna" and dane['substrate'] != "strefy mokre":
         _pu_applied = any(k in dane.get('written_texts', set()) for k in ['PU 280 (1W)', 'PU 280 (Bariera)', 'PU 280 (Bariera Płyta)', 'PU 235 (1W)', 'PU 235 (Bariera)'])
-        _skip_d3045 = dane.get('leveling_mesh') == "z siatką" and _pu_applied
+        _skip_d3045 = (dane.get('leveling_mesh') == "z siatką" and _pu_applied) or 'D 3080' in dane.get('written_texts', set())
         if not used_d3004 and not _skip_d3045:
-            if dane.get('firma') == "Mapei":
-                write_and_track(dane, rep, 'D 3045')
-            else:
-                rep.write("* Następnie należy zaaplikować specjalistyczny mostek sczepny za pomocą produktu **WAKOL D 3045**. Aplikować równomiernie za pomocą wałka. Zużycie wynosi **ok. 150 g/m²**. **Czas schnięcia 1 godzina**.")
-                write_and_track(dane, rep, 'D 3045')
+            write_and_track(dane, rep, 'D 3045')
         if dane.get('leveling_mesh') == "z siatką":
             area = dane.get('area_m2') or 0
             firma_is_mapei = (dane.get('firma') == "Mapei")
@@ -990,13 +1240,20 @@ def generate_report_deska_warstwowa(dane, rep):
                     write_and_track(dane, rep, 'D 3060', custom_kg=(kg_z645_mesh / 25.0) * ratio)
         write_and_track(dane, rep, 'Z 635')
 
-    _is_lity_parkiet = dane['flooring_type'] == "lity parkiet (maks. 8 cm x 60 cm)"
-    _is_mozaika = dane['flooring_type'] == "mozaika drewniana (min. 16 mm grubości, maks. 20 cm długości)"
+    _is_lity_parkiet = dane['flooring_type'] == "lity parkiet"
+    _is_mozaika = dane['flooring_type'] == "mozaika drewniana"
     _uzin = dane.get('firma') == "Uzin"
+    _is_laminated = dane['flooring_type'] == "podłoga laminowana"
 
     rep.write("**c) klejenie okładziny:**")
-    if dane['substrate'] == "strefy mokre":
-        rep.write(f"Klejenie okładziny należy przeprowadzić przy użyciu kleju **{PRODUCTS['MS 260']['name']}** (szpachla B13, zużycie: 1350 g/m²) bezpośrednio do pasma uszczelniającego.")
+    if _is_laminated:
+        rep.write(f"Klejenie okładziny należy przeprowadzić przy użyciu kleju do parkietu **{PRODUCTS['MS 230 (B11 cement)']['name']}** (szpachla B11, zużycie: 1150 g/m²).")
+        write_and_track(dane, rep, 'MS 230 (B11 cement)')
+    elif dane['substrate'] == "strefy mokre":
+        if dane.get('needs_levelling') == "TAK":
+            rep.write(f"Klejenie okładziny należy przeprowadzić przy użyciu kleju **{PRODUCTS['MS 260']['name']}** (szpachla B13, zużycie: 1350 g/m²).")
+        else:
+            rep.write(f"Klejenie okładziny należy przeprowadzić przy użyciu kleju **{PRODUCTS['MS 260']['name']}** (szpachla B13, zużycie: 1350 g/m²) bezpośrednio do pasma uszczelniającego.")
         write_and_track(dane, rep, 'MS 260')
     elif _uzin and _is_lity_parkiet:
         rep.write(f"Klejenie okładziny należy przeprowadzić przy użyciu kleju **{PRODUCTS['MS 260']['name']}** (szpachla B13, zużycie: 1350 g/m²).")
@@ -1007,10 +1264,10 @@ def generate_report_deska_warstwowa(dane, rep):
     elif dane['substrate'] == "płytki ceramiczne" and dane['needs_levelling'] == "NIE":
         rep.write(f"Klejenie okładziny należy przeprowadzić przy użyciu dwuskładnikowego kleju poliuretanowego **{PRODUCTS['PU 225']['name']}** (szpachla B11, zużycie: 1250 g/m²).")
         write_and_track(dane, rep, 'PU 225')
-    elif dane['substrate'] == "płyta fundamentowa" and dane['needs_levelling'] == "NIE":
+    elif dane['substrate'] == "płyta fundamentowa":
         rep.write(f"Klejenie okładziny należy przeprowadzić przy użyciu kleju polimerowego twardo-elastycznego **{PRODUCTS['MS 260']['name']}** (szpachla B13, zużycie: 1350 g/m²).")
         write_and_track(dane, rep, 'MS 260')
-    elif dane['substrate'] == "jastrych anhydrytowy" and dane['strength_val'] == 1:
+    elif dane['substrate'] in ["jastrych anhydrytowy", "suchy jastrych (knauf, fermacell itp.)"] and dane['strength_val'] == 1:
         rep.write(f"Klejenie okładziny należy przeprowadzić przy użyciu kleju do parkietu **{PRODUCTS['MS 230']['name']}** (szpachla B13, zużycie: 1350 g/m²).")
         write_and_track(dane, rep, 'MS 230')
     elif dane['substrate'] == "masa samorozlewna" and dane['strength_val'] == 3:
@@ -1035,19 +1292,17 @@ def generate_report_deska_lita(dane, rep):
     rep.markdown("#### **II. Zalecenia techniczne (Deska Lita)**")
     render_wspolne_zalecenia_podloze(dane, rep)
     used_d3004 = render_chemia_deska_lita(dane, rep)
+    render_szpachlowanie_laczen(dane, rep)
+    render_strefy_mokre_po_gruntowce(dane, rep)
     render_calosc_flizelina(dane, rep)
     render_miejscowa_flizelina(dane, rep)
     render_szpachlowanie_po_gruntowaniu(dane, rep)
 
     if dane['needs_levelling'] == "TAK" and dane.get('bruzdowane_wybor') != "masa samorozlewna" and dane['substrate'] != "strefy mokre":
         _pu_applied = any(k in dane.get('written_texts', set()) for k in ['PU 280 (1W)', 'PU 280 (Bariera)', 'PU 280 (Bariera Płyta)', 'PU 235 (1W)', 'PU 235 (Bariera)'])
-        _skip_d3045 = dane.get('leveling_mesh') == "z siatką" and _pu_applied
+        _skip_d3045 = (dane.get('leveling_mesh') == "z siatką" and _pu_applied) or 'D 3080' in dane.get('written_texts', set())
         if not used_d3004 and not _skip_d3045:
-            if dane.get('firma') == "Mapei":
-                write_and_track(dane, rep, 'D 3045')
-            else:
-                rep.write("* Następnie należy zaaplikować specjalistyczny mostek sczepny za pomocą produktu **WAKOL D 3045**. Aplikować równomiernie za pomocą wałka. Zużycie wynosi **ok. 150 g/m²**. **Czas schnięcia 1 godzina**.")
-                write_and_track(dane, rep, 'D 3045')
+            write_and_track(dane, rep, 'D 3045')
         if dane.get('leveling_mesh') == "z siatką":
             area = dane.get('area_m2') or 0
             firma_is_mapei = (dane.get('firma') == "Mapei")
@@ -1070,12 +1325,15 @@ def generate_report_deska_lita(dane, rep):
 
     rep.write("**c) klejenie okładziny:**")
     if dane['substrate'] == "strefy mokre":
-        rep.write(f"Klejenie okładziny należy przeprowadzić przy użyciu kleju **{PRODUCTS['MS 260']['name']}** (szpachla B13, zużycie: 1350 g/m²) bezpośrednio do pasma uszczelniającego.")
+        if dane.get('needs_levelling') == "TAK":
+            rep.write(f"Klejenie okładziny należy przeprowadzić przy użyciu kleju **{PRODUCTS['MS 260']['name']}** (szpachla B13, zużycie: 1350 g/m²).")
+        else:
+            rep.write(f"Klejenie okładziny należy przeprowadzić przy użyciu kleju **{PRODUCTS['MS 260']['name']}** (szpachla B13, zużycie: 1350 g/m²) bezpośrednio do pasma uszczelniającego.")
         write_and_track(dane, rep, 'MS 260')
     elif dane['substrate'] == "płytki ceramiczne" and dane['needs_levelling'] == "NIE":
         rep.write(f"Klejenie okładziny należy przeprowadzić przy użyciu dwuskładnikowego kleju poliuretanowego **{PRODUCTS['PU 225']['name']}** (szpachla B11, zużycie: 1250 g/m²).")
         write_and_track(dane, rep, 'PU 225')
-    elif dane['substrate'] == "płyta fundamentowa" and dane['needs_levelling'] == "NIE":
+    elif dane['substrate'] == "płyta fundamentowa":
         rep.write(f"Klejenie okładziny należy przeprowadzić przy użyciu kleju polimerowego twardo-elastycznego **{PRODUCTS['MS 260']['name']}** (szpachla B13, zużycie: 1350 g/m²).")
         write_and_track(dane, rep, 'MS 260')
     elif dane['substrate'] == "masa samorozlewna" and dane['strength_val'] == 3:
@@ -1102,12 +1360,17 @@ def generate_report_lvt_cienkie(dane, rep):
     
     if dane.get('already_levelled') == "TAK":
         rep.write("**a) przygotowanie podłoża:**")
+        if dane.get('moisture') == "ponadnormatywnie wilgotne":
+            rep.write("* Doprowadzenie do normatywnego poziomu wilgoci w masie poprzez zapewnienie odpowiednich warunków do schnięcia.")
         if dane['curing_not_done']:
             rep.write("* **Konieczność przeprowadzenia pełnego procesu wygrzewania podłoża** zgodnie z protokołem.")
-            rep.write("Po **przeprowadzeniu pełnego procesu wygrzewania** zalecamy:")
         rep.write("* Szlif podłoża w celu uzyskania gładkiej powierzchni.")
         rep.write("* Dokładne odkurzenie powierzchni odkurzaczem przemysłowym.")
         rep.write("**b) klejenie okładziny:**")
+        if dane.get('moisture') == "ponadnormatywnie wilgotne":
+            rep.write("Po doprowadzeniu do normatywnego poziomu wilgoci masy zalecamy:")
+        elif dane['curing_not_done']:
+            rep.write("Po **przeprowadzeniu pełnego procesu wygrzewania** zalecamy:")
         if dane['substrate'] == "strefy mokre":
             rep.write(f"Klejenie okładziny należy przeprowadzić przy użyciu kleju do stref mokrych **{PRODUCTS['MS 552']['name']}** (zużycie: 350 g/m²).")
             write_and_track(dane, rep, 'MS 552')
@@ -1119,40 +1382,39 @@ def generate_report_lvt_cienkie(dane, rep):
 
     render_wspolne_zalecenia_podloze(dane, rep)
     used_d3004 = render_wspolna_chemia(dane, rep)
+    render_szpachlowanie_laczen(dane, rep)
+    render_strefy_mokre_po_gruntowce(dane, rep)
     render_calosc_flizelina(dane, rep)
     render_miejscowa_flizelina(dane, rep)
     render_szpachlowanie_po_gruntowaniu(dane, rep)
 
     if dane.get('bruzdowane_wybor') != "masa samorozlewna" and dane['substrate'] != "strefy mokre":
-        _pu_applied = any(k in dane.get('written_texts', set()) for k in ['PU 280 (1W)', 'PU 280 (Bariera)', 'PU 280 (Bariera Płyta)', 'PU 235 (1W)', 'PU 235 (Bariera)'])
-        _skip_d3045 = dane.get('leveling_mesh') == "z siatką" and _pu_applied
-        if not used_d3004 and not _skip_d3045:
-            if dane.get('firma') == "Mapei":
+        is_dry_no_lev = (dane['substrate'] == "suchy jastrych (knauf, fermacell itp.)" and dane.get('needs_levelling') == "NIE")
+        if not is_dry_no_lev:
+            _pu_applied = any(k in dane.get('written_texts', set()) for k in ['PU 280 (1W)', 'PU 280 (Bariera)', 'PU 280 (Bariera Płyta)', 'PU 235 (1W)', 'PU 235 (Bariera)'])
+            _skip_d3045 = (dane.get('leveling_mesh') == "z siatką" and _pu_applied) or 'D 3080' in dane.get('written_texts', set())
+            if not used_d3004 and not _skip_d3045:
                 write_and_track(dane, rep, 'D 3045')
-            else:
-                rep.write("* Następnie należy zaaplikować specjalistyczny mostek sczepny za pomocą produktu **WAKOL D 3045**. Aplikować równomiernie za pomocą wałka. Zużycie wynosi **ok. 150 g/m²**. **Czas schnięcia 1 godzina**.")
-                write_and_track(dane, rep, 'D 3045')
-        if dane.get('leveling_mesh') == "z siatką":
-            area = dane.get('area_m2') or 0
-            firma_is_mapei = (dane.get('firma') == "Mapei")
-            ratio = 8.0 if firma_is_mapei else 7.0
-            
-            if firma_is_mapei:
-                rep.write(f"* Na przygotowane podłoże należy rozłożyć matę zbrojeniową **{PRODUCTS['AR 150']['name']}** i zaszpachlować ją masą szpachlową **{PRODUCTS['Z 645']['name']}** z dodatkiem plastyfikatora **{PRODUCTS['D 3060']['name']}** ({ratio} kg na 25 kg masy). Czas schnięcia min. 3h.")
-            elif dane.get('firma') == "Uzin":
-                rep.write(f"* Na przygotowane podłoże należy rozłożyć matę zbrojeniową **{PRODUCTS['AR 150']['name']}** i zaszpachlować ją masą szpachlową **{PRODUCTS['Z 645']['name']}**. Czas schnięcia przed klejeniem: **1,5 godziny**.")
-            else:
-                rep.write(f"* Na przygotowane podłoże należy rozłożyć matę zbrojeniową **{PRODUCTS['AR 150']['name']}** i zaszpachlować ją masą szpachlową **{PRODUCTS['Z 645']['name']}** z dodatkiem plastyfikatora **{PRODUCTS['D 3060']['name']}** ({ratio} litrów na 25 kg masy). Czas schnięcia min. 3h.")
+            if dane.get('leveling_mesh') == "z siatką":
+                area = dane.get('area_m2') or 0
+                firma_is_mapei = (dane.get('firma') == "Mapei")
+                ratio = 8.0 if firma_is_mapei else 7.0
                 
-            if area > 0:
-                write_and_track(dane, rep, 'AR 150', custom_kg=area)
-                kg_z645_mesh = area * 2.0
-                write_and_track(dane, rep, 'Z 645 (bruzdowane)', custom_kg=kg_z645_mesh)
-                if dane.get('firma') != "Uzin":
-                    write_and_track(dane, rep, 'D 3060', custom_kg=(kg_z645_mesh / 25.0) * ratio)
-        write_and_track(dane, rep, 'Z 675')
-
-    rep.write("* Po wyschnięciu masy samorozlewnej zalecamy szlif podłoża w celu uzyskania gładkiej powierzchni oraz dokładne odkurzenie.")
+                if firma_is_mapei:
+                    rep.write(f"* Na przygotowane podłoże należy rozłożyć matę zbrojeniową **{PRODUCTS['AR 150']['name']}** i zaszpachlować ją masą szpachlową **{PRODUCTS['Z 645']['name']}** z dodatkiem plastyfikatora **{PRODUCTS['D 3060']['name']}** ({ratio} kg na 25 kg masy). Czas schnięcia min. 3h.")
+                elif dane.get('firma') == "Uzin":
+                    rep.write(f"* Na przygotowane podłoże należy rozłożyć matę zbrojeniową **{PRODUCTS['AR 150']['name']}** i zaszpachlować ją masą szpachlową **{PRODUCTS['Z 645']['name']}**. Czas schnięcia przed klejeniem: **1,5 godziny**.")
+                else:
+                    rep.write(f"* Na przygotowane podłoże należy rozłożyć matę zbrojeniową **{PRODUCTS['AR 150']['name']}** i zaszpachlować ją masą szpachlową **{PRODUCTS['Z 645']['name']}** z dodatkiem plastyfikatora **{PRODUCTS['D 3060']['name']}** ({ratio} litrów na 25 kg masy). Czas schnięcia min. 3h.")
+                    
+                if area > 0:
+                    write_and_track(dane, rep, 'AR 150', custom_kg=area)
+                    kg_z645_mesh = area * 2.0
+                    write_and_track(dane, rep, 'Z 645 (bruzdowane)', custom_kg=kg_z645_mesh)
+                    if dane.get('firma') != "Uzin":
+                        write_and_track(dane, rep, 'D 3060', custom_kg=(kg_z645_mesh / 25.0) * ratio)
+            write_and_track(dane, rep, 'Z 675')
+            rep.write("* Po wyschnięciu masy samorozlewnej zalecamy szlif podłoża w celu uzyskania gładkiej powierzchni oraz dokładne odkurzenie.")
 
     rep.write("**c) klejenie okładziny:**")
     if dane['substrate'] == "strefy mokre":
@@ -1166,9 +1428,9 @@ def generate_report_lvt_cienkie(dane, rep):
 # --- SEKCJA: LVT GRUBE ---
 def render_chemia_lvt_grube(dane, rep):
     used_d3004 = False
+    if dane.get('szpachlowanie_laczen') == "TAK":
+        return False
     if dane.get('h_type') == "bruzdowane" and dane.get('bruzdowane_wybor'):
-        return True
-    if dane['substrate'] == "strefy mokre":
         return True
 
     if dane['substrate'] in ["płytki ceramiczne", "podłoże drewniane (parkiet, deska)", "podłoże z płyty OSB"]:
@@ -1184,6 +1446,8 @@ def render_chemia_lvt_grube(dane, rep):
     if dane['decision_after_cure'] in ["Wykonanie bariery przeciwwilgociowej", "osuszanie przed barierą"]:
         if dane['substrate'] == "płyta fundamentowa":
             write_and_track(dane, rep, 'PU 280 (Bariera Płyta)')
+        elif dane['substrate'] == "jastrych cementowy" and dane['needs_levelling'] == "TAK" and dane.get('firma') == "Wakol":
+            write_and_track(dane, rep, 'D 3080')
         elif dane['strength_val'] <= 2: write_and_track(dane, rep, 'PU 235 (Bariera)')
         else: write_and_track(dane, rep, 'PU 280 (Bariera)')
     elif not dane['decision_after_cure'] or ("Wykonanie" not in str(dane['decision_after_cure']) and "barierą" not in str(dane['decision_after_cure'])):
@@ -1191,8 +1455,16 @@ def render_chemia_lvt_grube(dane, rep):
             write_and_track(dane, rep, 'PU 280 (1W)')
             return False
         if dane['needs_levelling'] == "TAK":
-            if dane['strength_val'] in [3, 4, 5]:
-                if dane['substrate'] == "jastrych anhydrytowy" and dane['leveling_thickness'] and dane['leveling_thickness'] > 5:
+            if dane['substrate'] == "suchy jastrych (knauf, fermacell itp.)":
+                firma_is_mapei = (dane.get('firma') == "Mapei")
+                if firma_is_mapei:
+                    rep.write(f"* Podłoże zagruntować koncentratem gruntówki dyspersyjnej **{PRODUCTS['D 3004']['name']}**. Proporcje mieszania: 1 część koncentratu + 1 część wody; Czas schnięcia: 1h. Sposób nanoszenia: wałek do gruntowania. Zużycie: ok. 100 g/m² koncentratu.")
+                else:
+                    rep.write(f"* Podłoże zagruntować koncentratem gruntówki dyspersyjnej **{PRODUCTS['D 3004']['name']}**. Proporcje mieszania: 1 część koncentratu + 1 część wody; Czas schnięcia: 1h. Sposób nanoszenia: wałek do gruntowania microfazer. Zużycie: ok. 75 g/m² koncentratu.")
+                write_and_track(dane, rep, 'D 3004 (bruzdowane)')
+                used_d3004 = True
+            elif dane['strength_val'] in [3, 4, 5]:
+                if dane['substrate'] in ["jastrych anhydrytowy", "suchy jastrych (knauf, fermacell itp.)"] and dane['leveling_thickness'] and dane['leveling_thickness'] > 5:
                     write_and_track(dane, rep, 'PU 280 (1W)')
                 else:
                     write_and_track(dane, rep, 'D 3004')
@@ -1200,16 +1472,19 @@ def render_chemia_lvt_grube(dane, rep):
             elif dane['strength_val'] == 2:
                 write_and_track(dane, rep, 'PU 280 (1W)')
             elif dane['strength_val'] == 1:
-                if dane['substrate'] == "jastrych anhydrytowy": write_and_track(dane, rep, 'PU 235 (1W)')
+                if dane['substrate'] in ["jastrych anhydrytowy", "suchy jastrych (knauf, fermacell itp.)"]: write_and_track(dane, rep, 'PU 235 (1W)')
                 else:
                     write_and_track(dane, rep, 'PS 275')
+                    render_szpachlowanie_po_gruntowaniu(dane, rep)
                     if dane.get('firma') != 'Mapei':
                         write_and_track(dane, rep, 'PU 280 (1W)')
         else:
-            if dane['strength_val'] in [3, 4, 5]:
+            if dane['substrate'] == "suchy jastrych (knauf, fermacell itp.)":
+                write_and_track(dane, rep, 'PU 280 (1W)')
+            elif dane['strength_val'] in [3, 4, 5]:
                 write_and_track(dane, rep, 'D 3055')
             elif dane['strength_val'] in [1, 2]:
-                if dane['substrate'] == "jastrych anhydrytowy" and dane['strength_val'] == 1:
+                if dane['substrate'] in ["jastrych anhydrytowy", "suchy jastrych (knauf, fermacell itp.)"] and dane['strength_val'] == 1:
                     write_and_track(dane, rep, 'PU 235 (1W)')
                 else:
                     write_and_track(dane, rep, 'PU 280 (1W)')
@@ -1220,19 +1495,17 @@ def generate_report_lvt_grube(dane, rep):
     rep.markdown("#### **II. Zalecenia techniczne (LVT Grube z twardym rdzeniem)**")
     render_wspolne_zalecenia_podloze(dane, rep)
     used_d3004 = render_chemia_lvt_grube(dane, rep)
+    render_szpachlowanie_laczen(dane, rep)
+    render_strefy_mokre_po_gruntowce(dane, rep)
     render_calosc_flizelina(dane, rep)
     render_miejscowa_flizelina(dane, rep)
     render_szpachlowanie_po_gruntowaniu(dane, rep)
 
     if dane['needs_levelling'] == "TAK" and dane.get('bruzdowane_wybor') != "masa samorozlewna" and dane['substrate'] != "strefy mokre":
         _pu_applied = any(k in dane.get('written_texts', set()) for k in ['PU 280 (1W)', 'PU 280 (Bariera)', 'PU 280 (Bariera Płyta)', 'PU 235 (1W)', 'PU 235 (Bariera)'])
-        _skip_d3045 = dane.get('leveling_mesh') == "z siatką" and _pu_applied
+        _skip_d3045 = (dane.get('leveling_mesh') == "z siatką" and _pu_applied) or 'D 3080' in dane.get('written_texts', set())
         if not used_d3004 and not _skip_d3045:
-            if dane.get('firma') == "Mapei":
-                write_and_track(dane, rep, 'D 3045')
-            else:
-                rep.write("* Następnie należy zaaplikować specjalistyczny mostek sczepny za pomocą produktu **WAKOL D 3045**. Aplikować równomiernie za pomocą wałka. Zużycie wynosi **ok. 150 g/m²**. **Czas schnięcia 1 godzina**.")
-                write_and_track(dane, rep, 'D 3045')
+            write_and_track(dane, rep, 'D 3045')
         if dane.get('leveling_mesh') == "z siatką":
             area = dane.get('area_m2') or 0
             firma_is_mapei = (dane.get('firma') == "Mapei")
@@ -1279,7 +1552,7 @@ def generate_report_lvt_grube(dane, rep):
 
 # --- SEKCJA: PCV W ROLCE ---
 def generate_report_pcv_w_rolce(dane, rep):
-    if dane['needs_levelling'] == "NIE" and dane['already_levelled'] == "NIE":
+    if dane['needs_levelling'] == "NIE" and dane['already_levelled'] == "NIE" and dane.get('szpachlowanie_laczen') != "TAK" and dane['substrate'] != "suchy jastrych (knauf, fermacell itp.)":
         rep.error("BŁĄD: Pod okładzinę PCV w rolce wymagane jest wyrównanie podłoża. Poinformuj klienta o konieczności wylania masy!")
         return
         
@@ -1288,12 +1561,17 @@ def generate_report_pcv_w_rolce(dane, rep):
     
     if dane['already_levelled'] == "TAK":
         rep.write("**a) przygotowanie podłoża:**")
+        if dane.get('moisture') == "ponadnormatywnie wilgotne":
+            rep.write("* Doprowadzenie do normatywnego poziomu wilgoci w masie poprzez zapewnienie odpowiednich warunków do schnięcia.")
         if dane['curing_not_done']:
             rep.write("* **Konieczność przeprowadzenia pełnego procesu wygrzewania podłoża** zgodnie z protokołem.")
-            rep.write("Po **przeprowadzeniu pełnego procesu wygrzewania** zalecamy:")
         rep.write("* Szlif podłoża w celu uzyskania gładkiej powierzchni.")
         rep.write("* Dokładne odkurzenie powierzchni odkurzaczem przemysłowym.")
         rep.write("**b) klejenie okładziny PCV:**")
+        if dane.get('moisture') == "ponadnormatywnie wilgotne":
+            rep.write("Po doprowadzeniu do normatywnego poziomu wilgoci masy zalecamy:")
+        elif dane['curing_not_done']:
+            rep.write("Po **przeprowadzeniu pełnego procesu wygrzewania** zalecamy:")
         if dane['substrate'] == "strefy mokre":
             rep.write(f"Klejenie okładziny należy przeprowadzić przy użyciu kleju do stref mokrych **{PRODUCTS['MS 552']['name']}** (zużycie: 350 g/m²).")
             write_and_track(dane, rep, 'MS 552')
@@ -1305,19 +1583,17 @@ def generate_report_pcv_w_rolce(dane, rep):
 
     render_wspolne_zalecenia_podloze(dane, rep)
     used_d3004 = render_wspolna_chemia(dane, rep)
+    render_szpachlowanie_laczen(dane, rep)
+    render_strefy_mokre_po_gruntowce(dane, rep)
     render_calosc_flizelina(dane, rep)
     render_miejscowa_flizelina(dane, rep)
     render_szpachlowanie_po_gruntowaniu(dane, rep)
 
     if dane['needs_levelling'] == "TAK" and dane.get('bruzdowane_wybor') != "masa samorozlewna" and dane['substrate'] != "strefy mokre":
         _pu_applied = any(k in dane.get('written_texts', set()) for k in ['PU 280 (1W)', 'PU 280 (Bariera)', 'PU 280 (Bariera Płyta)', 'PU 235 (1W)', 'PU 235 (Bariera)'])
-        _skip_d3045 = dane.get('leveling_mesh') == "z siatką" and _pu_applied
+        _skip_d3045 = (dane.get('leveling_mesh') == "z siatką" and _pu_applied) or 'D 3080' in dane.get('written_texts', set())
         if not used_d3004 and not _skip_d3045:
-            if dane.get('firma') == "Mapei":
-                write_and_track(dane, rep, 'D 3045')
-            else:
-                rep.write("* Następnie należy zaaplikować specjalistyczny mostek sczepny za pomocą produktu **WAKOL D 3045**. Aplikować równomiernie za pomocą wałka. Zużycie wynosi **ok. 150 g/m²**. **Czas schnięcia 1 godzina**.")
-                write_and_track(dane, rep, 'D 3045')
+            write_and_track(dane, rep, 'D 3045')
         if dane.get('leveling_mesh') == "z siatką":
             area = dane.get('area_m2') or 0
             firma_is_mapei = (dane.get('firma') == "Mapei")
@@ -1337,8 +1613,7 @@ def generate_report_pcv_w_rolce(dane, rep):
                 if dane.get('firma') != "Uzin":
                     write_and_track(dane, rep, 'D 3060', custom_kg=(kg_z645_mesh / 25.0) * ratio)
         write_and_track(dane, rep, 'Z 675')
-
-    rep.write("* Po wyschnięciu masy samorozlewnej zalecamy szlif podłoża w celu uzyskania gładkiej powierzchni oraz dokładne odkurzenie.")
+        rep.write("* Po wyschnięciu masy samorozlewnej zalecamy szlif podłoża w celu uzyskania gładkiej powierzchni oraz dokładne odkurzenie.")
 
     rep.write("**c) klejenie okładziny PCV:**")
     if dane['substrate'] == "strefy mokre":
@@ -1351,7 +1626,7 @@ def generate_report_pcv_w_rolce(dane, rep):
 
 # --- SEKCJA: WYKŁADZINA DYWANOWA ---
 def generate_report_wykladzina_dywanowa(dane, rep):
-    if dane['needs_levelling'] == "NIE" and dane['already_levelled'] == "NIE":
+    if dane['needs_levelling'] == "NIE" and dane['already_levelled'] == "NIE" and dane.get('szpachlowanie_laczen') != "TAK" and dane['substrate'] != "suchy jastrych (knauf, fermacell itp.)":
         rep.error("BŁĄD: Pod wykładzinę dywanową wymagane jest wyrównanie podłoża. Poinformuj klienta o konieczności wylania masy!")
         return
         
@@ -1360,12 +1635,17 @@ def generate_report_wykladzina_dywanowa(dane, rep):
     
     if dane['already_levelled'] == "TAK":
         rep.write("**a) przygotowanie podłoża:**")
+        if dane.get('moisture') == "ponadnormatywnie wilgotne":
+            rep.write("* Doprowadzenie do normatywnego poziomu wilgoci w masie poprzez zapewnienie odpowiednich warunków do schnięcia.")
         if dane['curing_not_done']:
             rep.write("* **Konieczność przeprowadzenia pełnego procesu wygrzewania podłoża** zgodnie z protokołem.")
-            rep.write("Po **przeprowadzeniu pełnego procesu wygrzewania** zalecamy:")
         rep.write("* Szlif podłoża w celu uzyskania gładkiej powierzchni.")
         rep.write("* Dokładne odkurzenie powierzchni odkurzaczem przemysłowym.")
         rep.write("**b) klejenie wykładziny tekstylnej:**")
+        if dane.get('moisture') == "ponadnormatywnie wilgotne":
+            rep.write("Po doprowadzeniu do normatywnego poziomu wilgoci masy zalecamy:")
+        elif dane['curing_not_done']:
+            rep.write("Po **przeprowadzeniu pełnego procesu wygrzewania** zalecamy:")
         if dane['substrate'] == "strefy mokre":
             rep.write(f"Klejenie okładziny należy przeprowadzić przy użyciu kleju do stref mokrych **{PRODUCTS['MS 552']['name']}** (zużycie: 350 g/m²).")
             write_and_track(dane, rep, 'MS 552')
@@ -1377,19 +1657,17 @@ def generate_report_wykladzina_dywanowa(dane, rep):
 
     render_wspolne_zalecenia_podloze(dane, rep)
     used_d3004 = render_wspolna_chemia(dane, rep)
+    render_szpachlowanie_laczen(dane, rep)
+    render_strefy_mokre_po_gruntowce(dane, rep)
     render_calosc_flizelina(dane, rep)
     render_miejscowa_flizelina(dane, rep)
     render_szpachlowanie_po_gruntowaniu(dane, rep)
 
     if dane['needs_levelling'] == "TAK" and dane.get('bruzdowane_wybor') != "masa samorozlewna" and dane['substrate'] != "strefy mokre":
         _pu_applied = any(k in dane.get('written_texts', set()) for k in ['PU 280 (1W)', 'PU 280 (Bariera)', 'PU 280 (Bariera Płyta)', 'PU 235 (1W)', 'PU 235 (Bariera)'])
-        _skip_d3045 = dane.get('leveling_mesh') == "z siatką" and _pu_applied
+        _skip_d3045 = (dane.get('leveling_mesh') == "z siatką" and _pu_applied) or 'D 3080' in dane.get('written_texts', set())
         if not used_d3004 and not _skip_d3045:
-            if dane.get('firma') == "Mapei":
-                write_and_track(dane, rep, 'D 3045')
-            else:
-                rep.write("* Następnie należy zaaplikować specjalistyczny mostek sczepny za pomocą produktu **WAKOL D 3045**. Aplikować równomiernie za pomocą wałka. Zużycie wynosi **ok. 150 g/m²**. **Czas schnięcia 1 godzina**.")
-                write_and_track(dane, rep, 'D 3045')
+            write_and_track(dane, rep, 'D 3045')
         if dane.get('leveling_mesh') == "z siatką":
             area = dane.get('area_m2') or 0
             firma_is_mapei = (dane.get('firma') == "Mapei")
@@ -1409,8 +1687,7 @@ def generate_report_wykladzina_dywanowa(dane, rep):
                 if dane.get('firma') != "Uzin":
                     write_and_track(dane, rep, 'D 3060', custom_kg=(kg_z645_mesh / 25.0) * ratio)
         write_and_track(dane, rep, 'Z 675')
-
-    rep.write("* Po wyschnięciu masy samorozlewnej zalecamy szlif podłoża w celu uzyskania gładkiej powierzchni oraz dokładne odkurzenie.")
+        rep.write("* Po wyschnięciu masy samorozlewnej zalecamy szlif podłoża w celu uzyskania gładkiej powierzchni oraz dokładne odkurzenie.")
 
     rep.write("**c) klejenie wykładziny tekstylnej:**")
     if dane['substrate'] == "strefy mokre":
@@ -1922,7 +2199,7 @@ def render_wersja_pro(nazwa_klienta, miejscowosc, adres, autor, data_badania):
         if prod_key != "BRAK":
             if "AR 150" in prod_key or "EM 140" in prod_key:
                 pro_label = "m²"
-            elif "Płyta poliestrowa" in prod_key:
+            elif "Płyta poliestrowa" in prod_key or "RP 104" in prod_key:
                 pro_label = "szt"
 
         with col2:
@@ -2004,525 +2281,776 @@ def render_wersja_pro(nazwa_klienta, miejscowosc, adres, autor, data_badania):
 # 3. INTERFEJS UŻYTKOWNIKA (FORMULARZ)
 # ==========================================
 
-st.title("📄 Generator Protokołu Oględzin")
-with st.container():
-    col1, col2 = st.columns(2)
-    with col1:
-        nazwa_klienta = st.text_input("Nazwa Klienta", "Jan Kowalski")
-        miejscowosc = st.text_input("Miejscowość", "Huta Dłutowska")
-        adres = st.text_input("Ulica i nr", "ul. Pabianicka 15")
-    with col2:
-        autor = st.text_input("Autor protokołu", "Przemysław Tyszko")
-        data_badania = st.date_input("Data badania", date.today())
+if __name__ == "__main__" and st.runtime.exists():
+    st.title("📄 Generator Protokołu Oględzin")
+    st.markdown("""
+        <style>
+            [data-testid="stVirtualDropdown"] {
+                margin-top: 6px !important;
+            }
+            div[data-baseweb="popover"] {
+                margin-top: 6px !important;
+            }
+            [data-testid="stVirtualDropdown"] > div {
+                max-height: 450px !important;
+                padding-top: 6px !important;
+                padding-bottom: 6px !important;
+            }
+            div[data-baseweb="popover"] > div {
+                max-height: 450px !important;
+                padding-top: 6px !important;
+                padding-bottom: 6px !important;
+            }
+        </style>
+    """, unsafe_allow_html=True)
+    with st.container():
+        col1, col2 = st.columns(2)
+        with col1:
+            nazwa_klienta = st.text_input("Nazwa Klienta", "Jan Kowalski")
+            miejscowosc = st.text_input("Miejscowość", "Huta Dłutowska")
+            adres = st.text_input("Ulica i nr", "ul. Pabianicka 15")
+        with col2:
+            autor = st.text_input("Autor protokołu", "Przemysław Tyszko")
+            data_badania = st.date_input("Data badania", date.today())
 
-st.divider()
-tryb = st.radio("Wybierz tryb pracy aplikacji:", ["Wersja Ogólna (Automatyczna)", "Wersja PRO (Ręczna)"], horizontal=True)
-st.divider()
+    st.divider()
+    tryb = st.radio("Wybierz tryb pracy aplikacji:", ["Wersja Ogólna (Automatyczna)", "Wersja PRO (Ręczna)"], horizontal=True)
+    st.divider()
 
-if tryb == "Wersja PRO (Ręczna)":
-    render_wersja_pro(nazwa_klienta, miejscowosc, adres, autor, data_badania)
-    st.stop()
+    if tryb == "Wersja PRO (Ręczna)":
+        render_wersja_pro(nazwa_klienta, miejscowosc, adres, autor, data_badania)
+        st.stop()
 
 
-st.markdown("---")
-firma = st.radio("🏢 Wybierz firmę:", ["Wakol", "Mapei", "Uzin"], horizontal=True)
-if firma == "Mapei":
-    PRODUCTS = PRODUCTS_MAPEI
-elif firma == "Uzin":
-    PRODUCTS = PRODUCTS_UZIN
-else:
-    PRODUCTS = PRODUCTS_WAKOL
-st.markdown("---")
+    st.markdown("---")
+    firma = st.radio("🏢 Wybierz firmę:", ["Wakol", "Mapei", "Uzin"], horizontal=True)
+    if firma == "Mapei":
+        PRODUCTS = PRODUCTS_MAPEI
+    elif firma == "Uzin":
+        PRODUCTS = PRODUCTS_UZIN
+    else:
+        PRODUCTS = PRODUCTS_WAKOL
+    st.markdown("---")
 
-flooring_type = st.selectbox("Wybierz rodzaj okładziny (Sekcja):", ["deska warstwowa", "podłoga laminowana", "lity parkiet (maks. 8 cm x 60 cm)", "mozaika drewniana (min. 16 mm grubości, maks. 20 cm długości)", "deska lita", "wykładzina dywanowa", "pcv w rolce", "lvt cienkie", "lvt grube z twardym rdzeniem"])
+    flooring_type = st.selectbox("Wybierz rodzaj okładziny (Sekcja):", ["deska warstwowa", "podłoga laminowana", "lity parkiet", "mozaika drewniana", "deska lita", "wykładzina dywanowa", "pcv w rolce", "lvt cienkie", "lvt grube z twardym rdzeniem"])
 
-klej_typ = None
-lvt_bottom_type = None
-if flooring_type in ["deska warstwowa", "podłoga laminowana", "lity parkiet (maks. 8 cm x 60 cm)", "mozaika drewniana (min. 16 mm grubości, maks. 20 cm długości)", "deska lita"]:
-    klej_typ = st.radio("Rodzaj kleju:", ["elastyczny", "bezprzesuwny"], horizontal=True)
-elif flooring_type == "lvt grube z twardym rdzeniem":
-    lvt_bottom_type = st.radio("Rodzaj spodu LVT:", ["Winyl z zintegrowanym spodem korkowym", "Winyl na homogenicznym spodzie", "Winyl na piankowym spodzie"], horizontal=True)
+    klej_typ = None
+    lvt_bottom_type = None
+    parkiet_pattern = None
+    szpachlowanie_laczen = "NIE"
+    if flooring_type in ["deska warstwowa", "podłoga laminowana", "lity parkiet", "mozaika drewniana", "deska lita"]:
+        klej_typ = st.radio("Rodzaj kleju:", ["elastyczny", "bezprzesuwny"], horizontal=True)
+    elif flooring_type == "lvt grube z twardym rdzeniem":
+        lvt_bottom_type = st.radio("Rodzaj spodu LVT:", ["Winyl z zintegrowanym spodem korkowym", "Winyl na homogenicznym spodzie", "Winyl na piankowym spodzie"], horizontal=True)
 
-st.markdown(f"### Wywiad Techniczny dla: **{flooring_type.upper()}**")
+    st.markdown(f"### Wywiad Techniczny dla: **{flooring_type.upper()}**")
 
-substrate = st.selectbox("1. Rodzaj podłoża", ["jastrych cementowy", "jastrych anhydrytowy", "płyta fundamentowa", "podłoże drewniane (parkiet, deska)", "podłoże z płyty OSB", "płytki ceramiczne", "masa samorozlewna", "strefy mokre"])
+    substrate = st.selectbox("1. Rodzaj podłoża", ["jastrych cementowy", "jastrych anhydrytowy", "suchy jastrych (knauf, fermacell itp.)", "płyta fundamentowa", "podłoże drewniane (parkiet, deska)", "podłoże z płyty OSB", "płytki ceramiczne", "masa samorozlewna", "strefy mokre"])
 
-masa_class = None
-if substrate == "masa samorozlewna":
-    masa_class = st.selectbox("1a. Wytrzymałość masy:", ["C15", "C20", "C25", "C30", "C35", "C40"])
+    if flooring_type == "lity parkiet" and substrate == "suchy jastrych (knauf, fermacell itp.)":
+        parkiet_pattern = st.radio("Wzór układania parkietu:", ["na dziko (okrętowy / dziki)", "inny (jodełka, kostka itp.)"], horizontal=True)
 
-_force_levelling = False
-_force_holes = False
-has_adhesive_residues = False
+    masa_class = None
 
-if substrate in ["podłoże drewniane (parkiet, deska)", "podłoże z płyty OSB", "płytki ceramiczne"]:
-    st.write("1a. Czy podłoże jest stabilnie związane z podkładem?")
-    substrate_stable = st.radio("Stabilność podłoża:", ["TAK", "NIE"], index=0, horizontal=True, key="substrate_stable")
-    if substrate_stable == "NIE":
-        if substrate in ["podłoże drewniane (parkiet, deska)", "podłoże z płyty OSB"]:
-            st.warning("⚠️ Podłoże wymaga demontażu. Po demontażu konieczne jest wyrównanie masą samorozlewną.")
-            substrate = st.selectbox("Rodzaj podłoża po demontażu:", ["jastrych cementowy", "jastrych anhydrytowy", "płyta fundamentowa"], key="sub_after_demo")
-            _force_levelling = True
-        else:
-            st.warning("⚠️ Podłoże ceramiczne nie jest stabilnie związane z podkładem.")
-            ceramic_action = st.radio(
-                "Wybierz sposób postępowania:",
-                ["Konieczność skucia całości", "Skucie luźnych fragmentów i zaszpachlowanie ubytków"],
-                key="ceramic_action"
-            )
-            if ceramic_action == "Konieczność skucia całości":
-                st.warning("⚠️ Po skuciu całości płytek konieczne jest wyrównanie masą samorozlewną.")
-                substrate = st.selectbox("Rodzaj podłoża po skuciu:", ["jastrych cementowy", "jastrych anhydrytowy", "płyta fundamentowa"], key="sub_after_demo")
+    _force_levelling = False
+    _force_holes = False
+    has_adhesive_residues = False
+
+    if substrate in ["podłoże drewniane (parkiet, deska)", "płytki ceramiczne"]:
+        st.write("1a. Czy podłoże jest stabilnie związane z podkładem?")
+        substrate_stable = st.radio("Stabilność podłoża:", ["TAK", "NIE"], index=0, horizontal=True, key="substrate_stable")
+        if substrate_stable == "NIE":
+            if substrate == "podłoże drewniane (parkiet, deska)":
+                st.warning("⚠️ Podłoże wymaga demontażu. Po demontażu konieczne jest wyrównanie masą samorozlewną.")
+                substrate = st.selectbox("Rodzaj podłoża po demontażu:", ["jastrych cementowy", "jastrych anhydrytowy", "suchy jastrych (knauf, fermacell itp.)", "płyta fundamentowa"], key="sub_after_demo")
                 _force_levelling = True
             else:
-                st.info("ℹ️ Skucie luźnych fragmentów ceramicznych i zaszpachlowanie powstałych ubytków.")
-                _force_holes = True
+                st.warning("⚠️ Podłoże ceramiczne nie jest stabilnie związane z podkładem.")
+                ceramic_action = st.radio(
+                    "Wybierz sposób postępowania:",
+                    ["Konieczność skucia całości", "Skucie luźnych fragmentów i zaszpachlowanie ubytków"],
+                    key="ceramic_action"
+                )
+                if ceramic_action == "Konieczność skucia całości":
+                    st.warning("⚠️ Po skuciu całości płytek konieczne jest wyrównanie masą samorozlewną.")
+                    substrate = st.selectbox("Rodzaj podłoża po skuciu:", ["jastrych cementowy", "jastrych anhydrytowy", "suchy jastrych (knauf, fermacell itp.)", "płyta fundamentowa"], key="sub_after_demo")
+                    _force_levelling = True
+                else:
+                    st.info("ℹ️ Skucie luźnych fragmentów ceramicznych i zaszpachlowanie powstałych ubytków.")
+                    _force_holes = True
 
-area_m2 = st.number_input("Powierzchnia inwestycji (m²):", min_value=1.0, step=1.0, format="%.1f", value=None)
-substrate_age_val = st.number_input("Wiek podłoża (podaj ilość miesięcy):", min_value=0.5, step=0.5, format="%.1f", value=None)
+    area_m2 = st.number_input("Powierzchnia inwestycji (m²):", min_value=1.0, step=1.0, format="%.1f", value=None)
+    substrate_age_val = st.number_input("Wiek podłoża (podaj ilość miesięcy):", min_value=0.5, step=0.5, format="%.1f", value=None)
 
-st.write("2. Czy jest instalacja ogrzewania podłogowego?")
-heating_exists = st.radio("Ogrzewanie:", ["TAK", "NIE"], index=1, horizontal=True)
-heating_info = ""; heating_curing_done = None; h_type = None; bruzdowane_wybor = None
-if heating_exists == "TAK":
-    h_type = st.selectbox("Typ ogrzewania:", ["wodne klasyczne", "bruzdowane", "w suchej zabudowie", "elektryczne (powierzchniowe)", "elektryczne (głębokie)", "płyta fundamentowa grzewcza"])
-    if h_type == "bruzdowane":
-        if flooring_type == "lvt cienkie":
-            bruzdowane_wybor = "masa samorozlewna"
-            st.info("Przy LVT cienkim i ogrzewaniu bruzdowanym wymagana jest masa samorozlewna — technologia ustawiona automatycznie.")
-        elif firma == "Uzin":
-            bruzdowane_wybor = "masa samorozlewna"
-            st.info("Dla marki Uzin technologia przygotowania podłoża (zalanie bruzd KR 417, mata zbrojąca RR 201 i masa samopoziomująca NC 170) jest określona jednoznacznie.")
-        else:
-            bruzdowane_wybor = st.radio("Wybierz technologię (ogrzewanie bruzdowane):", ["masa samorozlewna", "płyta poliestrowa"], horizontal=True)
-        
-    if h_type != "bruzdowane":
-        st.write("❓ Czy został przeprowadzony proces wygrzewania zgodnie z protokołem?")
-        heating_curing_done = st.radio("Proces wygrzewania:", ["TAK", "NIE"], index=1, horizontal=True)
-    else:
-        heating_curing_done = "NIE DOTYCZY"
-    mapping = {"wodne klasyczne": "instalacja ogrzewania podłogowego wodna, klasyczna", "bruzdowane": "instalacja ogrzewania podłogowego wodna, bruzdowana", "w suchej zabudowie": "instalacja ogrzewania podłogowego wodna, w suchej zabudowie", "elektryczne (powierzchniowe)": "instalacja ogrzewania podłogowego elektryczna, powierzchniowa", "elektryczne (głębokie)": "instalacja ogrzewania podłogowego elektryczna, umieszczona głęboko w podłożu", "płyta fundamentowa grzewcza": "ogrzewanie realizowane poprzez płytę fundamentową grzewczą"}
-    heating_info = mapping.get(h_type, h_type)
-
-# --- LOGIKA NORM I BARIER ---
-if substrate == "płyta fundamentowa":
-    limit = 1.5 if heating_exists == "TAK" else 1.8
-    barrier_max = 3.0
-elif substrate == "jastrych anhydrytowy":
-    limit = 0.3 if heating_exists == "TAK" else 0.5
-    barrier_max = 2.5 if heating_exists == "TAK" else 3.5
-else:
-    limit = 1.5 if heating_exists == "TAK" else 1.8
-    barrier_max = 2.5 if heating_exists == "TAK" else 3.5
-
-# --- WILGOTNOŚĆ PODŁOŻA + DECYZJA (zaraz po ogrzewaniu) ---
-emissions_test = None
-_substrate_no_moisture = substrate in ["podłoże drewniane (parkiet, deska)", "podłoże z płyty OSB", "płytki ceramiczne"]
-if _substrate_no_moisture:
-    st.info("3. Poziom wilgoci podłoża — nie dotyczy tego rodzaju podłoża.")
-    moisture = None
-elif substrate == "płyta fundamentowa":
-    moisture = st.number_input("3. Poziom wilgoci podłoża (%)", format="%.1f", value=None)
-    emissions_test = st.radio("3a. Badanie emisyjności (Higrometr/KRL):", ["pozytywny", "negatywny"], horizontal=True)
-elif substrate == "masa samorozlewna":
-    moisture = st.radio("3. Ocena wilgotności masy samorozlewnej:", ["sucha", "mokra"], horizontal=True)
-else:
-    moisture = st.number_input("3. Poziom wilgoci podłoża (CM %)", format="%.1f", value=None)
-
-decision_after_cure = None
-needs_drying_action = False
-
-is_moisture_high = False
-if moisture is not None:
-    if isinstance(moisture, str):
-        is_moisture_high = (moisture == "mokra")
-    else:
-        is_moisture_high = (moisture > limit)
-
-if is_moisture_high:
-    needs_drying_action = True
+    st.write("2. Czy jest instalacja ogrzewania podłogowego?")
+    heating_exists = st.radio("Ogrzewanie:", ["TAK", "NIE"], index=1, horizontal=True)
+    heating_info = ""; heating_curing_done = None; h_type = None; bruzdowane_wybor = None
     if heating_exists == "TAK":
+        h_type = st.selectbox("Typ ogrzewania:", ["wodne klasyczne", "bruzdowane", "w suchej zabudowie", "elektryczne (powierzchniowe)", "elektryczne (głębokie)", "płyta fundamentowa grzewcza"])
         if h_type == "bruzdowane":
-            opt_dry = "zapewnienie podłożu odpowiednich warunków do schnięcia"
-        elif heating_curing_done == "NIE":
-            opt_dry = "przeprowadzenie procesu wygrzewania"
-        else:
-            opt_dry = "przeprowadzenie kolejnego, krótkiego procesu wygrzewania"
-    else:
-        opt_dry = "dalsze osuszanie"
-        
-    if substrate == "płyta fundamentowa":
-        if emissions_test == "negatywny":
-            st.warning("Wynik badania emisyjności jest negatywny. Konieczność dalszego osuszania przed wykonaniem bariery przeciwwilgociowej.")
-            decision_after_cure = "osuszanie przed barierą"
-            needs_drying_action = True
-        elif isinstance(moisture, (int, float)) and moisture > barrier_max:
-            st.warning(f"Podłoże jest zbyt wilgotne. Konieczność doprowadzenia do poziomu wilgoci max. {barrier_max}% przed wykonaniem bariery przeciwwilgociowej.")
-            decision_after_cure = "osuszanie przed barierą"
-            needs_drying_action = True
-        else:
-            decision_after_cure = "Wykonanie bariery przeciwwilgociowej"
-            needs_drying_action = False
-    elif h_type == "bruzdowane":
-        st.warning(f"Podłoże jest zbyt wilgotne. Konieczność doprowadzenia do normatywnego poziomu wilgoci ({limit}% CM) przed przystąpieniem do dalszych prac.")
-        decision_after_cure = opt_dry
-    elif substrate == "jastrych anhydrytowy":
-        st.info(f"Dla jastrychu anhydrytowego nie ma możliwości wykonania bariery przeciwwilgociowej. Konieczność doprowadzenia do normatywnego poziomu wilgoci ({limit}% CM).")
-        decision_after_cure = opt_dry
-    elif substrate == "masa samorozlewna":
-        st.info("Dla masy samorozlewnej nie ma możliwości wykonania bariery przeciwwilgociowej. Konieczność doprowadzenia masy do stanu suchego.")
-        decision_after_cure = opt_dry
-    else:
-        if isinstance(moisture, (int, float)) and moisture <= barrier_max:
-            decision_after_cure = st.radio("Postępowanie z podwyższoną wilgocią:", [opt_dry, "Wykonanie bariery przeciwwilgociowej"], horizontal=True)
-            needs_drying_action = (decision_after_cure != "Wykonanie bariery przeciwwilgociowej")
-        else:
-            decision_after_cure = opt_dry
-else:
-    if substrate == "płyta fundamentowa":
-        if emissions_test == "negatywny":
-            st.warning("Wynik badania emisyjności jest negatywny. Konieczność dalszego osuszania przed wykonaniem bariery przeciwwilgociowej.")
-            decision_after_cure = "osuszanie przed barierą"
-            needs_drying_action = True
-        else:
-            decision_after_cure = "Wykonanie bariery przeciwwilgociowej"
+            if flooring_type == "lvt cienkie":
+                bruzdowane_wybor = "masa samorozlewna"
+                st.info("Przy LVT cienkim i ogrzewaniu bruzdowanym wymagana jest masa samorozlewna — technologia ustawiona automatycznie.")
+            elif firma == "Uzin":
+                bruzdowane_wybor = "masa samorozlewna"
+                st.info("Dla marki Uzin technologia przygotowania podłoża (zalanie bruzd KR 417, mata zbrojąca RR 201 i masa samopoziomująca NC 170) jest określona jednoznacznie.")
+            else:
+                bruzdowane_wybor = st.radio("Wybierz technologię (ogrzewanie bruzdowane):", ["masa samorozlewna", "płyta poliestrowa"], horizontal=True)
 
-st.write("4. Czy są ubytki bądź zdegradowane fragmenty wymagające wypełnienia masą naprawczą?")
-hole_details = ""
-holes_depth = None
-h_depth = None; h_width = None; h_length = None
-img_holes = []
-if _force_holes:
-    holes = "TAK"
-    st.info("ℹ️ Ubytki po skuciu płytek ceramicznych — podaj wymiary:")
-    col_h1, col_h2, col_h3 = st.columns(3)
-    with col_h1: h_depth = st.number_input("Głębokość ubytków (cm)", min_value=0.1, value=None, key="h_depth_f")
-    with col_h2: h_width = st.number_input("Szerokość ubytków (cm)", min_value=0.1, value=None, key="h_width_f")
-    with col_h3: h_length = st.number_input("Długość ubytków (m)", min_value=0.01, value=None, key="h_length_f")
-    if h_depth and h_width and h_length: hole_details = f" o wymiarach ok. {h_length} m x {h_width} cm i głębokości {h_depth} cm"
-    holes_depth = h_depth
-    img_holes = st.file_uploader("Zdjęcia ubytków po skuciu:", accept_multiple_files=True, type=["png", "jpg", "jpeg"], key="img_holes_f")
-else:
-    holes = st.radio("Ubytki:", ["TAK", "NIE"], index=1, horizontal=True)
-    if holes == "TAK":
+        if h_type != "bruzdowane":
+            st.write("❓ Czy został przeprowadzony proces wygrzewania zgodnie z protokołem?")
+            heating_curing_done = st.radio("Proces wygrzewania:", ["TAK", "NIE"], index=1, horizontal=True)
+        else:
+            heating_curing_done = "NIE DOTYCZY"
+        mapping = {"wodne klasyczne": "instalacja ogrzewania podłogowego wodna, klasyczna", "bruzdowane": "instalacja ogrzewania podłogowego wodna, bruzdowana", "w suchej zabudowie": "instalacja ogrzewania podłogowego wodna, w suchej zabudowie", "elektryczne (powierzchniowe)": "instalacja ogrzewania podłogowego elektryczna, powierzchniowa", "elektryczne (głębokie)": "instalacja ogrzewania podłogowego elektryczna, umieszczona głęboko w podłożu", "płyta fundamentowa grzewcza": "ogrzewanie realizowane poprzez płytę fundamentową grzewczą"}
+        heating_info = mapping.get(h_type, h_type)
+
+    # --- LOGIKA NORM I BARIER ---
+    if substrate == "płyta fundamentowa":
+        limit = 1.5 if heating_exists == "TAK" else 1.8
+        barrier_max = 3.0
+    elif substrate in ["jastrych anhydrytowy", "suchy jastrych (knauf, fermacell itp.)"]:
+        limit = 0.3 if heating_exists == "TAK" else 0.5
+        barrier_max = 2.5 if heating_exists == "TAK" else 3.5
+    else:
+        limit = 1.5 if heating_exists == "TAK" else 1.8
+        barrier_max = 2.5 if heating_exists == "TAK" else 3.5
+
+    # --- WILGOTNOŚĆ PODŁOŻA + DECYZJA (zaraz po ogrzewaniu) ---
+    emissions_test = None
+    _substrate_no_moisture = substrate in ["podłoże drewniane (parkiet, deska)", "podłoże z płyty OSB", "płytki ceramiczne", "suchy jastrych (knauf, fermacell itp.)"]
+
+    # Pre-resolve already_levelled state from session state
+    temp_already_levelled = "NIE"
+    if flooring_type == "lvt cienkie":
+        temp_already_levelled = st.session_state.get('lvt_already_lev', "NIE")
+    elif flooring_type in ["wykładzina dywanowa", "pcv w rolce"]:
+        needs_lev_val = st.session_state.get('needs_lev_radio', "NIE")
+        if needs_lev_val == "NIE":
+            temp_already_levelled = st.session_state.get('already_lev_radio', "NIE")
+
+    if temp_already_levelled == "TAK":
+        moisture = st.session_state.get("already_lev_moisture")
+    elif _substrate_no_moisture:
+        st.info("3. Poziom wilgoci podłoża — nie dotyczy tego rodzaju podłoża.")
+        moisture = None
+    elif substrate == "płyta fundamentowa":
+        moisture = st.number_input("3. Poziom wilgoci podłoża (%)", format="%.1f", value=None)
+        emissions_test = st.radio("3a. Badanie emisyjności (Higrometr/KRL):", ["pozytywny", "negatywny", "nie badano"], horizontal=True)
+    elif substrate == "masa samorozlewna":
+        moisture = st.radio("3. Ocena wilgotności masy samorozlewnej:", ["sucha", "mokra"], horizontal=True)
+    else:
+        moisture = st.number_input("3. Poziom wilgoci podłoża (CM %)", format="%.1f", value=None)
+
+    decision_after_cure = None
+    needs_drying_action = False
+    is_moisture_high = False
+
+    if temp_already_levelled == "TAK":
+        is_moisture_high = (moisture == "ponadnormatywnie wilgotne")
+        if is_moisture_high:
+            needs_drying_action = True
+            decision_after_cure = "zapewnienie odpowiednich warunków do schnięcia"
+            st.warning("Masa samorozlewna jest ponadnormatywnie wilgotna. Konieczność zapewnienia odpowiednich warunków do schnięcia.")
+        else:
+            needs_drying_action = False
+            decision_after_cure = None
+    else:
+        if moisture is not None:
+            if isinstance(moisture, str):
+                is_moisture_high = (moisture == "mokra")
+            else:
+                is_moisture_high = (moisture > limit)
+
+        if is_moisture_high:
+            needs_drying_action = True
+            if heating_exists == "TAK":
+                if h_type == "bruzdowane":
+                    opt_dry = "zapewnienie podłożu odpowiednich warunków do schnięcia"
+                elif heating_curing_done == "NIE":
+                    opt_dry = "przeprowadzenie procesu wygrzewania"
+                else:
+                    opt_dry = "przeprowadzenie kolejnego, krótkiego procesu wygrzewania"
+            else:
+                opt_dry = "dalsze osuszanie"
+
+            if substrate == "płyta fundamentowa":
+                if emissions_test == "negatywny":
+                    st.warning("Wynik badania emisyjności jest negatywny. Konieczność dalszego osuszania przed wykonaniem bariery przeciwwilgociowej.")
+                    decision_after_cure = "osuszanie przed barierą"
+                    needs_drying_action = True
+                elif isinstance(moisture, (int, float)) and moisture > barrier_max:
+                    st.warning(f"Podłoże jest zbyt wilgotne. Konieczność doprowadzenia do poziomu wilgoci max. {barrier_max}% przed wykonaniem bariery przeciwwilgociowej.")
+                    decision_after_cure = "osuszanie przed barierą"
+                    needs_drying_action = True
+                else:
+                    decision_after_cure = "Wykonanie bariery przeciwwilgociowej"
+                    needs_drying_action = False
+            elif h_type == "bruzdowane":
+                st.warning(f"Podłoże jest zbyt wilgotne. Konieczność doprowadzenia do normatywnego poziomu wilgoci ({limit}% CM) przed przystąpieniem do dalszych prac.")
+                decision_after_cure = opt_dry
+            elif substrate in ["jastrych anhydrytowy", "suchy jastrych (knauf, fermacell itp.)"]:
+                st.info(f"Dla jastrychu anhydrytowego i suchego jastrychu nie ma możliwości wykonania bariery przeciwwilgociowej. Konieczność doprowadzenia do normatywnego poziomu wilgoci ({limit}% CM).")
+                decision_after_cure = opt_dry
+            elif substrate == "masa samorozlewna":
+                st.info("Dla masy samorozlewnej nie ma możliwości wykonania bariery przeciwwilgociowej. Konieczność doprowadzenia masy do stanu suchego.")
+                decision_after_cure = opt_dry
+            else:
+                if isinstance(moisture, (int, float)) and moisture <= barrier_max:
+                    decision_after_cure = st.radio("Postępowanie z podwyższoną wilgocią:", [opt_dry, "Wykonanie bariery przeciwwilgociowej"], horizontal=True)
+                    needs_drying_action = (decision_after_cure != "Wykonanie bariery przeciwwilgociowej")
+                else:
+                    decision_after_cure = opt_dry
+        else:
+            if substrate == "płyta fundamentowa":
+                if emissions_test == "negatywny":
+                    st.warning("Wynik badania emisyjności jest negatywny. Konieczność dalszego osuszania przed wykonaniem bariery przeciwwilgociowej.")
+                    decision_after_cure = "osuszanie przed barierą"
+                    needs_drying_action = True
+                else:
+                    decision_after_cure = "Wykonanie bariery przeciwwilgociowej"
+
+    # Pre-resolve leveling variables from session state for local leveling calculation
+    temp_needs_levelling = "NIE"
+    temp_leveling_thickness = 0
+    temp_has_adhesive_residues = False
+
+    if _force_levelling:
+        temp_needs_levelling = "TAK"
+        temp_leveling_thickness = st.session_state.get('lev_thick_demo')
+        temp_has_adhesive_residues = st.session_state.get('adhesive_res', "NIE") == "TAK"
+    elif h_type == "bruzdowane" and bruzdowane_wybor == "masa samorozlewna":
+        temp_needs_levelling = "TAK"
+        temp_leveling_thickness = 5
+    elif substrate == "suchy jastrych (knauf, fermacell itp.)":
+        temp_needs_levelling = st.session_state.get('dry_res_lev', "NIE")
+        if temp_needs_levelling == "TAK":
+            temp_leveling_thickness = st.session_state.get('dry_res_thick')
+    elif flooring_type == "lvt cienkie":
+        lvt_already_val = st.session_state.get('lvt_already_lev', "NIE")
+        if lvt_already_val == "TAK":
+            temp_needs_levelling = "NIE"
+        else:
+            temp_needs_levelling = "TAK"
+            temp_leveling_thickness = st.session_state.get('lvt_lev_thick')
+    else:
+        temp_needs_levelling = st.session_state.get('needs_lev_radio', "NIE")
+        if temp_needs_levelling == "TAK":
+            temp_leveling_thickness = st.session_state.get('lev_thick_other')
+
+    if temp_leveling_thickness is None:
+        temp_leveling_thickness = 0
+
+    # 1. Local leveling
+    local_leveling = "NIE"
+    local_leveling_kg = None
+    local_leveling_details = ""
+    local_leveling_use_plasticizer = "NIE"
+    if substrate != "suchy jastrych (knauf, fermacell itp.)":
+        st.write("4. Czy wymagane jest miejscowe wyrównanie masą szpachlową?")
+        local_leveling = st.radio("Miejscowe wyrównanie:", ["TAK", "NIE"], index=1, horizontal=True, key="local_lev")
+        if local_leveling == "TAK":
+            local_leveling_kg = st.number_input("Ilość masy szpachlowej Z 645 (kg):", min_value=0.1, value=None, key="ll_kg")
+            if local_leveling_kg:
+                bags_ll = math.ceil(local_leveling_kg / 25)
+                st.info(f"Ilość worków Z 645: **{bags_ll} szt. po 25 kg**")
+                if firma != "Uzin":
+                    wf_val = st.session_state.get('whole_fl', 'NIE')
+                    if substrate == "podłoże z płyty OSB":
+                        st_val = 5
+                    elif substrate == "podłoże drewniane (parkiet, deska)":
+                        st_val = 4
+                    else:
+                        st_val = st.session_state.get('strength_val_slider', 3)
+                    temp_dane = {
+                        'decision_after_cure': decision_after_cure,
+                        'has_adhesive_residues': temp_has_adhesive_residues,
+                        'strength_val': st_val,
+                        'substrate': substrate,
+                        'needs_levelling': temp_needs_levelling,
+                        'leveling_thickness': temp_leveling_thickness,
+                        'firma': firma
+                    }
+                    pu_used = will_use_pu_primer(temp_dane)
+                    is_ps275 = (st_val == 1 and substrate not in ["jastrych anhydrytowy", "suchy jastrych (knauf, fermacell itp.)"])
+                    default_no_plasticizer = (wf_val == "TAK" or (pu_used and not is_ps275))
+                    default_index = 1 if default_no_plasticizer else 0
+                    local_leveling_use_plasticizer = st.radio("Czy konieczne jest użycie plastyfikatora?", ["TAK", "NIE"], index=default_index, horizontal=True, key="ll_plast")
+
+    # 2. Whole leveling
+    leveling_thickness = 0
+    already_levelled = "NIE"
+    leveling_mesh = "bez siatki"
+
+    if _force_levelling:
+        st.info("Wyrównanie jest wymuszone po demontażu podłoża.")
+        needs_levelling = "TAK"
+        leveling_thickness = st.number_input("Planowana grubość masy po demontażu (mm):", min_value=1, value=None, key="lev_thick_demo")
+        if substrate == "suchy jastrych (knauf, fermacell itp.)":
+            st.info("ℹ️ Wyrównanie suchego jastrychu wymaga uzbrojenia siatką AR 150.")
+            leveling_mesh = "z siatką"
+        else:
+            leveling_mesh = st.radio("Rodzaj wyrównania:", ["bez siatki", "z siatką"], index=0, horizontal=True, key="lev_mesh_demo")
+        has_adhesive_residues = st.radio("Czy na podłożu są pozostałości starych spoin klejowych?", ["TAK", "NIE"], index=1, horizontal=True, key="adhesive_res") == "TAK"
+    elif h_type == "bruzdowane" and bruzdowane_wybor == "masa samorozlewna":
+        st.info("Wyrównanie jest wymuszone przez technologię 'masa samorozlewna' na ogrzewaniu bruzdowanym.")
+        needs_levelling = "TAK"
+        leveling_thickness = 5
+        st.info("Grubość masy została automatycznie ustalona na 5 mm.")
+        if substrate == "suchy jastrych (knauf, fermacell itp.)":
+            leveling_mesh = "z siatką"
+    elif substrate == "suchy jastrych (knauf, fermacell itp.)":
+        if flooring_type in ["lvt cienkie", "pcv w rolce", "wykładzina dywanowa"]:
+            st.warning("⚠️ **Uwaga:** Przy montażu cienkich okładzin (LVT cienkie, PCV w rolce, wykładzina dywanowa) na suchym jastrychu istnieje ryzyko optycznego odznaczania się (kopiowania) łączeń płyt na gotowej podłodze. Aby temu zapobiec, zaleca się pełne wyrównanie podłoża masą samorozlewną lub co najmniej zaszpachlowanie łączeń płyt.")
+        st.write("4a. Czy podłoże wymaga wylania masy?")
+        needs_levelling = st.radio("Wylanie masy:", ["TAK", "NIE"], index=1, horizontal=True, key="dry_res_lev")
+        szpachlowanie_laczen = "NIE"
+        already_levelled = "NIE"
+        leveling_thickness = 0
+        leveling_mesh = "bez siatki"
+        if needs_levelling == "TAK":
+            leveling_thickness = st.number_input("Planowana grubość masy (mm):", min_value=1, value=None, key="dry_res_thick")
+            leveling_mesh = "z siatką"
+            st.info("ℹ️ Wyrównanie suchego jastrychu wymaga uzbrojenia siatką AR 150.")
+        else:
+            st.write("Czy podłoże wymaga szpachlowania łączeń?")
+            szpachlowanie_laczen = st.radio("Szpachlowanie łączeń:", ["TAK", "NIE"], index=1, horizontal=True, key="dry_res_szpachl")
+    elif flooring_type == "lvt cienkie":
+        st.write("4a. Czy podłoże zostało wyrównane masą samorozlewną?")
+        lvt_already = st.radio("Wyrównanie:", ["TAK", "NIE"], index=1, horizontal=True, key="lvt_already_lev")
+        if lvt_already == "TAK":
+            already_levelled = "TAK"
+            needs_levelling = "NIE"
+        else:
+            already_levelled = "NIE"
+            needs_levelling = "TAK"
+            st.info("Wyrównanie podłoża (masą WAKOL Z 675) jest technologicznie wymuszone pod okładzinę LVT cienkie.")
+            leveling_thickness = st.number_input("Planowana grubość masy (mm):", min_value=1, value=None, key="lvt_lev_thick")
+            if substrate == "suchy jastrych (knauf, fermacell itp.)":
+                st.info("ℹ️ Wyrównanie suchego jastrychu wymaga uzbrojenia siatką AR 150.")
+                leveling_mesh = "z siatką"
+            else:
+                leveling_mesh = st.radio("Rodzaj wyrównania:", ["bez siatki", "z siatką"], index=0, horizontal=True, key="lvt_lev_mesh")
+    else:
+        st.write("4a. Czy całość podłoża wymaga wyrównania masą samorozlewną?")
+        needs_levelling = st.radio("Wyrównanie masą:", ["TAK", "NIE"], index=1, horizontal=True, key="needs_lev_radio")
+        if needs_levelling == "TAK":
+            leveling_thickness = st.number_input("Planowana grubość masy (mm):", min_value=1, value=None, key="lev_thick_other")
+            if substrate == "suchy jastrych (knauf, fermacell itp.)":
+                st.info("ℹ️ Wyrównanie suchego jastrychu wymaga uzbrojenia siatką AR 150.")
+                leveling_mesh = "z siatką"
+            else:
+                leveling_mesh = st.radio("Rodzaj wyrównania:", ["bez siatki", "z siatką"], index=0, horizontal=True, key="lev_mesh_other")
+        elif flooring_type in ["wykładzina dywanowa", "pcv w rolce"]:
+            st.warning("Pod wybraną okładzinę wymagane jest wyrównanie podłoża.")
+            st.write("Czy podłoże zostało wyrównane masą samorozlewną?")
+            already_levelled = st.radio("Wcześniejsze wyrównanie:", ["TAK", "NIE"], index=1, horizontal=True, key="already_lev_radio")
+
+    if already_levelled == "TAK":
+        moisture = st.radio("Ocena wilgotności masy samorozlewnej:", ["suche", "ponadnormatywnie wilgotne"], index=None, horizontal=True, key="already_lev_moisture")
+
+    # 3. Whole fleece & Local fleece
+    if needs_levelling == "TAK":
+        whole_fleece = "NIE"
+        local_fleece = "NIE"
+        local_fleece_m2 = 0.0
+        local_fleece_reason = ""
+        if substrate == "suchy jastrych (knauf, fermacell itp.)":
+            st.info("ℹ️ Wylewanie masy samopoziomującej na suchym jastrychu (z siatką AR 150) wyklucza konieczność stosowania płyt odsprzęgających RP oraz maty flizelinowej.")
+    elif substrate == "suchy jastrych (knauf, fermacell itp.)":
+        local_fleece = "NIE"
+        local_fleece_m2 = 0.0
+        local_fleece_reason = ""
+        if parkiet_pattern == "na dziko (okrętowy / dziki)":
+            st.info("ℹ️ Wzór układania 'na dziko' na suchym jastrychu wymaga uzbrojenia flizeliną na całej powierzchni. Opcja została ustawiona automatycznie.")
+            whole_fleece = "TAK"
+        else:
+            whole_fleece = "NIE"
+    else:
+        st.write("4b. Czy całość podłoża wymaga uzbrojenia matą flizelinową?")
+        whole_fleece = st.radio("Uzbrojenie flizeliną na całej powierzchni:", ["TAK", "NIE"], index=1, horizontal=True, key="whole_fl")
+
+        local_fleece = "NIE"
+        local_fleece_m2 = 0.0
+        local_fleece_reason = ""
+        if whole_fleece == "NIE":
+            st.write("4c. Czy wymagane jest miejscowe uzbrojenie podłoża matą flizelinową?")
+            local_fleece = st.radio("Miejscowe uzbrojenie flizeliną:", ["TAK", "NIE"], index=1, horizontal=True, key="local_fl")
+            if local_fleece == "TAK":
+                col_lf1, col_lf2 = st.columns(2)
+                with col_lf1:
+                    local_fleece_m2 = st.number_input("Powierzchnia uzbrojenia (m²):", min_value=0.01, step=0.1, value=None, key="lf_m2")
+                with col_lf2:
+                    local_fleece_reason = st.text_input("Przyczyna / cel uzbrojenia:", value="", key="lf_reason")
+
+    # 4. Holes
+    hole_details = ""
+    holes_depth = None
+    h_depth = None; h_width = None; h_length = None
+    img_holes = []
+    if _force_holes:
+        holes = "TAK"
+        st.info("ℹ️ Ubytki po skuciu płytek ceramicznych — podaj wymiary:")
         col_h1, col_h2, col_h3 = st.columns(3)
-        with col_h1: h_depth = st.number_input("Głębokość (cm)", min_value=0.1, value=None)
-        with col_h2: h_width = st.number_input("Szerokość (cm)", min_value=0.1, value=None)
-        with col_h3: h_length = st.number_input("Długość (m)", min_value=0.01, value=None)
+        with col_h1: h_depth = st.number_input("Głębokość ubytków (cm)", min_value=0.1, value=None, key="h_depth_f")
+        with col_h2: h_width = st.number_input("Szerokość ubytków (cm)", min_value=0.1, value=None, key="h_width_f")
+        with col_h3: h_length = st.number_input("Długość ubytków (m)", min_value=0.01, value=None, key="h_length_f")
         if h_depth and h_width and h_length: hole_details = f" o wymiarach ok. {h_length} m x {h_width} cm i głębokości {h_depth} cm"
         holes_depth = h_depth
-        img_holes = st.file_uploader("Zdjęcia ubytków:", accept_multiple_files=True, type=["png", "jpg", "jpeg"], key="img_holes")
-
-st.write("Czy całość podłoża wymaga uzbrojenia matą flizelinową?")
-whole_fleece = st.radio("Uzbrojenie flizeliną na całej powierzchni:", ["TAK", "NIE"], index=1, horizontal=True, key="whole_fl")
-
-local_fleece = "NIE"
-local_fleece_m2 = 0.0
-local_fleece_reason = ""
-if whole_fleece == "NIE":
-    st.write("4a. Czy wymagane jest miejscowe uzbrojenie podłoża flizeliną?")
-    local_fleece = st.radio("Miejscowe uzbrojenie flizeliną:", ["TAK", "NIE"], index=1, horizontal=True, key="local_fl")
-    if local_fleece == "TAK":
-        col_lf1, col_lf2 = st.columns(2)
-        with col_lf1:
-            local_fleece_m2 = st.number_input("Powierzchnia uzbrojenia (m²):", min_value=0.01, step=0.1, value=None, key="lf_m2")
-        with col_lf2:
-            local_fleece_reason = st.text_input("Przyczyna / cel uzbrojenia:", value="", key="lf_reason")
-
-st.write("3b. Czy wymagane jest miejscowe wyrównanie masą szpachlową?")
-local_leveling = st.radio("Miejscowe wyrównanie:", ["TAK", "NIE"], index=1, horizontal=True, key="local_lev")
-local_leveling_kg = None
-local_leveling_details = ""
-if local_leveling == "TAK":
-    local_leveling_kg = st.number_input("Ilość masy szpachlowej Z 645 (kg):", min_value=0.1, value=None, key="ll_kg")
-    if local_leveling_kg:
-        bags_ll = math.ceil(local_leveling_kg / 25)
-        st.info(f"Ilość worków Z 645: **{bags_ll} szt. po 25 kg**")
-
-if flooring_type == "lvt cienkie":
-    st.write("4. Podłoże zostało wyrównane masą samorozlewną")
-else:
-    st.write("4. Czy całość podłoża wymaga wyrównania masą samorozlewną?")
-
-leveling_thickness = 0
-already_levelled = "NIE"
-leveling_mesh = "bez siatki"
-
-if _force_levelling:
-    st.info("Wyrównanie jest wymuszone po demontażu podłoża.")
-    needs_levelling = "TAK"
-    leveling_thickness = st.number_input("Planowana grubość masy po demontażu (mm):", min_value=1, value=None, key="lev_thick_demo")
-    leveling_mesh = st.radio("Rodzaj wyrównania:", ["bez siatki", "z siatką"], index=0, horizontal=True, key="lev_mesh_demo")
-    st.write("Czy na podłożu są pozostałości starych spoin klejowych?")
-    has_adhesive_residues = st.radio("Pozostałości kleju:", ["TAK", "NIE"], index=1, horizontal=True, key="adhesive_res") == "TAK"
-elif h_type == "bruzdowane" and bruzdowane_wybor == "masa samorozlewna":
-    st.info("Wyrównanie jest wymuszone przez technologię 'masa samorozlewna' na ogrzewaniu bruzdowanym.")
-    needs_levelling = "TAK"
-    leveling_thickness = 5
-    st.info("Grubość masy została automatycznie ustalona na 5 mm.")
-elif flooring_type == "lvt cienkie":
-    lvt_already = st.radio("Odpowiedź:", ["TAK", "NIE"], index=1, horizontal=True)
-    if lvt_already == "TAK":
-        already_levelled = "TAK"
-        needs_levelling = "NIE"
+        img_holes = st.file_uploader("Zdjęcia ubytków po skuciu:", accept_multiple_files=True, type=["png", "jpg", "jpeg"], key="img_holes_f")
+    elif substrate == "suchy jastrych (knauf, fermacell itp.)":
+        holes = "NIE"
     else:
-        already_levelled = "NIE"
-        needs_levelling = "TAK"
-        st.info("Wyrównanie podłoża (masą WAKOL Z 675) jest technologicznie wymuszone pod okładzinę LVT cienkie.")
-        leveling_thickness = st.number_input("Planowana grubość masy (mm):", min_value=1, value=None)
-        leveling_mesh = st.radio("Rodzaj wyrównania:", ["bez siatki", "z siatką"], index=0, horizontal=True)
-else:
-    needs_levelling = st.radio("Wymaga wyrównania:", ["TAK", "NIE"], index=1, horizontal=True)
-    if needs_levelling == "TAK":
-        leveling_thickness = st.number_input("Planowana grubość masy (mm):", min_value=1, value=None)
-        leveling_mesh = st.radio("Rodzaj wyrównania:", ["bez siatki", "z siatką"], index=0, horizontal=True)
-    elif flooring_type in ["wykładzina dywanowa", "pcv w rolce"]:
-        st.warning("Pod wybraną okładzinę wymagane jest wyrównanie podłoża.")
-        already_levelled = st.radio("Czy podłoże zostało już wcześniej wyrównane?", ["TAK", "NIE"], index=1, horizontal=True)
+        st.write("4d. Czy są ubytki bądź zdegradowane fragmenty wymagające wypełnienia masą naprawczą?")
+        holes = st.radio("Ubytki:", ["TAK", "NIE"], index=1, horizontal=True)
+        if holes == "TAK":
+            col_h1, col_h2, col_h3 = st.columns(3)
+            with col_h1: h_depth = st.number_input("Głębokość (cm)", min_value=0.1, value=None)
+            with col_h2: h_width = st.number_input("Szerokość (cm)", min_value=0.1, value=None)
+            with col_h3: h_length = st.number_input("Długość (m)", min_value=0.01, value=None)
+            if h_depth and h_width and h_length: hole_details = f" o wymiarach ok. {h_length} m x {h_width} cm i głębokości {h_depth} cm"
+            holes_depth = h_depth
+            img_holes = st.file_uploader("Zdjęcia ubytków:", accept_multiple_files=True, type=["png", "jpg", "jpeg"], key="img_holes")
 
-st.write("5. Czy dylatacje obwodowe zachowane prawidłowo?")
-dilatations_obw_ok = st.radio("Dylatacje obwodowe:", ["TAK", "NIE"], index=0, horizontal=True)
-st.write("6. Czy występują klawiszujące dylatacje pozorne?")
-cracks_klaw = st.radio("Klawiszowanie pozorne:", ["TAK", "NIE"], index=1, horizontal=True)
-klaw_meters = 0.0
-img_klaw = []
-if cracks_klaw == "TAK":
-    klaw_meters = st.number_input("Ilość mb klawiszujących:", min_value=0.1, step=0.1, value=None)
-    img_klaw = st.file_uploader("Zdjęcia klawiszujących dylatacji:", accept_multiple_files=True, type=["png", "jpg", "jpeg"], key="img_klaw")
-st.write("7. Czy występują pęknięcia podłoża wymagające zespolenia?")
-cracks_pek = st.radio("Pęknięcia do zespolenia:", ["TAK", "NIE"], index=1, horizontal=True)
-pek_meters = 0.0
-img_pek = []
-if cracks_pek == "TAK":
-    pek_meters = st.number_input("Ilość mb pęknięć do zespolenia:", min_value=0.1, step=0.1, value=None)
-    img_pek = st.file_uploader("Zdjęcia pęknięć:", accept_multiple_files=True, type=["png", "jpg", "jpeg"], key="img_pek")
+    st.write("5. Czy dylatacje obwodowe zachowane prawidłowo?")
+    dilatations_obw_ok = st.radio("Dylatacje obwodowe:", ["TAK", "NIE"], index=0, horizontal=True)
 
-st.write("8. Rodzaj wentylacji")
-ventilation_type = st.radio("Wentylacja:", ["Grawitacyjna", "Mechaniczna"], index=None, horizontal=True)
+    stabilize_elements = "NIE"
+    if substrate == "suchy jastrych (knauf, fermacell itp.)":
+        st.write("6. Czy występują elementy wymagające ustabilizowania?")
+        stabilize_elements = st.radio("Elementy wymagające ustabilizowania:", ["TAK", "NIE"], index=1, horizontal=True, key="dry_stabilize")
+        cracks_klaw = "NIE"
+        klaw_meters = 0.0
+        img_klaw = []
+        cracks_pek = "NIE"
+        pek_meters = 0.0
+        img_pek = []
+    else:
+        st.write("6. Czy występują klawiszujące dylatacje pozorne?")
+        cracks_klaw = st.radio("Klawiszowanie pozorne:", ["TAK", "NIE"], index=1, horizontal=True)
+        klaw_meters = 0.0
+        img_klaw = []
+        if cracks_klaw == "TAK":
+            klaw_meters = st.number_input("Ilość mb klawiszujących:", min_value=0.1, step=0.1, value=None)
+            img_klaw = st.file_uploader("Zdjęcia klawiszujących dylatacji:", accept_multiple_files=True, type=["png", "jpg", "jpeg"], key="img_klaw")
+        
+        st.write("7. Czy występują pęknięcia podłoża wymagające zespolenia?")
+        cracks_pek = st.radio("Pęknięcia do zespolenia:", ["TAK", "NIE"], index=1, horizontal=True)
+        pek_meters = 0.0
+        img_pek = []
+        if cracks_pek == "TAK":
+            pek_meters = st.number_input("Ilość mb pęknięć do zespolenia:", min_value=0.1, step=0.1, value=None)
+            img_pek = st.file_uploader("Zdjęcia pęknięć:", accept_multiple_files=True, type=["png", "jpg", "jpeg"], key="img_pek")
 
-dodatkowe_informacje = st.text_area("Dodatkowe informacje z oględzin (opcjonalnie):", placeholder="Wpisz inne zaobserwowane uwagi do protokołu...")
-img_dodatkowe = st.file_uploader("Zdjęcia - dodatkowe informacje:", accept_multiple_files=True, type=["png", "jpg", "jpeg"], key="img_dod")
+    st.write("8. Rodzaj wentylacji")
+    ventilation_type = st.radio("Wentylacja:", ["Grawitacyjna", "Mechaniczna"], index=None, horizontal=True)
 
-col_w1, col_w2 = st.columns(2)
-with col_w1: temp_air = st.number_input("9. Temperatura powietrza (°C)", step=0.5, value=None)
-with col_w2: hum_air = st.number_input("10. Wilgotność powietrza (%)", step=1.0, value=None)
+    dodatkowe_informacje = st.text_area("Dodatkowe informacje z oględzin (opcjonalnie):", placeholder="Wpisz inne zaobserwowane uwagi do protokołu...")
+    img_dodatkowe = st.file_uploader("Zdjęcia - dodatkowe informacje:", accept_multiple_files=True, type=["png", "jpg", "jpeg"], key="img_dod")
 
-st.write("### 11. Testy mechaniczne i Wytrzymałość")
-col_t1, col_t2, col_t3 = st.columns(3)
-with col_t1: test_hammer = st.selectbox("Młotek", ["", "negatywny", "dostateczny", "pozytywny"], index=0)
-with col_t2: test_ripper = st.selectbox("Rysik", ["", "negatywny", "dostateczny", "pozytywny"], index=0)
-with col_t3: test_brush = st.selectbox("Szczotka", ["", "negatywny", "dostateczny", "pozytywny"], index=0)
-img_mech = st.file_uploader("Zdjęcia z testów mechanicznych:", accept_multiple_files=True, type=["png", "jpg", "jpeg"], key="img_mech")
-st.write("**Badanie PressoMess**")
-presso_results = []
-_presso_cols = st.columns(6)
-for i in range(6):
-    with _presso_cols[i]:
-        presso_results.append(st.number_input(f"Próba {i+1} (N/mm²)", min_value=0.0, step=0.1, format="%.2f", key=f"p_{i}", value=None))
-img_presso = st.file_uploader("Zdjęcia - PressoMess:", accept_multiple_files=True, type=["png", "jpg", "jpeg"], key="img_presso")
-strength_labels = {1: "bardzo słaby", 2: "słaby", 3: "umiarkowanie słaby", 4: "umiarkowanie mocny", 5: "mocny"}
-if substrate == "podłoże z płyty OSB":
-    strength_val = 5
-    st.info("Ocena ogólna wytrzymałości podłoża: **mocny** — wartość ustawiona automatycznie dla płyty OSB.")
-else:
-    strength_val = st.select_slider("Ocena ogólna wytrzymałości podłoża:", options=[1, 2, 3, 4, 5], value=3, format_func=lambda x: strength_labels[x])
+    col_w1, col_w2 = st.columns(2)
+    with col_w1: temp_air = st.number_input("9. Temperatura powietrza (°C)", step=0.5, value=None)
+    with col_w2: hum_air = st.number_input("10. Wilgotność powietrza (%)", step=1.0, value=None)
 
-st.write("### 13. Opcje raportu")
-include_cost = st.checkbox("Dołącz wstępny kosztorys materiałowy do protokołu (Netto)", value=True)
+    st.write("### 11. Testy mechaniczne i Wytrzymałość")
+    col_t1, col_t2, col_t3 = st.columns(3)
+    with col_t1: test_hammer = st.selectbox("Młotek", ["", "negatywny", "dostateczny", "pozytywny"], index=0)
+    with col_t2: test_ripper = st.selectbox("Rysik", ["", "negatywny", "dostateczny", "pozytywny"], index=0)
+    with col_t3: test_brush = st.selectbox("Szczotka", ["", "negatywny", "dostateczny", "pozytywny"], index=0)
+    img_mech = st.file_uploader("Zdjęcia z testów mechanicznych:", accept_multiple_files=True, type=["png", "jpg", "jpeg"], key="img_mech")
+    st.write("**Badanie PressoMess**")
+    presso_results = []
+    _presso_cols = st.columns(6)
+    for i in range(6):
+        with _presso_cols[i]:
+            presso_results.append(st.number_input(f"Próba {i+1} (N/mm²)", min_value=0.0, step=0.1, format="%.2f", key=f"p_{i}", value=None))
+    img_presso = st.file_uploader("Zdjęcia - PressoMess:", accept_multiple_files=True, type=["png", "jpg", "jpeg"], key="img_presso")
+    if already_levelled == "TAK":
+        strength_labels = {
+            1: "bardzo słaba",
+            2: "słaba",
+            3: "umiarkowanie mocne",
+            4: "mocne",
+            5: "bardzo mocne"
+        }
+    else:
+        strength_labels = {1: "bardzo słaby", 2: "słaby", 3: "umiarkowanie słaby", 4: "umiarkowanie mocny", 5: "mocny"}
 
-# PAKOWANIE DANYCH DO SŁOWNIKA DLA FUNKCJI GENERUJĄCYCH
-dane_protokolu = {
-    "include_cost": include_cost,
-    "firma": firma,
-    "flooring_type": flooring_type,
-    "substrate": substrate,
-    "masa_class": masa_class,
-    "area_m2": area_m2,
-    "klej_typ": klej_typ,
-    "lvt_bottom_type": lvt_bottom_type,
-    "substrate_age_val": substrate_age_val,
-    "barrier_max": barrier_max,
-    "heating_exists": heating_exists,
-    "heating_info": heating_info,
-    "heating_curing_done": heating_curing_done,
-    "h_type": h_type,
-    "bruzdowane_wybor": bruzdowane_wybor,
-    "needs_levelling": needs_levelling,
-    "leveling_thickness": leveling_thickness,
-    "leveling_mesh": leveling_mesh,
-    "already_levelled": already_levelled,
-    "requires_demolition": _force_levelling,
-    "has_adhesive_residues": has_adhesive_residues,
-    "local_leveling": local_leveling,
-    "local_leveling_kg": local_leveling_kg,
-    "local_leveling_details": local_leveling_details,
-    "whole_fleece": whole_fleece,
-    "local_fleece": local_fleece,
-    "local_fleece_m2": local_fleece_m2,
-    "local_fleece_reason": local_fleece_reason,
-    "dilatations_obw_ok": dilatations_obw_ok,
-    "cracks_klaw": cracks_klaw,
-    "klaw_meters": klaw_meters,
-    "cracks_pek": cracks_pek,
-    "pek_meters": pek_meters,
-    "holes": holes,
-    "holes_depth": holes_depth if 'holes_depth' in locals() else None,
-    "holes_width": h_width if 'h_width' in locals() else None,
-    "holes_length": h_length if 'h_length' in locals() else None,
-    "hole_details": hole_details,
-    "ventilation_type": ventilation_type,
-    "dodatkowe_informacje": dodatkowe_informacje,
-    "moisture": moisture,
-    "limit": limit,
-    "curing_not_done": (heating_exists == "TAK" and heating_curing_done == "NIE"),
-    "is_moisture_neg": is_moisture_high,
-    "norm_val_bracket": f"({limit}% CM)" if substrate != "masa samorozlewna" else "(stan: sucha)",
-    "decision_after_cure": decision_after_cure,
-    "needs_drying_action": needs_drying_action,
-    "test_hammer": test_hammer,
-    "test_ripper": test_ripper,
-    "test_brush": test_brush,
-    "strength_labels": strength_labels,
-    "strength_val": strength_val,
-    "temp_air": temp_air,
-    "hum_air": hum_air,
-    "presso_results": presso_results,
-    "images": {
-        "Klawiszujące dylatacje": img_klaw if 'img_klaw' in locals() and img_klaw else [],
-        "Pęknięcia podłoża": img_pek if 'img_pek' in locals() and img_pek else [],
-        "Ubytki w podłożu": img_holes if 'img_holes' in locals() and img_holes else [],
-        "Testy mechaniczne (rysik, młotek, szczotka)": img_mech if 'img_mech' in locals() and img_mech else [],
-        "Badanie PressoMess": img_presso if 'img_presso' in locals() and img_presso else [],
-        "Dodatkowe informacje z oględzin": img_dodatkowe if 'img_dodatkowe' in locals() and img_dodatkowe else []
+    if already_levelled == "TAK":
+        selected_class = st.select_slider("Ocena ogólna wytrzymałości podłoża:", options=["poniżej C20", "C20", "C25", "C30", "Powyżej C30"], value="C25", key="strength_val_slider_c")
+        strength_map = {
+            "poniżej C20": 1,
+            "C20": 2,
+            "C25": 3,
+            "C30": 4,
+            "Powyżej C30": 5
+        }
+        strength_val = strength_map[selected_class]
+        masa_class = selected_class
+        st.info(f"Ocena ogólna wytrzymałości podłoża: **{strength_labels[strength_val]}**")
+    elif substrate == "podłoże z płyty OSB":
+        strength_val = 5
+        st.info("Ocena ogólna wytrzymałości podłoża: **mocny** — wartość ustawiona automatycznie dla płyty OSB.")
+    elif substrate == "suchy jastrych (knauf, fermacell itp.)":
+        strength_val = 4
+        st.info("Ocena ogólna wytrzymałości podłoża: **umiarkowanie mocny** — wartość ustawiona automatycznie dla suchego jastrychu.")
+    elif substrate == "podłoże drewniane (parkiet, deska)":
+        strength_val = 4
+        st.info("Ocena ogólna wytrzymałości podłoża: **umiarkowanie mocny** — wartość ustawiona automatycznie dla podłoża drewnianego.")
+    else:
+        strength_val = st.select_slider("Ocena ogólna wytrzymałości podłoża:", options=[1, 2, 3, 4, 5], value=3, format_func=lambda x: strength_labels[x], key="strength_val_slider")
+        if substrate == "masa samorozlewna":
+            strength_c_map = {1: "C15", 2: "C20", 3: "C25", 4: "C30", 5: "C35"}
+            masa_class = strength_c_map.get(strength_val)
+
+    # Dynamic check for mass strength requirements
+    if already_levelled == "TAK" or substrate == "masa samorozlewna":
+        class_val = 0
+        current_class = masa_class
+        if current_class:
+            if "poniżej" in current_class.lower() or "ponizej" in current_class.lower():
+                class_val = 15
+            elif "powyżej" in current_class.lower() or "powyzej" in current_class.lower():
+                class_val = 35
+            else:
+                try:
+                    class_val = int(current_class.replace("C", "").strip())
+                except ValueError:
+                    class_val = 0
+
+            required_min = 25
+            if flooring_type in ["deska lita", "lity parkiet", "mozaika drewniana"]:
+                required_min = 30
+            elif flooring_type in ["deska warstwowa", "podłoga laminowana", "lvt grube z twardym rdzeniem", "pcv w rolce", "lvt cienkie"]:
+                required_min = 25
+            elif flooring_type == "wykładzina dywanowa":
+                required_min = 20
+
+            if class_val < required_min:
+                st.warning("⚠️ **Błąd technologiczny:** Wybrana klasa masy jest zbyt niska dla tej okładziny. Podłoże jest nienormatywnie słabe i wymaga wzmocnienia.")
+
+    st.write("### 13. Opcje raportu")
+    include_cost = st.checkbox("Dołącz wstępny kosztorys materiałowy do protokołu (Netto)", value=True)
+
+    # PAKOWANIE DANYCH DO SŁOWNIKA DLA FUNKCJI GENERUJĄCYCH
+    dane_protokolu = {
+        "include_cost": include_cost,
+        "firma": firma,
+        "flooring_type": flooring_type,
+        "substrate": substrate,
+        "masa_class": masa_class,
+        "area_m2": area_m2,
+        "klej_typ": klej_typ,
+        "lvt_bottom_type": lvt_bottom_type,
+        "parkiet_pattern": parkiet_pattern,
+        "substrate_age_val": substrate_age_val,
+        "barrier_max": barrier_max,
+        "heating_exists": heating_exists,
+        "heating_info": heating_info,
+        "heating_curing_done": heating_curing_done,
+        "h_type": h_type,
+        "bruzdowane_wybor": bruzdowane_wybor,
+        "needs_levelling": needs_levelling,
+        "leveling_thickness": leveling_thickness,
+        "leveling_mesh": leveling_mesh,
+        "already_levelled": already_levelled,
+        "requires_demolition": _force_levelling,
+        "has_adhesive_residues": has_adhesive_residues,
+        "local_leveling": local_leveling,
+        "local_leveling_kg": local_leveling_kg,
+        "local_leveling_details": local_leveling_details,
+        "local_leveling_use_plasticizer": local_leveling_use_plasticizer,
+        "whole_fleece": whole_fleece,
+        "local_fleece": local_fleece,
+        "local_fleece_m2": local_fleece_m2,
+        "local_fleece_reason": local_fleece_reason,
+        "dilatations_obw_ok": dilatations_obw_ok,
+        "cracks_klaw": cracks_klaw,
+        "klaw_meters": klaw_meters,
+        "cracks_pek": cracks_pek,
+        "pek_meters": pek_meters,
+        "stabilize_elements": stabilize_elements,
+        "holes": holes,
+        "holes_depth": holes_depth if 'holes_depth' in locals() else None,
+        "holes_width": h_width if 'h_width' in locals() else None,
+        "holes_length": h_length if 'h_length' in locals() else None,
+        "hole_details": hole_details,
+        "ventilation_type": ventilation_type,
+        "dodatkowe_informacje": dodatkowe_informacje,
+        "moisture": moisture,
+        "emissions_test": emissions_test,
+        "limit": limit,
+        "curing_not_done": (heating_exists == "TAK" and heating_curing_done == "NIE"),
+        "is_moisture_neg": is_moisture_high,
+        "norm_val_bracket": f"({limit}% CM)" if substrate != "masa samorozlewna" else "(stan: sucha)",
+        "decision_after_cure": decision_after_cure,
+        "needs_drying_action": needs_drying_action,
+        "test_hammer": test_hammer,
+        "test_ripper": test_ripper,
+        "test_brush": test_brush,
+        "strength_labels": strength_labels,
+        "strength_val": strength_val,
+        "temp_air": temp_air,
+        "hum_air": hum_air,
+        "presso_results": presso_results,
+        "images": {
+            "Klawiszujące dylatacje": img_klaw if 'img_klaw' in locals() and img_klaw else [],
+            "Pęknięcia podłoża": img_pek if 'img_pek' in locals() and img_pek else [],
+            "Ubytki w podłożu": img_holes if 'img_holes' in locals() and img_holes else [],
+            "Testy mechaniczne (rysik, młotek, szczotka)": img_mech if 'img_mech' in locals() and img_mech else [],
+            "Badanie PressoMess": img_presso if 'img_presso' in locals() and img_presso else [],
+            "Dodatkowe informacje z oględzin": img_dodatkowe if 'img_dodatkowe' in locals() and img_dodatkowe else []
+        }
     }
-}
 
-# --- GENEROWANIE PROTOKOŁU W ZALEŻNOŚCI OD WYBRANEJ OKŁADZINY ---
-if st.button(f"GENERUJ PROTOKÓŁ OGLĘDZIN DLA: {flooring_type.upper()}", type="primary", use_container_width=True):
-    masa_error = ""
-    if substrate == "masa samorozlewna" and masa_class:
-        class_val = int(masa_class.replace("C", ""))
-        if flooring_type == "deska lita" and class_val < 30:
-            masa_error = "⚠️ **Błąd technologiczny:** Aby kleić deskę litą na masie samorozlewnej, wymagana jest wytrzymałość minimum C30."
-        elif flooring_type in ["deska warstwowa", "podłoga laminowana", "lvt grube z twardym rdzeniem", "lity parkiet (maks. 8 cm x 60 cm)", "mozaika drewniana (min. 16 mm grubości, maks. 20 cm długości)"] and class_val < 25:
-            masa_error = "⚠️ **Błąd technologiczny:** Klejenie tej okładziny na masie samorozlewnej wymaga wytrzymałości minimum C25."
-        elif flooring_type in ["pcv w rolce", "lvt cienkie"] and class_val < 20:
-            masa_error = "⚠️ **Błąd technologiczny:** Aby kleić okładziny winylowe/PVC na masie samorozlewnej, wymagana jest wytrzymałość minimum C20."
+    # --- GENEROWANIE PROTOKOŁU W ZALEŻNOŚCI OD WYBRANEJ OKŁADZINY ---
+    if st.button(f"GENERUJ PROTOKÓŁ OGLĘDZIN DLA: {flooring_type.upper()}", type="primary", use_container_width=True):
+        masa_error = ""
+        if (substrate == "masa samorozlewna" or temp_already_levelled == "TAK") and masa_class:
+            if "poniżej" in masa_class.lower() or "ponizej" in masa_class.lower():
+                class_val = 15
+            elif "powyżej" in masa_class.lower() or "powyzej" in masa_class.lower():
+                class_val = 35
+            else:
+                try:
+                    class_val = int(masa_class.replace("C", "").strip())
+                except ValueError:
+                    class_val = 0
+            if class_val < 20:
+                masa_error = "⚠️ **Błąd technologiczny:** Masa poniżej C20 stanowi nienormatywne podłoże do klejenia jakichkolwiek okładzin. Podłoże jest nienormatywnie słabe i wymaga wzmocnienia."
+            elif flooring_type in ["deska lita", "lity parkiet", "mozaika drewniana"] and class_val < 30:
+                nazwa_map = {"deska lita": "deskę litą", "lity parkiet": "parkiet lity", "mozaika drewniana": "mozaikę drewnianą"}
+                nazwa = nazwa_map.get(flooring_type, flooring_type)
+                masa_error = f"⚠️ **Błąd technologiczny:** Aby kleić {nazwa} na masie samorozlewnej, wymagana jest wytrzymałość minimum C30. Podłoże jest nienormatywnie słabe i wymaga wzmocnienia."
+            elif flooring_type in ["deska warstwowa", "podłoga laminowana", "lvt grube z twardym rdzeniem", "pcv w rolce", "lvt cienkie"] and class_val < 25:
+                nazwa_map = {
+                    "deska warstwowa": "deskę warstwową",
+                    "podłoga laminowana": "podłogę laminowaną",
+                    "lvt grube z twardym rdzeniem": "LVT grube z twardym rdzeniem",
+                    "pcv w rolce": "PCV w rolce",
+                    "lvt cienkie": "LVT cienkie"
+                }
+                nazwa = nazwa_map.get(flooring_type, flooring_type)
+                masa_error = f"⚠️ **Błąd technologiczny:** Aby kleić {nazwa} na masie samorozlewnej, wymagana jest wytrzymałość minimum C25. Podłoże jest nienormatywnie słabe i wymaga wzmocnienia."
+            elif flooring_type == "wykładzina dywanowa" and class_val < 20:
+                masa_error = "⚠️ **Błąd technologiczny:** Aby kleić wykładzinę dywanową na masie samorozlewnej, wymagana jest wytrzymałość minimum C20. Podłoże jest nienormatywnie słabe i wymaga wzmocnienia."
 
-    if moisture is None and not _substrate_no_moisture:
-        st.error("Proszę podać wilgotność podłoża!")
-    elif masa_error:
-        st.error(masa_error)
-    elif decision_after_cure == "Wykonanie bariery przeciwwilgociowej" and strength_val == 1:
-        st.error("⚠️ **Błąd technologiczny:** Jeśli podłoże jest bardzo słabe, **nie można** wykonać bariery przeciwwilgociowej (niezależnie od tego, czy wylewamy masę, czy kleimy bezpośrednio). Musisz doprowadzić jastrych do normatywnego poziomu wilgoci, żeby móc go zagruntować i wzmocnić. Zmień opcję w sekcji 'Postępowanie z podwyższoną wilgocią' na osuszanie.")
-    else:
-        st.divider()
-        insert_header()
-        
-        rep = ReportBuilder()
-        
-        # Generowanie nagłówka do DOC/PDF
-        tytul = f"Dotyczy: Protokół z oględzin inwestycji w obiekcie:\nAdres: {adres}, {miejscowosc}\nDla: {nazwa_klienta}\n\nSzanowni Państwo,\n\nW dniu {data_badania.strftime('%d.%m.%Y')} dokonano wstępnych oględzin i pomiarów wytrzymałości podłoża ({substrate}) oraz pomiaru wilgotności przed przyklejeniem okładziny ({flooring_type}).\n\n"
-        rep.write(tytul)
-        
-        rep.markdown("#### **I. Oględziny i badania**")
-        
-        if flooring_type in ["deska warstwowa", "podłoga laminowana", "lity parkiet (maks. 8 cm x 60 cm)", "mozaika drewniana (min. 16 mm grubości, maks. 20 cm długości)"]:
-            generate_report_deska_warstwowa(dane_protokolu, rep)
-        elif flooring_type == "deska lita":
-            generate_report_deska_lita(dane_protokolu, rep)
-        elif flooring_type == "lvt cienkie":
-            generate_report_lvt_cienkie(dane_protokolu, rep)
-        elif flooring_type == "pcv w rolce":
-            generate_report_pcv_w_rolce(dane_protokolu, rep)
-        elif flooring_type == "wykładzina dywanowa":
-            generate_report_wykladzina_dywanowa(dane_protokolu, rep)
-        elif flooring_type == "lvt grube z twardym rdzeniem":
-            generate_report_lvt_grube(dane_protokolu, rep)
+        if temp_already_levelled == "TAK" and moisture is None:
+            st.error("Proszę określić wilgotność masy samorozlewnej!")
+        elif moisture is None and not _substrate_no_moisture and temp_already_levelled != "TAK":
+            st.error("Proszę podać wilgotność podłoża!")
+        elif masa_error:
+            st.error(masa_error)
+        elif decision_after_cure == "Wykonanie bariery przeciwwilgociowej" and strength_val == 1:
+            st.error("⚠️ **Błąd technologiczny:** Jeśli podłoże jest bardzo słabe, **nie można** wykonać bariery przeciwwilgociowej (niezależnie od tego, czy wylewamy masę, czy kleimy bezpośrednio). Musisz doprowadzić jastrych do normatywnego poziomu wilgoci, żeby móc go zagruntować i wzmocnić. Zmień opcję w sekcji 'Postępowanie z podwyższoną wilgocią' na osuszanie.")
         else:
-            rep.error("Nieobsługiwany typ okładziny.")
-            
-        rep.write("\n**Prosimy o zapoznanie się z kartami technicznymi zalecanych produktów WAKOL.**\n\nPodstawą naszego zalecenia jest stosowanie i prawidłowa obróbka wszystkich wymienionych materiałów firmy WAKOL w podanej kolejności, przestrzegając reguł rzemiosła i obowiązujących norm oraz instrukcji.\n\nW przypadku jakichkolwiek pytań lub wątpliwości proszę o kontakt pod numer telefonu: 603 214 218\n\nZ poważaniem,\n\nLoba-Wakol Polska Sp. z o.o.\n" + autor)
-        
-        # Wyświetlenie na ekranie (cel użytkownika)
-        st.markdown(rep.get_markdown())
+            st.divider()
+            insert_header()
 
-        st.markdown("""
-<div style="font-family: Arial, sans-serif; color: #333; max-width: 800px;">
-    <div style="width: 100%; height: 4px; background-color: #005293; margin-bottom: 20px;"></div>
-    <table style="width: 100%; border-collapse: collapse; margin-bottom: 25px;">
-        <tr>
-            <td style="width: 20%; text-align: left; vertical-align: middle;">
-                <img src="https://www.loba-wakol.pl/fileadmin/templates/images/loba_logo.png" alt="Loba" style="height: 50px; width: auto; display: block;">
-            </td>
-            <td style="width: 60%; text-align: center; vertical-align: middle;">
-                <h1 style="font-size: 12.5pt; margin: 0; color: #005293; text-transform: uppercase; white-space: nowrap; letter-spacing: 0.2px;">
-                    LOBA-WAKOL POLSKA SPÓŁKA Z O.O.
-                </h1>
-            </td>
-            <td style="width: 20%; text-align: right; vertical-align: middle;">
-                <img src="https://www.loba-wakol.pl/fileadmin/templates/images/wakol_logo.png" alt="Wakol" style="height: 50px; width: auto; display: block; margin-left: auto;">
-            </td>
-        </tr>
-    </table>
-    <div style="border-top: 1px solid #005293; padding-top: 15px;">
-        <table style="width: 100%; font-size: 9pt; line-height: 1.5; border-collapse: collapse;">
+            rep = ReportBuilder()
+
+            # Generowanie nagłówka do DOC/PDF
+            tytul = f"Dotyczy: Protokół z oględzin inwestycji w obiekcie:\nAdres: {adres}, {miejscowosc}\nDla: {nazwa_klienta}\n\nSzanowni Państwo,\n\nW dniu {data_badania.strftime('%d.%m.%Y')} dokonano wstępnych oględzin i pomiarów wytrzymałości podłoża ({substrate}) oraz pomiaru wilgotności przed przyklejeniem okładziny ({flooring_type}).\n\n"
+            rep.write(tytul)
+
+            rep.markdown("#### **I. Oględziny i badania**")
+
+            if flooring_type in ["deska warstwowa", "podłoga laminowana", "lity parkiet", "mozaika drewniana"]:
+                generate_report_deska_warstwowa(dane_protokolu, rep)
+            elif flooring_type == "deska lita":
+                generate_report_deska_lita(dane_protokolu, rep)
+            elif flooring_type == "lvt cienkie":
+                generate_report_lvt_cienkie(dane_protokolu, rep)
+            elif flooring_type == "pcv w rolce":
+                generate_report_pcv_w_rolce(dane_protokolu, rep)
+            elif flooring_type == "wykładzina dywanowa":
+                generate_report_wykladzina_dywanowa(dane_protokolu, rep)
+            elif flooring_type == "lvt grube z twardym rdzeniem":
+                generate_report_lvt_grube(dane_protokolu, rep)
+            else:
+                rep.error("Nieobsługiwany typ okładziny.")
+
+            rep.write("\n**Prosimy o zapoznanie się z kartami technicznymi zalecanych produktów WAKOL.**\n\nPodstawą naszego zalecenia jest stosowanie i prawidłowa obróbka wszystkich wymienionych materiałów firmy WAKOL w podanej kolejności, przestrzegając reguł rzemiosła i obowiązujących norm oraz instrukcji.\n\nW przypadku jakichkolwiek pytań lub wątpliwości proszę o kontakt pod numer telefonu: 603 214 218\n\nZ poważaniem,\n\nLoba-Wakol Polska Sp. z o.o.\n" + autor)
+
+            # Wyświetlenie na ekranie (cel użytkownika)
+            st.markdown(rep.get_markdown())
+
+            st.markdown("""
+    <div style="font-family: Arial, sans-serif; color: #333; max-width: 800px;">
+        <div style="width: 100%; height: 4px; background-color: #005293; margin-bottom: 20px;"></div>
+        <table style="width: 100%; border-collapse: collapse; margin-bottom: 25px;">
             <tr>
-                <td style="width: 33%; vertical-align: top;">
-                    <span style="color: #005293; font-size: 8pt; font-weight: bold; display: block; margin-bottom: 4px; text-transform: uppercase;">ZARZĄD</span>
-                    <strong>Stephane Moulin</strong><br>
-                    <strong>Andreas Taddäus Ziobro</strong><br>
-                    <a href="mailto:biuro@loba-wakol.pl" style="color: #005293; text-decoration: none;">biuro@loba-wakol.pl</a>
+                <td style="width: 20%; text-align: left; vertical-align: middle;">
+                    <img src="https://www.loba-wakol.pl/fileadmin/templates/images/loba_logo.png" alt="Loba" style="height: 50px; width: auto; display: block;">
                 </td>
-                <td style="width: 34%; vertical-align: top; text-align: center;">
-                    <span style="color: #005293; font-size: 8pt; font-weight: bold; display: block; margin-bottom: 4px; text-transform: uppercase;">ADRES FIRMY</span>
-                    ul. Sławęcińska 16, Macierzysz<br>
-                    05-850 Ożarów Mazowiecki<br>
-                    tel.: +48 22 436 24 20<br>
-                    fax: +48 22 436 24 21
+                <td style="width: 60%; text-align: center; vertical-align: middle;">
+                    <h1 style="font-size: 12.5pt; margin: 0; color: #005293; text-transform: uppercase; white-space: nowrap; letter-spacing: 0.2px;">
+                        LOBA-WAKOL POLSKA SPÓŁKA Z O.O.
+                    </h1>
                 </td>
-                <td style="width: 33%; vertical-align: top; text-align: right;">
-                    <span style="color: #005293; font-size: 8pt; font-weight: bold; display: block; margin-bottom: 4px; text-transform: uppercase;">DANE REJESTROWE</span>
-                    KRS: 0000163623<br>
-                    NIP: 118-13-89-053<br>
-                    REGON: 013285030
+                <td style="width: 20%; text-align: right; vertical-align: middle;">
+                    <img src="https://www.loba-wakol.pl/fileadmin/templates/images/wakol_logo.png" alt="Wakol" style="height: 50px; width: auto; display: block; margin-left: auto;">
                 </td>
             </tr>
         </table>
+        <div style="border-top: 1px solid #005293; padding-top: 15px;">
+            <table style="width: 100%; font-size: 9pt; line-height: 1.5; border-collapse: collapse;">
+                <tr>
+                    <td style="width: 33%; vertical-align: top;">
+                        <span style="color: #005293; font-size: 8pt; font-weight: bold; display: block; margin-bottom: 4px; text-transform: uppercase;">ZARZĄD</span>
+                        <strong>Stephane Moulin</strong><br>
+                        <strong>Andreas Taddäus Ziobro</strong><br>
+                        <a href="mailto:biuro@loba-wakol.pl" style="color: #005293; text-decoration: none;">biuro@loba-wakol.pl</a>
+                    </td>
+                    <td style="width: 34%; vertical-align: top; text-align: center;">
+                        <span style="color: #005293; font-size: 8pt; font-weight: bold; display: block; margin-bottom: 4px; text-transform: uppercase;">ADRES FIRMY</span>
+                        ul. Sławęcińska 16, Macierzysz<br>
+                        05-850 Ożarów Mazowiecki<br>
+                        tel.: +48 22 436 24 20<br>
+                        fax: +48 22 436 24 21
+                    </td>
+                    <td style="width: 33%; vertical-align: top; text-align: right;">
+                        <span style="color: #005293; font-size: 8pt; font-weight: bold; display: block; margin-bottom: 4px; text-transform: uppercase;">DANE REJESTROWE</span>
+                        KRS: 0000163623<br>
+                        NIP: 118-13-89-053<br>
+                        REGON: 013285030
+                    </td>
+                </tr>
+            </table>
+        </div>
     </div>
-</div>
-""", unsafe_allow_html=True)
+    """, unsafe_allow_html=True)
 
-        st.divider()
-        
-        # Przyciski pobierania
-        if EXPORTS_READY:
-            col_d1, col_d2 = st.columns(2)
-            
-            safe_adres = adres.replace(' ', '_').replace('/', '_').replace('.', '')
-            safe_miejscowosc = miejscowosc.replace(' ', '_').replace('/', '_').replace('.', '')
-            data_str = data_badania.strftime('%d-%m-%Y')
-            safe_klient = nazwa_klienta.replace(' ', '_').replace('/', '_')
-            base_filename = f"{safe_adres}_{safe_miejscowosc}_Protokol_{firma}_{safe_klient}_{data_str}"
-            
-            with col_d1:
-                docx_file = generate_docx(rep.get_markdown(), data_badania.strftime('%d.%m.%Y'), autor, dane_protokolu.get('images'))
-                st.download_button(
-                    label="📄 Pobierz jako plik Word (.docx)",
-                    data=docx_file,
-                    file_name=f"{base_filename}.docx",
-                    mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-                    use_container_width=True
-                )
-            with col_d2:
-                pdf_file = generate_pdf(rep.get_markdown(), data_badania.strftime('%d.%m.%Y'), autor, dane_protokolu.get('images'))
-                if pdf_file:
+            st.divider()
+
+            # Przyciski pobierania
+            if EXPORTS_READY:
+                col_d1, col_d2 = st.columns(2)
+
+                safe_adres = adres.replace(' ', '_').replace('/', '_').replace('.', '')
+                safe_miejscowosc = miejscowosc.replace(' ', '_').replace('/', '_').replace('.', '')
+                data_str = data_badania.strftime('%d-%m-%Y')
+                safe_klient = nazwa_klienta.replace(' ', '_').replace('/', '_')
+                base_filename = f"{safe_adres}_{safe_miejscowosc}_Protokol_{firma}_{safe_klient}_{data_str}"
+
+                with col_d1:
+                    docx_file = generate_docx(rep.get_markdown(), data_badania.strftime('%d.%m.%Y'), autor, dane_protokolu.get('images'))
                     st.download_button(
-                        label="📕 Pobierz jako plik PDF (.pdf)",
-                        data=pdf_file,
-                        file_name=f"{base_filename}.pdf",
-                        mime="application/pdf",
+                        label="📄 Pobierz jako plik Word (.docx)",
+                        data=docx_file,
+                        file_name=f"{base_filename}.docx",
+                        mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
                         use_container_width=True
                     )
-        else:
-            st.error("⚠️ Brak bibliotek do generowania Word/PDF. Dodaj plik `requirements.txt` w swoim repozytorium na GitHubie z zawartością:\n```\npython-docx\nfpdf2\n```")
+                with col_d2:
+                    pdf_file = generate_pdf(rep.get_markdown(), data_badania.strftime('%d.%m.%Y'), autor, dane_protokolu.get('images'))
+                    if pdf_file:
+                        st.download_button(
+                            label="📕 Pobierz jako plik PDF (.pdf)",
+                            data=pdf_file,
+                            file_name=f"{base_filename}.pdf",
+                            mime="application/pdf",
+                            use_container_width=True
+                        )
+            else:
+                st.error("⚠️ Brak bibliotek do generowania Word/PDF. Dodaj plik `requirements.txt` w swoim repozytorium na GitHubie z zawartością:\n```\npython-docx\nfpdf2\n```")
