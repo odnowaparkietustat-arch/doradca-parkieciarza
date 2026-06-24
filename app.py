@@ -104,11 +104,23 @@ doc.addEventListener('mouseout', (e) => {
     }
 }, true);
 
-// Przywracamy przy kliknięciu poza selectbox / dropdown
+// Przywracamy przy kliknięciu poza selectbox / dropdown lub przy wyborze opcji
 doc.addEventListener('click', (e) => {
     const selectContainer = e.target.closest('div[data-baseweb="select"]');
     const popover = e.target.closest('[data-testid="stVirtualDropdown"], [data-baseweb="popover"]');
-    if (!selectContainer && !popover) {
+    const option = e.target.closest('[role="option"], [data-baseweb="option"]');
+    
+    if (option) {
+        // Użytkownik wybrał nową opcję - akceptujemy ją
+        activeValueElement = null;
+    } else if (!selectContainer && !popover) {
+        // Kliknięcie poza - przywracamy oryginalny tekst
+        if (activeValueElement) {
+            activeValueElement.textContent = originalValueText;
+            activeValueElement = null;
+        }
+    } else if (selectContainer && !popover) {
+        // Kliknięcie w selectbox (zamknięcie dropdowna bez wyboru)
         if (activeValueElement) {
             activeValueElement.textContent = originalValueText;
             activeValueElement = null;
@@ -120,6 +132,13 @@ doc.addEventListener('click', (e) => {
 doc.addEventListener('keydown', (e) => {
     if (e.key === 'Escape' && activeValueElement) {
         activeValueElement.textContent = originalValueText;
+        activeValueElement = null;
+    }
+}, true);
+
+// Akceptujemy przy wciśnięciu Enter (wybór z klawiatury)
+doc.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' && activeValueElement) {
         activeValueElement = null;
     }
 }, true);
@@ -155,15 +174,37 @@ doc.addEventListener('keydown', (e) => {
 </script>
     """, height=0, width=0)
 
+def format_normative_moisture_statement(text: str) -> str:
+    import re
+    pattern = re.compile(r"doprowadzen[iaou] do normatywnego poziomu wilgoci", re.IGNORECASE)
+    if pattern.search(text):
+        prefix = ""
+        body = text
+        if text.startswith("* "):
+            prefix = "* "
+            body = text[2:]
+        elif text.startswith("- "):
+            prefix = "- "
+            body = text[2:]
+        
+        body_cleaned = body.replace("**", "").strip()
+        if body_cleaned.endswith("."):
+            body_cleaned = body_cleaned[:-1]
+        if not body_cleaned.endswith("!"):
+            body_cleaned += "!"
+            
+        return f"{prefix}**{body_cleaned}**"
+    return text
+
 class ReportBuilder:
     def __init__(self):
         self.md_lines = []
     
     def write(self, text):
-        self.md_lines.append(str(text))
+        self.md_lines.append(format_normative_moisture_statement(str(text)))
         
     def markdown(self, text):
-        self.md_lines.append(str(text))
+        self.md_lines.append(format_normative_moisture_statement(str(text)))
         
     def error(self, text):
         st.error(text)
@@ -210,7 +251,7 @@ def insert_header():
 def render_wspolne_dane_optyczne(dane, rep):
     age_txt = f" w wieku {dane['substrate_age_val']} miesięcy" if dane['substrate_age_val'] else ""
     heat_txt = f" Została zainstalowana {dane['heating_info']}." if dane['heating_exists'] == "TAK" else " Brak instalacji ogrzewania podłogowego."
-    if dane['heating_exists'] == "TAK" and dane.get('h_type') != "bruzdowane":
+    if dane['heating_exists'] == "TAK" and dane.get('h_type') != "bruzdowane" and dane.get('heating_curing_done') != "NIE DOTYCZY":
         curing_txt = " Został przeprowadzony proces wygrzewania zgodnie z protokołem." if dane.get('heating_curing_done') == "TAK" else " Nie został przeprowadzony proces wygrzewania podłoża."
     else:
         curing_txt = ""
@@ -253,17 +294,38 @@ def render_wspolne_dane_optyczne(dane, rep):
         local_fleece_txt = ""
         
     residues_txt = " **Na podłożu występują pozostałości starych spoin klejowych.**" if dane.get('has_adhesive_residues') else ""
-    already_levelled_txt = f" **Podłoże zostało już wyrównane (klasa wytrzymałości {dane['masa_class']}).**" if dane.get('already_levelled') == "TAK" else ""
+    
+    strength_neuter_labels = {
+        1: "bardzo słabe",
+        2: "słabe",
+        3: "umiarkowanie słabe",
+        4: "umiarkowanie mocne",
+        5: "mocne"
+    }
+    ocena_tekst = strength_neuter_labels.get(dane.get('strength_val', 3), "umiarkowanie słabe")
+    
+    already_levelled_txt = ""
+    if dane.get('already_levelled') == "TAK":
+        already_levelled_txt = f" **Podłoże zostało już wyrównane (ocena podłoża: {ocena_tekst}).**"
+        if dane.get('masa_class') == "C20" and dane['flooring_type'] in ["lvt cienkie", "pcv w rolce", "wykładzina dywanowa"]:
+            already_levelled_txt += " **Klasa wytrzymałości masy jest właściwa do zastosowania w użytku mieszkaniowym.**"
 
     if dane.get('ventilation_type'):
         vent_txt = f" Rodzaj zastosowanej wentylacji: wentylacja {dane['ventilation_type'].lower()}."
     else:
         vent_txt = ""
     evenness_txt = " Nie badano równości podłoża." if dane['needs_levelling'] == "NIE" else ""
-    dodatkowe_txt = f" **{dane['dodatkowe_informacje']}**" if dane.get('dodatkowe_informacje') else ""
+    info_clean = dane.get('dodatkowe_informacje', '').strip()
+    if (info_clean.startswith('"') and info_clean.endswith('"')) or (info_clean.startswith("'") and info_clean.endswith("'")):
+        info_clean = info_clean[1:-1].strip()
+    dodatkowe_txt = f" **{info_clean}**" if info_clean else ""
 
     area_txt = f" o powierzchni {dane['area_m2']} m²" if dane.get('area_m2') else ""
-    masa_class_txt = f" (klasa wytrzymałości {dane['masa_class']})" if dane.get('masa_class') and dane['substrate'] == "masa samorozlewna" else ""
+    masa_class_txt = ""
+    if dane.get('masa_class') and dane['substrate'] == "masa samorozlewna":
+        masa_class_txt = f" (ocena podłoża: {ocena_tekst})"
+        if dane['masa_class'] == "C20" and dane['flooring_type'] in ["lvt cienkie", "pcv w rolce", "wykładzina dywanowa"]:
+            masa_class_txt += " (klasa wytrzymałości masy jest właściwa do zastosowania w użytku mieszkaniowym)"
     
     dry_joint_warning_txt = ""
     if dane['substrate'] == "suchy jastrych (knauf, fermacell itp.)" and dane['flooring_type'] in ["lvt cienkie", "pcv w rolce", "wykładzina dywanowa"]:
@@ -279,10 +341,7 @@ def render_wspolne_dane_optyczne(dane, rep):
     if dane.get('test_ripper'): tests_out.append(f"- Rysik: {dane['test_ripper']}")
     if dane.get('test_brush'): tests_out.append(f"- Szczotka: {dane['test_brush']}")
     if presso_valid: tests_out.append(f"- Wyniki PressoMess: {', '.join(presso_valid)} N/mm²")
-    if (dane.get('substrate') == "masa samorozlewna" or dane.get('already_levelled') == "TAK") and dane.get('masa_class'):
-        tests_out.append(f"- Klasa wytrzymałości: **{dane['masa_class']}**")
-    else:
-        tests_out.append(f"- Ocena ogólna: **{dane['strength_labels'][dane['strength_val']]}**")
+    tests_out.append(f"- Ocena ogólna: **{dane['strength_labels'][dane['strength_val']]}**")
     
     tests_str = "\n".join(tests_out)
     rep.write(f"**b) badanie wytrzymałości:**\n{tests_str}")
@@ -290,10 +349,43 @@ def render_wspolne_dane_optyczne(dane, rep):
     if dane.get('moisture') is not None:
         if isinstance(dane['moisture'], str):
             moisture_status = "POZYTYWNY" if dane['moisture'] in ["sucha", "suche"] else "NEGATYWNY"
-            rep.write(f"**c) badanie wilgotności:** Ocena wilgotności masy samorozlewnej: **{dane['moisture'].upper()}** — **Wynik: {moisture_status}**")
+            jastrych_moisture = dane.get('jastrych_moisture')
+            podklad_moisture = dane.get('podklad_moisture')
+            if jastrych_moisture is not None:
+                jastrych_status = "POZYTYWNY" if jastrych_moisture <= dane['limit'] else "NEGATYWNY"
+                if jastrych_status == "NEGATYWNY":
+                    moisture_status = "NEGATYWNY"
+                if dane.get('substrate') == "płyta fundamentowa":
+                    em_status = dane.get('emissions_test')
+                    em_status_txt = em_status.upper() if em_status else "NIE BADANO"
+                    if em_status == "negatywny":
+                        moisture_status = "NEGATYWNY"
+                        jastrych_status = "NEGATYWNY"
+                    rep.write(f"**c) badanie wilgotności:** Ocena wilgotności masy samorozlewnej: **{dane['moisture'].upper()}** — **Wynik: {moisture_status}**")
+                    rep.write(f"  - Wilgotność płyty fundamentowej pod masą: **{jastrych_moisture} %** (Norma: {dane['limit']} %) — **Wynik: {jastrych_status}**")
+                    rep.write(f"  - Badanie emisyjności metodą KRL pod masą: **{em_status_txt}**")
+                else:
+                    rep.write(f"**c) badanie wilgotności:** Ocena wilgotności masy samorozlewnej: **{dane['moisture'].upper()}** — **Wynik: {moisture_status}**")
+                    rep.write(f"  - Wilgotność jastrychu pod masą: **{jastrych_moisture} % CM** (Norma: {dane['limit']} % CM) — **Wynik: {jastrych_status}**")
+            elif podklad_moisture is not None:
+                podklad_status = "POZYTYWNY" if podklad_moisture == "suchy" else "NEGATYWNY"
+                if podklad_status == "NEGATYWNY":
+                    moisture_status = "NEGATYWNY"
+                rep.write(f"**c) badanie wilgotności:** Ocena wilgotności masy samorozlewnej: **{dane['moisture'].upper()}** — **Wynik: {moisture_status}**")
+                rep.write(f"  - Ocena wilgotności podkładu pod masą: **{podklad_moisture.upper()}** — **Wynik: {podklad_status}**")
+            else:
+                rep.write(f"**c) badanie wilgotności:** Ocena wilgotności masy samorozlewnej: **{dane['moisture'].upper()}** — **Wynik: {moisture_status}**")
         else:
             moisture_status = "POZYTYWNY" if dane['moisture'] <= dane['limit'] else "NEGATYWNY"
-            rep.write(f"**c) badanie wilgotności:** Wynik badania wilgotności metodą CM: **{dane['moisture']} % CM** (Norma: {dane['limit']} % CM) — **Wynik: {moisture_status}**")
+            if dane.get('substrate') == "płyta fundamentowa":
+                em_status = dane.get('emissions_test')
+                em_status_txt = em_status.upper() if em_status else "NIE BADANO"
+                if em_status == "negatywny":
+                    moisture_status = "NEGATYWNY"
+                rep.write(f"**c) badanie wilgotności:** Wynik badania wilgotności podłoża: **{dane['moisture']} %** (Norma: {dane['limit']} %) — **Wynik: {moisture_status}**")
+                rep.write(f"  - Badanie emisyjności metodą KRL: **{em_status_txt}**")
+            else:
+                rep.write(f"**c) badanie wilgotności:** Wynik badania wilgotności metodą CM: **{dane['moisture']} % CM** (Norma: {dane['limit']} % CM) — **Wynik: {moisture_status}**")
     else:
         if dane['substrate'] in ["podłoże drewniane (parkiet, deska)", "podłoże z płyty OSB"]:
             rep.write("**c) badanie wilgotności:** Nie dotyczy — podłoże drewniane.")
@@ -489,12 +581,21 @@ def _calc_combo(needed_kg, sizes, unit):
 def write_and_track(dane, rep, prod_key, custom_kg=None):
     prod = PRODUCTS[prod_key]
 
+    is_weak_mass_fleece_case = (
+        prod_key == 'PU 280 (1W)'
+        and (dane.get('substrate') == "masa samorozlewna" or dane.get('already_levelled') == "TAK")
+        and dane.get('strength_val') in [1, 2]
+        and (dane.get('whole_fleece') == "TAK" or dane.get('local_fleece') == "TAK")
+    )
+
     if 'written_texts' not in dane:
         dane['written_texts'] = set()
 
     if prod_key not in dane['written_texts']:
         if prod['text']:
             text_to_write = prod['text']
+            if is_weak_mass_fleece_case:
+                text_to_write = text_to_write.replace("Zużycie **ok. 150 g/m²**.", "Zużycie **ok. 200 g/m²**.")
             if dane.get('substrate') in ["jastrych anhydrytowy", "suchy jastrych (knauf, fermacell itp.)"]:
                 if prod_key in ['D 3004', 'D 3004 (bruzdowane)']:
                     if "WAKOL D 3004" in text_to_write:
@@ -530,7 +631,10 @@ def write_and_track(dane, rep, prod_key, custom_kg=None):
             if not thick: return
             needed_kg = area * thick * prod['usage_per_mm']
         else:
-            needed_kg = (area * prod['usage']) / 1000.0
+            usage = prod['usage']
+            if is_weak_mass_fleece_case:
+                usage = 200
+            needed_kg = (area * usage) / 1000.0
 
     if needed_kg <= 0: return
     sizes = sorted(prod['sizes'], reverse=True)
@@ -679,6 +783,27 @@ def render_szpachlowanie_laczen(dane, rep):
             if dane.get('firma') != "Uzin":
                 write_and_track(dane, rep, 'D 3060', custom_kg=(kg_z645 / 25.0) * ratio)
 
+def is_very_weak_mass_leveling_error(dane):
+    is_mass = (dane.get('substrate') == "masa samorozlewna" or dane.get('already_levelled') == "TAK")
+    return is_mass and dane.get('strength_val') == 1 and dane.get('needs_levelling') == "TAK"
+
+def is_cardinal_moisture_error(dane):
+    is_self_leveling = (dane.get('substrate') == "masa samorozlewna" or dane.get('already_levelled') == "TAK")
+    moisture = dane.get('moisture')
+    if not moisture:
+        return False
+    if dane.get('already_levelled') == "TAK":
+        mass_wet = ("ponadnormatywnie" in moisture or "mokra" in moisture or "mokry" in moisture)
+        jastrych_moisture = dane.get('jastrych_moisture')
+        limit = dane.get('limit', 1.8)
+        jastrych_wet = (jastrych_moisture is not None and jastrych_moisture > limit)
+        return mass_wet or jastrych_wet
+    if dane.get('substrate') == "masa samorozlewna":
+        mass_wet = ("ponadnormatywnie" in moisture or "mokra" in moisture or "mokry" in moisture)
+        podklad_wet = (dane.get('podklad_moisture') == "mokry")
+        return mass_wet or podklad_wet
+    return is_self_leveling and ("ponadnormatywnie" in moisture or "mokra" in moisture or "mokry" in moisture)
+
 def will_use_pu_primer(dane):
     dec = dane.get('decision_after_cure') or ""
     if "bariery" in dec or "barierą" in dec:
@@ -805,7 +930,12 @@ def render_wspolne_zalecenia_podloze(dane, rep):
         rep.write("* **Szlif podłoża** w celu oczyszczenia powierzchni suchego jastrychu.")
         rep.write("* Sprawdzenie stabilności i prawidłowości montażu płyt suchego jastrychu (sklejenie, wkręty).")
     else:
-        rep.write("* **Szlif podłoża** w celu usunięcia słabej frakcji i uzyskania porowatej i chłonnej powierzchni.")
+        is_weak_self_leveling = (dane.get('substrate') == "masa samorozlewna" or dane.get('already_levelled') == "TAK") and (dane.get('strength_val') in [1, 2])
+        is_affected_flooring = dane.get('flooring_type') in ["deska warstwowa", "lity parkiet", "deska lita", "mozaika drewniana", "lvt grube z twardym rdzeniem"]
+        if is_weak_self_leveling and is_affected_flooring:
+            rep.write("* **Wykonać szlif tarczą papierową w celu usunięcia słabej frakcji i poprawy adhezji.**")
+        else:
+            rep.write("* **Szlif podłoża** w celu usunięcia słabej frakcji i uzyskania porowatej i chłonnej powierzchni.")
         
     rep.write("* Dokładne odkurzenie powierzchni odkurzaczem przemysłowym.")
     
@@ -936,6 +1066,42 @@ def render_wspolne_zalecenia_podloze(dane, rep):
             bags_local = dane['local_leveling_kg'] / 25.0
             write_and_track(dane, rep, 'D 3060', custom_kg=bags_local * ratio)
 
+    if dane['heating_exists'] == "TAK" and dane['h_type'] == "elektryczne (powierzchniowe)":
+        firma_is_mapei = (dane.get('firma') == "Mapei")
+        firma_is_uzin = (dane.get('firma') == "Uzin")
+        ratio = 8.0 if firma_is_mapei else 7.0
+        
+        # 1. Dwukrotne szpachlowanie
+        if firma_is_mapei:
+            rep.write(f"* **Dwukrotne zaszpachlowanie** instalacji ogrzewania elektrycznego powierzchniowego masą szpachlową **{PRODUCTS['Z 645']['name']}** z dodatkiem plastyfikatora **{PRODUCTS['D 3060']['name']}** ({ratio} kg na 25 kg masy). Czas schnięcia min. 3h po każdej warstwie.")
+        elif firma_is_uzin:
+            rep.write(f"* **Dwukrotne zaszpachlowanie** instalacji ogrzewania elektrycznego powierzchniowego masą szpachlową **{PRODUCTS['Z 645']['name']}**. Czas schnięcia przed klejeniem: **1,5 godziny** po każdej warstwie.")
+        else:
+            rep.write(f"* **Dwukrotne zaszpachlowanie** instalacji ogrzewania elektrycznego powierzchniowego masą szpachlową **{PRODUCTS['Z 645']['name']}** z dodatkiem plastyfikatora **{PRODUCTS['D 3060']['name']}** ({ratio} litrów na 25 kg masy). Czas schnięcia min. 3h po każdej warstwie.")
+            
+        area = dane.get('area_m2') or 0
+        if area > 0:
+            kg_z645_double = area * 4.0
+            write_and_track(dane, rep, 'Z 645 (bruzdowane)', custom_kg=kg_z645_double)
+            if not firma_is_uzin:
+                bags_z645 = math.ceil(kg_z645_double / 25.0)
+                write_and_track(dane, rep, 'D 3060', custom_kg=bags_z645 * ratio)
+                
+        # 2. Wylanie 5 mm masy samorozlewnej
+        flooring_type = dane.get('flooring_type')
+        if flooring_type in ["pcv w rolce", "wykładzina dywanowa", "lvt cienkie"]:
+            self_lev_key = 'Z 675'
+        elif flooring_type in ["deska lita", "lity parkiet", "mozaika drewniana"]:
+            self_lev_key = 'Z 625'
+        else:
+            self_lev_key = 'Z 635'
+            
+        rep.write(f"* Na zaszpachlowane podłoże wylać masę samopoziomującą **{PRODUCTS[self_lev_key]['name']}** o grubości 5 mm.")
+        
+        usage_per_mm = PRODUCTS[self_lev_key].get('usage_per_mm', 1.5)
+        kg_self_lev = area * 5.0 * usage_per_mm
+        write_and_track(dane, rep, self_lev_key, custom_kg=kg_self_lev)
+
     if dane['heating_exists'] == "TAK" and dane['h_type'] == "bruzdowane":
         if dane['bruzdowane_wybor'] == "masa samorozlewna":
             if dane.get('firma') == "Uzin":
@@ -991,11 +1157,19 @@ def render_wspolna_chemia(dane, rep):
     used_d3004 = False
     if dane.get('szpachlowanie_laczen') == "TAK":
         return False
-    if dane.get('h_type') == "bruzdowane" and dane.get('bruzdowane_wybor'):
+    if (dane.get('h_type') == "bruzdowane" and dane.get('bruzdowane_wybor')) or (dane.get('h_type') == "elektryczne (powierzchniowe)" and dane.get('heating_exists') == "TAK"):
         return True # Pomijamy standardową chemię, obsłużona w naprawie podłoża
 
     if dane['substrate'] in ["płytki ceramiczne", "podłoże drewniane (parkiet, deska)", "podłoże z płyty OSB"]:
         return False
+
+    is_mass_substrate = (dane['substrate'] == "masa samorozlewna" or dane.get('already_levelled') == "TAK")
+    if is_mass_substrate and dane.get('strength_val') in [3, 4, 5]:
+        if dane['strength_val'] == 3:
+            write_and_track(dane, rep, 'D 3004')
+            return True
+        else: # C25 and higher
+            return False
 
     if dane['substrate'] == "suchy jastrych (knauf, fermacell itp.)" and dane.get('needs_levelling') == "NIE":
         firma_is_mapei = (dane.get('firma') == "Mapei")
@@ -1035,7 +1209,9 @@ def render_wspolna_chemia(dane, rep):
                     used_d3004 = True
             else:
                 if dane['strength_val'] == 1:
-                    if dane['substrate'] in ["jastrych anhydrytowy", "suchy jastrych (knauf, fermacell itp.)"]: write_and_track(dane, rep, 'PU 235 (1W)')
+                    if (dane['substrate'] == "masa samorozlewna" or dane.get('already_levelled') == "TAK"):
+                        write_and_track(dane, rep, 'PU 280 (1W)')
+                    elif dane['substrate'] in ["jastrych anhydrytowy", "suchy jastrych (knauf, fermacell itp.)"]: write_and_track(dane, rep, 'PU 235 (1W)')
                     else:
                         write_and_track(dane, rep, 'PS 275')
                         render_szpachlowanie_po_gruntowaniu(dane, rep)
@@ -1056,17 +1232,16 @@ def render_chemia_deska_warstwowa(dane, rep):
     used_d3004 = False
     if dane.get('szpachlowanie_laczen') == "TAK":
         return False
-    if dane.get('h_type') == "bruzdowane" and dane.get('bruzdowane_wybor'):
+    if (dane.get('h_type') == "bruzdowane" and dane.get('bruzdowane_wybor')) or (dane.get('h_type') == "elektryczne (powierzchniowe)" and dane.get('heating_exists') == "TAK"):
         return True
 
     if dane['substrate'] in ["płytki ceramiczne", "podłoże drewniane (parkiet, deska)", "podłoże z płyty OSB"]:
         return False
 
-    if dane['substrate'] == "masa samorozlewna" and dane['strength_val'] in [1, 2]:
+    is_weak_self_leveling = (dane['substrate'] == "masa samorozlewna" or dane.get('already_levelled') == "TAK") and dane['strength_val'] in [1, 2] and dane.get('needs_levelling') == "NIE"
+    if is_weak_self_leveling:
         rep.write("**UWAGA: Z uwagi na niską wytrzymałość masy samopoziomującej, jedyną opcją montażu jest zagruntowanie podłoża, przyklejenie maty flizelinowej, a następnie montaż okładziny na flizelinę.**")
         write_and_track(dane, rep, 'PU 280 (1W)')
-        write_and_track(dane, rep, 'EM 140', custom_kg=dane.get('area_m2') or 0)
-        write_and_track(dane, rep, 'PU 225')
         return False
 
     if dane['decision_after_cure'] in ["Wykonanie bariery przeciwwilgociowej", "osuszanie przed barierą"]:
@@ -1098,7 +1273,9 @@ def render_chemia_deska_warstwowa(dane, rep):
             elif dane['strength_val'] == 2:
                 write_and_track(dane, rep, 'PU 280 (1W)')
             elif dane['strength_val'] == 1:
-                if dane['substrate'] in ["jastrych anhydrytowy", "suchy jastrych (knauf, fermacell itp.)"]: write_and_track(dane, rep, 'PU 235 (1W)')
+                if (dane['substrate'] == "masa samorozlewna" or dane.get('already_levelled') == "TAK"):
+                    write_and_track(dane, rep, 'PU 280 (1W)')
+                elif dane['substrate'] in ["jastrych anhydrytowy", "suchy jastrych (knauf, fermacell itp.)"]: write_and_track(dane, rep, 'PU 235 (1W)')
                 else:
                     write_and_track(dane, rep, 'PS 275')
                     render_szpachlowanie_po_gruntowaniu(dane, rep)
@@ -1121,7 +1298,7 @@ def render_chemia_deska_lita(dane, rep):
     used_d3004 = False
     if dane.get('szpachlowanie_laczen') == "TAK":
         return False
-    if dane.get('h_type') == "bruzdowane" and dane.get('bruzdowane_wybor'):
+    if (dane.get('h_type') == "bruzdowane" and dane.get('bruzdowane_wybor')) or (dane.get('h_type') == "elektryczne (powierzchniowe)" and dane.get('heating_exists') == "TAK"):
         return True
 
     if dane['substrate'] in ["płytki ceramiczne", "podłoże drewniane (parkiet, deska)", "podłoże z płyty OSB"]:
@@ -1134,11 +1311,10 @@ def render_chemia_deska_lita(dane, rep):
         write_and_track(dane, rep, 'PU 225')
         return False
 
-    if dane['substrate'] == "masa samorozlewna" and dane['strength_val'] in [1, 2]:
+    is_weak_self_leveling = (dane['substrate'] == "masa samorozlewna" or dane.get('already_levelled') == "TAK") and dane['strength_val'] in [1, 2] and dane.get('needs_levelling') == "NIE"
+    if is_weak_self_leveling:
         rep.write("**UWAGA: Z uwagi na niską wytrzymałość masy samopoziomującej, jedyną opcją montażu jest zagruntowanie podłoża, przyklejenie maty flizelinowej, a następnie montaż okładziny na flizelinę.**")
         write_and_track(dane, rep, 'PU 280 (1W)')
-        write_and_track(dane, rep, 'EM 140', custom_kg=dane.get('area_m2') or 0)
-        write_and_track(dane, rep, 'PU 225')
         return False
 
     if dane['decision_after_cure'] in ["Wykonanie bariery przeciwwilgociowej", "osuszanie przed barierą"]:
@@ -1169,7 +1345,9 @@ def render_chemia_deska_lita(dane, rep):
                     used_d3004 = True
             else:
                 if dane['strength_val'] == 1:
-                    if dane['substrate'] in ["jastrych anhydrytowy", "suchy jastrych (knauf, fermacell itp.)"]: write_and_track(dane, rep, 'PU 235 (1W)')
+                    if (dane['substrate'] == "masa samorozlewna" or dane.get('already_levelled') == "TAK"):
+                        write_and_track(dane, rep, 'PU 280 (1W)')
+                    elif dane['substrate'] in ["jastrych anhydrytowy", "suchy jastrych (knauf, fermacell itp.)"]: write_and_track(dane, rep, 'PU 235 (1W)')
                     else:
                         write_and_track(dane, rep, 'PS 275')
                         render_szpachlowanie_po_gruntowaniu(dane, rep)
@@ -1189,6 +1367,47 @@ def render_chemia_deska_lita(dane, rep):
 
 # --- SEKCJA: DESKA WARSTWOWA ---
 def generate_report_deska_warstwowa(dane, rep):
+    if is_very_weak_mass_leveling_error(dane):
+        render_wspolne_dane_optyczne(dane, rep)
+        if dane['flooring_type'] == "deska warstwowa":
+            tytul = "Deska Warstwowa"
+        elif dane['flooring_type'] == "lity parkiet":
+            tytul = "Lity Parkiet"
+        elif dane['flooring_type'] == "mozaika drewniana":
+            tytul = "Mozaika Drewniana"
+        elif dane['flooring_type'] == "lvt cienkie":
+            tytul = "LVT Cienkie"
+        elif dane['flooring_type'] == "lvt grube z twardym rdzeniem":
+            tytul = "LVT Grube z twardym rdzeniem"
+        elif dane['flooring_type'] == "pcv w rolce":
+            tytul = "PCV w rolce"
+        elif dane['flooring_type'] == "wykładzina dywanowa":
+            tytul = "Wykładzina dywanowa"
+        else:
+            tytul = "Podłoga laminowana"
+        rep.markdown(f"#### **II. Zalecenia techniczne ({tytul})**")
+        rep.write("⚠️ **Kardynalny błąd technologiczny: Brak możliwości wylania masy samopoziomującej**")
+        rep.write("* Brak możliwości wylania masy na tę bardzo słabą masę. Konieczność jej usunięcia (zerwania) przed wylaniem nowej masy.")
+        return
+
+    if (dane.get('substrate') == 'masa samorozlewna' or dane.get('already_levelled') == 'TAK') and dane.get('strength_val') == 2 and dane.get('needs_levelling') == 'TAK':
+        dane['leveling_mesh'] = 'z siatką'
+    if is_cardinal_moisture_error(dane):
+        render_wspolne_dane_optyczne(dane, rep)
+        if dane['flooring_type'] == "deska warstwowa":
+            tytul = "Deska Warstwowa"
+        elif dane['flooring_type'] == "lity parkiet":
+            tytul = "Lity Parkiet"
+        elif dane['flooring_type'] == "mozaika drewniana":
+            tytul = "Mozaika Drewniana"
+        else:
+            tytul = "Podłoga laminowana"
+        rep.markdown(f"#### **II. Zalecenia techniczne ({tytul})**")
+        rep.write("⚠️ **Kardynalny błąd technologiczny: Brak możliwości montażu okładziny**")
+        rep.write("* Brak możliwości montażu okładziny z uwagi na nienormatywny poziom wilgoci pod masą, konieczność usunięcia masy i doprowadzenia do normatywnego poziomu wilgoci.")
+        rep.write("* Bądź, jeśli to możliwe, po usunięciu masy, wykonanie bariery przeciwwilgociowej.")
+        return
+
     render_wspolne_dane_optyczne(dane, rep)
     
     if dane['flooring_type'] == "deska warstwowa":
@@ -1218,6 +1437,8 @@ def generate_report_deska_warstwowa(dane, rep):
     if dane['needs_levelling'] == "TAK" and dane.get('bruzdowane_wybor') != "masa samorozlewna" and dane['substrate'] != "strefy mokre":
         _pu_applied = any(k in dane.get('written_texts', set()) for k in ['PU 280 (1W)', 'PU 280 (Bariera)', 'PU 280 (Bariera Płyta)', 'PU 235 (1W)', 'PU 235 (Bariera)'])
         _skip_d3045 = (dane.get('leveling_mesh') == "z siatką" and _pu_applied) or 'D 3080' in dane.get('written_texts', set())
+        if (dane['substrate'] == "masa samorozlewna" or dane.get('already_levelled') == "TAK") and dane['strength_val'] == 2:
+            _skip_d3045 = False
         if not used_d3004 and not _skip_d3045:
             write_and_track(dane, rep, 'D 3045')
         if dane.get('leveling_mesh') == "z siatką":
@@ -1270,7 +1491,7 @@ def generate_report_deska_warstwowa(dane, rep):
     elif dane['substrate'] in ["jastrych anhydrytowy", "suchy jastrych (knauf, fermacell itp.)"] and dane['strength_val'] == 1:
         rep.write(f"Klejenie okładziny należy przeprowadzić przy użyciu kleju do parkietu **{PRODUCTS['MS 230']['name']}** (szpachla B13, zużycie: 1350 g/m²).")
         write_and_track(dane, rep, 'MS 230')
-    elif dane['substrate'] == "masa samorozlewna" and dane['strength_val'] == 3:
+    elif (dane['substrate'] == "masa samorozlewna" or dane.get('already_levelled') == "TAK") and dane['strength_val'] == 3:
         rep.write(f"Z uwagi na umiarkowanie słabą wytrzymałość masy, dedykowanym klejem jest klej elastyczny. Klejenie okładziny należy przeprowadzić przy użyciu kleju do parkietu **{PRODUCTS['MS 230']['name']}** (szpachla B13, zużycie: 1350 g/m²).")
         write_and_track(dane, rep, 'MS 230')
     elif dane.get('klej_typ') == "bezprzesuwny":
@@ -1284,6 +1505,39 @@ def generate_report_deska_warstwowa(dane, rep):
 
 # --- SEKCJA: DESKA LITA ---
 def generate_report_deska_lita(dane, rep):
+    if is_very_weak_mass_leveling_error(dane):
+        render_wspolne_dane_optyczne(dane, rep)
+        if dane['flooring_type'] == "deska warstwowa":
+            tytul = "Deska Warstwowa"
+        elif dane['flooring_type'] == "lity parkiet":
+            tytul = "Lity Parkiet"
+        elif dane['flooring_type'] == "mozaika drewniana":
+            tytul = "Mozaika Drewniana"
+        elif dane['flooring_type'] == "lvt cienkie":
+            tytul = "LVT Cienkie"
+        elif dane['flooring_type'] == "lvt grube z twardym rdzeniem":
+            tytul = "LVT Grube z twardym rdzeniem"
+        elif dane['flooring_type'] == "pcv w rolce":
+            tytul = "PCV w rolce"
+        elif dane['flooring_type'] == "wykładzina dywanowa":
+            tytul = "Wykładzina dywanowa"
+        else:
+            tytul = "Podłoga laminowana"
+        rep.markdown(f"#### **II. Zalecenia techniczne ({tytul})**")
+        rep.write("⚠️ **Kardynalny błąd technologiczny: Brak możliwości wylania masy samopoziomującej**")
+        rep.write("* Brak możliwości wylania masy na tę bardzo słabą masę. Konieczność jej usunięcia (zerwania) przed wylaniem nowej masy.")
+        return
+
+    if (dane.get('substrate') == 'masa samorozlewna' or dane.get('already_levelled') == 'TAK') and dane.get('strength_val') == 2 and dane.get('needs_levelling') == 'TAK':
+        dane['leveling_mesh'] = 'z siatką'
+    if is_cardinal_moisture_error(dane):
+        render_wspolne_dane_optyczne(dane, rep)
+        rep.markdown("#### **II. Zalecenia techniczne (Deska Lita)**")
+        rep.write("⚠️ **Kardynalny błąd technologiczny: Brak możliwości montażu okładziny**")
+        rep.write("* Brak możliwości montażu okładziny z uwagi na nienormatywny poziom wilgoci pod masą, konieczność usunięcia masy i doprowadzenia do normatywnego poziomu wilgoci.")
+        rep.write("* Bądź, jeśli to możliwe, po usunięciu masy, wykonanie bariery przeciwwilgociowej.")
+        return
+
     render_wspolne_dane_optyczne(dane, rep)
     if dane['substrate'] == "jastrych cementowy":
         rep.write("**Aby bezpiecznie kleić podłogę drewnianą na jastrychu cementowym, jego wytrzymałość na ścinanie musi wynosić między 1,5 a 2,0 N/mm² a wilgotność nie może przekraczać 1,8% CM. (z ogrzewaniem podłogowym max. 1,5% CM).**")
@@ -1301,6 +1555,8 @@ def generate_report_deska_lita(dane, rep):
     if dane['needs_levelling'] == "TAK" and dane.get('bruzdowane_wybor') != "masa samorozlewna" and dane['substrate'] != "strefy mokre":
         _pu_applied = any(k in dane.get('written_texts', set()) for k in ['PU 280 (1W)', 'PU 280 (Bariera)', 'PU 280 (Bariera Płyta)', 'PU 235 (1W)', 'PU 235 (Bariera)'])
         _skip_d3045 = (dane.get('leveling_mesh') == "z siatką" and _pu_applied) or 'D 3080' in dane.get('written_texts', set())
+        if (dane['substrate'] == "masa samorozlewna" or dane.get('already_levelled') == "TAK") and dane['strength_val'] == 2:
+            _skip_d3045 = False
         if not used_d3004 and not _skip_d3045:
             write_and_track(dane, rep, 'D 3045')
         if dane.get('leveling_mesh') == "z siatką":
@@ -1355,10 +1611,43 @@ def generate_report_deska_lita(dane, rep):
 
 # --- SEKCJA: LVT CIENKIE ---
 def generate_report_lvt_cienkie(dane, rep):
+    if is_very_weak_mass_leveling_error(dane):
+        render_wspolne_dane_optyczne(dane, rep)
+        if dane['flooring_type'] == "deska warstwowa":
+            tytul = "Deska Warstwowa"
+        elif dane['flooring_type'] == "lity parkiet":
+            tytul = "Lity Parkiet"
+        elif dane['flooring_type'] == "mozaika drewniana":
+            tytul = "Mozaika Drewniana"
+        elif dane['flooring_type'] == "lvt cienkie":
+            tytul = "LVT Cienkie"
+        elif dane['flooring_type'] == "lvt grube z twardym rdzeniem":
+            tytul = "LVT Grube z twardym rdzeniem"
+        elif dane['flooring_type'] == "pcv w rolce":
+            tytul = "PCV w rolce"
+        elif dane['flooring_type'] == "wykładzina dywanowa":
+            tytul = "Wykładzina dywanowa"
+        else:
+            tytul = "Podłoga laminowana"
+        rep.markdown(f"#### **II. Zalecenia techniczne ({tytul})**")
+        rep.write("⚠️ **Kardynalny błąd technologiczny: Brak możliwości wylania masy samopoziomującej**")
+        rep.write("* Brak możliwości wylania masy na tę bardzo słabą masę. Konieczność jej usunięcia (zerwania) przed wylaniem nowej masy.")
+        return
+
+    if (dane.get('substrate') == 'masa samorozlewna' or dane.get('already_levelled') == 'TAK') and dane.get('strength_val') == 2 and dane.get('needs_levelling') == 'TAK':
+        dane['leveling_mesh'] = 'z siatką'
+    if is_cardinal_moisture_error(dane):
+        render_wspolne_dane_optyczne(dane, rep)
+        rep.markdown("#### **II. Zalecenia techniczne (LVT Cienkie)**")
+        rep.write("⚠️ **Kardynalny błąd technologiczny: Brak możliwości montażu okładziny**")
+        rep.write("* Brak możliwości montażu okładziny z uwagi na nienormatywny poziom wilgoci pod masą, konieczność usunięcia masy i doprowadzenia do normatywnego poziomu wilgoci.")
+        rep.write("* Bądź, jeśli to możliwe, po usunięciu masy, wykonanie bariery przeciwwilgociowej.")
+        return
+
     render_wspolne_dane_optyczne(dane, rep)
     rep.markdown("#### **II. Zalecenia techniczne (LVT Cienkie)**")
     
-    if dane.get('already_levelled') == "TAK":
+    if dane.get('already_levelled') == "TAK" and dane.get('needs_levelling') == "NIE":
         rep.write("**a) przygotowanie podłoża:**")
         if dane.get('moisture') == "ponadnormatywnie wilgotne":
             rep.write("* Doprowadzenie do normatywnego poziomu wilgoci w masie poprzez zapewnienie odpowiednich warunków do schnięcia.")
@@ -1366,6 +1655,8 @@ def generate_report_lvt_cienkie(dane, rep):
             rep.write("* **Konieczność przeprowadzenia pełnego procesu wygrzewania podłoża** zgodnie z protokołem.")
         rep.write("* Szlif podłoża w celu uzyskania gładkiej powierzchni.")
         rep.write("* Dokładne odkurzenie powierzchni odkurzaczem przemysłowym.")
+        if dane.get('strength_val') == 3:
+            write_and_track(dane, rep, 'D 3004')
         rep.write("**b) klejenie okładziny:**")
         if dane.get('moisture') == "ponadnormatywnie wilgotne":
             rep.write("Po doprowadzeniu do normatywnego poziomu wilgoci masy zalecamy:")
@@ -1393,6 +1684,8 @@ def generate_report_lvt_cienkie(dane, rep):
         if not is_dry_no_lev:
             _pu_applied = any(k in dane.get('written_texts', set()) for k in ['PU 280 (1W)', 'PU 280 (Bariera)', 'PU 280 (Bariera Płyta)', 'PU 235 (1W)', 'PU 235 (Bariera)'])
             _skip_d3045 = (dane.get('leveling_mesh') == "z siatką" and _pu_applied) or 'D 3080' in dane.get('written_texts', set())
+            if (dane['substrate'] == "masa samorozlewna" or dane.get('already_levelled') == "TAK") and dane['strength_val'] == 2:
+                _skip_d3045 = False
             if not used_d3004 and not _skip_d3045:
                 write_and_track(dane, rep, 'D 3045')
             if dane.get('leveling_mesh') == "z siatką":
@@ -1430,17 +1723,16 @@ def render_chemia_lvt_grube(dane, rep):
     used_d3004 = False
     if dane.get('szpachlowanie_laczen') == "TAK":
         return False
-    if dane.get('h_type') == "bruzdowane" and dane.get('bruzdowane_wybor'):
+    if (dane.get('h_type') == "bruzdowane" and dane.get('bruzdowane_wybor')) or (dane.get('h_type') == "elektryczne (powierzchniowe)" and dane.get('heating_exists') == "TAK"):
         return True
 
     if dane['substrate'] in ["płytki ceramiczne", "podłoże drewniane (parkiet, deska)", "podłoże z płyty OSB"]:
         return False
 
-    if dane['substrate'] == "masa samorozlewna" and dane['strength_val'] in [1, 2]:
+    is_weak_self_leveling = (dane['substrate'] == "masa samorozlewna" or dane.get('already_levelled') == "TAK") and dane['strength_val'] in [1, 2] and dane.get('needs_levelling') == "NIE"
+    if is_weak_self_leveling:
         rep.write("**UWAGA: Z uwagi na niską wytrzymałość masy samopoziomującej, jedyną opcją montażu jest zagruntowanie podłoża, przyklejenie maty flizelinowej, a następnie montaż okładziny na flizelinę.**")
         write_and_track(dane, rep, 'PU 280 (1W)')
-        write_and_track(dane, rep, 'EM 140', custom_kg=dane.get('area_m2') or 0)
-        write_and_track(dane, rep, 'PU 225')
         return False
 
     if dane['decision_after_cure'] in ["Wykonanie bariery przeciwwilgociowej", "osuszanie przed barierą"]:
@@ -1472,7 +1764,9 @@ def render_chemia_lvt_grube(dane, rep):
             elif dane['strength_val'] == 2:
                 write_and_track(dane, rep, 'PU 280 (1W)')
             elif dane['strength_val'] == 1:
-                if dane['substrate'] in ["jastrych anhydrytowy", "suchy jastrych (knauf, fermacell itp.)"]: write_and_track(dane, rep, 'PU 235 (1W)')
+                if (dane['substrate'] == "masa samorozlewna" or dane.get('already_levelled') == "TAK"):
+                    write_and_track(dane, rep, 'PU 280 (1W)')
+                elif dane['substrate'] in ["jastrych anhydrytowy", "suchy jastrych (knauf, fermacell itp.)"]: write_and_track(dane, rep, 'PU 235 (1W)')
                 else:
                     write_and_track(dane, rep, 'PS 275')
                     render_szpachlowanie_po_gruntowaniu(dane, rep)
@@ -1480,6 +1774,8 @@ def render_chemia_lvt_grube(dane, rep):
                         write_and_track(dane, rep, 'PU 280 (1W)')
         else:
             if dane['substrate'] == "suchy jastrych (knauf, fermacell itp.)":
+                write_and_track(dane, rep, 'PU 280 (1W)')
+            elif (dane['substrate'] == "masa samorozlewna" or dane.get('already_levelled') == "TAK") and dane['strength_val'] == 3:
                 write_and_track(dane, rep, 'PU 280 (1W)')
             elif dane['strength_val'] in [3, 4, 5]:
                 write_and_track(dane, rep, 'D 3055')
@@ -1491,6 +1787,39 @@ def render_chemia_lvt_grube(dane, rep):
     return used_d3004
 
 def generate_report_lvt_grube(dane, rep):
+    if is_very_weak_mass_leveling_error(dane):
+        render_wspolne_dane_optyczne(dane, rep)
+        if dane['flooring_type'] == "deska warstwowa":
+            tytul = "Deska Warstwowa"
+        elif dane['flooring_type'] == "lity parkiet":
+            tytul = "Lity Parkiet"
+        elif dane['flooring_type'] == "mozaika drewniana":
+            tytul = "Mozaika Drewniana"
+        elif dane['flooring_type'] == "lvt cienkie":
+            tytul = "LVT Cienkie"
+        elif dane['flooring_type'] == "lvt grube z twardym rdzeniem":
+            tytul = "LVT Grube z twardym rdzeniem"
+        elif dane['flooring_type'] == "pcv w rolce":
+            tytul = "PCV w rolce"
+        elif dane['flooring_type'] == "wykładzina dywanowa":
+            tytul = "Wykładzina dywanowa"
+        else:
+            tytul = "Podłoga laminowana"
+        rep.markdown(f"#### **II. Zalecenia techniczne ({tytul})**")
+        rep.write("⚠️ **Kardynalny błąd technologiczny: Brak możliwości wylania masy samopoziomującej**")
+        rep.write("* Brak możliwości wylania masy na tę bardzo słabą masę. Konieczność jej usunięcia (zerwania) przed wylaniem nowej masy.")
+        return
+
+    if (dane.get('substrate') == 'masa samorozlewna' or dane.get('already_levelled') == 'TAK') and dane.get('strength_val') == 2 and dane.get('needs_levelling') == 'TAK':
+        dane['leveling_mesh'] = 'z siatką'
+    if is_cardinal_moisture_error(dane):
+        render_wspolne_dane_optyczne(dane, rep)
+        rep.markdown("#### **II. Zalecenia techniczne (LVT Grube z twardym rdzeniem)**")
+        rep.write("⚠️ **Kardynalny błąd technologiczny: Brak możliwości montażu okładziny**")
+        rep.write("* Brak możliwości montażu okładziny z uwagi na nienormatywny poziom wilgoci pod masą, konieczność usunięcia masy i doprowadzenia do normatywnego poziomu wilgoci.")
+        rep.write("* Bądź, jeśli to możliwe, po usunięciu masy, wykonanie bariery przeciwwilgociowej.")
+        return
+
     render_wspolne_dane_optyczne(dane, rep)
     rep.markdown("#### **II. Zalecenia techniczne (LVT Grube z twardym rdzeniem)**")
     render_wspolne_zalecenia_podloze(dane, rep)
@@ -1504,6 +1833,8 @@ def generate_report_lvt_grube(dane, rep):
     if dane['needs_levelling'] == "TAK" and dane.get('bruzdowane_wybor') != "masa samorozlewna" and dane['substrate'] != "strefy mokre":
         _pu_applied = any(k in dane.get('written_texts', set()) for k in ['PU 280 (1W)', 'PU 280 (Bariera)', 'PU 280 (Bariera Płyta)', 'PU 235 (1W)', 'PU 235 (Bariera)'])
         _skip_d3045 = (dane.get('leveling_mesh') == "z siatką" and _pu_applied) or 'D 3080' in dane.get('written_texts', set())
+        if (dane['substrate'] == "masa samorozlewna" or dane.get('already_levelled') == "TAK") and dane['strength_val'] == 2:
+            _skip_d3045 = False
         if not used_d3004 and not _skip_d3045:
             write_and_track(dane, rep, 'D 3045')
         if dane.get('leveling_mesh') == "z siatką":
@@ -1532,7 +1863,7 @@ def generate_report_lvt_grube(dane, rep):
         rep.write(f"Klejenie okładziny należy przeprowadzić przy użyciu kleju do stref mokrych **{PRODUCTS['MS 552']['name']}** (zużycie: 350 g/m²).")
         write_and_track(dane, rep, 'MS 552')
     elif bottom_type == "Winyl na piankowym spodzie":
-        rep.write("**Brak możliwości klejenia.** Możliwość montażu okładziny jedynie na pływająco.")
+        rep.write("**Brak możliwości klejenia tego typu okładziny; montaż jedynie na pływająco.**")
     elif dane['substrate'] == "płytki ceramiczne" and dane['needs_levelling'] == "NIE":
         rep.write(f"Klejenie okładziny należy przeprowadzić przy użyciu dwuskładnikowego kleju poliuretanowego **{PRODUCTS['PU 225']['name']}** (szpachla B11, zużycie: 1250 g/m²).")
         write_and_track(dane, rep, 'PU 225')
@@ -1552,14 +1883,46 @@ def generate_report_lvt_grube(dane, rep):
 
 # --- SEKCJA: PCV W ROLCE ---
 def generate_report_pcv_w_rolce(dane, rep):
-    if dane['needs_levelling'] == "NIE" and dane['already_levelled'] == "NIE" and dane.get('szpachlowanie_laczen') != "TAK" and dane['substrate'] != "suchy jastrych (knauf, fermacell itp.)":
-        rep.error("BŁĄD: Pod okładzinę PCV w rolce wymagane jest wyrównanie podłoża. Poinformuj klienta o konieczności wylania masy!")
+    if is_very_weak_mass_leveling_error(dane):
+        render_wspolne_dane_optyczne(dane, rep)
+        if dane['flooring_type'] == "deska warstwowa":
+            tytul = "Deska Warstwowa"
+        elif dane['flooring_type'] == "lity parkiet":
+            tytul = "Lity Parkiet"
+        elif dane['flooring_type'] == "mozaika drewniana":
+            tytul = "Mozaika Drewniana"
+        elif dane['flooring_type'] == "lvt cienkie":
+            tytul = "LVT Cienkie"
+        elif dane['flooring_type'] == "lvt grube z twardym rdzeniem":
+            tytul = "LVT Grube z twardym rdzeniem"
+        elif dane['flooring_type'] == "pcv w rolce":
+            tytul = "PCV w rolce"
+        elif dane['flooring_type'] == "wykładzina dywanowa":
+            tytul = "Wykładzina dywanowa"
+        else:
+            tytul = "Podłoga laminowana"
+        rep.markdown(f"#### **II. Zalecenia techniczne ({tytul})**")
+        rep.write("⚠️ **Kardynalny błąd technologiczny: Brak możliwości wylania masy samopoziomującej**")
+        rep.write("* Brak możliwości wylania masy na tę bardzo słabą masę. Konieczność jej usunięcia (zerwania) przed wylaniem nowej masy.")
+        return
+
+    if (dane.get('substrate') == 'masa samorozlewna' or dane.get('already_levelled') == 'TAK') and dane.get('strength_val') == 2 and dane.get('needs_levelling') == 'TAK':
+        dane['leveling_mesh'] = 'z siatką'
+    if is_cardinal_moisture_error(dane):
+        render_wspolne_dane_optyczne(dane, rep)
+        rep.markdown("#### **II. Zalecenia techniczne (PCV w rolce)**")
+        rep.write("⚠️ **Kardynalny błąd technologiczny: Brak możliwości montażu okładziny**")
+        rep.write("* Brak możliwości montażu okładziny z uwagi na nienormatywny poziom wilgoci pod masą, konieczność usunięcia masy i doprowadzenia do normatywnego poziomu wilgoci.")
+        rep.write("* Bądź, jeśli to możliwe, po usunięciu masy, wykonanie bariery przeciwwilgociowej.")
+        return
+    if dane['needs_levelling'] == "NIE" and dane['already_levelled'] == "NIE" and dane.get('szpachlowanie_laczen') != "TAK" and dane['substrate'] not in ["suchy jastrych (knauf, fermacell itp.)", "masa samorozlewna"]:
+        rep.error("BŁĄD: Pod okładzinę PCV w rolce wymagane jest wyrównanie podłoża. Proszę uzupełnić Punkt 4/4a wywiadu technicznego (zaznaczyć wylanie masy lub wcześniejsze wyrównanie)!")
         return
         
     render_wspolne_dane_optyczne(dane, rep)
     rep.markdown("#### **II. Zalecenia techniczne (PCV w rolce)**")
     
-    if dane['already_levelled'] == "TAK":
+    if dane['already_levelled'] == "TAK" and dane.get('needs_levelling') == "NIE":
         rep.write("**a) przygotowanie podłoża:**")
         if dane.get('moisture') == "ponadnormatywnie wilgotne":
             rep.write("* Doprowadzenie do normatywnego poziomu wilgoci w masie poprzez zapewnienie odpowiednich warunków do schnięcia.")
@@ -1567,6 +1930,8 @@ def generate_report_pcv_w_rolce(dane, rep):
             rep.write("* **Konieczność przeprowadzenia pełnego procesu wygrzewania podłoża** zgodnie z protokołem.")
         rep.write("* Szlif podłoża w celu uzyskania gładkiej powierzchni.")
         rep.write("* Dokładne odkurzenie powierzchni odkurzaczem przemysłowym.")
+        if dane.get('strength_val') == 3:
+            write_and_track(dane, rep, 'D 3004')
         rep.write("**b) klejenie okładziny PCV:**")
         if dane.get('moisture') == "ponadnormatywnie wilgotne":
             rep.write("Po doprowadzeniu do normatywnego poziomu wilgoci masy zalecamy:")
@@ -1592,6 +1957,8 @@ def generate_report_pcv_w_rolce(dane, rep):
     if dane['needs_levelling'] == "TAK" and dane.get('bruzdowane_wybor') != "masa samorozlewna" and dane['substrate'] != "strefy mokre":
         _pu_applied = any(k in dane.get('written_texts', set()) for k in ['PU 280 (1W)', 'PU 280 (Bariera)', 'PU 280 (Bariera Płyta)', 'PU 235 (1W)', 'PU 235 (Bariera)'])
         _skip_d3045 = (dane.get('leveling_mesh') == "z siatką" and _pu_applied) or 'D 3080' in dane.get('written_texts', set())
+        if (dane['substrate'] == "masa samorozlewna" or dane.get('already_levelled') == "TAK") and dane['strength_val'] == 2:
+            _skip_d3045 = False
         if not used_d3004 and not _skip_d3045:
             write_and_track(dane, rep, 'D 3045')
         if dane.get('leveling_mesh') == "z siatką":
@@ -1626,14 +1993,46 @@ def generate_report_pcv_w_rolce(dane, rep):
 
 # --- SEKCJA: WYKŁADZINA DYWANOWA ---
 def generate_report_wykladzina_dywanowa(dane, rep):
-    if dane['needs_levelling'] == "NIE" and dane['already_levelled'] == "NIE" and dane.get('szpachlowanie_laczen') != "TAK" and dane['substrate'] != "suchy jastrych (knauf, fermacell itp.)":
-        rep.error("BŁĄD: Pod wykładzinę dywanową wymagane jest wyrównanie podłoża. Poinformuj klienta o konieczności wylania masy!")
+    if is_very_weak_mass_leveling_error(dane):
+        render_wspolne_dane_optyczne(dane, rep)
+        if dane['flooring_type'] == "deska warstwowa":
+            tytul = "Deska Warstwowa"
+        elif dane['flooring_type'] == "lity parkiet":
+            tytul = "Lity Parkiet"
+        elif dane['flooring_type'] == "mozaika drewniana":
+            tytul = "Mozaika Drewniana"
+        elif dane['flooring_type'] == "lvt cienkie":
+            tytul = "LVT Cienkie"
+        elif dane['flooring_type'] == "lvt grube z twardym rdzeniem":
+            tytul = "LVT Grube z twardym rdzeniem"
+        elif dane['flooring_type'] == "pcv w rolce":
+            tytul = "PCV w rolce"
+        elif dane['flooring_type'] == "wykładzina dywanowa":
+            tytul = "Wykładzina dywanowa"
+        else:
+            tytul = "Podłoga laminowana"
+        rep.markdown(f"#### **II. Zalecenia techniczne ({tytul})**")
+        rep.write("⚠️ **Kardynalny błąd technologiczny: Brak możliwości wylania masy samopoziomującej**")
+        rep.write("* Brak możliwości wylania masy na tę bardzo słabą masę. Konieczność jej usunięcia (zerwania) przed wylaniem nowej masy.")
+        return
+
+    if (dane.get('substrate') == 'masa samorozlewna' or dane.get('already_levelled') == 'TAK') and dane.get('strength_val') == 2 and dane.get('needs_levelling') == 'TAK':
+        dane['leveling_mesh'] = 'z siatką'
+    if is_cardinal_moisture_error(dane):
+        render_wspolne_dane_optyczne(dane, rep)
+        rep.markdown("#### **II. Zalecenia techniczne (Wykładzina dywanowa)**")
+        rep.write("⚠️ **Kardynalny błąd technologiczny: Brak możliwości montażu okładziny**")
+        rep.write("* Brak możliwości montażu okładziny z uwagi na nienormatywny poziom wilgoci pod masą, konieczność usunięcia masy i doprowadzenia do normatywnego poziomu wilgoci.")
+        rep.write("* Bądź, jeśli to możliwe, po usunięciu masy, wykonanie bariery przeciwwilgociowej.")
+        return
+    if dane['needs_levelling'] == "NIE" and dane['already_levelled'] == "NIE" and dane.get('szpachlowanie_laczen') != "TAK" and dane['substrate'] not in ["suchy jastrych (knauf, fermacell itp.)", "masa samorozlewna"]:
+        rep.error("BŁĄD: Pod wykładzinę dywanową wymagane jest wyrównanie podłoża. Proszę uzupełnić Punkt 4/4a wywiadu technicznego (zaznaczyć wylanie masy lub wcześniejsze wyrównanie)!")
         return
         
     render_wspolne_dane_optyczne(dane, rep)
     rep.markdown("#### **II. Zalecenia techniczne (Wykładzina dywanowa)**")
     
-    if dane['already_levelled'] == "TAK":
+    if dane['already_levelled'] == "TAK" and dane.get('needs_levelling') == "NIE":
         rep.write("**a) przygotowanie podłoża:**")
         if dane.get('moisture') == "ponadnormatywnie wilgotne":
             rep.write("* Doprowadzenie do normatywnego poziomu wilgoci w masie poprzez zapewnienie odpowiednich warunków do schnięcia.")
@@ -1641,6 +2040,8 @@ def generate_report_wykladzina_dywanowa(dane, rep):
             rep.write("* **Konieczność przeprowadzenia pełnego procesu wygrzewania podłoża** zgodnie z protokołem.")
         rep.write("* Szlif podłoża w celu uzyskania gładkiej powierzchni.")
         rep.write("* Dokładne odkurzenie powierzchni odkurzaczem przemysłowym.")
+        if dane.get('strength_val') == 3:
+            write_and_track(dane, rep, 'D 3004')
         rep.write("**b) klejenie wykładziny tekstylnej:**")
         if dane.get('moisture') == "ponadnormatywnie wilgotne":
             rep.write("Po doprowadzeniu do normatywnego poziomu wilgoci masy zalecamy:")
@@ -1666,6 +2067,8 @@ def generate_report_wykladzina_dywanowa(dane, rep):
     if dane['needs_levelling'] == "TAK" and dane.get('bruzdowane_wybor') != "masa samorozlewna" and dane['substrate'] != "strefy mokre":
         _pu_applied = any(k in dane.get('written_texts', set()) for k in ['PU 280 (1W)', 'PU 280 (Bariera)', 'PU 280 (Bariera Płyta)', 'PU 235 (1W)', 'PU 235 (Bariera)'])
         _skip_d3045 = (dane.get('leveling_mesh') == "z siatką" and _pu_applied) or 'D 3080' in dane.get('written_texts', set())
+        if (dane['substrate'] == "masa samorozlewna" or dane.get('already_levelled') == "TAK") and dane['strength_val'] == 2:
+            _skip_d3045 = False
         if not used_d3004 and not _skip_d3045:
             write_and_track(dane, rep, 'D 3045')
         if dane.get('leveling_mesh') == "z siatką":
@@ -2282,6 +2685,10 @@ def render_wersja_pro(nazwa_klienta, miejscowosc, adres, autor, data_badania):
 # ==========================================
 
 if __name__ == "__main__" and st.runtime.exists():
+    if "highlight_fields" not in st.session_state:
+        st.session_state.highlight_fields = set()
+    if "validation_error_msg" not in st.session_state:
+        st.session_state.validation_error_msg = None
     st.title("📄 Generator Protokołu Oględzin")
     st.markdown("""
         <style>
@@ -2338,10 +2745,12 @@ if __name__ == "__main__" and st.runtime.exists():
     lvt_bottom_type = None
     parkiet_pattern = None
     szpachlowanie_laczen = "NIE"
-    if flooring_type in ["deska warstwowa", "podłoga laminowana", "lity parkiet", "mozaika drewniana", "deska lita"]:
-        klej_typ = st.radio("Rodzaj kleju:", ["elastyczny", "bezprzesuwny"], horizontal=True)
-    elif flooring_type == "lvt grube z twardym rdzeniem":
+    if flooring_type in ["deska warstwowa", "podłoga laminowana", "lity parkiet", "mozaika drewniana", "deska lita", "lvt grube z twardym rdzeniem"]:
+        klej_typ = st.radio("Rodzaj kleju:", ["elastyczny", "bezprzesuwny"], index=1, horizontal=True)
+    if flooring_type == "lvt grube z twardym rdzeniem":
         lvt_bottom_type = st.radio("Rodzaj spodu LVT:", ["Winyl z zintegrowanym spodem korkowym", "Winyl na homogenicznym spodzie", "Winyl na piankowym spodzie"], horizontal=True)
+        if lvt_bottom_type == "Winyl na piankowym spodzie":
+            st.warning("⚠️ **Brak możliwości klejenia tego typu okładziny; montaż jedynie na pływająco.**")
 
     st.markdown(f"### Wywiad Techniczny dla: **{flooring_type.upper()}**")
 
@@ -2357,8 +2766,14 @@ if __name__ == "__main__" and st.runtime.exists():
     has_adhesive_residues = False
 
     if substrate in ["podłoże drewniane (parkiet, deska)", "płytki ceramiczne"]:
-        st.write("1a. Czy podłoże jest stabilnie związane z podkładem?")
-        substrate_stable = st.radio("Stabilność podłoża:", ["TAK", "NIE"], index=0, horizontal=True, key="substrate_stable")
+        if "substrate_stable" in st.session_state.get("highlight_fields", set()):
+            st.markdown("<span style='color:red; font-weight:bold;'>1a. Czy podłoże jest stabilnie związane z podkładem?</span>", unsafe_allow_html=True)
+            stable_lbl = ":red[Stabilność podłoża:]"
+        else:
+            st.write("1a. Czy podłoże jest stabilnie związane z podkładem?")
+            stable_lbl = "Stabilność podłoża:"
+        stable_index = None if substrate == "podłoże drewniane (parkiet, deska)" else 0
+        substrate_stable = st.radio(stable_lbl, ["TAK", "NIE"], index=stable_index, horizontal=True, key="substrate_stable")
         if substrate_stable == "NIE":
             if substrate == "podłoże drewniane (parkiet, deska)":
                 st.warning("⚠️ Podłoże wymaga demontażu. Po demontażu konieczne jest wyrównanie masą samorozlewną.")
@@ -2386,7 +2801,12 @@ if __name__ == "__main__" and st.runtime.exists():
     heating_exists = st.radio("Ogrzewanie:", ["TAK", "NIE"], index=1, horizontal=True)
     heating_info = ""; heating_curing_done = None; h_type = None; bruzdowane_wybor = None
     if heating_exists == "TAK":
-        h_type = st.selectbox("Typ ogrzewania:", ["wodne klasyczne", "bruzdowane", "w suchej zabudowie", "elektryczne (powierzchniowe)", "elektryczne (głębokie)", "płyta fundamentowa grzewcza"])
+        heating_options = ["wodne klasyczne", "bruzdowane", "elektryczne (powierzchniowe)", "elektryczne (głębokie)"]
+        if substrate == "płyta fundamentowa":
+            heating_options.append("płyta fundamentowa grzewcza")
+        elif substrate == "suchy jastrych (knauf, fermacell itp.)":
+            heating_options.append("w suchej zabudowie")
+        h_type = st.selectbox("Typ ogrzewania:", heating_options)
         if h_type == "bruzdowane":
             if flooring_type == "lvt cienkie":
                 bruzdowane_wybor = "masa samorozlewna"
@@ -2397,13 +2817,23 @@ if __name__ == "__main__" and st.runtime.exists():
             else:
                 bruzdowane_wybor = st.radio("Wybierz technologię (ogrzewanie bruzdowane):", ["masa samorozlewna", "płyta poliestrowa"], horizontal=True)
 
-        if h_type != "bruzdowane":
+        if h_type not in ["bruzdowane", "elektryczne (powierzchniowe)"] and substrate != "suchy jastrych (knauf, fermacell itp.)":
             st.write("❓ Czy został przeprowadzony proces wygrzewania zgodnie z protokołem?")
             heating_curing_done = st.radio("Proces wygrzewania:", ["TAK", "NIE"], index=1, horizontal=True)
         else:
             heating_curing_done = "NIE DOTYCZY"
         mapping = {"wodne klasyczne": "instalacja ogrzewania podłogowego wodna, klasyczna", "bruzdowane": "instalacja ogrzewania podłogowego wodna, bruzdowana", "w suchej zabudowie": "instalacja ogrzewania podłogowego wodna, w suchej zabudowie", "elektryczne (powierzchniowe)": "instalacja ogrzewania podłogowego elektryczna, powierzchniowa", "elektryczne (głębokie)": "instalacja ogrzewania podłogowego elektryczna, umieszczona głęboko w podłożu", "płyta fundamentowa grzewcza": "ogrzewanie realizowane poprzez płytę fundamentową grzewczą"}
         heating_info = mapping.get(h_type, h_type)
+
+    podklad_moisture = None
+    if substrate == "masa samorozlewna":
+        if "podklad_moisture_radio" in st.session_state.get("highlight_fields", set()):
+            st.markdown("<span style='color:red; font-weight:bold;'>2a. Ocena wilgotności podkładu pod masą:</span>", unsafe_allow_html=True)
+            podklad_lbl = ":red[Wilgotność podkładu:]"
+        else:
+            st.write("2a. Ocena wilgotności podkładu pod masą:")
+            podklad_lbl = "Wilgotność podkładu:"
+        podklad_moisture = st.radio(podklad_lbl, ["suchy", "mokry"], index=None, horizontal=True, key="podklad_moisture_radio")
 
     # --- LOGIKA NORM I BARIER ---
     if substrate == "płyta fundamentowa":
@@ -2422,49 +2852,85 @@ if __name__ == "__main__" and st.runtime.exists():
 
     # Pre-resolve already_levelled state from session state
     temp_already_levelled = "NIE"
-    if flooring_type == "lvt cienkie":
-        temp_already_levelled = st.session_state.get('lvt_already_lev', "NIE")
-    elif flooring_type in ["wykładzina dywanowa", "pcv w rolce"]:
-        needs_lev_val = st.session_state.get('needs_lev_radio', "NIE")
-        if needs_lev_val == "NIE":
-            temp_already_levelled = st.session_state.get('already_lev_radio', "NIE")
+    if substrate != "masa samorozlewna":
+        if flooring_type == "lvt cienkie":
+            temp_already_levelled = st.session_state.get('lvt_already_lev', "NIE")
+        elif flooring_type in ["wykładzina dywanowa", "pcv w rolce"]:
+            needs_lev_val = st.session_state.get('needs_lev_radio', "NIE")
+            if needs_lev_val == "NIE":
+                temp_already_levelled = st.session_state.get('already_lev_radio', "NIE")
 
+    jastrych_moisture = None
     if temp_already_levelled == "TAK":
         moisture = st.session_state.get("already_lev_moisture")
+        if not _substrate_no_moisture and substrate != "masa samorozlewna":
+            if substrate == "płyta fundamentowa":
+                jastrych_lbl = "3. Poziom wilgoci płyty fundamentowej pod masą (%)"
+                if "jastrych_moisture_val" in st.session_state.get("highlight_fields", set()):
+                    jastrych_lbl = f":red[{jastrych_lbl}]"
+                jastrych_moisture = st.number_input(jastrych_lbl, format="%.1f", value=None, key="jastrych_moisture_val")
+                
+                em_lbl = "3a. Badanie emisyjności pod masą (Higrometr/KRL):"
+                if "em_test_val" in st.session_state.get("highlight_fields", set()):
+                    em_lbl = f":red[{em_lbl}]"
+                emissions_test = st.radio(em_lbl, ["pozytywny", "negatywny", "nie badano"], index=None, horizontal=True, key="em_test_val")
+            else:
+                jastrych_lbl = "3. Poziom wilgoci jastrychu pod masą (CM %)"
+                if "jastrych_moisture_val" in st.session_state.get("highlight_fields", set()):
+                    jastrych_lbl = f":red[{jastrych_lbl}]"
+                jastrych_moisture = st.number_input(jastrych_lbl, format="%.1f", value=None, key="jastrych_moisture_val")
     elif _substrate_no_moisture:
-        st.info("3. Poziom wilgoci podłoża — nie dotyczy tego rodzaju podłoża.")
+        if substrate != "podłoże drewniane (parkiet, deska)":
+            st.info("3. Poziom wilgoci podłoża — nie dotyczy tego rodzaju podłoża.")
         moisture = None
     elif substrate == "płyta fundamentowa":
-        moisture = st.number_input("3. Poziom wilgoci podłoża (%)", format="%.1f", value=None)
-        emissions_test = st.radio("3a. Badanie emisyjności (Higrometr/KRL):", ["pozytywny", "negatywny", "nie badano"], horizontal=True)
+        moisture_lbl = "3. Poziom wilgoci podłoża (%)"
+        if "moisture_val" in st.session_state.get("highlight_fields", set()):
+            moisture_lbl = f":red[{moisture_lbl}]"
+        moisture = st.number_input(moisture_lbl, format="%.1f", value=None, key="moisture_val")
+        
+        em_lbl = "3a. Badanie emisyjności (Higrometr/KRL):"
+        if "emissions_test_val" in st.session_state.get("highlight_fields", set()):
+            em_lbl = f":red[{em_lbl}]"
+        emissions_test = st.radio(em_lbl, ["pozytywny", "negatywny", "nie badano"], index=None, horizontal=True, key="emissions_test_val")
     elif substrate == "masa samorozlewna":
-        moisture = st.radio("3. Ocena wilgotności masy samorozlewnej:", ["sucha", "mokra"], horizontal=True)
+        moisture_lbl = "3. Ocena wilgotności masy samorozlewnej:"
+        if "masa_moisture_radio" in st.session_state.get("highlight_fields", set()):
+            moisture_lbl = f":red[{moisture_lbl}]"
+        moisture = st.radio(moisture_lbl, ["sucha", "mokra"], index=None, horizontal=True, key="masa_moisture_radio")
     else:
-        moisture = st.number_input("3. Poziom wilgoci podłoża (CM %)", format="%.1f", value=None)
+        moisture_lbl = "3. Poziom wilgoci podłoża (CM %)"
+        if "moisture_val" in st.session_state.get("highlight_fields", set()):
+            moisture_lbl = f":red[{moisture_lbl}]"
+        moisture = st.number_input(moisture_lbl, format="%.1f", value=None, key="moisture_val")
 
     decision_after_cure = None
     needs_drying_action = False
     is_moisture_high = False
 
     if temp_already_levelled == "TAK":
-        is_moisture_high = (moisture == "ponadnormatywnie wilgotne")
+        mass_wet = moisture is not None and ("ponadnormatywnie" in moisture or "mokry" in moisture or "mokra" in moisture)
+        jastrych_wet = (jastrych_moisture is not None and jastrych_moisture > limit)
+        is_moisture_high = mass_wet or jastrych_wet
         if is_moisture_high:
             needs_drying_action = True
             decision_after_cure = "zapewnienie odpowiednich warunków do schnięcia"
-            st.warning("Masa samorozlewna jest ponadnormatywnie wilgotna. Konieczność zapewnienia odpowiednich warunków do schnięcia.")
+            st.error("⚠️ **Kardynalny błąd technologiczny:** Brak możliwości montażu okładziny z uwagi na nienormatywny poziom wilgoci pod masą. **Konieczność usunięcia masy i doprowadzenia do normatywnego poziomu wilgoci!**, bądź, jeśli to możliwe, po usunięciu masy, wykonanie bariery przeciwwilgociowej.")
         else:
             needs_drying_action = False
             decision_after_cure = None
     else:
         if moisture is not None:
             if isinstance(moisture, str):
-                is_moisture_high = (moisture == "mokra")
+                is_moisture_high = ("mokra" in moisture or "mokry" in moisture or "ponadnormatywnie" in moisture)
             else:
                 is_moisture_high = (moisture > limit)
+        if substrate == "masa samorozlewna" and podklad_moisture == "mokry":
+            is_moisture_high = True
 
         if is_moisture_high:
             needs_drying_action = True
-            if heating_exists == "TAK":
+            if heating_exists == "TAK" and heating_curing_done != "NIE DOTYCZY":
                 if h_type == "bruzdowane":
                     opt_dry = "zapewnienie podłożu odpowiednich warunków do schnięcia"
                 elif heating_curing_done == "NIE":
@@ -2487,13 +2953,13 @@ if __name__ == "__main__" and st.runtime.exists():
                     decision_after_cure = "Wykonanie bariery przeciwwilgociowej"
                     needs_drying_action = False
             elif h_type == "bruzdowane":
-                st.warning(f"Podłoże jest zbyt wilgotne. Konieczność doprowadzenia do normatywnego poziomu wilgoci ({limit}% CM) przed przystąpieniem do dalszych prac.")
+                st.warning(f"Podłoże jest zbyt wilgotne. **Konieczność doprowadzenia do normatywnego poziomu wilgoci ({limit}% CM) przed przystąpieniem do dalszych prac!**")
                 decision_after_cure = opt_dry
             elif substrate in ["jastrych anhydrytowy", "suchy jastrych (knauf, fermacell itp.)"]:
-                st.info(f"Dla jastrychu anhydrytowego i suchego jastrychu nie ma możliwości wykonania bariery przeciwwilgociowej. Konieczność doprowadzenia do normatywnego poziomu wilgoci ({limit}% CM).")
+                st.info(f"Dla jastrychu anhydrytowego i suchego jastrychu nie ma możliwości wykonania bariery przeciwwilgociowej. **Konieczność doprowadzenia do normatywnego poziomu wilgoci ({limit}% CM)!**")
                 decision_after_cure = opt_dry
             elif substrate == "masa samorozlewna":
-                st.info("Dla masy samorozlewnej nie ma możliwości wykonania bariery przeciwwilgociowej. Konieczność doprowadzenia masy do stanu suchego.")
+                st.error("⚠️ **Kardynalny błąd technologiczny:** Brak możliwości montażu okładziny z uwagi na nienormatywny poziom wilgoci pod masą. **Konieczność usunięcia masy i doprowadzenia do normatywnego poziomu wilgoci!**, bądź, jeśli to możliwe, po usunięciu masy, wykonanie bariery przeciwwilgociowej.")
                 decision_after_cure = opt_dry
             else:
                 if isinstance(moisture, (int, float)) and moisture <= barrier_max:
@@ -2526,6 +2992,10 @@ if __name__ == "__main__" and st.runtime.exists():
         temp_needs_levelling = st.session_state.get('dry_res_lev', "NIE")
         if temp_needs_levelling == "TAK":
             temp_leveling_thickness = st.session_state.get('dry_res_thick')
+    elif substrate == "masa samorozlewna":
+        temp_needs_levelling = st.session_state.get('needs_lev_radio', "NIE")
+        if temp_needs_levelling == "TAK":
+            temp_leveling_thickness = st.session_state.get('lev_thick_other')
     elif flooring_type == "lvt cienkie":
         lvt_already_val = st.session_state.get('lvt_already_lev', "NIE")
         if lvt_already_val == "TAK":
@@ -2599,6 +3069,32 @@ if __name__ == "__main__" and st.runtime.exists():
         st.info("Grubość masy została automatycznie ustalona na 5 mm.")
         if substrate == "suchy jastrych (knauf, fermacell itp.)":
             leveling_mesh = "z siatką"
+    elif h_type == "elektryczne (powierzchniowe)":
+        st.info("Wzór przygotowania podłoża pod ogrzewanie elektryczne powierzchniowe jest określony jednoznacznie (dwukrotne szpachlowanie masą szpachlową z plastyfikatorem + wylanie masy 5 mm).")
+        needs_levelling = "TAK"
+        leveling_thickness = 5
+        st.info("Grubość masy została automatycznie ustalona na 5 mm.")
+        if substrate == "suchy jastrych (knauf, fermacell itp.)":
+            leveling_mesh = "z siatką"
+    elif substrate == "masa samorozlewna":
+        if "needs_lev_radio" in st.session_state.get("highlight_fields", set()):
+            st.markdown("<span style='color:red; font-weight:bold;'>4. Czy całość podłoża wymaga wyrównania masą samorozlewną?</span>", unsafe_allow_html=True)
+            needs_lbl = ":red[Wyrównanie masą:]"
+        else:
+            st.write("4. Czy całość podłoża wymaga wyrównania masą samorozlewną?")
+            needs_lbl = "Wyrównanie masą:"
+        needs_levelling = st.radio(needs_lbl, ["TAK", "NIE"], index=1, horizontal=True, key="needs_lev_radio")
+        already_levelled = "NIE"
+        leveling_thickness = 0
+        leveling_mesh = "bez siatki"
+        if needs_levelling == "TAK":
+            leveling_thickness = st.number_input("Planowana grubość masy (mm):", min_value=1, value=None, key="lev_thick_other")
+            st_val = st.session_state.get('strength_val_slider', 3)
+            if st_val == 2:
+                st.info("ℹ️ Wyrównanie słabej masy samopoziomującej wymaga uzbrojenia siatką AR 150.")
+                leveling_mesh = "z siatką"
+            else:
+                leveling_mesh = st.radio("Rodzaj wyrównania:", ["bez siatki", "z siatką"], index=0, horizontal=True, key="lev_mesh_other")
     elif substrate == "suchy jastrych (knauf, fermacell itp.)":
         if flooring_type in ["lvt cienkie", "pcv w rolce", "wykładzina dywanowa"]:
             st.warning("⚠️ **Uwaga:** Przy montażu cienkich okładzin (LVT cienkie, PCV w rolce, wykładzina dywanowa) na suchym jastrychu istnieje ryzyko optycznego odznaczania się (kopiowania) łączeń płyt na gotowej podłodze. Aby temu zapobiec, zaleca się pełne wyrównanie podłoża masą samorozlewną lub co najmniej zaszpachlowanie łączeń płyt.")
@@ -2632,8 +3128,13 @@ if __name__ == "__main__" and st.runtime.exists():
             else:
                 leveling_mesh = st.radio("Rodzaj wyrównania:", ["bez siatki", "z siatką"], index=0, horizontal=True, key="lvt_lev_mesh")
     else:
-        st.write("4a. Czy całość podłoża wymaga wyrównania masą samorozlewną?")
-        needs_levelling = st.radio("Wyrównanie masą:", ["TAK", "NIE"], index=1, horizontal=True, key="needs_lev_radio")
+        if "needs_lev_radio" in st.session_state.get("highlight_fields", set()):
+            st.markdown("<span style='color:red; font-weight:bold;'>4a. Czy całość podłoża wymaga wyrównania masą samorozlewną?</span>", unsafe_allow_html=True)
+            needs_lbl = ":red[Wyrównanie masą:]"
+        else:
+            st.write("4a. Czy całość podłoża wymaga wyrównania masą samorozlewną?")
+            needs_lbl = "Wyrównanie masą:"
+        needs_levelling = st.radio(needs_lbl, ["TAK", "NIE"], index=1, horizontal=True, key="needs_lev_radio")
         if needs_levelling == "TAK":
             leveling_thickness = st.number_input("Planowana grubość masy (mm):", min_value=1, value=None, key="lev_thick_other")
             if substrate == "suchy jastrych (knauf, fermacell itp.)":
@@ -2643,11 +3144,19 @@ if __name__ == "__main__" and st.runtime.exists():
                 leveling_mesh = st.radio("Rodzaj wyrównania:", ["bez siatki", "z siatką"], index=0, horizontal=True, key="lev_mesh_other")
         elif flooring_type in ["wykładzina dywanowa", "pcv w rolce"]:
             st.warning("Pod wybraną okładzinę wymagane jest wyrównanie podłoża.")
-            st.write("Czy podłoże zostało wyrównane masą samorozlewną?")
-            already_levelled = st.radio("Wcześniejsze wyrównanie:", ["TAK", "NIE"], index=1, horizontal=True, key="already_lev_radio")
+            if "already_lev_radio" in st.session_state.get("highlight_fields", set()):
+                st.markdown("<span style='color:red; font-weight:bold;'>Czy podłoże zostało wyrównane masą samorozlewną?</span>", unsafe_allow_html=True)
+                already_lbl = ":red[Wcześniejsze wyrównanie:]"
+            else:
+                st.write("Czy podłoże zostało wyrównane masą samorozlewną?")
+                already_lbl = "Wcześniejsze wyrównanie:"
+            already_levelled = st.radio(already_lbl, ["TAK", "NIE"], index=1, horizontal=True, key="already_lev_radio")
 
     if already_levelled == "TAK":
-        moisture = st.radio("Ocena wilgotności masy samorozlewnej:", ["suche", "ponadnormatywnie wilgotne"], index=None, horizontal=True, key="already_lev_moisture")
+        moisture_lbl = "Ocena wilgotności masy samorozlewnej:"
+        if "already_lev_moisture" in st.session_state.get("highlight_fields", set()):
+            moisture_lbl = f":red[{moisture_lbl}]"
+        moisture = st.radio(moisture_lbl, ["suche", "ponadnormatywnie wilgotne"], index=None, horizontal=True, key="already_lev_moisture")
 
     # 3. Whole fleece & Local fleece
     if needs_levelling == "TAK":
@@ -2765,30 +3274,9 @@ if __name__ == "__main__" and st.runtime.exists():
         with _presso_cols[i]:
             presso_results.append(st.number_input(f"Próba {i+1} (N/mm²)", min_value=0.0, step=0.1, format="%.2f", key=f"p_{i}", value=None))
     img_presso = st.file_uploader("Zdjęcia - PressoMess:", accept_multiple_files=True, type=["png", "jpg", "jpeg"], key="img_presso")
-    if already_levelled == "TAK":
-        strength_labels = {
-            1: "bardzo słaba",
-            2: "słaba",
-            3: "umiarkowanie mocne",
-            4: "mocne",
-            5: "bardzo mocne"
-        }
-    else:
-        strength_labels = {1: "bardzo słaby", 2: "słaby", 3: "umiarkowanie słaby", 4: "umiarkowanie mocny", 5: "mocny"}
+    strength_labels = {1: "bardzo słaby", 2: "słaby", 3: "umiarkowanie słaby", 4: "umiarkowanie mocny", 5: "mocny"}
 
-    if already_levelled == "TAK":
-        selected_class = st.select_slider("Ocena ogólna wytrzymałości podłoża:", options=["poniżej C20", "C20", "C25", "C30", "Powyżej C30"], value="C25", key="strength_val_slider_c")
-        strength_map = {
-            "poniżej C20": 1,
-            "C20": 2,
-            "C25": 3,
-            "C30": 4,
-            "Powyżej C30": 5
-        }
-        strength_val = strength_map[selected_class]
-        masa_class = selected_class
-        st.info(f"Ocena ogólna wytrzymałości podłoża: **{strength_labels[strength_val]}**")
-    elif substrate == "podłoże z płyty OSB":
+    if substrate == "podłoże z płyty OSB":
         strength_val = 5
         st.info("Ocena ogólna wytrzymałości podłoża: **mocny** — wartość ustawiona automatycznie dla płyty OSB.")
     elif substrate == "suchy jastrych (knauf, fermacell itp.)":
@@ -2799,18 +3287,32 @@ if __name__ == "__main__" and st.runtime.exists():
         st.info("Ocena ogólna wytrzymałości podłoża: **umiarkowanie mocny** — wartość ustawiona automatycznie dla podłoża drewnianego.")
     else:
         strength_val = st.select_slider("Ocena ogólna wytrzymałości podłoża:", options=[1, 2, 3, 4, 5], value=3, format_func=lambda x: strength_labels[x], key="strength_val_slider")
-        if substrate == "masa samorozlewna":
-            strength_c_map = {1: "C15", 2: "C20", 3: "C25", 4: "C30", 5: "C35"}
+        if substrate == "masa samorozlewna" or already_levelled == "TAK":
+            strength_c_map = {
+                1: "poniżej C20",
+                2: "poniżej C20",
+                3: "C20",
+                4: "C25",
+                5: "C30 i wyżej"
+            }
             masa_class = strength_c_map.get(strength_val)
+            if masa_class == "C20" and needs_levelling == "NIE":
+                if flooring_type in ["lvt cienkie", "pcv w rolce", "wykładzina dywanowa"]:
+                    st.info("ℹ️ Klasa wytrzymałości masy (C20) jest właściwa do zastosowania w użytku mieszkaniowym.")
+                elif flooring_type in ["deska warstwowa", "podłoga laminowana", "lvt grube z twardym rdzeniem"]:
+                    st.info("ℹ️ Klasa wytrzymałości masy (C20) pod tę okładzinę wymaga użycia kleju elastycznego.")
 
     # Dynamic check for mass strength requirements
-    if already_levelled == "TAK" or substrate == "masa samorozlewna":
+    if (substrate == "masa samorozlewna" or already_levelled == "TAK") and strength_val == 1 and needs_levelling == "TAK":
+        st.warning("⚠️ **Błąd technologiczny:** Brak możliwości wylania masy na tę bardzo słabą masę. Konieczność jej usunięcia (zerwania) przed wylaniem nowej masy.")
+
+    if (already_levelled == "TAK" or substrate == "masa samorozlewna") and needs_levelling == "NIE":
         class_val = 0
         current_class = masa_class
         if current_class:
             if "poniżej" in current_class.lower() or "ponizej" in current_class.lower():
                 class_val = 15
-            elif "powyżej" in current_class.lower() or "powyzej" in current_class.lower():
+            elif any(w in current_class.lower() for w in ["powyżej", "powyzej", "wyżej", "wyzej"]):
                 class_val = 35
             else:
                 try:
@@ -2821,13 +3323,30 @@ if __name__ == "__main__" and st.runtime.exists():
             required_min = 25
             if flooring_type in ["deska lita", "lity parkiet", "mozaika drewniana"]:
                 required_min = 30
-            elif flooring_type in ["deska warstwowa", "podłoga laminowana", "lvt grube z twardym rdzeniem", "pcv w rolce", "lvt cienkie"]:
+            elif flooring_type in ["deska warstwowa", "podłoga laminowana", "lvt grube z twardym rdzeniem"]:
                 required_min = 25
-            elif flooring_type == "wykładzina dywanowa":
+            elif flooring_type in ["lvt cienkie", "pcv w rolce", "wykładzina dywanowa"]:
                 required_min = 20
 
-            if class_val < required_min:
-                st.warning("⚠️ **Błąd technologiczny:** Wybrana klasa masy jest zbyt niska dla tej okładziny. Podłoże jest nienormatywnie słabe i wymaga wzmocnienia.")
+            show_low_class_warning = True
+            if class_val == 20 and flooring_type in ["deska warstwowa", "podłoga laminowana", "lvt grube z twardym rdzeniem"]:
+                show_low_class_warning = False
+                if klej_typ != "elastyczny":
+                    st.warning("⚠️ **Błąd technologiczny:** Przy wytrzymałości masy C20 konieczne jest użycie kleju elastycznego. Zmień rodzaj kleju w sekcji wyboru rodzaju kleju na górze strony.")
+
+            if class_val < required_min and show_low_class_warning:
+                is_weak_mass_flizelina_case = (
+                    (substrate == "masa samorozlewna" or already_levelled == "TAK")
+                    and strength_val in [1, 2]
+                    and needs_levelling == "NIE"
+                    and flooring_type in ["deska warstwowa", "lity parkiet", "deska lita", "mozaika drewniana", "lvt grube z twardym rdzeniem"]
+                )
+                if is_weak_mass_flizelina_case:
+                    whole_fl_val = st.session_state.get('whole_fl', "NIE")
+                    if whole_fl_val != "TAK":
+                        st.warning("⚠️ **Błąd technologiczny:** Z uwagi na niską wytrzymałość masy samopoziomującej pod wybraną okładzinę, konieczne jest zastosowanie na całości maty flizelinowej WAKOL EM 140. Przejdź do pytania **4b. Czy całość podłoża wymaga uzbrojenia matą flizelinową?** i zaznacz **TAK**.")
+                else:
+                    st.warning("⚠️ **Błąd technologiczny:** Wybrana klasa masy jest zbyt niska dla tej okładziny. Podłoże jest nienormatywnie słabe i wymaga wzmocnienia.")
 
     st.write("### 13. Opcje raportu")
     include_cost = st.checkbox("Dołącz wstępny kosztorys materiałowy do protokołu (Netto)", value=True)
@@ -2878,6 +3397,8 @@ if __name__ == "__main__" and st.runtime.exists():
         "ventilation_type": ventilation_type,
         "dodatkowe_informacje": dodatkowe_informacje,
         "moisture": moisture,
+        "jastrych_moisture": jastrych_moisture if 'jastrych_moisture' in locals() else None,
+        "podklad_moisture": podklad_moisture if 'podklad_moisture' in locals() else None,
         "emissions_test": emissions_test,
         "limit": limit,
         "curing_not_done": (heating_exists == "TAK" and heating_curing_done == "NIE"),
@@ -2904,46 +3425,107 @@ if __name__ == "__main__" and st.runtime.exists():
     }
 
     # --- GENEROWANIE PROTOKOŁU W ZALEŻNOŚCI OD WYBRANEJ OKŁADZINY ---
+    if st.session_state.get("validation_error_msg"):
+        st.error(st.session_state.validation_error_msg)
     if st.button(f"GENERUJ PROTOKÓŁ OGLĘDZIN DLA: {flooring_type.upper()}", type="primary", use_container_width=True):
         masa_error = ""
-        if (substrate == "masa samorozlewna" or temp_already_levelled == "TAK") and masa_class:
+        if (substrate == "masa samorozlewna" or temp_already_levelled == "TAK") and temp_needs_levelling == "TAK" and strength_val == 1:
+            masa_error = "⚠️ **Błąd technologiczny:** Brak możliwości wylania masy na tę bardzo słabą masę. Konieczność jej usunięcia (zerwania) przed wylaniem nowej masy (Zmień parametry w punkcie 4/4a (Wyrównanie masą) lub sekcji 11 - Testy mechaniczne i Wytrzymałość)."
+        if (substrate == "masa samorozlewna" or temp_already_levelled == "TAK") and masa_class and temp_needs_levelling == "NIE":
             if "poniżej" in masa_class.lower() or "ponizej" in masa_class.lower():
                 class_val = 15
-            elif "powyżej" in masa_class.lower() or "powyzej" in masa_class.lower():
+            elif any(w in masa_class.lower() for w in ["powyżej", "powyzej", "wyżej", "wyzej"]):
                 class_val = 35
             else:
                 try:
                     class_val = int(masa_class.replace("C", "").strip())
                 except ValueError:
                     class_val = 0
-            if class_val < 20:
-                masa_error = "⚠️ **Błąd technologiczny:** Masa poniżej C20 stanowi nienormatywne podłoże do klejenia jakichkolwiek okładzin. Podłoże jest nienormatywnie słabe i wymaga wzmocnienia."
-            elif flooring_type in ["deska lita", "lity parkiet", "mozaika drewniana"] and class_val < 30:
-                nazwa_map = {"deska lita": "deskę litą", "lity parkiet": "parkiet lity", "mozaika drewniana": "mozaikę drewnianą"}
-                nazwa = nazwa_map.get(flooring_type, flooring_type)
-                masa_error = f"⚠️ **Błąd technologiczny:** Aby kleić {nazwa} na masie samorozlewnej, wymagana jest wytrzymałość minimum C30. Podłoże jest nienormatywnie słabe i wymaga wzmocnienia."
-            elif flooring_type in ["deska warstwowa", "podłoga laminowana", "lvt grube z twardym rdzeniem", "pcv w rolce", "lvt cienkie"] and class_val < 25:
-                nazwa_map = {
-                    "deska warstwowa": "deskę warstwową",
-                    "podłoga laminowana": "podłogę laminowaną",
-                    "lvt grube z twardym rdzeniem": "LVT grube z twardym rdzeniem",
-                    "pcv w rolce": "PCV w rolce",
-                    "lvt cienkie": "LVT cienkie"
-                }
-                nazwa = nazwa_map.get(flooring_type, flooring_type)
-                masa_error = f"⚠️ **Błąd technologiczny:** Aby kleić {nazwa} na masie samorozlewnej, wymagana jest wytrzymałość minimum C25. Podłoże jest nienormatywnie słabe i wymaga wzmocnienia."
-            elif flooring_type == "wykładzina dywanowa" and class_val < 20:
-                masa_error = "⚠️ **Błąd technologiczny:** Aby kleić wykładzinę dywanową na masie samorozlewnej, wymagana jest wytrzymałość minimum C20. Podłoże jest nienormatywnie słabe i wymaga wzmocnienia."
+            is_weak_mass_flizelina_case = (
+                (substrate == "masa samorozlewna" or temp_already_levelled == "TAK")
+                and strength_val in [1, 2]
+                and temp_needs_levelling == "NIE"
+                and flooring_type in ["deska warstwowa", "lity parkiet", "deska lita", "mozaika drewniana", "lvt grube z twardym rdzeniem"]
+            )
+            if is_weak_mass_flizelina_case:
+                temp_whole_fleece = st.session_state.get('whole_fl', "NIE")
+                if temp_whole_fleece != "TAK":
+                    masa_error = "⚠️ **Błąd technologiczny:** Z uwagi na niską wytrzymałość masy samopoziomującej pod wybraną okładzinę, konieczne jest zastosowanie na całości maty flizelinowej WAKOL EM 140. Zaznacz 'TAK' w pytaniu 4b."
+            else:
+                if class_val < 20:
+                    masa_error = "⚠️ **Błąd technologiczny:** Masa poniżej C20 stanowi nienormatywne podłoże do klejenia jakichkolwiek okładzin. Podłoże jest nienormatywnie słabe i wymaga wzmocnienia (Zweryfikuj klasę wytrzymałości podłoża w sekcji 11 - Testy mechaniczne i Wytrzymałość)."
+                elif flooring_type in ["deska lita", "lity parkiet", "mozaika drewniana"] and class_val < 30:
+                    nazwa_map = {"deska lita": "deskę litą", "lity parkiet": "parkiet lity", "mozaika drewniana": "mozaikę drewnianą"}
+                    nazwa = nazwa_map.get(flooring_type, flooring_type)
+                    masa_error = f"⚠️ **Błąd technologiczny:** Aby kleić {nazwa} na masie samorozlewnej, wymagana jest wytrzymałość minimum C30. Podłoże jest nienormatywnie słabe i wymaga wzmocnienia (Zweryfikuj klasę wytrzymałości podłoża w sekcji 11 - Testy mechaniczne i Wytrzymałość)."
+                elif flooring_type in ["deska warstwowa", "podłoga laminowana", "lvt grube z twardym rdzeniem"]:
+                    if class_val == 20:
+                        if klej_typ != "elastyczny":
+                            masa_error = "⚠️ **Błąd technologiczny:** Przy wytrzymałości masy C20 konieczne jest użycie kleju elastycznego. Zmień rodzaj kleju w sekcji wyboru rodzaju kleju na górze strony."
+                    elif class_val < 25:
+                        nazwa_map = {
+                            "deska warstwowa": "deskę warstwową",
+                            "podłoga laminowana": "podłogę laminowaną",
+                            "lvt grube z twardym rdzeniem": "LVT grube z twardym rdzeniem"
+                        }
+                        nazwa = nazwa_map.get(flooring_type, flooring_type)
+                        masa_error = f"⚠️ **Błąd technologiczny:** Aby kleić {nazwa} na masie samorozlewnej, wymagana jest wytrzymałość minimum C25. Podłoże jest nienormatywnie słabe i wymaga wzmocnienia (Zweryfikuj klasę wytrzymałości podłoża w sekcji 11 - Testy mechaniczne i Wytrzymałość)."
+                elif flooring_type in ["lvt cienkie", "pcv w rolce", "wykładzina dywanowa"] and class_val < 20:
+                    nazwa_map = {
+                        "lvt cienkie": "LVT cienkie",
+                        "pcv w rolce": "PCV w rolce",
+                        "wykładzina dywanowa": "wykładzinę dywanową"
+                    }
+                    nazwa = nazwa_map.get(flooring_type, flooring_type)
+                    masa_error = f"⚠️ **Błąd technologiczny:** Aby kleić {nazwa} na masie samorozlewnej, wymagana jest wytrzymałość minimum C20. Podłoże jest nienormatywnie słabe i wymaga wzmocnienia (Zweryfikuj klasę wytrzymałości podłoża w sekcji 11 - Testy mechaniczne i Wytrzymałość)."
 
-        if temp_already_levelled == "TAK" and moisture is None:
-            st.error("Proszę określić wilgotność masy samorozlewnej!")
-        elif moisture is None and not _substrate_no_moisture and temp_already_levelled != "TAK":
-            st.error("Proszę podać wilgotność podłoża!")
+        err = None
+        hl = set()
+        if substrate == "podłoże drewniane (parkiet, deska)" and st.session_state.get("substrate_stable") is None:
+            err = "Proszę określić stabilność podłoża w punkcie 1a (Stabilność podłoża)!"
+            hl = {"substrate_stable"}
+        elif (substrate == "masa samorozlewna" or temp_already_levelled == "TAK") and moisture is None:
+            if substrate == "masa samorozlewna":
+                err = "Proszę określić wilgotność masy samorozlewnej w punkcie 3 (Ocena wilgotności masy samorozlewnej)!"
+                hl = {"masa_moisture_radio"}
+            else:
+                err = "Proszę określić wilgotność masy samorozlewnej w punkcie 4/4a (Ocena wilgotności masy samorozlewnej)!"
+                hl = {"already_lev_moisture"}
+        elif temp_already_levelled == "TAK" and not _substrate_no_moisture and substrate != "masa samorozlewna" and jastrych_moisture is None:
+            if substrate == "płyta fundamentowa":
+                err = "Proszę podać poziom wilgoci płyty fundamentowej pod masą w punkcie 3 (Poziom wilgoci płyty fundamentowej pod masą)!"
+            else:
+                err = "Proszę podać poziom wilgoci jastrychu pod masą w punkcie 3 (Poziom wilgoci jastrychu pod masą)!"
+            hl = {"jastrych_moisture_val"}
+        elif substrate == "masa samorozlewna" and podklad_moisture is None:
+            err = "Proszę określić wilgotność podkładu pod masą w punkcie 2a (Ocena wilgotności podkładu pod masą)!"
+            hl = {"podklad_moisture_radio"}
+        elif moisture is None and not _substrate_no_moisture and substrate != "masa samorozlewna" and temp_already_levelled != "TAK":
+            err = "Proszę podać wilgotność podłoża w punkcie 3 (Poziom wilgoci podłoża)!"
+            hl = {"moisture_val"}
+        elif substrate == "płyta fundamentowa" and emissions_test is None:
+            err = "Proszę określić wynik badania emisyjności w punkcie 3a (Badanie emisyjności)!"
+            hl = {"emissions_test_val"}
+        elif flooring_type == "pcv w rolce" and needs_levelling == "NIE" and already_levelled == "NIE" and szpachlowanie_laczen != "TAK" and substrate not in ["suchy jastrych (knauf, fermacell itp.)", "masa samorozlewna"]:
+            err = "⚠️ **Błąd:** Pod okładzinę PCV w rolce wymagane jest wyrównanie podłoża. Proszę uzupełnić Punkt 4/4a (zaznaczyć wylanie masy lub wcześniejsze wyrównanie)!"
+            hl = {"needs_lev_radio", "already_lev_radio"}
+        elif flooring_type == "wykładzina dywanowa" and needs_levelling == "NIE" and already_levelled == "NIE" and szpachlowanie_laczen != "TAK" and substrate not in ["suchy jastrych (knauf, fermacell itp.)", "masa samorozlewna"]:
+            err = "⚠️ **Błąd:** Pod wykładzinę dywanową wymagane jest wyrównanie podłoża. Proszę uzupełnić Punkt 4/4a (zaznaczyć wylanie masy lub wcześniejsze wyrównanie)!"
+            hl = {"needs_lev_radio", "already_lev_radio"}
         elif masa_error:
-            st.error(masa_error)
+            err = masa_error
+            hl = set()
         elif decision_after_cure == "Wykonanie bariery przeciwwilgociowej" and strength_val == 1:
-            st.error("⚠️ **Błąd technologiczny:** Jeśli podłoże jest bardzo słabe, **nie można** wykonać bariery przeciwwilgociowej (niezależnie od tego, czy wylewamy masę, czy kleimy bezpośrednio). Musisz doprowadzić jastrych do normatywnego poziomu wilgoci, żeby móc go zagruntować i wzmocnić. Zmień opcję w sekcji 'Postępowanie z podwyższoną wilgocią' na osuszanie.")
+            err = "⚠️ **Błąd technologiczny:** Jeśli podłoże jest bardzo słabe, **nie można** wykonać bariery przeciwwilgociowej (niezależnie od tego, czy wylewamy masę, czy kleimy bezpośrednio). **Musisz doprowadzić jastrych do normatywnego poziomu wilgoci!**, żeby móc go zagruntować i wzmocnić. Zmień opcję w sekcji 'Postępowanie z podwyższoną wilgocią' na osuszanie."
+            hl = set()
+
+        if err is not None:
+            st.session_state.validation_error_msg = err
+            st.session_state.highlight_fields = hl
+            st.rerun()
         else:
+            st.session_state.validation_error_msg = None
+            st.session_state.highlight_fields = set()
             st.divider()
             insert_header()
 
